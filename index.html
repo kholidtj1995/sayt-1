@@ -54,6 +54,19 @@
             margin-bottom: 5px; font-size: 13px; color: #bdc3c7; text-align: center; 
         }
 
+        /* Ислоҳи нав барои скроли уфуқӣ */
+        .scroll-wrapper {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            gap: 10px;
+            padding-bottom: 5px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .scroll-wrapper::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+
         .social-btn {
             display: flex; align-items: center;
             width: 100%; height: 45px;
@@ -162,6 +175,15 @@
         </div>
         
         <div class="settings-frame">
+            <div class="frame-title">Картаҳо</div>
+            <div class="scroll-wrapper">
+                <a href="#" class="social-btn" style="background: #2c3e50; min-width: 140px; margin-bottom: 0;"><div class="icon-container"><img src="https://brands-prod.cdn-tinkoff.ru/general_logo/dushanbecity.png"></div>DC</a>
+                <a href="#" class="social-btn" style="background: #2c3e50; min-width: 140px; margin-bottom: 0;"><div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/3670/3670147.png"></div>Visa</a>
+                <a href="#" class="social-btn" style="background: #2c3e50; min-width: 140px; margin-bottom: 0;"><div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/15789/15789316.png"></div>Humo</a>
+            </div>
+        </div>
+        
+        <div class="settings-frame">
             <div class="frame-title">Дар тамос шудан</div>
             <a href="#" class="social-btn whatsapp-btn"><div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/4494/4494494.png"></div>WhatsApp</a>
             <a href="#" class="social-btn telegram-btn"><div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/906/906377.png"></div>Telegram</a>
@@ -171,18 +193,14 @@
         <div class="settings-frame">
             <div class="frame-title">Чат бо админ</div>
             <a href="https://kholidtj1995.github.io/sayt-1/chat.html" target="_blank" class="social-btn chat-btn">
-                <div class="icon-container">
-                    <img src="https://cdn-icons-png.flaticon.com/128/10308/10308218.png">
-                </div>
-                Суҳбат кардан
+                <div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/10308/10308218.png"></div>Суҳбат кардан
             </a>
         </div>
 
         <div class="settings-frame">
             <div class="frame-title">Групаи махсус</div>
             <a href="#" class="social-btn group-btn">
-                <div class="icon-container"><img src="https://images.icon-icons.com/407/PNG/96/Group_40731.png"></div>
-                Хабарҳои нав
+                <div class="icon-container"><img src="https://images.icon-icons.com/407/PNG/96/Group_40731.png"></div>Хабарҳои нав
             </a>
         </div>
 
@@ -244,17 +262,14 @@
             panel.classList.toggle('active');
         }
 
-        // Ислоҳи ҷиддӣ дар ин қисмат барои кор кардани ҳамаи тугмаҳои дохили меню
         document.body.addEventListener('click', function(e) {
             const menu = document.getElementById('sideMenu');
             const menuBtn = document.querySelector('.btn-round');
             
-            // Агар клик дар дохили меню бошад, ҳеҷ амал накун (меню баста нашавад)
             if (menu.contains(e.target) || menuBtn.contains(e.target)) {
                 return;
             }
             
-            // Бастани меню, агар берун аз он клик шавад
             menu.classList.remove('active');
         });
 
