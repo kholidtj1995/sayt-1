@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Гурӯҳ — Чат</title>
+<style>
+:root{
+  --bg:#0F1320;
+  --bg-elev:#161B2B;
+  --card:#1C2136;
+  --card-2:#232945;
+  --border:#2B3151;
+  --accent:#E7A93C;
+  --accent-dark:#C68A22;
+  --accent-ink:#241703;
+  --teal:#3FA7A0;
+  --teal-dark:#2C7B76;
+  --text:#ECEAE3;
+  --text-dim:#949AB2;
+  --text-faint:#5C6386;
+  --danger:#E2543E;
+  --danger-dark:#B93F2D;
+  --font-display:Georgia,'Iowan Old Style','Noto Serif',serif;
+  --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:#070911;
+  color:var(--text);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+}
+.app-shell{
+  width:100%;
+  max-width:460px;
+  min-height:100dvh;
+  background:var(--bg);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 0 60px rgba(0,0,0,.5);
+}
+@media (min-width:461px){
+  body{ padding:24px 0; }
+  .app-shell{ min-height:calc(100dvh - 48px); border-radius:28px; }
+}
+button{font-family:inherit;cursor:pointer;}
+input{font-family:inherit;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.ikat-bg{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(231,169,60,.05) 0, transparent 40%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg fill='none' stroke='%233FA7A0' stroke-opacity='0.10' stroke-width='1.4'%3E%3Cpath d='M42 2 L74 42 L42 82 L10 42 Z'/%3E%3Cpath d='M42 18 L58 42 L42 66 L26 42 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:auto, 84px 84px;
+}
+
+.screen{ display:none; flex-direction:column; height:100%; min-height:100dvh; }
+.screen.active{ display:flex; }
+@media (min-width:461px){ .screen{ min-height:0; height:100%; } }
+
+/* ---------- auth screen ---------- */
+#screen-auth{ justify-content:center; align-items:center; padding:32px 26px; text-align:center; }
+.auth-eyebrow{
+  font-family:var(--font-body); letter-spacing:.18em; text-transform:uppercase;
+  font-size:11px; color:var(--teal); margin-bottom:10px; font-weight:600;
+}
+.auth-title{ font-family:var(--font-display); font-size:28px; margin:0 0 6px; }
+.auth-sub{ color:var(--text-dim); font-size:14px; margin:0 0 28px; max-width:280px; }
+.avatar-picker{
+  width:96px;height:96px;border-radius:50%;
+  background:var(--card); border:2px dashed var(--border); padding:0;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-faint); margin:0 auto 14px; cursor:pointer; overflow:hidden;
+}
+.avatar-inner{
+  width:100%; height:100%; border-radius:50%; background-size:cover; background-position:center;
+  display:flex; align-items:center; justify-content:center; font-size:28px;
+}
+.avatar-inner.has-image .avatar-glyph{ display:none; }
+.avatar-picker:has(.has-image){ border-style:solid; border-color:var(--accent); }
+.field{
+  width:100%; max-width:300px; background:var(--card); border:1px solid var(--border);
+  color:var(--text); border-radius:14px; padding:14px 16px; font-size:15px; margin-bottom:14px;
+  outline:none;
+}
+.field:focus{ border-color:var(--teal); }
+.status-line{ font-size:12px; color:var(--text-faint); min-height:16px; margin-bottom:10px; }
+.btn-primary{
+  width:100%; max-width:300px; background:var(--accent); color:var(--accent-ink);
+  border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:700;
+}
+.btn-primary:active{ background:var(--accent-dark); }
+
+/* ---------- chat list screen ---------- */
+.tab-header{
+  padding:20px 20px 14px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border); background:var(--bg-elev);
+}
+.tab-title{ font-family:var(--font-display); font-size:22px; margin:0; }
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;background:var(--card);border:1px solid var(--border);
+  color:var(--text); font-size:16px; display:flex;align-items:center;justify-content:center;
+}
+.scroll-area{ flex:1; overflow-y:auto; padding:14px 16px 20px; }
+.empty-state{ display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 24px; color:var(--text-faint); gap:8px; }
+.empty-state .emoji{ font-size:34px; }
+.empty-state b{ color:var(--text-dim); font-weight:600; font-size:14px; }
+
+.room-card{
+  display:flex; align-items:center; gap:12px; background:var(--card);
+  border:1px solid var(--border); border-radius:16px; padding:12px; margin-bottom:10px;
+  cursor:pointer;
+}
+.room-avatar{ width:50px;height:50px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--card-2); flex-shrink:0; }
+.room-info{ flex:1; min-width:0; }
+.room-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.room-name{ font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.room-time{ font-size:11px; color:var(--text-faint); flex-shrink:0; }
+.room-bottom{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:3px; }
+.room-preview{ font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.room-subs{ font-size:11px; color:var(--text-faint); flex-shrink:0; }
+
+/* ---------- group detail screen ---------- */
+.group-topbar{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:16px 16px 12px; }
+.group-welcome-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.back-btn{ background:none;border:none;color:var(--text);font-size:20px;padding:2px 4px; flex-shrink:0; }
+.group-welcome-text{ font-family:var(--font-display); font-size:16px; color:var(--text); }
+.group-sub-row{ display:flex; align-items:center; gap:10px; }
+.group-avatar{ width:42px;height:42px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--card-2); flex-shrink:0; }
+.group-titles{ flex:1; min-width:0; }
+.group-name{ font-weight:700; font-size:15px; }
+.group-sub-count{ font-size:11px; color:var(--text-faint); }
+.subscribe-btn{
+  background:var(--teal); color:#08201F; border:none; border-radius:20px; padding:8px 14px;
+  font-size:12px; font-weight:700; white-space:nowrap;
+}
+.subscribe-btn.subscribed{ background:var(--card); color:var(--teal); border:1px solid var(--teal); }
+
+.pinned-bar{
+  display:none; align-items:center; gap:8px;
+  background:rgba(231,169,60,.1); border-bottom:1px solid var(--border);
+  padding:9px 16px; font-size:12.5px; color:var(--accent); cursor:pointer;
+}
+.pinned-bar span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.messages-area{ flex:1; overflow-y:auto; padding:16px 12px 10px; }
+.date-divider{ display:flex; justify-content:center; margin:14px 0; }
+.date-divider span{ background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; }
+.msgs-empty{ text-align:center; color:var(--text-faint); font-size:13px; margin-top:40px; }
+
+.msg-row{ display:flex; justify-content:flex-start; margin-bottom:14px; }
+.msg-bubble{
+  max-width:78%; background:var(--card-2); border-radius:16px 16px 16px 4px; padding:9px 12px 7px;
+  position:relative; font-size:14.5px; line-height:1.42;
+}
+.msg-text{ white-space:pre-wrap; word-break:break-word; }
+.msg-text a{ color:var(--teal); }
+.msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
+.msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
+.msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
+.pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
+.msg-meta{ display:flex; justify-content:flex-end; gap:4px; font-size:10.5px; color:var(--text-faint); margin-top:2px; }
+.reaction-row{ display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
+.reaction-chip{ font-size:11.5px; background:rgba(255,255,255,.06); border-radius:20px; padding:2px 7px; }
+.reaction-chip.mine{ background:rgba(231,169,60,.22); }
+.msg-actions{ position:absolute; top:-14px; left:6px; display:flex; gap:4px; opacity:0; transition:opacity .15s; }
+.msg-bubble:hover .msg-actions{ opacity:1; }
+.msg-action-btn{ background:var(--card-2); border:1px solid var(--border); border-radius:20px; width:24px;height:24px; font-size:12px; display:flex; align-items:center; justify-content:center; }
+.emoji-picker{ display:none; position:absolute; top:-40px; left:6px; background:var(--card-2); border:1px solid var(--border); border-radius:20px; padding:5px 8px; gap:6px; font-size:16px; box-shadow:0 8px 20px rgba(0,0,0,.35); }
+.emoji-picker.open{ display:flex; }
+.emoji-picker span{ cursor:pointer; }
+
+.readonly-note{ text-align:center; font-size:12px; color:var(--text-faint); padding:10px 16px; border-top:1px solid var(--border); background:var(--bg-elev); }
+
+/* ---------- modals ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px);
+  display:none; align-items:flex-end; justify-content:center; z-index:80;
+}
+.modal-overlay.open{ display:flex; }
+.modal-panel{
+  background:var(--bg-elev); border:1px solid var(--border); border-top-left-radius:22px;
+  border-top-right-radius:22px; width:100%; max-width:460px; padding:22px 22px 26px;
+}
+@media (min-width:461px){ .modal-overlay{ align-items:center; } .modal-panel{ border-radius:22px; } }
+.modal-title{ font-family:var(--font-display); font-size:19px; margin:0 0 16px; }
+.modal-actions{ display:flex; gap:10px; margin-top:6px; }
+.btn-secondary{
+  flex:1; background:var(--card); color:var(--text); border:1px solid var(--border);
+  border-radius:12px; padding:13px; font-weight:600; font-size:14px;
+}
+.btn-primary.flex{ flex:1; width:auto; max-width:none; }
+.btn-danger{ background:var(--danger) !important; color:#fff !important; }
+#confirm-text{ font-size:14px; color:var(--text-dim); margin-bottom:18px; line-height:1.5; }
+
+/* ---------- toast ---------- */
+#toast-root{ position:fixed; bottom:24px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:200; pointer-events:none; }
+.toast{
+  background:var(--card-2); color:var(--text); border:1px solid var(--border); padding:10px 18px;
+  border-radius:20px; font-size:13px; opacity:0; transform:translateY(6px); transition:all .25s;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+.toast.show{ opacity:1; transform:translateY(0); }
+
+@media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ===================== AUTH SCREEN ===================== -->
+  <section id="screen-auth" class="screen active ikat-bg">
+    <div class="auth-eyebrow">Хуш омадед</div>
+    <h1 class="auth-title">Бақайдгирӣ</h1>
+    <p class="auth-sub">Барои идома номи худро нависед ва як расм илова кунед</p>
+
+    <button type="button" id="auth-avatar-pick-btn" class="avatar-picker">
+      <div id="auth-avatar-preview" class="avatar-inner"><span class="avatar-glyph">📷</span></div>
+    </button>
+    <input type="file" id="auth-avatar-input" accept="image/*" hidden>
+    <div id="auth-status" class="status-line"></div>
+
+    <input type="text" id="auth-name" class="field" placeholder="Номи шумо" maxlength="40">
+    <button type="button" id="auth-continue-btn" class="btn-primary">Идома</button>
+  </section>
+
+  <!-- ===================== CHAT LIST SCREEN ===================== -->
+  <section id="screen-main" class="screen">
+    <div class="tab-header">
+      <h2 class="tab-title">Чат</h2>
+      <button type="button" id="main-exit-btn" class="icon-btn" title="Баромадан">⎋</button>
+    </div>
+    <div class="scroll-area ikat-bg">
+      <div id="chat-empty" class="empty-state">
+        <span class="emoji">💬</span>
+        <b>Ҳанӯз гурӯҳе сохта нашудааст</b>
+        <p>Ҳамин ки касе гурӯҳе созад, он дар ин ҷо намоён мешавад</p>
+      </div>
+      <div id="chat-rooms-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== GROUP DETAIL SCREEN ===================== -->
+  <section id="screen-group" class="screen">
+    <div class="group-topbar">
+      <div class="group-welcome-row">
+        <button type="button" id="group-back-btn" class="back-btn">←</button>
+        <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
+        <button type="button" id="group-exit-btn" class="icon-btn" title="Баромадан" style="margin-left:auto;">⎋</button>
+      </div>
+      <div class="group-sub-row">
+        <div id="group-avatar" class="group-avatar"></div>
+        <div class="group-titles">
+          <div id="group-name" class="group-name"></div>
+          <div id="group-sub-count" class="group-sub-count"></div>
+        </div>
+        <button type="button" id="group-subscribe-btn" class="subscribe-btn">Обуна шудан</button>
+      </div>
+    </div>
+
+    <div id="group-pinned-bar" class="pinned-bar">
+      <span id="group-pinned-text"></span>
+    </div>
+
+    <div id="group-messages" class="messages-area ikat-bg"></div>
+
+    <div class="readonly-note">
+      Дар ин барнома шумо метавонед хонед ва вокуниш нишон диҳед — навиштан танҳо барои соҳиби гурӯҳ дастрас аст
+    </div>
+  </section>
+
+  <!-- ===================== MODAL: CONFIRM ===================== -->
+  <div id="modal-confirm" class="modal-overlay">
+    <div class="modal-panel">
+      <h3 class="modal-title">Мутмаин ҳастед?</h3>
+      <p id="confirm-text"></p>
+      <div class="modal-actions">
+        <button type="button" id="confirm-no" class="btn-secondary">Не</button>
+        <button type="button" id="confirm-yes" class="btn-primary flex">Ҳа</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-root"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
+<script>
+/* ===================== Firebase ===================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+  authDomain: "live-chat-ea070.firebaseapp.com",
+  databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+  projectId: "live-chat-ea070",
+  storageBucket: "live-chat-ea070.firebasestorage.app",
+  messagingSenderId: "321161064947",
+  appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const groupsRef = db.ref("groups");
+const TS = firebase.database.ServerValue.TIMESTAMP;
+
+/* ===================== State ===================== */
+let ME = null;
+let allGroups = {};
+let currentGroupId = null;
+let currentGroupUnsub = null;
+let messagesUnsub = null;
+
+/* ===================== Helpers ===================== */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+function uid() {
+  return "u_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+}
+
+function escapeHtml(str) {
+  return String(str || "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function linkify(text) {
+  const urlRe = /((https?:\/\/|www\.)[^\s<]+)/gi;
+  return escapeHtml(text).replace(urlRe, (m) => {
+    const href = m.startsWith("http") ? m : "https://" + m;
+    return `<a href="${href}" target="_blank" rel="noopener">${m}</a>`;
+  });
+}
+
+const TJ_MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
+
+function formatTime(ts) {
+  if (!ts) return "";
+  const d = new Date(ts);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+function sameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+function formatDateDivider(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 86400000);
+  if (sameDay(d, now)) return "Имрӯз";
+  if (sameDay(d, yesterday)) return "Дирӯз";
+  return `${d.getDate()} ${TJ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function toast(msg) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  $("#toast-root").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 250);
+  }, 2400);
+}
+
+function byteSizeOfDataURL(dataUrl) {
+  const base64 = dataUrl.split(",")[1] || "";
+  return Math.ceil((base64.length * 3) / 4);
+}
+
+/* ===================== Image compression (target ~6-10 KB) ===================== */
+function compressImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; };
+    reader.onerror = () => reject(new Error("read-failed"));
+    img.onload = () => {
+      let quality = 0.85;
+      let w = img.width, h = img.height;
+      const targetMax = 10240;
+
+      function render(qw, qh, q) {
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(qw));
+        canvas.height = Math.max(1, Math.round(qh));
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL("image/jpeg", q);
+      }
+
+      const maxDim = 480;
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = w * ratio; h = h * ratio;
+      }
+
+      let dataUrl = render(w, h, quality);
+      let size = byteSizeOfDataURL(dataUrl);
+      let tries = 0;
+      while (size > targetMax && tries < 25) {
+        tries++;
+        if (quality > 0.35) {
+          quality -= 0.08;
+        } else {
+          w *= 0.85; h *= 0.85;
+        }
+        dataUrl = render(w, h, quality);
+        size = byteSizeOfDataURL(dataUrl);
+      }
+      resolve(dataUrl);
+    };
+    img.onerror = () => reject(new Error("image-decode-failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ===================== Identity ===================== */
+function loadMe() {
+  const raw = localStorage.getItem("lc_profile");
+  if (raw) {
+    try { ME = JSON.parse(raw); } catch (e) { ME = null; }
+  }
+}
+function saveMe() {
+  localStorage.setItem("lc_profile", JSON.stringify(ME));
+}
+
+/* ===================== Screens ===================== */
+function showScreen(name) {
+  $$(".screen").forEach((s) => s.classList.remove("active"));
+  $("#screen-" + name).classList.add("active");
+}
+
+/* ===================== Modals ===================== */
+function openModal(id) { $("#" + id).classList.add("open"); }
+function closeModal(id) { $("#" + id).classList.remove("open"); }
+
+function showConfirm(text, danger, onYes) {
+  $("#confirm-text").textContent = text;
+  const yesBtn = $("#confirm-yes");
+  yesBtn.classList.toggle("btn-danger", !!danger);
+  openModal("modal-confirm");
+  const handler = () => {
+    closeModal("modal-confirm");
+    yesBtn.removeEventListener("click", handler);
+    onYes();
+  };
+  yesBtn.addEventListener("click", handler, { once: true });
+}
+
+/* ===================== Auth screen ===================== */
+let authAvatarData = null;
+
+function initAuthScreen() {
+  $("#auth-avatar-pick-btn").addEventListener("click", () => $("#auth-avatar-input").click());
+  $("#auth-avatar-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast("Танҳо расм лозим аст"); return; }
+    $("#auth-status").textContent = "Расм фушурда мешавад...";
+    try {
+      authAvatarData = await compressImageFile(file);
+      $("#auth-avatar-preview").style.backgroundImage = `url(${authAvatarData})`;
+      $("#auth-avatar-preview").classList.add("has-image");
+      $("#auth-status").textContent = `Тайёр (${(byteSizeOfDataURL(authAvatarData) / 1024).toFixed(1)} КБ)`;
+    } catch (err) {
+      $("#auth-status").textContent = "Хатогӣ ҳангоми коркарди расм";
+    }
+  });
+
+  $("#auth-continue-btn").addEventListener("click", () => {
+    const name = $("#auth-name").value.trim();
+    if (!name) { toast("Лутфан номи худро нависед"); return; }
+    if (!authAvatarData) { toast("Лутфан расм илова кунед"); return; }
+    ME = { uid: uid(), name, avatar: authAvatarData };
+    saveMe();
+    db.ref("users/" + ME.uid).set({ name: ME.name, avatar: ME.avatar, createdAt: TS });
+    enterApp();
+  });
+}
+
+/* ===================== Chat list ===================== */
+function renderChatList() {
+  const list = $("#chat-rooms-list");
+  const groups = Object.entries(allGroups || {}).filter(([id, g]) => !g.blocked);
+  if (groups.length === 0) {
+    $("#chat-empty").style.display = "flex";
+    list.innerHTML = "";
+    return;
+  }
+  $("#chat-empty").style.display = "none";
+  groups.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+  list.innerHTML = groups.map(([id, g]) => {
+    const subCount = Object.keys(g.subscribers || {}).length;
+    const last = g.lastMessage;
+    const preview = last ? lastMessagePreview(last) : "Ҳанӯз паём нест";
+    const time = last ? formatTime(last.ts) : "";
+    return `
+      <div class="room-card" data-id="${id}">
+        <div class="room-avatar" style="background-image:url(${g.avatar})"></div>
+        <div class="room-info">
+          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-time">${time}</span></div>
+          <div class="room-bottom"><span class="room-preview">${preview}</span><span class="room-subs">👥 ${subCount}</span></div>
+        </div>
+      </div>`;
+  }).join("");
+  list.querySelectorAll(".room-card").forEach((el) => {
+    el.addEventListener("click", () => openGroup(el.dataset.id));
+  });
+}
+
+function lastMessagePreview(m) {
+  if (m.type === "image") return "📷 Расм";
+  if (m.type === "document") return "📄 Ҳуҷҷат";
+  if (m.type === "voice") return "🎤 Паёми овозӣ";
+  return escapeHtml((m.text || "").slice(0, 40));
+}
+
+/* ===================== Group detail screen ===================== */
+function openGroup(groupId) {
+  currentGroupId = groupId;
+  showScreen("group");
+
+  if (currentGroupUnsub) currentGroupUnsub();
+  const headerListener = (snap) => {
+    const g = snap.val();
+    if (!g) { closeGroup(); return; }
+    renderGroupHeader(groupId, g);
+  };
+  groupsRef.child(groupId).on("value", headerListener);
+  currentGroupUnsub = () => groupsRef.child(groupId).off("value", headerListener);
+
+  if (messagesUnsub) messagesUnsub();
+  const messagesListener = (snap) => {
+    renderMessages(groupId, snap.val() || {});
+  };
+  groupsRef.child(groupId).child("messages").on("value", messagesListener);
+  messagesUnsub = () => groupsRef.child(groupId).child("messages").off("value", messagesListener);
+
+  groupsRef.child(groupId).child("lastSeen").child(ME.uid).set(TS);
+}
+
+function closeGroup() {
+  if (currentGroupUnsub) { currentGroupUnsub(); currentGroupUnsub = null; }
+  if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
+  currentGroupId = null;
+  showScreen("main");
+}
+
+function renderGroupHeader(groupId, g) {
+  $("#group-welcome-text").textContent = `Хуш омадед ба гурӯҳи ${g.name}`;
+  $("#group-avatar").style.backgroundImage = `url(${g.avatar})`;
+  $("#group-name").textContent = g.name;
+  const subCount = Object.keys(g.subscribers || {}).length;
+  $("#group-sub-count").textContent = `${subCount} обуначӣ`;
+
+  const subBtn = $("#group-subscribe-btn");
+  const subscribed = !!(g.subscribers && g.subscribers[ME.uid]);
+  subBtn.textContent = subscribed ? "Обунавшуда ✓" : "Обуна шудан";
+  subBtn.classList.toggle("subscribed", subscribed);
+  subBtn.onclick = () => {
+    if (subscribed) {
+      showConfirm("Пас аз бекор кардани обуна шумо аз ҳисоби худ мебароед. Мутмаин ҳастед?", true, () => {
+        groupsRef.child(groupId).child("subscribers").child(ME.uid).set(null);
+        localStorage.removeItem("lc_profile");
+        ME = null;
+        location.reload();
+      });
+    } else {
+      groupsRef.child(groupId).child("subscribers").child(ME.uid).set(true);
+    }
+  };
+
+  const pinBar = $("#group-pinned-bar");
+  if (g.pinnedMessageId && g.messages && g.messages[g.pinnedMessageId]) {
+    const pm = g.messages[g.pinnedMessageId];
+    $("#group-pinned-text").textContent = "📌 " + lastMessagePreview(pm);
+    pinBar.style.display = "flex";
+    pinBar.onclick = () => {
+      const el = document.querySelector(`[data-mid="${g.pinnedMessageId}"]`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+  } else {
+    pinBar.style.display = "none";
+  }
+}
+
+const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
+
+function renderMessages(groupId, messagesObj) {
+  const g = allGroups[groupId] || {};
+  const wrap = $("#group-messages");
+  const nearBottom = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 120;
+
+  const entries = Object.entries(messagesObj).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+  let html = "";
+  let lastDate = null;
+
+  for (const [mid, m] of entries) {
+    const d = new Date(m.ts || Date.now());
+    if (!lastDate || !sameDay(d, lastDate)) {
+      html += `<div class="date-divider"><span>${formatDateDivider(m.ts)}</span></div>`;
+      lastDate = d;
+    }
+    const reactions = m.reactions || {};
+    const reactionChips = REACTION_EMOJIS.map((em) => {
+      const users = reactions[em] ? Object.keys(reactions[em]) : [];
+      if (users.length === 0) return "";
+      const mine = users.includes(ME.uid);
+      return `<span class="reaction-chip ${mine ? "mine" : ""}" data-mid="${mid}" data-emoji="${em}">${em} ${users.length}</span>`;
+    }).join("");
+
+    let body = "";
+    if (m.type === "image") {
+      body = `<img class="msg-image" src="${m.data}" alt="расм">`;
+    } else if (m.type === "document") {
+      body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
+    } else if (m.type === "voice") {
+      body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
+    } else {
+      body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
+    }
+
+    const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
+
+    html += `
+      <div class="msg-row" data-mid="${mid}">
+        <div class="msg-bubble">
+          ${pinnedFlag}
+          ${body}
+          <div class="msg-meta">${formatTime(m.ts)}</div>
+          <div class="reaction-row">${reactionChips}</div>
+          <div class="msg-actions">
+            <button class="msg-action-btn react-toggle" data-mid="${mid}">😊</button>
+          </div>
+          <div class="emoji-picker" data-mid="${mid}"></div>
+        </div>
+      </div>`;
+  }
+  wrap.innerHTML = html || `<div class="msgs-empty">Ҳанӯз паёме нест</div>`;
+
+  wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
+    chip.addEventListener("click", () => toggleReaction(groupId, chip.dataset.mid, chip.dataset.emoji));
+  });
+  wrap.querySelectorAll(".react-toggle").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const picker = wrap.querySelector(`.emoji-picker[data-mid="${btn.dataset.mid}"]`);
+      const isOpen = picker.classList.contains("open");
+      wrap.querySelectorAll(".emoji-picker.open").forEach((p) => p.classList.remove("open"));
+      if (!isOpen) {
+        picker.innerHTML = REACTION_EMOJIS.map((em) => `<span data-emoji="${em}">${em}</span>`).join("");
+        picker.classList.add("open");
+        picker.querySelectorAll("span").forEach((s) => {
+          s.addEventListener("click", () => {
+            toggleReaction(groupId, btn.dataset.mid, s.dataset.emoji);
+            picker.classList.remove("open");
+          });
+        });
+      }
+    });
+  });
+
+  if (nearBottom) wrap.scrollTop = wrap.scrollHeight;
+}
+
+function toggleReaction(groupId, mid, emoji) {
+  const ref = groupsRef.child(groupId).child("messages").child(mid).child("reactions").child(emoji).child(ME.uid);
+  ref.once("value").then((snap) => {
+    ref.set(snap.exists() ? null : true);
+  });
+}
+
+/* ===================== App bootstrap ===================== */
+function enterApp() {
+  showScreen("main");
+  groupsRef.on("value", (snap) => {
+    allGroups = snap.val() || {};
+    renderChatList();
+    if (currentGroupId && allGroups[currentGroupId]) {
+      renderGroupHeader(currentGroupId, allGroups[currentGroupId]);
+    }
+  });
+}
+
+function logoutFully() {
+  showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
+    localStorage.removeItem("lc_profile");
+    ME = null;
+    location.reload();
+  });
+}
+
+function init() {
+  initAuthScreen();
+
+  $("#main-exit-btn").addEventListener("click", logoutFully);
+  $("#group-back-btn").addEventListener("click", closeGroup);
+  $("#group-exit-btn").addEventListener("click", logoutFully);
+  $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
+  $$(".modal-overlay").forEach((ov) => {
+    ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
+  });
+
+  loadMe();
+  if (ME) enterApp(); else showScreen("auth");
+}
+
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>
