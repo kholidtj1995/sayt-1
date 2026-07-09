@@ -37,7 +37,6 @@
         .auth-zone h2 { margin-bottom: 8px; color: #1e293b; font-size: 22px; font-weight: 700; }
         .auth-zone p { color: #64748b; font-size: 14px; margin-bottom: 24px; }
         
-        /* 👑 СТИЛИ НАВ: КУТИИ ПАЁМ (TEXTAREA) */
         .input-area { padding: 12px 16px 16px 16px; background: #f4f6f9; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
         textarea { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 20px; font-size: 15px; background: #ffffff; outline: none; resize: none; min-height: 44px; max-height: 120px; line-height: 20px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         textarea:focus { border-color: #007bff; }
@@ -57,7 +56,7 @@
 <div class="phone-container">
     <div class="chat-header">
         <div class="chat-header-left">
-            <a href="https:" class="back-btn">←</a>
+            <a href="https://" class="back-btn">←</a>
             <div class="header-title" id="headerTitle">Sait 1</div>
         </div>
         <div class="chat-header-right">
@@ -78,7 +77,6 @@
     <div id="chatBox" style="display:none; flex-direction: column; flex: 1; overflow: hidden;">
         <div id="chatDisplay"></div>
         <div class="input-area">
-            <!-- Иваз ба Textarea -->
             <textarea id="message" placeholder="Паёмак..." rows="1" oninput="autoResize(this)"></textarea>
             <button onclick="sendMessage()" style="width: auto;">Ирсол</button>
         </div>
@@ -115,7 +113,6 @@
         setTimeout(() => document.getElementById('username').focus(), 300);
     };
 
-    // Танзими баландии худкори Textarea
     window.autoResize = (textarea) => {
         textarea.style.height = '44px';
         textarea.style.height = (textarea.scrollHeight < 120 ? textarea.scrollHeight : 120) + 'px';
@@ -134,10 +131,10 @@
         document.getElementById('adminSubtitle').style.display = 'block';
         document.getElementById('adminStatusDot').style.display = 'block';
         
-        // Сабти маълумоти аввалия бе гум кардани шумораи паёмҳо
-        get(ref(db, `active_users/${currentUsername}`)).then((snapshot) => {
+        // Роҳи нав: sayt1_active_users
+        get(ref(db, `sayt1_active_users/${currentUsername}`)).then((snapshot) => {
             if (!snapshot.exists()) {
-                set(ref(db, `active_users/${currentUsername}`), { lastActive: Date.now(), unreadCount: 0 });
+                set(ref(db, `sayt1_active_users/${currentUsername}`), { lastActive: Date.now(), unreadCount: 0 });
             }
         });
         
@@ -151,14 +148,14 @@
         const text = inputEl.value.trim();
         if(text === "" || !currentUsername) return; 
         
-        push(ref(db, `private_chats/${currentUsername}`), { 
+        // Роҳи нав: sayt1_chats
+        push(ref(db, `sayt1_chats/${currentUsername}`), { 
             user: currentUsername, 
             text: text, 
             timestamp: Date.now() 
         });
         
-        // 👑 ИСЛОҲШУДА: Илова кардани 1 ба шумораи паёмҳои нахонда барои Админ
-        const userRef = ref(db, `active_users/${currentUsername}`);
+        const userRef = ref(db, `sayt1_active_users/${currentUsername}`);
         get(userRef).then((snapshot) => {
             let currentCount = snapshot.val()?.unreadCount || 0;
             update(userRef, { 
@@ -172,14 +169,13 @@
         inputEl.style.height = '44px';
     };
 
-    // Пахши Enter бе Shift барои ирсол
     document.getElementById('message').addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
     });
-    // Барои инпути воридшавӣ
+    
     document.getElementById('username').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             if (document.getElementById('customAlert').classList.contains('show')) closeAlert();
@@ -187,7 +183,6 @@
         }
     });
 
-    // 👑 ИСЛОҲИ ДАҚИҚИ СТАТУСИ АДМИН
     function listenAdminStatus() {
         onValue(ref(db, 'admin_status/'), (snapshot) => {
             const adminData = snapshot.val();
@@ -219,7 +214,8 @@
     }
 
     function listenMessages() {
-        onValue(ref(db, `private_chats/${currentUsername}`), (snapshot) => {
+        // Роҳи нав: sayt1_chats
+        onValue(ref(db, `sayt1_chats/${currentUsername}`), (snapshot) => {
             const display = document.getElementById('chatDisplay');
             display.innerHTML = '';
             const data = snapshot.val();
