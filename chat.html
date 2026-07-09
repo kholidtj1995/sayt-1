@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chat</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; height: 100dvh; overflow: hidden; position: fixed; width: 100%; }
+        .phone-container { width: 100%; max-width: 480px; height: 100vh; height: 100dvh; background: #ffffff; display: flex; flex-direction: column; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.08); overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+        .chat-header { position: sticky; top: 0; z-index: 100; background: #007bff; color: white; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .chat-header-left { display: flex; align-items: center; gap: 12px; }
+        .chat-header-right { display: flex; align-items: center; gap: 8px; }
+        .back-btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 8px 14px; border-radius: 10px; cursor: pointer; text-align: center; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+        .back-btn:active { background: rgba(255, 255, 255, 0.3); }
+        .header-title { font-size: 16px; font-weight: 700; }
+        
+        .admin-subtitle { font-size: 12px; color: #ffffff; font-weight: 700; transition: all 0.3s ease; }
+        .admin-status-dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; display: inline-block; transition: all 0.3s ease; box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        .admin-status-dot.online { background-color: #10b981; box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.6); animation: pulseGlow 1.5s infinite; }
+        @keyframes pulseGlow { 0% { transform: scale(0.9); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.6; } }
+        
+        #chatDisplay { flex: 1; overflow-y: auto; padding: 16px 16px 4px 16px; display: flex; flex-direction: column; gap: 10px; background-color: #f4f6f9; scrollbar-width: none; }
+        #chatDisplay::-webkit-scrollbar { display: none; }
+        .date-separator { align-self: center; background: rgba(0, 0, 0, 0.05); color: #64748b; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 12px; margin: 10px 0; }
+        .msg { padding: 8px 12px 6px 12px; border-radius: 16px; max-width: 75%; font-size: 15px; line-height: 20px; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; position: relative; white-space: pre-wrap; }
+        .msg-user { align-self: flex-end; background-color: #007bff; color: white; border-bottom-right-radius: 4px; }
+        .msg-admin { align-self: flex-start; background-color: white; color: #333; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+        .msg strong { font-size: 12px; display: block; margin-bottom: 2px; opacity: 0.8; }
+        .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 10px; margin-top: 2px; align-self: flex-end; opacity: 0.75; }
+        .msg-user .msg-meta { color: rgba(255, 255, 255, 0.85); }
+        .msg-admin .msg-meta { color: #888888; }
+        .msg-ticks { font-size: 11px; line-height: 10px; color: #a7f3d0; }
+        .auth-zone { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; background: #f8fafc; }
+        .auth-card { width: 100%; background: white; padding: 30px 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); text-align: center; }
+        .auth-zone h2 { margin-bottom: 8px; color: #1e293b; font-size: 22px; font-weight: 700; }
+        .auth-zone p { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+        
+        /* 👑 СТИЛИ НАВ: КУТИИ ПАЁМ (TEXTAREA) */
+        .input-area { padding: 12px 16px 16px 16px; background: #f4f6f9; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
+        textarea { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 20px; font-size: 15px; background: #ffffff; outline: none; resize: none; min-height: 44px; max-height: 120px; line-height: 20px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        textarea:focus { border-color: #007bff; }
+        button { padding: 12px 20px; height: 44px; background: #007bff; color: white; border: none; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        button:active { background: #0056b3; }
+        
+        #joinBtn { margin-top: 16px; border-radius: 14px; width: 100%; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); }
+        #username { text-align: center; border-radius: 14px; padding: 14px 16px; width: 100%; border: 1px solid #e2e8f0; }
+        .custom-alert-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 999999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .custom-alert-overlay.show { opacity: 1; pointer-events: auto; }
+        .custom-alert-box { width: 85%; max-width: 320px; background: white; border-radius: 20px; padding: 24px; text-align: center; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
+        .custom-alert-text { color: #1e293b; font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+        .custom-alert-btn { width: 100%; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="phone-container">
+    <div class="chat-header">
+        <div class="chat-header-left">
+            <a href="https:" class="back-btn">←</a>
+            <div class="header-title" id="headerTitle">Sait 1</div>
+        </div>
+        <div class="chat-header-right">
+            <div class="admin-subtitle" id="adminSubtitle" style="display: none;">Админ пайваст нест</div>
+            <div id="adminStatusDot" class="admin-status-dot" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <div id="authBox" class="auth-zone">
+        <div class="auth-card">
+            <h2>Хуш омадед!</h2>
+            <p>Лутфан номи худро нависед</p>
+            <input type="text" id="username" placeholder="Номи шумо...">
+            <button onclick="joinChat()" id="joinBtn">Ворид шудан</button>
+        </div>
+    </div>
+
+    <div id="chatBox" style="display:none; flex-direction: column; flex: 1; overflow: hidden;">
+        <div id="chatDisplay"></div>
+        <div class="input-area">
+            <!-- Иваз ба Textarea -->
+            <textarea id="message" placeholder="Паёмак..." rows="1" oninput="autoResize(this)"></textarea>
+            <button onclick="sendMessage()" style="width: auto;">Ирсол</button>
+        </div>
+    </div>
+
+    <div id="customAlert" class="custom-alert-overlay">
+        <div class="custom-alert-box">
+            <div class="custom-alert-text">Лутфан номи худро ворид кунед!</div>
+            <button class="custom-alert-btn" onclick="closeAlert()">Фаҳмо аст</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+        authDomain: "live-chat-ea070.firebaseapp.com",
+        databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+        projectId: "live-chat-ea070",
+        storageBucket: "live-chat-ea070.firebasestorage.app",
+        messagingSenderId: "321161064947",
+        appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+    };
+
+    const db = getDatabase(initializeApp(firebaseConfig));
+    let currentUsername = "";
+
+    window.showAlert = () => document.getElementById('customAlert').classList.add('show');
+    window.closeAlert = () => {
+        document.getElementById('customAlert').classList.remove('show');
+        setTimeout(() => document.getElementById('username').focus(), 300);
+    };
+
+    // Танзими баландии худкори Textarea
+    window.autoResize = (textarea) => {
+        textarea.style.height = '44px';
+        textarea.style.height = (textarea.scrollHeight < 120 ? textarea.scrollHeight : 120) + 'px';
+    };
+
+    window.joinChat = () => {
+        const user = document.getElementById('username').value.trim();
+        if(user === "" || user.includes('/') || user.includes('.') || user.includes('#') || user.includes('$') || user.includes('[') || user.includes(']')) {
+            window.showAlert();
+            return;
+        }
+        currentUsername = user;
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('chatBox').style.display = 'flex';
+        document.getElementById('headerTitle').innerText = "Чат бо Admin";
+        document.getElementById('adminSubtitle').style.display = 'block';
+        document.getElementById('adminStatusDot').style.display = 'block';
+        
+        // Сабти маълумоти аввалия бе гум кардани шумораи паёмҳо
+        get(ref(db, `active_users/${currentUsername}`)).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(ref(db, `active_users/${currentUsername}`), { lastActive: Date.now(), unreadCount: 0 });
+            }
+        });
+        
+        listenAdminStatus();
+        listenMessages();
+        setTimeout(() => document.getElementById('message').focus(), 100);
+    };
+
+    window.sendMessage = () => {
+        const inputEl = document.getElementById('message');
+        const text = inputEl.value.trim();
+        if(text === "" || !currentUsername) return; 
+        
+        push(ref(db, `private_chats/${currentUsername}`), { 
+            user: currentUsername, 
+            text: text, 
+            timestamp: Date.now() 
+        });
+        
+        // 👑 ИСЛОҲШУДА: Илова кардани 1 ба шумораи паёмҳои нахонда барои Админ
+        const userRef = ref(db, `active_users/${currentUsername}`);
+        get(userRef).then((snapshot) => {
+            let currentCount = snapshot.val()?.unreadCount || 0;
+            update(userRef, { 
+                lastActive: Date.now(), 
+                lastMessage: text,
+                unreadCount: currentCount + 1 
+            });
+        });
+
+        inputEl.value = '';
+        inputEl.style.height = '44px';
+    };
+
+    // Пахши Enter бе Shift барои ирсол
+    document.getElementById('message').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    // Барои инпути воридшавӣ
+    document.getElementById('username').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (document.getElementById('customAlert').classList.contains('show')) closeAlert();
+            else joinChat();
+        }
+    });
+
+    // 👑 ИСЛОҲИ ДАҚИҚИ СТАТУСИ АДМИН
+    function listenAdminStatus() {
+        onValue(ref(db, 'admin_status/'), (snapshot) => {
+            const adminData = snapshot.val();
+            const subtitle = document.getElementById('adminSubtitle');
+            const dot = document.getElementById('adminStatusDot');
+            
+            if (!adminData) {
+                subtitle.innerText = "Админ пайваст нест";
+                dot.className = "admin-status-dot";
+                return;
+            }
+
+            const isOnline = adminData.status === "online";
+            const activeChat = adminData.current_chat;
+
+            if (isOnline && activeChat === currentUsername) {
+                subtitle.innerText = "Админ пайваст шуд";
+                dot.className = "admin-status-dot online";
+            } else {
+                subtitle.innerText = "Админ пайваст нест";
+                dot.className = "admin-status-dot";
+            }
+        });
+    }
+
+    function formatTime(ts) {
+        const d = new Date(ts);
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+
+    function listenMessages() {
+        onValue(ref(db, `private_chats/${currentUsername}`), (snapshot) => {
+            const display = document.getElementById('chatDisplay');
+            display.innerHTML = '';
+            const data = snapshot.val();
+            let lastDate = "";
+            for (let key in data) {
+                const chat = data[key];
+                const isUser = chat.user !== "Админ";
+                if (chat.timestamp) {
+                    const dStr = new Date(chat.timestamp).toDateString();
+                    if (dStr !== lastDate) {
+                        const opt = { day: 'numeric', month: 'long', year: 'numeric' };
+                        display.innerHTML += `<div class="date-separator">${new Date(chat.timestamp).toLocaleDateString('tg-TJ', opt)}</div>`;
+                        lastDate = dStr;
+                    }
+                }
+                display.innerHTML += `
+                    <div class="msg ${isUser ? 'msg-user' : 'msg-admin'}">
+                        <strong>${chat.user}</strong>
+                        <span>${chat.text}</span>
+                        <div class="msg-meta">
+                            <span>${formatTime(chat.timestamp || Date.now())}</span>
+                            ${isUser ? '<span class="msg-ticks">✓✓</span>' : ''}
+                        </div>
+                    </div>`;
+            }
+            display.scrollTop = display.scrollHeight;
+        });
+    }
+</script>
+</body>
+</html>
