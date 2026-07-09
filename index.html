@@ -168,16 +168,15 @@
             <a href="#" class="social-btn new-btn"><div class="icon-container"><img class="icon-max" src="https://avatars.mds.yandex.net/i?id=7b0a0fe6f7d32f6e72147704b99abc0f8ffb3860-5647582-images-thumbs&n=13"></div>Max</a>
         </div>
 
-<div class="settings-frame">
-    <div class="frame-title">Чат бо админ</div>
-    <!-- Атрибути href-ро ба суроғаи лозима иваз кардем -->
-    <a href="https://kholidtj1995.github.io/sayt-1/chat.html" class="social-btn chat-btn">
-        <div class="icon-container">
-            <img src="https://cdn-icons-png.flaticon.com/128/10308/10308218.png">
+        <div class="settings-frame">
+            <div class="frame-title">Чат бо админ</div>
+            <a href="https://kholidtj1995.github.io/sayt-1/chat.html" target="_blank" class="social-btn chat-btn">
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/128/10308/10308218.png">
+                </div>
+                Суҳбат кардан
+            </a>
         </div>
-        Суҳбат кардан
-    </a>
-</div>
 
         <div class="settings-frame">
             <div class="frame-title">Групаи махсус</div>
@@ -245,10 +244,18 @@
             panel.classList.toggle('active');
         }
 
+        // Ислоҳи ҷиддӣ дар ин қисмат барои кор кардани ҳамаи тугмаҳои дохили меню
         document.body.addEventListener('click', function(e) {
             const menu = document.getElementById('sideMenu');
             const menuBtn = document.querySelector('.btn-round');
-            if (!menu.contains(e.target) && !menuBtn.contains(e.target)) { menu.classList.remove('active'); }
+            
+            // Агар клик дар дохили меню бошад, ҳеҷ амал накун (меню баста нашавад)
+            if (menu.contains(e.target) || menuBtn.contains(e.target)) {
+                return;
+            }
+            
+            // Бастани меню, агар берун аз он клик шавад
+            menu.classList.remove('active');
         });
 
         function toggleTheme() {
