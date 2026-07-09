@@ -56,7 +56,7 @@
 <div class="phone-container">
     <div class="chat-header">
         <div class="chat-header-left">
-            <a href="https://" class="back-btn">←</a>
+            <a href="https://kholidtj1995.github.io/sayt-1/" class="back-btn">←</a>
             <div class="header-title" id="headerTitle">Sait 1</div>
         </div>
         <div class="chat-header-right">
@@ -131,7 +131,6 @@
         document.getElementById('adminSubtitle').style.display = 'block';
         document.getElementById('adminStatusDot').style.display = 'block';
         
-        // Роҳи нав: sayt1_active_users
         get(ref(db, `sayt1_active_users/${currentUsername}`)).then((snapshot) => {
             if (!snapshot.exists()) {
                 set(ref(db, `sayt1_active_users/${currentUsername}`), { lastActive: Date.now(), unreadCount: 0 });
@@ -148,7 +147,6 @@
         const text = inputEl.value.trim();
         if(text === "" || !currentUsername) return; 
         
-        // Роҳи нав: sayt1_chats
         push(ref(db, `sayt1_chats/${currentUsername}`), { 
             user: currentUsername, 
             text: text, 
@@ -214,7 +212,6 @@
     }
 
     function listenMessages() {
-        // Роҳи нав: sayt1_chats
         onValue(ref(db, `sayt1_chats/${currentUsername}`), (snapshot) => {
             const display = document.getElementById('chatDisplay');
             display.innerHTML = '';
