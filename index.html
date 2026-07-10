@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tg">
 <head>
@@ -10,7 +9,7 @@
         html, body {
             margin: 0; padding: 0; height: 100%;
             user-select: none; font-family: sans-serif;
-            background-color: #f9f9f9;
+            background-color: #D83200;
             display: flex; flex-direction: column;
             transition: background-color 0.3s;
         }
@@ -18,9 +17,10 @@
         * { -webkit-tap-highlight-color: transparent !important; }
 
         header { 
-            background: #34495e; color: white; padding: 15px; 
+            background: #D83200; color: white; padding: 15px; 
             display: flex; justify-content: space-between; align-items: center;
             border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+            border: 3px solid #34495e; border-top: none;
         }
 
         .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
@@ -38,7 +38,7 @@
             position: fixed; left: -300px; top: 0;
             width: 250px; height: 100%;
             background: #34495e; color: white;
-            transition: 0.4s; z-index: 100;
+            transition: left 0.4s; z-index: 100;
             padding: 10px;
             box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             overflow-y: auto;
@@ -143,6 +143,26 @@
         }
         .overlay-panel.active { right: 0; }
 
+        #ytPlayer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        .video-control-btn {
+            position: absolute; z-index: 6;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.55);
+            border: 2px solid white;
+            color: white; font-size: 24px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .video-control-btn:active { transform: translate(-50%, -50%) scale(0.85); opacity: 0.8; }
+
         .circle-button {
             position: fixed; left: 20px; top: 200px;
             width: 70px; height: 70px;
@@ -239,7 +259,8 @@
 
     <div class="main-content">
         <div class="overlay-panel" id="overlayPanel">
-            <h3>Равзанаи нав</h3>
+            <div id="ytPlayer"></div>
+            <button class="video-control-btn" id="playPauseBtn" onclick="toggleVideo(event)">▶️</button>
         </div>
         <img src="https://i.pinimg.com/originals/04/44/68/044468b7dce64f977587379372701655.jpg" alt="Расм" style="width:100%; height:100%; object-fit:cover; border-radius: 80px 30px 30px 80px;">
     </div>
@@ -264,6 +285,45 @@
             panel.classList.toggle('active');
         }
 
+        let ytPlaying = false;
+        let ytPlayer = null;
+        let ytReady = false;
+
+        // Load the YouTube IFrame API script
+        const ytScriptTag = document.createElement('script');
+        ytScriptTag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(ytScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                videoId: 'BT7FoLtE7L8',
+                playerVars: { controls: 0, rel: 0, playsinline: 1 },
+                events: {
+                    'onReady': function() { ytReady = true; },
+                    'onStateChange': function(event) {
+                        const btn = document.getElementById('playPauseBtn');
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            ytPlaying = true;
+                            btn.innerHTML = '⏸️';
+                        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                            ytPlaying = false;
+                            btn.innerHTML = '▶️';
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleVideo(e) {
+            e.stopPropagation();
+            if (!ytReady || !ytPlayer) return;
+            if (ytPlaying) {
+                ytPlayer.pauseVideo();
+            } else {
+                ytPlayer.playVideo();
+            }
+        }
+
         document.body.addEventListener('click', function(e) {
             const menu = document.getElementById('sideMenu');
             const menuBtn = document.querySelector('.btn-round');
@@ -278,7 +338,7 @@
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('themeIcon');
-            body.style.backgroundColor = body.style.backgroundColor === 'rgb(26, 26, 26)' ? '#f9f9f9' : '#1a1a1a';
+            body.style.backgroundColor = body.style.backgroundColor === 'rgb(0, 0, 0)' ? '#D83200' : '#000000';
             icon.innerHTML = icon.innerHTML === '🌙' ? '☀️' : '🌙';
         }
     </script>
