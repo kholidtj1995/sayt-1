@@ -6,47 +6,82 @@
     <title>BEHRUZ TV</title>
 
     <style>
+        :root {
+            --bg1: #f4ede1;
+            --bg2: #fbe3c9;
+            --surface: rgba(255,255,255,0.55);
+            --surface-border: rgba(255,255,255,0.8);
+            --text: #2c2410;
+            --muted: #8a7857;
+            --accent: #d97706;
+            --accent2: #ffb347;
+            --glow: rgba(217,119,6,0.35);
+            --card-shadow: 0 8px 30px rgba(120,80,20,0.18);
+        }
+        body.dark-mode {
+            --bg1: #05070d;
+            --bg2: #10182b;
+            --surface: rgba(255,255,255,0.06);
+            --surface-border: rgba(255,183,71,0.25);
+            --text: #f2ead9;
+            --muted: #b9a98a;
+            --accent: #ffb347;
+            --accent2: #ff7a30;
+            --glow: rgba(255,179,71,0.35);
+            --card-shadow: 0 8px 30px rgba(0,0,0,0.55);
+        }
+
         html, body {
             margin: 0; padding: 0; height: 100%;
-            user-select: none; font-family: sans-serif;
-            background-color: #ffffff;
+            user-select: none; font-family: 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 15% 0%, var(--bg2), transparent 55%),
+                        linear-gradient(160deg, var(--bg1), var(--bg2));
+            color: var(--text);
             display: flex; flex-direction: column;
-            transition: background-color 0.3s;
+            transition: background-color 0.4s, color 0.4s;
         }
 
         * { -webkit-tap-highlight-color: transparent !important; }
 
         header { 
-            background: #D83200; color: white; padding: 15px; 
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white; padding: 15px; 
             display: flex; justify-content: space-between; align-items: center;
             border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
-            border: 3px solid #34495e; border-top: none;
+            border: 3px solid rgba(0,0,0,0.25); border-top: none;
+            box-shadow: 0 6px 24px var(--glow);
             position: relative; z-index: 200;
+            transition: background 0.4s, box-shadow 0.4s;
         }
 
         .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
 
         .btn-round { 
             cursor: pointer; width: 45px; height: 45px;
-            background-color: #006699;
-            border: 2px solid white; border-radius: 50%;
+            background: linear-gradient(135deg, #0a3a52, #006699);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s, opacity 0.2s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+            transition: transform 0.15s, opacity 0.15s, box-shadow 0.2s;
         }
-        .btn-round:active { transform: scale(0.85); opacity: 0.7; }
+        .btn-round:active { transform: scale(0.82); opacity: 0.75; box-shadow: 0 0 18px var(--glow); }
 
         .side-menu {
             position: fixed; left: 0; top: 0; bottom: 0;
             width: 250px; box-sizing: border-box;
-            background: #ffffff; color: #2c3e50;
+            background: var(--surface);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            color: var(--text);
             transform: translateX(-110%);
-            transition: transform 0.35s ease;
+            transition: transform 0.35s ease, background-color 0.4s, color 0.4s;
             will-change: transform;
             z-index: 90;
             padding: 6px 10px;
             padding-top: calc(var(--header-h, 70px) + 6px);
             padding-bottom: calc(var(--footer-h, 55px) + 6px);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            border-right: 1px solid var(--surface-border);
+            box-shadow: 4px 0 30px rgba(0,0,0,0.25);
             overflow-y: auto; overflow-x: hidden;
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
@@ -54,15 +89,14 @@
         .side-menu.active { transform: translateX(0); }
 
         .settings-frame {
-            border: 2px solid #5d6d7e;
+            border: 1px solid var(--surface-border);
+            background: rgba(255,255,255,0.04);
             padding: 6px;
             border-radius: 15px;
             margin-bottom: 4px;
+            box-shadow: var(--card-shadow);
+            transition: border-color 0.3s, background-color 0.3s;
         }
-        .frame-title { 
-            margin-bottom: 5px; font-size: 13px; color: #7f8c8d; text-align: center; 
-        }
-
         /* Ислоҳи нав барои скроли уфуқӣ */
         .scroll-wrapper {
             display: flex;
@@ -84,10 +118,12 @@
             padding: 0 10px; cursor: pointer;
             text-decoration: none; font-weight: bold;
             margin-bottom: 4px;
-            transition: transform 0.2s, opacity 0.2s;
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            transition: transform 0.15s, opacity 0.15s, box-shadow 0.2s;
             box-sizing: border-box;
         }
-        .social-btn:active { transform: scale(0.95); opacity: 0.8; }
+        .social-btn:active { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 16px var(--glow); }
 
         .whatsapp-btn { background: #25D366; }
         .telegram-btn { background: #0088cc; }
@@ -119,9 +155,9 @@
         .icon-only-btn {
             width: 50px; height: 50px;
             border-radius: 50%;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--surface-border);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
             background: white;
             overflow: hidden;
             padding: 0;
@@ -131,16 +167,17 @@
             width: 100%; height: 100%; 
             object-fit: cover;
         }
-        .icon-only-btn:active { transform: scale(0.9); }
+        .icon-only-btn:active { transform: scale(0.9); box-shadow: 0 0 14px var(--glow); }
 
         .main-content { 
             position: relative; margin: 30px auto; margin-left: 60px;
             width: 80%; max-width: 600px; height: 160px;
-            background: white; box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            border: 6px solid #34495e; border-left: none;
+            background: white; box-shadow: 0 10px 30px var(--glow);
+            border: 6px solid var(--accent); border-left: none;
             border-radius: 80px 30px 30px 80px;
             overflow: hidden; 
             flex-shrink: 0;
+            transition: border-color 0.4s, box-shadow 0.4s;
         }
 
         .overlay-panel {
@@ -177,12 +214,23 @@
         .circle-button {
             position: fixed; left: 20px; top: 200px;
             width: 70px; height: 70px;
-            background-color: #006699; border-radius: 50%;
-            border: 5px solid #f9f9f9; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            border: 5px solid #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3), 0 0 0 0 var(--glow);
             z-index: 10; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; padding: 0;
+            cursor: pointer; transition: transform 0.2s, opacity 0.2s, background 0.4s; padding: 0;
+            animation: pulse-glow 2.4s ease-in-out infinite;
         }
         .circle-button:active { transform: scale(0.85); opacity: 0.8; }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 4px 10px rgba(0,0,0,0.3), 0 0 0 0 var(--glow); }
+            50% { box-shadow: 0 4px 10px rgba(0,0,0,0.3), 0 0 0 10px transparent; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .circle-button { animation: none; }
+        }
         
         #menuIcon { 
             width: 50%; height: 50%; filter: invert(1); 
@@ -193,20 +241,20 @@
 
         footer { 
             margin-top: auto; 
-            background: #2c3e50; color: white; text-align: center; 
+            background: linear-gradient(135deg, #10182b, #1c2740);
+            color: var(--muted); text-align: center; 
             padding: 15px; font-size: 14px;
             border-top-left-radius: 25px; border-top-right-radius: 20px;
+            border-top: 1px solid var(--surface-border);
             position: relative; z-index: 200;
+            transition: background 0.4s, color 0.4s;
         }
 
-        .menu-title { color: #2c3e50; }
+        .menu-title { color: var(--text); transition: color 0.4s; }
+        .frame-title { margin-bottom: 5px; font-size: 13px; color: var(--muted); text-align: center; transition: color 0.4s; }
 
-        body.dark-mode { background-color: #000000; }
-        body.dark-mode .side-menu { background: #34495e; color: #ffffff; }
-        body.dark-mode .frame-title { color: #bdc3c7; }
-        body.dark-mode .menu-title { color: #ffffff; }
-        body.dark-mode .icon-container { border-color: #556678; }
-        body.dark-mode .icon-only-btn { border-color: #556678; }
+        body.dark-mode .icon-container { background: #f1f1f1; }
+        body.dark-mode .icon-only-btn { background: #f1f1f1; }
     </style>
 </head>
 <body> 
@@ -268,7 +316,7 @@
 
     <header>
         <div class="header-left">
-            <div class="btn-round" onclick="toggleMenu()">
+            <div class="btn-round menu-toggle-btn" onclick="toggleMenu()">
                 <img src="https://cdn-icons-png.flaticon.com/128/6059/6059003.png" alt="Menu" style="width: 25px; filter: invert(1);">
             </div>
         </div>
@@ -293,7 +341,44 @@
     <footer><p>&copy; 2026 Ҳамаи ҳуқуқҳо ҳифз шудаанд.</p></footer>
 
     <script>
-        function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
+        /* ---- Синтезатори садоҳо (бе файли берунӣ, Web Audio API) ---- */
+        let audioCtx;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        function playTone(freqFrom, freqTo, duration, type, gainVal) {
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type || 'sine';
+                osc.frequency.setValueAtTime(freqFrom, ctx.currentTime);
+                if (freqTo) osc.frequency.exponentialRampToValueAtTime(freqTo, ctx.currentTime + duration);
+                gain.gain.setValueAtTime(gainVal || 0.05, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) { /* audio not available - silently ignore */ }
+        }
+        function playClickSound() { playTone(880, 640, 0.08, 'triangle', 0.05); }
+        function playOpenSound()  { playTone(280, 950, 0.22, 'sine', 0.045); }
+        function playCloseSound() { playTone(750, 240, 0.20, 'sine', 0.045); }
+
+        // Садои клик барои ҳамаи тугмаҳо (ба ҷуз тугмаи меню, ки худаш open/close дорад)
+        document.addEventListener('click', function(e) {
+            const el = e.target.closest('.social-btn, .icon-only-btn, .btn-round:not(.menu-toggle-btn), .video-control-btn');
+            if (el) playClickSound();
+        });
+
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const opening = !menu.classList.contains('active');
+            menu.classList.toggle('active');
+            opening ? playOpenSound() : playCloseSound();
+        }
 
         function setMenuInsets() {
             const header = document.querySelector('header');
@@ -315,10 +400,12 @@
             const panel = document.getElementById('overlayPanel');
             const icon1 = 'https://cdn-icons-png.flaticon.com/128/4211/4211344.png';
             const icon2 = 'https://cdn-icons-png.flaticon.com/128/714/714456.png';
-            
+            const opening = !panel.classList.contains('active');
+
             icon.src = icon.src.includes('4211344') ? icon2 : icon1;
             icon.classList.toggle('rotate');
             panel.classList.toggle('active');
+            opening ? playOpenSound() : playCloseSound();
         }
 
         let ytPlaying = false;
