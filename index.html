@@ -143,7 +143,7 @@
         }
         .overlay-panel.active { right: 0; }
 
-        .yt-frame {
+        #ytPlayer {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
             border: none;
@@ -259,10 +259,7 @@
 
     <div class="main-content">
         <div class="overlay-panel" id="overlayPanel">
-            <iframe id="ytFrame" class="yt-frame"
-                src="https://www.youtube.com/embed/BT7FoLtE7L8?rel=0&playsinline=1"
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowfullscreen></iframe>
+            <div id="ytPlayer"></div>
             <button class="video-control-btn" id="playPauseBtn" onclick="toggleVideo(event)">▶️</button>
         </div>
         <img src="https://i.pinimg.com/originals/04/44/68/044468b7dce64f977587379372701655.jpg" alt="Расм" style="width:100%; height:100%; object-fit:cover; border-radius: 80px 30px 30px 80px;">
@@ -289,22 +286,41 @@
         }
 
         let ytPlaying = false;
-        const ytVideoId = 'BT7FoLtE7L8';
-        const ytBaseSrc = `https://www.youtube.com/embed/${ytVideoId}?rel=0&playsinline=1`;
+        let ytPlayer = null;
+        let ytReady = false;
+
+        // Load the YouTube IFrame API script
+        const ytScriptTag = document.createElement('script');
+        ytScriptTag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(ytScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                videoId: 'BT7FoLtE7L8',
+                playerVars: { controls: 0, rel: 0, playsinline: 1 },
+                events: {
+                    'onReady': function() { ytReady = true; },
+                    'onStateChange': function(event) {
+                        const btn = document.getElementById('playPauseBtn');
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            ytPlaying = true;
+                            btn.innerHTML = '⏸️';
+                        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                            ytPlaying = false;
+                            btn.innerHTML = '▶️';
+                        }
+                    }
+                }
+            });
+        }
 
         function toggleVideo(e) {
             e.stopPropagation();
-            const frame = document.getElementById('ytFrame');
-            const btn = document.getElementById('playPauseBtn');
-
-            if (!ytPlaying) {
-                frame.src = ytBaseSrc + '&autoplay=1';
-                btn.innerHTML = '⏸️';
-                ytPlaying = true;
+            if (!ytReady || !ytPlayer) return;
+            if (ytPlaying) {
+                ytPlayer.pauseVideo();
             } else {
-                frame.src = ytBaseSrc;
-                btn.innerHTML = '▶️';
-                ytPlaying = false;
+                ytPlayer.playVideo();
             }
         }
 
