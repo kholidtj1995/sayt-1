@@ -790,6 +790,17 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+// 1) Тугмаи "back"-и браузерро мебанданд ва ҳамеша ба index.html мебарорад
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', function () {
+    window.location.replace('https://kholidtj1995.github.io/sayt-1/index.html');
+});
+
+// 2) Агар саҳифа аз bfcache барқарор шавад (мушкили дубора-ворид шудан), онро таза мекунад
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+        window.location.replace('https://kholidtj1995.github.io/sayt-1/index.html');    }
+});
 
 </script>
 </body>
