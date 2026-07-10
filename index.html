@@ -9,7 +9,7 @@
         html, body {
             margin: 0; padding: 0; height: 100%;
             user-select: none; font-family: sans-serif;
-            background-color: #D83200;
+            background-color: #ffffff;
             display: flex; flex-direction: column;
             transition: background-color 0.3s;
         }
@@ -338,7 +338,7 @@
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('themeIcon');
-            body.style.backgroundColor = body.style.backgroundColor === 'rgb(0, 0, 0)' ? '#D83200' : '#000000';
+            body.style.backgroundColor = body.style.backgroundColor === 'rgb(0, 0, 0)' ? '#ffffff' : '#000000';
             icon.innerHTML = icon.innerHTML === '🌙' ? '☀️' : '🌙';
         }
     </script>
