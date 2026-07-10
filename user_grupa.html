@@ -56,6 +56,20 @@ input{font-family:inherit;}
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
+/* Тугмаи нави баромадан */
+.exit-site-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 100;
+}
+
 .ikat-bg{
   background-color:var(--bg);
   background-image:
@@ -219,8 +233,9 @@ input{font-family:inherit;}
 <body>
 <div class="app-shell">
 
-  <!-- ===================== AUTH SCREEN ===================== -->
   <section id="screen-auth" class="screen active ikat-bg">
+    <button type="button" id="exit-site-btn" class="exit-site-btn">← Бозгашт</button>
+    
     <div class="auth-eyebrow">Хуш омадед</div>
     <h1 class="auth-title">Бақайдгирӣ</h1>
     <p class="auth-sub">Барои идома номи худро нависед ва як расм илова кунед</p>
@@ -235,7 +250,6 @@ input{font-family:inherit;}
     <button type="button" id="auth-continue-btn" class="btn-primary">Идома</button>
   </section>
 
-  <!-- ===================== CHAT LIST SCREEN ===================== -->
   <section id="screen-main" class="screen">
     <div class="tab-header">
       <h2 class="tab-title">Чат</h2>
@@ -251,7 +265,6 @@ input{font-family:inherit;}
     </div>
   </section>
 
-  <!-- ===================== GROUP DETAIL SCREEN ===================== -->
   <section id="screen-group" class="screen">
     <div class="group-topbar">
       <div class="group-welcome-row">
@@ -280,7 +293,6 @@ input{font-family:inherit;}
     </div>
   </section>
 
-  <!-- ===================== MODAL: CONFIRM ===================== -->
   <div id="modal-confirm" class="modal-overlay">
     <div class="modal-panel">
       <h3 class="modal-title">Мутмаин ҳастед?</h3>
@@ -710,6 +722,11 @@ function logoutFully() {
 
 function init() {
   initAuthScreen();
+
+  // Илова кардани функсия барои тугмаи нави баромадан
+  $("#exit-site-btn").addEventListener("click", () => {
+    window.location.href = "https://kholidtj1995.github.io/sayt-1/";
+  });
 
   $("#main-exit-btn").addEventListener("click", logoutFully);
   $("#group-back-btn").addEventListener("click", closeGroup);
