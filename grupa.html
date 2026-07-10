@@ -70,6 +70,22 @@ input{font-family:inherit;}
   z-index: 100;
 }
 
+/* Иконаи корбар (авaтар + ном), клик = баромадан аз ҳисоб */
+.user-badge{
+  display:flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:20px; padding:4px 10px 4px 4px;
+  cursor:pointer; max-width:150px;
+}
+.user-badge-avatar{
+  width:26px;height:26px;border-radius:50%;background-size:cover;background-position:center;
+  background-color:var(--card-2); flex-shrink:0;
+}
+.user-badge-name{
+  font-size:12.5px; font-weight:600; color:var(--text); max-width:90px; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap;
+}
+.header-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+
 .ikat-bg{
   background-color:var(--bg);
   background-image:
@@ -235,7 +251,7 @@ input{font-family:inherit;}
 
   <section id="screen-auth" class="screen active ikat-bg">
     <button type="button" id="exit-site-btn" class="exit-site-btn">← Бозгашт</button>
-    
+
     <div class="auth-eyebrow">Хуш омадед</div>
     <h1 class="auth-title">Бақайдгирӣ</h1>
     <p class="auth-sub">Барои идома номи худро нависед ва як расм илова кунед</p>
@@ -253,7 +269,13 @@ input{font-family:inherit;}
   <section id="screen-main" class="screen">
     <div class="tab-header">
       <h2 class="tab-title">Чат</h2>
-      <button type="button" id="main-exit-btn" class="icon-btn" title="Баромадан">⎋</button>
+      <div class="header-actions">
+        <button type="button" id="main-back-btn" class="icon-btn" title="Бозгашт">↩</button>
+        <div id="main-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
+          <div id="main-user-avatar" class="user-badge-avatar"></div>
+          <span id="main-user-name" class="user-badge-name"></span>
+        </div>
+      </div>
     </div>
     <div class="scroll-area ikat-bg">
       <div id="chat-empty" class="empty-state">
@@ -270,7 +292,13 @@ input{font-family:inherit;}
       <div class="group-welcome-row">
         <button type="button" id="group-back-btn" class="back-btn">←</button>
         <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
-        <button type="button" id="group-exit-btn" class="icon-btn" title="Баромадан" style="margin-left:auto;">⎋</button>
+        <div class="header-actions" style="margin-left:auto;">
+          <button type="button" id="group-return-btn" class="icon-btn" title="Бозгашт">↩</button>
+          <div id="group-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
+            <div id="group-user-avatar" class="user-badge-avatar"></div>
+            <span id="group-user-name" class="user-badge-name"></span>
+          </div>
+        </div>
       </div>
       <div class="group-sub-row">
         <div id="group-avatar" class="group-avatar"></div>
@@ -324,6 +352,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const groupsRef = db.ref("groups");
 const TS = firebase.database.ServerValue.TIMESTAMP;
+
+/* Ҷои бозгашт — ба ин суроға баргардем (на баромадан аз ҳисоб) */
+const EXTERNAL_RETURN_URL = "https://kholidtj1995.github.io/sayt-1/index.html";
 
 /* ===================== State ===================== */
 let ME = null;
@@ -394,7 +425,7 @@ function byteSizeOfDataURL(dataUrl) {
   return Math.ceil((base64.length * 3) / 4);
 }
 
-/* ===================== Image compression (target ~6-10 KB) ===================== */
+/* ===================== Image compression (target ~30 KB) ===================== */
 function compressImageFile(file) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -404,7 +435,7 @@ function compressImageFile(file) {
     img.onload = () => {
       let quality = 0.85;
       let w = img.width, h = img.height;
-      const targetMax = 10240;
+      const targetMax = 30 * 1024; // 30 КБ
 
       function render(qw, qh, q) {
         const canvas = document.createElement("canvas");
@@ -700,9 +731,21 @@ function toggleReaction(groupId, mid, emoji) {
   });
 }
 
+/* ===================== User badge (avatar + name in headers) ===================== */
+function renderUserBadge() {
+  if (!ME) return;
+  [$("#main-user-avatar"), $("#group-user-avatar")].forEach((el) => {
+    if (el) el.style.backgroundImage = `url(${ME.avatar})`;
+  });
+  [$("#main-user-name"), $("#group-user-name")].forEach((el) => {
+    if (el) el.textContent = ME.name;
+  });
+}
+
 /* ===================== App bootstrap ===================== */
 function enterApp() {
   showScreen("main");
+  renderUserBadge();
   groupsRef.on("value", (snap) => {
     allGroups = snap.val() || {};
     renderChatList();
@@ -720,17 +763,25 @@ function logoutFully() {
   });
 }
 
+function goToExternalSite() {
+  window.location.href = EXTERNAL_RETURN_URL;
+}
+
 function init() {
   initAuthScreen();
 
-  // Илова кардани функсия барои тугмаи нави баромадан
-  $("#exit-site-btn").addEventListener("click", () => {
-    window.location.href = "https://kholidtj1995.github.io/sayt-1/";
-  });
+  // Тугмаи бозгашт дар экрани бақайдгирӣ
+  $("#exit-site-btn").addEventListener("click", goToExternalSite);
 
-  $("#main-exit-btn").addEventListener("click", logoutFully);
+  // Тугмаҳои "Бозгашт" — танҳо ба сомонаи беруна мебаранд, аз ҳисоб хориҷ намекунанд
+  $("#main-back-btn").addEventListener("click", goToExternalSite);
+  $("#group-return-btn").addEventListener("click", goToExternalSite);
+
+  // Иконаи корбар (авaтар + ном) — клик = баромадан аз ҳисоби худ
+  $("#main-user-badge").addEventListener("click", logoutFully);
+  $("#group-user-badge").addEventListener("click", logoutFully);
+
   $("#group-back-btn").addEventListener("click", closeGroup);
-  $("#group-exit-btn").addEventListener("click", logoutFully);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
   $$(".modal-overlay").forEach((ov) => {
     ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
