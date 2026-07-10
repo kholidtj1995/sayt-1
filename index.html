@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEHRUZ TV</title>
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://s.ytimg.com">
+    <link rel="dns-prefetch" href="https://www.youtube.com">
+    <link rel="dns-prefetch" href="https://s.ytimg.com">
 
     <style>
         :root {
@@ -379,7 +383,17 @@
         } else {
             window.addEventListener('orientationchange', setMenuInsets);
         }
-        
+
+        /* ---- YouTube player: play/pause va sifati baland ---- */
+        function forceHighQuality() {
+            if (!ytPlayer || !ytPlayer.setPlaybackQuality) return;
+            try {
+                const levels = ytPlayer.getAvailableQualityLevels ? ytPlayer.getAvailableQualityLevels() : [];
+                const best = levels && levels.length ? levels[0] : 'hd1080';
+                ytPlayer.setPlaybackQuality(best);
+            } catch (e) { /* ignore */ }
+        }
+
         function toggleMainIcon() {
             const icon = document.getElementById('menuIcon');
             const panel = document.getElementById('overlayPanel');
@@ -392,9 +406,15 @@
             panel.classList.toggle('active');
             opening ? playOpenSound() : playCloseSound();
 
-            if (!ytReady || !ytPlayer) return;
+            if (!ytReady || !ytPlayer) {
+                // Плеер ҳанӯз омода нашудааст (боргирии API идома дорад).
+                // Ҳамин ки омода шавад, "onReady" худаш видеоро мебарорад,
+                // агар панел дар ин лаҳза кушода бошад.
+                return;
+            }
             if (opening) {
                 ytPlayer.playVideo();
+                forceHighQuality();
             } else {
                 ytPlayer.pauseVideo();
                 ytPlayer.seekTo(0, true);
@@ -405,7 +425,8 @@
         let ytPlayer = null;
         let ytReady = false;
 
-        // Load the YouTube IFrame API script
+        // Load the YouTube IFrame API script — ин корро ҳанӯз ҳангоми боркунии
+        // саҳифа мекунем (на ҳангоми клик), то API ва плеер пешакӣ омода бошанд.
         const ytScriptTag = document.createElement('script');
         ytScriptTag.src = 'https://www.youtube.com/iframe_api';
         document.head.appendChild(ytScriptTag);
@@ -413,12 +434,23 @@
         function onYouTubeIframeAPIReady() {
             ytPlayer = new YT.Player('ytPlayer', {
                 videoId: 'BT7FoLtE7L8',
-                playerVars: { controls: 0, rel: 0, playsinline: 1 },
+                playerVars: { controls: 0, rel: 0, playsinline: 1, autoplay: 0 },
                 events: {
-                    'onReady': function() { ytReady = true; },
+                    'onReady': function() {
+                        ytReady = true;
+                        // Агар корбар аллакай тугмаро пахш карда бошад ва панел
+                        // кушода бошад (аммо плеер ҳанӯз омода набуд), ҳамин ҷо
+                        // видеоро бе тахир пахш мекунем — ин мушкили "ду бор клик"-ро ҳал мекунад.
+                        const panel = document.getElementById('overlayPanel');
+                        if (panel && panel.classList.contains('active')) {
+                            ytPlayer.playVideo();
+                            forceHighQuality();
+                        }
+                    },
                     'onStateChange': function(event) {
                         if (event.data === YT.PlayerState.PLAYING) {
                             ytPlaying = true;
+                            forceHighQuality();
                         } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
                             ytPlaying = false;
                         }
