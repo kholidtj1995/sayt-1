@@ -790,16 +790,30 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
-// 1) Тугмаи "back"-и браузерро мебанданд ва ҳамеша ба index.html мебарорад
-history.pushState(null, '', location.href);
-window.addEventListener('popstate', function () {
-    window.location.replace('https://kholidtj1995.github.io/sayt-1/index.html');
+
+// Агар корбар тугмаи "Бозгашт"-и браузерро пахш кунад:
+window.addEventListener('popstate', function (event) {
+    if (currentGroupId !== null) {
+        // Агар дар дохили чат бошем, чатро мепӯшем ва дар ҳамин саҳифа мемонем
+        closeGroup();
+        history.pushState(null, '', location.href); 
+    } else {
+        // Агар дар рӯйхати асосӣ бошем, он гоҳ ба сайти асосӣ меравем
+        window.location.href = EXTERNAL_RETURN_URL;
+    }
 });
 
-// 2) Агар саҳифа аз bfcache барқарор шавад (мушкили дубора-ворид шудан), онро таза мекунад
+// Ислоҳи bfcache (вақте саҳифа аз кэши браузер бармегардад)
 window.addEventListener('pageshow', function (event) {
     if (event.persisted) {
-        window.location.replace('https://kholidtj1995.github.io/sayt-1/index.html');    }
+        // Ба ҷои иваз кардани саҳифа, мо танҳо маълумотро дубора санҷида, барномаро барқарор мекунем
+        loadMe();
+        if (ME) {
+            enterApp();
+        } else {
+            showScreen("auth");
+        }
+    }
 });
 
 </script>
