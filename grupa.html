@@ -293,7 +293,6 @@ input{font-family:inherit;}
         <button type="button" id="group-back-btn" class="back-btn">←</button>
         <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
         <div class="header-actions" style="margin-left:auto;">
-          <button type="button" id="group-return-btn" class="icon-btn" title="Бозгашт">↩</button>
           <div id="group-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
             <div id="group-user-avatar" class="user-badge-avatar"></div>
             <span id="group-user-name" class="user-badge-name"></span>
@@ -773,9 +772,8 @@ function init() {
   // Тугмаи бозгашт дар экрани бақайдгирӣ
   $("#exit-site-btn").addEventListener("click", goToExternalSite);
 
-  // Тугмаҳои "Бозгашт" — танҳо ба сомонаи беруна мебаранд, аз ҳисоб хориҷ намекунанд
+  // Тугмаи "Бозгашт" дар экрани чат — танҳо ба сомонаи беруна мебарад
   $("#main-back-btn").addEventListener("click", goToExternalSite);
-  $("#group-return-btn").addEventListener("click", goToExternalSite);
 
   // Иконаи корбар (авaтар + ном) — клик = баромадан аз ҳисоби худ
   $("#main-user-badge").addEventListener("click", logoutFully);
