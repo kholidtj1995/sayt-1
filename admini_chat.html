@@ -140,7 +140,10 @@
         selectedUser = username;
         update(ref(db, 'admin_status/'), { current_chat: username });
         update(ref(db, `sayt1_active_users/${username}`), { unreadCount: 0 });
-        
+
+        // Хабар додан ба саҳифаи асосӣ, ки тугмаҳои Чат/Админ пинҳон шаванд
+        window.parent.postMessage({ type: "chat-conversation-open" }, "*");
+
         document.getElementById('usersListScreen').style.display = 'none';
         document.getElementById('chatScreen').style.display = 'flex';
         document.getElementById('backBtn').style.display = 'block';
@@ -153,6 +156,10 @@
     window.closeChat = () => {
         selectedUser = "";
         update(ref(db, 'admin_status/'), { current_chat: "" });
+
+        // Хабар додан ба саҳифаи асосӣ, ки тугмаҳои Чат/Админ бозгарданд
+        window.parent.postMessage({ type: "chat-conversation-closed" }, "*");
+
         document.getElementById('usersListScreen').style.display = 'flex';
         document.getElementById('chatScreen').style.display = 'none';
         document.getElementById('backBtn').style.display = 'none';
