@@ -279,8 +279,11 @@
 
 <div class="settings-frame">
     <div class="frame-title">Групаи махсус</div>
-    <a href="https://kholidtj1995.github.io/sayt-1/user_grupa.html" target="_blank" class="social-btn group-btn">
-        <div class="icon-container"><img src="https://images.icon-icons.com/407/PNG/96/Group_40731.png"></div>
+    <a href="https://kholidtj1995.github.io/sayt-1/grupa.html" 
+       class="social-btn group-btn">
+        <div class="icon-container">
+            <img src="https://images.icon-icons.com/407/PNG/96/Group_40731.png" alt="Icon">
+        </div>
         Хабарҳои нав
     </a>
 </div>
@@ -330,6 +333,15 @@
     <footer><p>&copy; 2026 Ҳамаи ҳуқуқҳо ҳифз шудаанд.</p></footer>
 
     <script>
+        /* ---- Ислоҳи мушкили bfcache: агар ин саҳифа аз bfcache барқарор шавад
+           (масалан баъд аз "back"-и браузер аз grupa.html), онро тоза мекунем,
+           то ҳамаи скриптҳо (меню, YouTube плеер) аз нав дуруст кор кунанд. ---- */
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                location.reload();
+            }
+        });
+
         /* ---- Синтезатори садоҳо (бе файли берунӣ, Web Audio API) ---- */
         let audioCtx;
         function getAudioCtx() {
@@ -407,9 +419,6 @@
             opening ? playOpenSound() : playCloseSound();
 
             if (!ytReady || !ytPlayer) {
-                // Плеер ҳанӯз омода нашудааст (боргирии API идома дорад).
-                // Ҳамин ки омода шавад, "onReady" худаш видеоро мебарорад,
-                // агар панел дар ин лаҳза кушода бошад.
                 return;
             }
             if (opening) {
@@ -425,8 +434,6 @@
         let ytPlayer = null;
         let ytReady = false;
 
-        // Load the YouTube IFrame API script — ин корро ҳанӯз ҳангоми боркунии
-        // саҳифа мекунем (на ҳангоми клик), то API ва плеер пешакӣ омода бошанд.
         const ytScriptTag = document.createElement('script');
         ytScriptTag.src = 'https://www.youtube.com/iframe_api';
         document.head.appendChild(ytScriptTag);
@@ -438,9 +445,6 @@
                 events: {
                     'onReady': function() {
                         ytReady = true;
-                        // Агар корбар аллакай тугмаро пахш карда бошад ва панел
-                        // кушода бошад (аммо плеер ҳанӯз омода набуд), ҳамин ҷо
-                        // видеоро бе тахир пахш мекунем — ин мушкили "ду бор клик"-ро ҳал мекунад.
                         const panel = document.getElementById('overlayPanel');
                         if (panel && panel.classList.contains('active')) {
                             ytPlayer.playVideo();
