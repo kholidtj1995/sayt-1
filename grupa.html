@@ -213,6 +213,32 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
+
+/* ---------- video link auto-preview (YouTube / Instagram / TikTok) ---------- */
+.link-video-card{
+  width:100%; max-width:280px; border-radius:14px; overflow:hidden; margin-top:6px;
+  background:#000; position:relative; cursor:pointer;
+}
+.link-video-card .lvc-thumb{
+  width:100%; aspect-ratio:16/9; background:#111 center/cover no-repeat;
+  display:flex; align-items:center; justify-content:center; position:relative;
+}
+.link-video-card.lvc-instagram .lvc-thumb{ background-image:linear-gradient(135deg,#4f5bd5,#962fbf,#d62976,#fa7e1e,#feda75); aspect-ratio:4/5; }
+.link-video-card.lvc-tiktok .lvc-thumb{ background:linear-gradient(135deg,#111,#25f4ee20,#111); aspect-ratio:9/13; }
+.lvc-play{
+  width:46px;height:46px;border-radius:50%; background:rgba(0,0,0,.5); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:18px; padding-left:3px;
+  border:2px solid rgba(255,255,255,.85);
+}
+.lvc-badge{
+  position:absolute; left:8px; bottom:8px; font-size:10.5px; font-weight:700; color:#fff;
+  background:rgba(0,0,0,.55); padding:3px 9px; border-radius:20px; letter-spacing:.02em;
+}
+.link-video-card.active{ cursor:default; background:transparent; }
+.lvc-yt-frame{ width:100%; aspect-ratio:16/9; border:none; display:block; }
+.link-video-card.ig-embed-wrap, .link-video-card.tt-embed-wrap{ max-width:326px; background:transparent; }
+.link-video-card.ig-embed-wrap blockquote.instagram-media,
+.link-video-card.tt-embed-wrap blockquote.tiktok-embed{ margin:0 !important; }
 .voice-msg{ display:flex; align-items:center; gap:8px; min-width:200px; margin-bottom:4px; }
 .voice-msg-avatar{ width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--card-2); flex-shrink:0; }
 .voice-play-btn{
@@ -556,6 +582,111 @@ function linkify(text) {
   });
 }
 
+/* ===================== Пешнамоиши худкори видео (YouTube / Instagram / TikTok) =====================
+   Мантиқ: агар дар матни паём сылка ба YouTube/Instagram/TikTok бошад, ба ҷои сылкаи оддӣ
+   як корти пешнамоиш (thumbnail + тугмаи ▶) нишон дода мешавад. Видео/пост ХУД БА ХУД плей
+   НАМЕШАВАД — фақат вакте корбар ба корт клик мекунад, плеери ҳақиқӣ бор ва оғоз мешавад. */
+const activatedVideoCards = new Set(); // калидҳои "{mid}:{idx}"-и кортҳое, ки корбар кушодааст
+
+function detectVideoLink(url) {
+  let m = url.match(/youtu\.be\/([\w-]{6,})/i) || url.match(/youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)([\w-]{6,})/i);
+  if (m) return { platform: "youtube", id: m[1], url };
+  m = url.match(/instagram\.com\/(?:reel|reels|p|tv)\/([\w-]+)/i);
+  if (m) return { platform: "instagram", id: m[1], url };
+  if (/tiktok\.com\//i.test(url)) {
+    const tm = url.match(/\/video\/(\d+)/);
+    return { platform: "tiktok", id: tm ? tm[1] : null, url };
+  }
+  return null;
+}
+
+const VIDEO_PLATFORM_META = {
+  youtube:   { label: "YouTube" },
+  instagram: { label: "Instagram" },
+  tiktok:    { label: "TikTok" }
+};
+
+function renderVideoCardPreview(info, cardKey) {
+  const meta = VIDEO_PLATFORM_META[info.platform];
+  const thumbStyle = info.platform === "youtube" ? `background-image:url(https://img.youtube.com/vi/${info.id}/hqdefault.jpg)` : "";
+  return `
+    <div class="link-video-card lvc-${info.platform}" data-key="${cardKey}" data-platform="${info.platform}" data-vid="${info.id || ""}" data-url="${escapeHtml(info.url)}">
+      <div class="lvc-thumb" style="${thumbStyle}">
+        <div class="lvc-play">▶</div>
+        <span class="lvc-badge">${meta.label}</span>
+      </div>
+    </div>`;
+}
+
+function renderVideoEmbed(info, cardKey) {
+  if (info.platform === "youtube") {
+    return `<div class="link-video-card active lvc-youtube" data-key="${cardKey}"><iframe class="lvc-yt-frame" src="https://www.youtube.com/embed/${info.id}?autoplay=1&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen frameborder="0"></iframe></div>`;
+  }
+  if (info.platform === "instagram") {
+    return `<div class="link-video-card active lvc-instagram ig-embed-wrap" data-key="${cardKey}"><blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(info.url)}" data-instgrm-version="14"><div>Instagram</div></blockquote></div>`;
+  }
+  return `<div class="link-video-card active lvc-tiktok tt-embed-wrap" data-key="${cardKey}"><blockquote class="tiktok-embed" cite="${escapeHtml(info.url)}"${info.id ? ` data-video-id="${info.id}"` : ""}><section></section></blockquote></div>`;
+}
+
+function buildLinkPreviews(text, mid) {
+  if (!text) return "";
+  const urlRe = /((https?:\/\/|www\.)[^\s<]+)/gi;
+  const seen = new Set();
+  let html = "";
+  let match, idx = 0;
+  while ((match = urlRe.exec(text))) {
+    const raw = match[1];
+    const href = raw.startsWith("http") ? raw : "https://" + raw;
+    const info = detectVideoLink(href);
+    if (!info) continue;
+    const dedupeKey = info.platform + ":" + (info.id || info.url);
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    const cardKey = `${mid}:${idx}`;
+    idx++;
+    html += activatedVideoCards.has(cardKey) ? renderVideoEmbed(info, cardKey) : renderVideoCardPreview(info, cardKey);
+  }
+  return html;
+}
+
+function loadScriptOnce(src, cb) {
+  if (document.querySelector(`script[src="${src}"]`)) { cb && cb(); return; }
+  const s = document.createElement("script");
+  s.src = src; s.async = true;
+  s.onload = () => cb && cb();
+  document.body.appendChild(s);
+}
+
+function processVideoEmbeds(scope) {
+  const root = scope || document;
+  if (root.querySelector(".ig-embed-wrap.active")) {
+    if (window.instgrm && window.instgrm.Embeds) window.instgrm.Embeds.process();
+    else loadScriptOnce("https://www.instagram.com/embed.js", () => window.instgrm && window.instgrm.Embeds.process());
+  }
+  if (root.querySelector(".tt-embed-wrap.active")) {
+    const old = document.getElementById("tiktok-embed-script");
+    if (old) old.remove();
+    const s = document.createElement("script");
+    s.id = "tiktok-embed-script";
+    s.async = true;
+    s.src = "https://www.tiktok.com/embed.js?t=" + Date.now();
+    document.body.appendChild(s);
+  }
+}
+
+function handleVideoCardClick(e) {
+  const card = e.target.closest(".link-video-card");
+  if (!card || card.classList.contains("active")) return;
+  const cardKey = card.dataset.key;
+  activatedVideoCards.add(cardKey);
+  const info = { platform: card.dataset.platform, id: card.dataset.vid || null, url: card.dataset.url };
+  const tmp = document.createElement("div");
+  tmp.innerHTML = renderVideoEmbed(info, cardKey);
+  const embedEl = tmp.firstElementChild;
+  card.replaceWith(embedEl);
+  processVideoEmbeds(embedEl);
+}
+
 const TJ_MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
 
 function formatVoiceDur(sec) {
@@ -879,10 +1010,10 @@ function renderMessages(groupId, messagesObj) {
     let body = "";
     if (m.type === "image") {
       body = `<img class="msg-image" src="${m.data}" alt="расм">`;
-      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
     } else if (m.type === "document") {
       body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
-      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
     } else if (m.type === "voice") {
       body = `<div class="voice-msg" data-mid="${mid}">
         <div class="voice-msg-avatar" style="background-image:url(${g.avatar || ""})"></div>
@@ -893,9 +1024,9 @@ function renderMessages(groupId, messagesObj) {
       </div>`;
     } else if (m.type === "videonote") {
       body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
-      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
     } else {
-      body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
+      body = `<div class="msg-text">${linkify(m.text || "")}</div>${buildLinkPreviews(m.text, mid)}`;
     }
 
     const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
@@ -929,6 +1060,7 @@ function renderMessages(groupId, messagesObj) {
   firstRenderForGroup = false;
   if (newlyArrived.length) playNotifySound();
   wrap.innerHTML = html || `<div class="msgs-empty">Ҳанӯз паёме нест</div>`;
+  processVideoEmbeds(wrap);
 
   wrap.querySelectorAll(".videonote-wrap").forEach((vw) => {
     const video = vw.querySelector(".msg-videonote");
@@ -1125,6 +1257,7 @@ function init() {
   $("#group-user-badge").addEventListener("click", logoutFully);
 
   $("#group-back-btn").addEventListener("click", closeGroup);
+  $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
   $$(".modal-overlay").forEach((ov) => {
     ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
