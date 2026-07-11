@@ -60,6 +60,31 @@
 
         .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
 
+        .site-title-frame {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.05));
+            border: 1.5px solid rgba(255,255,255,0.55);
+            box-shadow: 0 0 10px rgba(255,255,255,0.25), inset 0 0 8px rgba(255,255,255,0.15);
+            animation: title-breathe 3s ease-in-out infinite;
+        }
+        @keyframes title-breathe {
+            0%, 100% {
+                box-shadow: 0 0 8px rgba(255,255,255,0.2), inset 0 0 6px rgba(255,255,255,0.1);
+                border-color: rgba(255,255,255,0.4);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255,255,255,0.6), inset 0 0 12px rgba(255,255,255,0.25);
+                border-color: rgba(255,255,255,0.95);
+                transform: scale(1.03);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .site-title-frame { animation: none; }
+        }
+
         .btn-round { 
             cursor: pointer; width: 45px; height: 45px;
             background: linear-gradient(135deg, #0a3a52, #006699);
@@ -81,9 +106,10 @@
             transition: transform 0.35s ease, background-color 0.4s, color 0.4s;
             will-change: transform;
             z-index: 90;
-            padding: 6px 10px;
-            padding-top: calc(var(--header-h, 70px) + 6px);
-            padding-bottom: calc(var(--footer-h, 55px) + 6px);
+            display: flex; flex-direction: column;
+            padding: 0 10px;
+            padding-top: var(--header-h, 70px);
+            padding-bottom: var(--footer-h, 55px);
             border-right: 1px solid var(--surface-border);
             box-shadow: 4px 0 30px rgba(0,0,0,0.25);
             overflow-y: auto; overflow-x: hidden;
@@ -97,7 +123,7 @@
             background: rgba(255,255,255,0.04);
             padding: 6px;
             border-radius: 15px;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             box-shadow: var(--card-shadow);
             transition: border-color 0.3s, background-color 0.3s;
         }
@@ -121,12 +147,13 @@
             border-radius: 20px;
             padding: 0 10px; cursor: pointer;
             text-decoration: none; font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             background-image: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
             box-shadow: 0 4px 14px rgba(0,0,0,0.25);
             transition: transform 0.15s, opacity 0.15s, box-shadow 0.2s;
             box-sizing: border-box;
         }
+        .social-btn:last-child { margin-bottom: 0; }
         .social-btn:active { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 16px var(--glow); }
 
         .whatsapp-btn { background: #25D366; }
@@ -134,6 +161,59 @@
         .new-btn { background: #ff4500; } 
         .chat-btn { background: #8e44ad; }
         .group-btn { background: #3498db; }
+        .download-btn { background: linear-gradient(135deg, #5c7a99, #37485c); margin: auto 0 8px; }
+
+        /* ---- Равзанаи (модал) тасдиқи скачат кардан ---- */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px; box-sizing: border-box;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-box {
+            width: 100%; max-width: 300px;
+            background: var(--surface);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid var(--surface-border);
+            border-radius: 22px;
+            box-shadow: var(--card-shadow);
+            padding: 22px 18px;
+            text-align: center;
+            color: var(--text);
+            transform: scale(0.85) translateY(10px);
+            transition: transform 0.3s ease, background-color 0.4s, color 0.4s;
+        }
+        .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+
+        .modal-icon {
+            width: 64px; height: 64px; margin: 0 auto 14px;
+            background: white; border-radius: 50%;
+            border: 1px solid #e0e0e0;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+        .modal-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+        .modal-text { margin: 0 0 18px; font-size: 15px; line-height: 1.4; font-weight: bold; }
+
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+
+        .modal-btn {
+            flex: 1; border: none; cursor: pointer;
+            padding: 11px 0; border-radius: 18px;
+            color: white; font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            transition: transform 0.15s, opacity 0.15s, box-shadow 0.2s;
+        }
+        .modal-btn:active { transform: scale(0.92); opacity: 0.85; box-shadow: 0 0 16px var(--glow); }
+        .modal-btn.yes-btn { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .modal-btn.no-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 
         .icon-container {
             width: 35px; height: 35px;
@@ -173,14 +253,19 @@
         }
         .icon-only-btn:active { transform: scale(0.9); box-shadow: 0 0 14px var(--glow); }
 
-        .main-content { 
-            position: relative; margin: 30px auto; margin-left: 60px;
-            width: 80%; max-width: 600px; height: 160px;
-            background: white; box-shadow: 0 10px 30px var(--glow);
-            border: 6px solid var(--accent); border-left: none;
-            border-radius: 80px 30px 30px 80px;
-            overflow: hidden; 
+        .main-content-wrapper {
+            position: relative; margin: 30px auto 65px auto;
+            width: 80%; max-width: 600px;
             flex-shrink: 0;
+        }
+
+        .main-content { 
+            position: relative;
+            width: 100%; aspect-ratio: 16 / 9;
+            background: white; box-shadow: 0 10px 30px var(--glow);
+            border: 6px solid var(--accent);
+            border-radius: 40px;
+            overflow: hidden; 
             transition: border-color 0.4s, box-shadow 0.4s;
         }
 
@@ -191,7 +276,7 @@
             display: flex; align-items: center; justify-content: center;
             transition: 0.5s ease;
             z-index: 5;
-            border-radius: 80px 30px 30px 80px;
+            border-radius: 34px;
         }
         .overlay-panel.active { right: 0; }
 
@@ -202,7 +287,8 @@
         }
 
         .circle-button {
-            position: fixed; left: 20px; top: 200px;
+            position: absolute; left: 50%; bottom: 0;
+            transform: translate(-50%, 50%);
             width: 70px; height: 70px;
             background: linear-gradient(135deg, var(--accent), var(--accent2));
             border-radius: 50%;
@@ -212,7 +298,7 @@
             cursor: pointer; transition: transform 0.2s, opacity 0.2s, background 0.4s; padding: 0;
             animation: pulse-glow 2.4s ease-in-out infinite;
         }
-        .circle-button:active { transform: scale(0.85); opacity: 0.8; }
+        .circle-button:active { transform: translate(-50%, 50%) scale(0.85); opacity: 0.8; }
 
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 4px 10px rgba(0,0,0,0.3), 0 0 0 0 var(--glow); }
@@ -250,7 +336,7 @@
 <body> 
 
     <div class="side-menu" id="sideMenu">
-        <div class="settings-frame" style="margin-top: 5px;">
+        <div class="settings-frame" style="margin-top: 8px;">
             <h2 class="menu-title" style="margin: 0; text-align: center; font-size: 18px;">Меню</h2>
         </div>
         
@@ -305,6 +391,21 @@
                 <a href="#" class="icon-only-btn"><img src="https://cdn-icons-png.flaticon.com/128/15789/15789316.png"></a>
             </div>
         </div>
+
+        <a href="#" class="social-btn download-btn" onclick="openDownloadModal(event)">
+            <div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/214/214490.png"></div>Скачат кардан
+        </a>
+    </div>
+
+    <div class="modal-overlay" id="downloadModal">
+        <div class="modal-box">
+            <div class="modal-icon"><img src="https://cdn-icons-png.flaticon.com/128/214/214490.png"></div>
+            <p class="modal-text">Мехоҳед, ки барномаро ба телефони худ бор кунед?</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn yes-btn" onclick="confirmDownload()">Ҳа</button>
+                <button type="button" class="modal-btn no-btn" onclick="closeDownloadModal()">Не</button>
+            </div>
+        </div>
     </div>
 
     <header>
@@ -313,22 +414,24 @@
                 <img src="https://cdn-icons-png.flaticon.com/128/6059/6059003.png" alt="Menu" style="width: 25px; filter: invert(1);">
             </div>
         </div>
-        <h1 style="font-size: 18px; margin: 0;">Вебсайти шумо</h1>
+        <h1 style="font-size: 18px; margin: 0;"><span class="site-title-frame">Вебсайти шумо</span></h1>
         <div class="header-right">
             <div class="btn-round" onclick="toggleTheme()" id="themeIcon" style="color: white;">🌙</div>
         </div>
     </header>
 
-    <div class="main-content">
-        <div class="overlay-panel" id="overlayPanel">
-            <div id="ytPlayer"></div>
+    <div class="main-content-wrapper">
+        <div class="main-content">
+            <div class="overlay-panel" id="overlayPanel">
+                <div id="ytPlayer"></div>
+            </div>
+            <img src="http://behruztv.ru/design/LOGO.png" alt="Расм" style="width:100%; height:100%; object-fit:cover; border-radius: 34px;">
         </div>
-        <img src="http://behruztv.ru/design/LOGO.png" alt="Расм" style="width:100%; height:100%; object-fit:cover; border-radius: 80px 30px 30px 80px;">
+
+        <button class="circle-button" onclick="toggleMainIcon()">
+            <img id="menuIcon" src="https://cdn-icons-png.flaticon.com/128/4211/4211344.png" alt="Toggle">
+        </button>
     </div>
-    
-    <button class="circle-button" onclick="toggleMainIcon()">
-        <img id="menuIcon" src="https://cdn-icons-png.flaticon.com/128/4211/4211344.png" alt="Toggle">
-    </button>
 
     <footer><p>&copy; 2026 Ҳамаи ҳуқуқҳо ҳифз шудаанд.</p></footer>
 
@@ -370,7 +473,7 @@
 
         // Садои клик барои ҳамаи тугмаҳо (ба ҷуз тугмаи меню, ки худаш open/close дорад)
         document.addEventListener('click', function(e) {
-            const el = e.target.closest('.social-btn, .icon-only-btn, .btn-round:not(.menu-toggle-btn)');
+            const el = e.target.closest('.social-btn, .icon-only-btn, .btn-round:not(.menu-toggle-btn), .modal-btn');
             if (el) playClickSound();
         });
 
@@ -472,6 +575,27 @@
             }
             
             menu.classList.remove('active');
+        });
+
+        /* ---- Равзанаи тасдиқи скачат кардан ---- */
+        function openDownloadModal(e) {
+            if (e) e.preventDefault();
+            document.getElementById('downloadModal').classList.add('active');
+            playOpenSound();
+        }
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').classList.remove('active');
+            playCloseSound();
+        }
+        function confirmDownload() {
+            closeDownloadModal();
+            // TODO: URL-и скачат кардани барнома дар оянда дар ин ҷо гузошта мешавад
+            // window.location.href = 'ИНҶО_ССЫЛКАИ_АПК';
+        }
+
+        // Пахши берун аз равзана онро мепӯшонад
+        document.getElementById('downloadModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDownloadModal();
         });
 
         function toggleTheme() {
