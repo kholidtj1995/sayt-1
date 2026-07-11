@@ -126,7 +126,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .tab-panel.active{ display:flex; }
 .tab-header{
   padding:20px 20px 14px; display:flex; align-items:center; justify-content:space-between;
-  border-bottom:1px solid var(--border); background:var(--bg-elev);
+  border-bottom:1px solid var(--border); background:var(--bg-elev); flex-shrink:0;
 }
 .tab-title{ font-family:var(--font-display); font-size:22px; margin:0; }
 .icon-btn{
@@ -172,7 +172,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .admin-logout-btn:active{ background:var(--danger); color:#fff; }
 .section-label{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-faint); margin:0 0 10px 2px; }
 
-.bottom-nav{ display:flex; border-top:1px solid var(--border); background:var(--bg-elev); }
+.bottom-nav{ display:flex; border-top:1px solid var(--border); background:var(--bg-elev); flex-shrink:0; }
 .nav-btn{
   flex:1; background:none; border:none; color:var(--text-faint); padding:11px 0 9px;
   display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; font-weight:600;
@@ -243,7 +243,7 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 /* ---------- emoji / gif panel ---------- */
 .emoji-panel{
   display:none; flex-direction:column; background:var(--bg-elev); border-top:1px solid var(--border);
-  max-height:230px;
+  max-height:230px; flex-shrink:0;
 }
 .emoji-panel.open{ display:flex; }
 .emoji-panel-tabs{ display:flex; border-bottom:1px solid var(--border); }
@@ -266,7 +266,7 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .msg-caption{ margin-top:5px; }
 
 /* ---------- group detail screen ---------- */
-.group-topbar{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:16px 16px 12px; }
+.group-topbar{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:16px 16px 12px; flex-shrink:0; }
 .group-welcome-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
 .back-btn{ background:none;border:none;color:var(--text);font-size:20px;padding:2px 4px; flex-shrink:0; }
 .group-welcome-text{ font-family:var(--font-display); font-size:16px; color:var(--text); }
@@ -288,7 +288,7 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .pinned-bar{
   display:none; align-items:center; justify-content:space-between; gap:8px;
   background:rgba(231,169,60,.1); border-bottom:1px solid var(--border);
-  padding:9px 16px; font-size:12.5px; color:var(--accent); cursor:pointer;
+  padding:9px 16px; font-size:12.5px; color:var(--accent); cursor:pointer; flex-shrink:0;
 }
 .pinned-bar span:first-child{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .unpin-btn{ background:none;border:none;color:var(--text-faint);font-size:12px; flex-shrink:0; }
@@ -336,7 +336,7 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 }
 .reply-preview-bar{
   display:none; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-elev);
-  border-top:1px solid var(--border);
+  border-top:1px solid var(--border); flex-shrink:0;
 }
 .reply-preview-bar.open{ display:flex; }
 .reply-preview-line{ width:3px; align-self:stretch; background:var(--teal); border-radius:3px; flex-shrink:0; }
@@ -355,6 +355,9 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
 @keyframes pinFlash{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,214,102,0); filter:brightness(1); } 25%,75%{ box-shadow:0 0 0 4px rgba(255,214,102,.95); filter:brightness(1.35); } }
 .msg-bubble.pin-focus{ animation:pinFlash 1.1s ease-in-out 3; }
+/* Вакте корбар ба лавҳаи иқтибоси "ҷавоб" клик мекунад — чат ба паёми аслӣ мебарояд ва рамкааш 2 маротиба зард шуда мижа мезанад */
+@keyframes replyFlash{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,214,102,0); filter:brightness(1); } 25%,75%{ box-shadow:0 0 0 4px rgba(255,214,102,.95); filter:brightness(1.35); } }
+.msg-bubble.reply-focus{ animation:replyFlash 1.1s ease-in-out 2; }
 .msg-meta{ display:flex; justify-content:flex-end; gap:4px; font-size:10.5px; color:var(--text-faint); margin-top:2px; }
 .seen-count{
   color:var(--text-faint); border:1px solid var(--border); border-radius:10px;
@@ -373,9 +376,9 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .emoji-picker.open{ display:flex; }
 .emoji-picker span{ cursor:pointer; }
 
-.readonly-note{ display:none; text-align:center; font-size:12px; color:var(--text-faint); padding:10px 16px; border-top:1px solid var(--border); background:var(--bg-elev); }
+.readonly-note{ display:none; text-align:center; font-size:12px; color:var(--text-faint); padding:10px 16px; border-top:1px solid var(--border); background:var(--bg-elev); flex-shrink:0; }
 
-.composer{ display:none; align-items:flex-end; gap:8px; padding:10px 12px; border-top:1px solid var(--border); background:var(--bg-elev); }
+.composer{ display:none; align-items:flex-end; gap:8px; padding:10px 12px; border-top:1px solid var(--border); background:var(--bg-elev); flex-shrink:0; }
 .composer-file-btn{ background:var(--card); border:1px solid var(--border); color:var(--text-dim); width:38px;height:38px; border-radius:12px; font-size:16px; flex-shrink:0; }
 .composer-input-wrap{ flex:1; display:flex; flex-direction:column; }
 .attach-preview{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
@@ -393,7 +396,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
   color:var(--text-dim); font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
 }
 .composer-send-btn.is-send{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
-.record-indicator{ display:none; align-items:center; gap:8px; padding:8px 14px; background:rgba(226,84,62,.12); color:var(--danger); font-size:13px; border-radius:14px; }
+.record-indicator{ display:none; align-items:center; gap:8px; padding:8px 14px; background:rgba(226,84,62,.12); color:var(--danger); font-size:13px; border-radius:14px; flex-shrink:0; }
 .record-dot{ width:8px;height:8px;border-radius:50%; background:var(--danger); animation:pulse 1s infinite; }
 @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
 
@@ -1372,9 +1375,9 @@ function renderMessages(groupId, messagesObj) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       const bubble = el.querySelector(".msg-bubble");
       if (bubble) {
-        bubble.classList.remove("pin-focus");
+        bubble.classList.remove("reply-focus");
         void bubble.offsetWidth;
-        bubble.classList.add("pin-focus");
+        bubble.classList.add("reply-focus");
       }
     });
   });
@@ -1562,9 +1565,19 @@ function initEditMessageModal() {
 }
 
 function toggleReaction(groupId, mid, emoji) {
-  const ref = groupsRef.child(groupId).child("messages").child(mid).child("reactions").child(emoji).child(ME.uid);
-  ref.once("value").then((snap) => {
-    ref.set(snap.exists() ? null : true);
+  // Як корбар дар як паём танҳо як эмоҷи метавонад дошта бошад:
+  // агар ҳамин эмоҷиро дубора пахш кунад — бардошта мешавад,
+  // агар эмоҷии дигар интихоб кунад — эмоҷии кӯҳна бекор ва нав гузошта мешавад.
+  const reactionsRef = groupsRef.child(groupId).child("messages").child(mid).child("reactions");
+  reactionsRef.once("value").then((snap) => {
+    const reactions = snap.val() || {};
+    const hadThisEmoji = !!(reactions[emoji] && reactions[emoji][ME.uid]);
+    const updates = {};
+    REACTION_EMOJIS.forEach((em) => {
+      if (reactions[em] && reactions[em][ME.uid]) updates[`${em}/${ME.uid}`] = null;
+    });
+    if (!hadThisEmoji) updates[`${emoji}/${ME.uid}`] = true;
+    reactionsRef.update(updates);
   });
 }
 
@@ -1675,6 +1688,30 @@ function initComposer() {
   ta.addEventListener("focus", () => setComposerMode("emoji"));
   ta.addEventListener("blur", () => {
     if (!ta.value.trim()) setComposerMode("file");
+  });
+
+  // Стикер/наклейка/GIF аз клавиатураи телефон (масалан Gboard) — вақте корбар
+  // онро дар кутии паём "паст" мекунад, мо расмашро мегирем ва мисли паёмаки
+  // муқаррарӣ ба чат равон мекунем.
+  ta.addEventListener("paste", async (e) => {
+    const items = (e.clipboardData && e.clipboardData.items) || [];
+    let imageFile = null;
+    for (const item of items) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
+        imageFile = item.getAsFile();
+        break;
+      }
+    }
+    if (!imageFile) return; // матни оддӣ — рафтори пешфарз идома ёбад
+    e.preventDefault();
+    if (imageFile.type === "image/gif") {
+      if (imageFile.size > 1.5 * 1024 * 1024) { toast("GIF/стикер хеле калон аст (макс 1.5 МБ)"); return; }
+      const data = await readFileAsDataURL(imageFile);
+      openAttachPreview({ type: "image", data, name: imageFile.name || "stiker.gif" });
+    } else {
+      const data = await compressImageFile(imageFile);
+      openAttachPreview({ type: "image", data, name: imageFile.name || "stiker.png" });
+    }
   });
 
   $("#composer-toggle-btn").addEventListener("click", () => {
