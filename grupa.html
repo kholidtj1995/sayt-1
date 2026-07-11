@@ -422,6 +422,7 @@ let lastKnownLastMsgTs = {};
 let chatListFirstLoad = true;
 let knownMsgIds = new Set();
 let firstRenderForGroup = true;
+let dataEverSeen = false; // барои муайян кардани лаҳзае, ки маълумот аз Firebase пурра пок карда мешавад
 
 /* ===================== Notification sound ===================== */
 function playNotifySound() {
@@ -998,6 +999,14 @@ function enterApp() {
   renderUserBadge();
   groupsRef.on("value", (snap) => {
     const newGroups = snap.val() || {};
+    const hasData = Object.keys(newGroups).length > 0;
+    if (hasData) {
+      dataEverSeen = true;
+    } else if (dataEverSeen) {
+      // Маълумот аз Firebase пурра пок карда шуд — ҳамаро аз ҳисоб бароварем
+      forceLogoutAll();
+      return;
+    }
 
     if (!chatListFirstLoad) {
       Object.entries(newGroups).forEach(([id, g]) => {
@@ -1022,6 +1031,12 @@ function enterApp() {
       renderGroupHeader(currentGroupId, allGroups[currentGroupId]);
     }
   });
+}
+
+function forceLogoutAll() {
+  localStorage.removeItem("lc_profile");
+  ME = null;
+  location.reload();
 }
 
 function logoutFully() {
