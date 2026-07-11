@@ -56,6 +56,20 @@ input,textarea{font-family:inherit;}
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
+/* Вакте корбар тугмаеро пахш мекунад, ранги тексташ дигар мешавад */
+button:active{ color:var(--accent) !important; transition:color .12s ease; }
+.composer-file-btn.active, .composer-video-btn.active{ color:var(--accent); border-color:var(--accent); }
+
+/* ---------- video note record progress ring (сурх ҳангоми сабт) ---------- */
+.videonote-circle-wrap{ position:relative; }
+.videonote-circle-wrap::before{
+  content:""; position:absolute; inset:-4px; border-radius:50%;
+  background:conic-gradient(var(--danger) calc(var(--vn-pct,0) * 1%), transparent 0);
+  -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  pointer-events:none; transition:background .15s linear;
+}
+
 /* ---------- ikat signature pattern ---------- */
 .ikat-bg{
   background-color:var(--bg);
@@ -151,6 +165,11 @@ input,textarea{font-family:inherit;}
 .admin-profile .room-avatar{ width:56px;height:56px; }
 .admin-profile-name{ font-weight:700; font-size:16px; }
 .admin-profile-label{ font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em; }
+.admin-logout-btn{
+  margin-left:auto; background:var(--card); border:1px solid var(--danger); color:var(--danger);
+  padding:9px 16px; border-radius:12px; font-size:13px; font-weight:700; white-space:nowrap; flex-shrink:0;
+}
+.admin-logout-btn:active{ background:var(--danger); color:#fff; }
 .section-label{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-faint); margin:0 0 10px 2px; }
 
 .bottom-nav{ display:flex; border-top:1px solid var(--border); background:var(--bg-elev); }
@@ -246,15 +265,15 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .date-divider span{ background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; }
 .msgs-empty{ text-align:center; color:var(--text-faint); font-size:13px; margin-top:40px; }
 
-.msg-row{ display:flex; margin-bottom:14px; }
-.msg-row.mine{ justify-content:flex-end; }
-.msg-row.theirs{ justify-content:flex-start; }
+.msg-row{ display:flex; justify-content:center; margin-bottom:14px; }
+.msg-row.mine{ justify-content:center; }
+.msg-row.theirs{ justify-content:center; }
 .msg-bubble{
-  max-width:78%; background:var(--card); border-radius:16px 16px 4px 16px; padding:9px 12px 7px;
+  max-width:86%; background:var(--card); border-radius:16px; padding:9px 12px 7px;
   position:relative; font-size:14.5px; line-height:1.42;
 }
-.msg-row.theirs .msg-bubble{ background:var(--card-2); border-radius:16px 16px 16px 4px; }
-.msg-row.mine .msg-bubble{ background:#1E4744; }
+.msg-row.theirs .msg-bubble{ background:var(--card-2); border-radius:16px; }
+.msg-row.mine .msg-bubble{ background:#1E4744; border-radius:16px; }
 .msg-text{ white-space:pre-wrap; word-break:break-word; }
 .msg-text a{ color:var(--teal); }
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
@@ -390,6 +409,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
               <div class="admin-profile-label">Профили шумо</div>
               <div id="admin-profile-name" class="admin-profile-name"></div>
             </div>
+            <button type="button" id="admin-logout-btn" class="admin-logout-btn">Выход</button>
           </div>
 
           <button type="button" id="admin-new-group-btn" class="new-group-btn">＋ Гурӯҳи нав</button>
@@ -422,7 +442,6 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       <div class="group-welcome-row">
         <button type="button" id="group-back-btn" class="back-btn">←</button>
         <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
-        <button type="button" id="group-exit-btn" class="icon-btn" title="Баромадан" style="margin-left:auto;">⎋</button>
       </div>
       <div class="group-sub-row">
         <div id="group-avatar" class="group-avatar"></div>
@@ -580,7 +599,8 @@ let vnChunks = [];
 let vnTimerInterval = null;
 let vnSeconds = 0;
 let vnResultData = null;
-const VN_MAX_SECONDS = 15;
+let vnOutMime = "video/webm";
+const VN_MAX_SECONDS = 60;
 
 /* ===================== Notification sound ===================== */
 function playNotifySound() {
@@ -599,6 +619,51 @@ function playNotifySound() {
     o.stop(ctx.currentTime + 0.32);
   } catch (e) {}
 }
+
+/* ===================== UI sounds (тугмаҳо ва равзанаҳо) ===================== */
+let _sndCtx = null;
+function _getSndCtx() {
+  if (!_sndCtx) _sndCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_sndCtx.state === "suspended") _sndCtx.resume();
+  return _sndCtx;
+}
+function playClickSound() {
+  try {
+    const ctx = _getSndCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(720, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(920, ctx.currentTime + 0.06);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.14);
+  } catch (e) {}
+}
+function playOpenSound() {
+  try {
+    const ctx = _getSndCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(500, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.13);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.24);
+  } catch (e) {}
+}
+/* Ба хамаи тугмахо садои зебо (delegation — тугмахои ояндаро низ фаро мегирад) */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (btn) playClickSound();
+}, true);
 
 /* ===================== Helpers ===================== */
 const $ = (sel) => document.querySelector(sel);
@@ -738,6 +803,7 @@ function saveMe() {
 
 /* ===================== Screens & Tabs ===================== */
 function showScreen(name) {
+  playOpenSound();
   $$(".screen").forEach((s) => s.classList.remove("active"));
   $("#screen-" + name).classList.add("active");
 }
@@ -751,7 +817,7 @@ function showTab(name) {
 }
 
 /* ===================== Modals ===================== */
-function openModal(id) { $("#" + id).classList.add("open"); }
+function openModal(id) { playOpenSound(); $("#" + id).classList.add("open"); }
 function closeModal(id) { $("#" + id).classList.remove("open"); }
 
 function showConfirm(text, danger, onYes) {
@@ -842,6 +908,7 @@ function renderAdminList() {
   $("#admin-profile-avatar").style.backgroundImage = `url(${ME.avatar})`;
   $("#admin-profile-name").textContent = ME.name;
   const mine = Object.entries(allGroups || {}).filter(([id, g]) => g.ownerId === ME.uid);
+  $("#admin-new-group-btn").style.display = mine.length >= 1 ? "none" : "flex";
   const list = $("#admin-groups-list");
   if (mine.length === 0) {
     $("#admin-empty").style.display = "flex";
@@ -920,6 +987,8 @@ function initGroupMenu() {
 let cgAvatarData = null;
 function initCreateGroupModal() {
   $("#admin-new-group-btn").addEventListener("click", () => {
+    const mine = Object.entries(allGroups || {}).filter(([id, g]) => g.ownerId === ME.uid);
+    if (mine.length >= 1) { toast("Шумо танҳо як гурӯҳ метавонед созед"); return; }
     $("#cg-name-input").value = "";
     cgAvatarData = null;
     $("#cg-avatar-preview").style.backgroundImage = "";
@@ -944,6 +1013,8 @@ function initCreateGroupModal() {
     }
   });
   $("#cg-create-btn").addEventListener("click", () => {
+    const mine = Object.entries(allGroups || {}).filter(([id, g]) => g.ownerId === ME.uid);
+    if (mine.length >= 1) { toast("Шумо танҳо як гурӯҳ метавонед созед"); closeModal("modal-create-group"); return; }
     const name = $("#cg-name-input").value.trim();
     if (!name) { toast("Номи гурӯҳро нависед"); return; }
     if (!cgAvatarData) { toast("Расми гурӯҳро илова кунед"); return; }
@@ -1290,13 +1361,15 @@ function initVideoNoteRecorder() {
 
 async function openVideoNoteModal() {
   vnResultData = null;
+  $("#composer-video-btn").classList.add("active");
+  $(".videonote-circle-wrap").style.setProperty("--vn-pct", "0");
   $("#vn-timer").style.display = "none";
   $("#vn-record-btn").style.display = "flex";
   $("#vn-send-btn").style.display = "none";
   openModal("modal-videonote");
   try {
     vnStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 240 }, height: { ideal: 240 }, aspectRatio: 1 },
+      video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 480 }, aspectRatio: 1, frameRate: { ideal: 30, max: 30 } },
       audio: true
     });
     $("#vn-video").srcObject = vnStream;
@@ -1307,6 +1380,7 @@ async function openVideoNoteModal() {
 }
 
 function closeVideoNoteModal() {
+  $("#composer-video-btn").classList.remove("active");
   if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
   clearInterval(vnTimerInterval);
   if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
@@ -1318,12 +1392,25 @@ function closeVideoNoteModal() {
 function startVideoNoteRecording() {
   if (!vnStream) return;
   vnChunks = [];
-  let mimeType = "video/webm;codecs=vp8,opus";
-  if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = "video/webm";
-  vnRecorder = new MediaRecorder(vnStream, { mimeType });
+  // Кодеки H.264 (сабуктарин ва стандартӣ), агар дастгоҳ дастгирӣ накунад — ба VP9/VP8 мегузарем
+  const vnMimeCandidates = [
+    "video/mp4;codecs=h264,aac",
+    "video/mp4",
+    "video/webm;codecs=h264",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm"
+  ];
+  let mimeType = vnMimeCandidates.find((mt) => MediaRecorder.isTypeSupported(mt)) || "video/webm";
+  vnRecorder = new MediaRecorder(vnStream, {
+    mimeType,
+    videoBitsPerSecond: 1500000, // ~1.5 Mbps — миёнаи 1-2 Mbps, файли сабук
+    audioBitsPerSecond: 64000
+  });
+  vnOutMime = mimeType;
   vnRecorder.ondataavailable = (e) => { if (e.data.size > 0) vnChunks.push(e.data); };
   vnRecorder.onstop = () => {
-    const blob = new Blob(vnChunks, { type: "video/webm" });
+    const blob = new Blob(vnChunks, { type: vnOutMime });
     const reader = new FileReader();
     reader.onload = () => {
       vnResultData = reader.result;
@@ -1340,12 +1427,16 @@ function startVideoNoteRecording() {
   };
   vnRecorder.start();
   vnSeconds = 0;
+  $(".videonote-circle-wrap").style.setProperty("--vn-pct", "0");
   $("#vn-timer").style.display = "block";
   $("#vn-timer").textContent = `● 0:00 / 0:${String(VN_MAX_SECONDS).padStart(2, "0")}`;
   $("#vn-record-btn").textContent = "⏹ Истодан";
   vnTimerInterval = setInterval(() => {
     vnSeconds++;
     $("#vn-timer").textContent = `● 0:${String(vnSeconds).padStart(2, "0")} / 0:${String(VN_MAX_SECONDS).padStart(2, "0")}`;
+    // Доираи гирди видео бо ранги сурх пур мешавад мутобиқи вақти сабт
+    const pct = Math.min(100, Math.round((vnSeconds / VN_MAX_SECONDS) * 100));
+    $(".videonote-circle-wrap").style.setProperty("--vn-pct", String(pct));
     if (vnSeconds >= VN_MAX_SECONDS) stopVideoNoteRecording();
   }, 1000);
   $("#vn-record-btn").onclick = stopVideoNoteRecording;
@@ -1354,6 +1445,7 @@ function startVideoNoteRecording() {
 function stopVideoNoteRecording() {
   clearInterval(vnTimerInterval);
   $("#vn-timer").style.display = "none";
+  $(".videonote-circle-wrap").style.setProperty("--vn-pct", "100");
   if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
   $("#vn-record-btn").onclick = startVideoNoteRecording;
   $("#vn-record-btn").textContent = "● Сабт кардан";
@@ -1364,6 +1456,7 @@ function sendVideoNote() {
   const mRef = groupsRef.child(currentGroupId).child("messages").push();
   mRef.set({ type: "videonote", data: vnResultData, ts: TS, senderId: ME.uid });
   groupsRef.child(currentGroupId).child("lastMessage").set({ type: "videonote", text: "", ts: TS });
+  $("#composer-video-btn").classList.remove("active");
   closeModal("modal-videonote");
   vnResultData = null;
 }
@@ -1426,6 +1519,7 @@ function stopRecordingIfAny(cancel) {
 
 /* ===================== External window (iframe) ===================== */
 function openExternalWindow(url, title, mode) {
+  playOpenSound();
   $("#ext-window-title").textContent = title || "";
   $("#ext-window-frame").src = url;
   const overlay = $("#ext-window-overlay");
@@ -1497,14 +1591,14 @@ $("#nav-chat-btn").addEventListener("click", () => {
       location.reload();
     });
   });
-  $("#group-back-btn").addEventListener("click", closeGroup);
-  $("#group-exit-btn").addEventListener("click", () => {
+  $("#admin-logout-btn").addEventListener("click", () => {
     showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
       localStorage.removeItem("lc_profile");
       ME = null;
       location.reload();
     });
   });
+  $("#group-back-btn").addEventListener("click", closeGroup);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
   $$(".modal-overlay").forEach((ov) => {
     ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
