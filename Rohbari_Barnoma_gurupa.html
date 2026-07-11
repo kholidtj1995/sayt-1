@@ -222,9 +222,17 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .attach-preview-doc{ display:flex; align-items:center; gap:10px; padding:16px; font-size:14px; color:var(--text); }
 textarea.caption-field{
   width:100%; resize:none; border:1px solid var(--border); background:var(--card); color:var(--text);
-  border-radius:14px; padding:12px 14px; font-size:14.5px; line-height:20px; max-height:90px; outline:none; margin-bottom:14px;
+  border-radius:14px; padding:12px 14px; font-size:14.5px; line-height:20px; max-height:90px; outline:none;
 }
 textarea.caption-field:focus{ border-color:var(--teal); }
+.ap-caption-row{ display:flex; align-items:flex-end; gap:8px; margin-bottom:8px; }
+.ap-caption-row textarea.caption-field{ flex:1; margin-bottom:0; }
+.ap-emoji-btn{
+  background:var(--card); border:1px solid var(--border); color:var(--text-dim); width:38px;height:38px;
+  border-radius:12px; font-size:16px; flex-shrink:0;
+}
+.ap-emoji-grid{ display:none; max-height:140px; overflow-y:auto; margin-bottom:14px; }
+.ap-emoji-grid.open{ display:flex; flex-wrap:wrap; gap:2px; }
 
 /* ---------- video note recorder (circular, Telegram-style) ---------- */
 .videonote-circle-wrap{ display:flex; align-items:center; justify-content:center; margin:0 auto 16px; width:220px; height:220px; }
@@ -304,12 +312,26 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
-.msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;margin-bottom:4px;background:#000; }
-.videonote-wrap{ position:relative; display:inline-block; }
-.vn-unmute-btn{
-  position:absolute; bottom:8px; right:4px; width:28px;height:28px;border-radius:50%;
-  background:rgba(0,0,0,.6); border:none; color:#fff; font-size:13px;
-  display:flex; align-items:center; justify-content:center;
+.msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;background:#000; }
+.videonote-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; width:170px; margin-bottom:4px; }
+.vn-controls{
+  display:flex; align-items:center; gap:8px; width:100%;
+  background:rgba(0,0,0,.35); border-radius:20px; padding:5px 10px;
+}
+.vn-playpause-btn{
+  width:26px;height:26px;border-radius:50%; background:rgba(255,255,255,.15); border:none; color:#fff;
+  font-size:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
+}
+.vn-volume-slider{
+  flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+  background:rgba(255,255,255,.3); outline:none; cursor:pointer; margin:0;
+}
+.vn-volume-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:13px;height:13px;border-radius:50%;
+  background:var(--accent); cursor:pointer; border:none;
+}
+.vn-volume-slider::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%; background:var(--accent); cursor:pointer; border:none;
 }
 .reply-preview-bar{
   display:none; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-elev);
@@ -594,7 +616,11 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
     <div class="modal-panel">
       <h3 class="modal-title">Пеш аз ирсол</h3>
       <div id="ap-media" class="attach-preview-media"></div>
-      <textarea id="ap-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
+      <div class="ap-caption-row">
+        <textarea id="ap-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
+        <button type="button" id="ap-emoji-btn" class="ap-emoji-btn" title="Смайлик">😊</button>
+      </div>
+      <div id="ap-emoji-grid" class="emoji-grid ap-emoji-grid"></div>
       <div class="modal-actions">
         <button type="button" id="ap-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="ap-send-btn" class="btn-primary flex">Ирсол ➤</button>
@@ -1287,7 +1313,7 @@ function renderMessages(groupId, messagesObj) {
     } else if (m.type === "voice") {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
     } else if (m.type === "videonote") {
-      body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" autoplay loop playsinline></video><button type="button" class="vn-unmute-btn" style="display:none" title="Садоро фаъол кунед">🔇</button></div>`;
+      body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
@@ -1317,11 +1343,7 @@ function renderMessages(groupId, messagesObj) {
           ${body}
           <div class="msg-meta">${editedFlag} ${seenBadge} ${formatTime(m.ts)} ${ticks}</div>
           <div class="reaction-row">${reactionChips}</div>
-          <div class="msg-actions">
-            <button class="msg-action-btn react-toggle" data-mid="${mid}">😊</button>
-            ${canEdit ? `<button class="msg-action-btn edit-toggle" data-mid="${mid}">✏️</button>` : ""}
-            ${isOwner ? `<button class="msg-action-btn pin-toggle" data-mid="${mid}">📌</button>` : ""}
-          </div>
+          ${canEdit ? `<div class="msg-actions"><button class="msg-action-btn edit-toggle" data-mid="${mid}">✏️</button></div>` : ""}
           <div class="emoji-picker" data-mid="${mid}"></div>
         </div>
       </div>`;
@@ -1333,55 +1355,35 @@ function renderMessages(groupId, messagesObj) {
   wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
     chip.addEventListener("click", () => toggleReaction(groupId, chip.dataset.mid, chip.dataset.emoji));
   });
-  wrap.querySelectorAll(".react-toggle").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const picker = wrap.querySelector(`.emoji-picker[data-mid="${btn.dataset.mid}"]`);
-      const isOpen = picker.classList.contains("open");
-      wrap.querySelectorAll(".emoji-picker.open").forEach((p) => p.classList.remove("open"));
-      if (!isOpen) {
-        picker.innerHTML = REACTION_EMOJIS.map((em) => `<span data-emoji="${em}">${em}</span>`).join("");
-        picker.classList.add("open");
-        picker.querySelectorAll("span").forEach((s) => {
-          s.addEventListener("click", () => {
-            toggleReaction(groupId, btn.dataset.mid, s.dataset.emoji);
-            picker.classList.remove("open");
-          });
-        });
-      }
-    });
-  });
   wrap.querySelectorAll(".videonote-wrap").forEach((vw) => {
     const video = vw.querySelector(".msg-videonote");
-    const unmuteBtn = vw.querySelector(".vn-unmute-btn");
-    video.muted = false;
-    const attempt = video.play();
-    if (attempt && attempt.catch) {
-      attempt.catch(() => {
-        // Браузер автоплейи бо садоро манъ кард — бе садо мебарорем ва тугмаи 🔇-ро нишон медиҳем
-        video.muted = true;
-        video.play().catch(() => {});
-        unmuteBtn.style.display = "flex";
-      });
-    }
-    unmuteBtn.addEventListener("click", (e) => {
+    const playBtn = vw.querySelector(".vn-playpause-btn");
+    const volSlider = vw.querySelector(".vn-volume-slider");
+    // Видео-кружочик дигар худ ба худ пахш намешавад — танҳо бо тугмаи плей
+    video.volume = 1;
+
+    playBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      video.muted = false;
-      video.play();
-      unmuteBtn.style.display = "none";
+      if (video.paused || video.ended) {
+        wrap.querySelectorAll(".msg-videonote").forEach((v) => { if (v !== video) v.pause(); });
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
     });
+    video.addEventListener("play", () => { playBtn.textContent = "⏸"; });
+    video.addEventListener("pause", () => { playBtn.textContent = "▶️"; });
+
+    volSlider.addEventListener("input", () => {
+      video.volume = Number(volSlider.value) / 100;
+    });
+    volSlider.addEventListener("click", (e) => e.stopPropagation());
+    volSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
   });
   wrap.querySelectorAll(".edit-toggle").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       openEditMessageModal(groupId, btn.dataset.mid);
-    });
-  });
-  wrap.querySelectorAll(".pin-toggle").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const already = g.pinnedMessageId === btn.dataset.mid;
-      groupsRef.child(groupId).child("pinnedMessageId").set(already ? null : btn.dataset.mid);
     });
   });
 
@@ -1462,7 +1464,7 @@ function initMessageMenu() {
     if (!e.target.closest("#message-menu") && !e.target.closest(".msg-bubble")) closeMessageMenu();
   });
   $("#group-messages").addEventListener("click", (e) => {
-    if (e.target.closest("a, audio, video, button, .reaction-chip, .emoji-picker, .msg-reply-quote")) return;
+    if (e.target.closest("a, audio, video, button, input, .reaction-chip, .emoji-picker, .msg-reply-quote")) return;
     const bubble = e.target.closest(".msg-bubble");
     if (!bubble) return;
     const row = bubble.closest(".msg-row");
@@ -1579,6 +1581,7 @@ function openAttachPreview(attachment) {
     media.innerHTML = `<div class="attach-preview-doc">📄 ${escapeHtml(attachment.name)}</div>`;
   }
   $("#ap-caption").value = "";
+  $("#ap-emoji-grid").classList.remove("open");
   openModal("modal-attach-preview");
   setTimeout(() => $("#ap-caption").focus(), 50);
 }
@@ -1586,12 +1589,33 @@ function openAttachPreview(attachment) {
 function initAttachPreviewModal() {
   $("#ap-cancel-btn").addEventListener("click", () => {
     pendingAttachment = null;
+    $("#ap-emoji-grid").classList.remove("open");
     closeModal("modal-attach-preview");
   });
   $("#ap-send-btn").addEventListener("click", () => {
     const caption = $("#ap-caption").value.trim();
     sendAttachmentMessage(caption);
+    $("#ap-emoji-grid").classList.remove("open");
     closeModal("modal-attach-preview");
+  });
+
+  // Тугмаи смайлик барои камент (матн зери расм)
+  const apGrid = $("#ap-emoji-grid");
+  apGrid.innerHTML = EMOJI_LIST.map((em) => `<span>${em}</span>`).join("");
+  apGrid.querySelectorAll("span").forEach((el) => {
+    el.addEventListener("click", () => {
+      const ta = $("#ap-caption");
+      const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+      const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
+      const val = ta.value;
+      ta.value = val.slice(0, start) + el.textContent + val.slice(end);
+      const pos = start + el.textContent.length;
+      ta.selectionStart = ta.selectionEnd = pos;
+      ta.focus();
+    });
+  });
+  $("#ap-emoji-btn").addEventListener("click", () => {
+    apGrid.classList.toggle("open");
   });
 }
 
