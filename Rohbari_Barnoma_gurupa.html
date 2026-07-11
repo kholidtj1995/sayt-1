@@ -137,6 +137,7 @@ input,textarea{font-family:inherit;}
 .room-bottom{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:3px; }
 .room-preview{ font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .room-subs{ font-size:11px; color:var(--text-faint); flex-shrink:0; }
+.room-msgcount{ font-size:10.5px; color:var(--teal); background:rgba(63,167,160,.14); border-radius:20px; padding:2px 8px; flex-shrink:0; }
 .admin-room.is-blocked{ opacity:.55; }
 .badge-blocked{ font-size:10px; background:rgba(226,84,62,.15); color:var(--danger); padding:2px 7px; border-radius:20px; margin-left:6px; }
 .menu-dots{ background:none;border:none;color:var(--text-dim);font-size:20px;padding:4px 8px; }
@@ -196,6 +197,22 @@ input,textarea{font-family:inherit;}
 .btn-danger{ background:var(--danger) !important; color:#fff !important; }
 #confirm-text{ font-size:14px; color:var(--text-dim); margin-bottom:18px; line-height:1.5; }
 
+/* ---------- attach caption preview modal (Telegram-style) ---------- */
+.attach-preview-media{ display:flex; align-items:center; justify-content:center; max-height:320px; overflow:hidden; border-radius:14px; background:var(--card); margin-bottom:14px; }
+.attach-preview-media img{ max-width:100%; max-height:320px; display:block; }
+.attach-preview-doc{ display:flex; align-items:center; gap:10px; padding:16px; font-size:14px; color:var(--text); }
+textarea.caption-field{
+  width:100%; resize:none; border:1px solid var(--border); background:var(--card); color:var(--text);
+  border-radius:14px; padding:12px 14px; font-size:14.5px; line-height:20px; max-height:90px; outline:none; margin-bottom:14px;
+}
+textarea.caption-field:focus{ border-color:var(--teal); }
+
+/* ---------- video note recorder (circular, Telegram-style) ---------- */
+.videonote-circle-wrap{ display:flex; align-items:center; justify-content:center; margin:0 auto 16px; width:220px; height:220px; }
+.videonote-circle{ width:220px; height:220px; border-radius:50%; object-fit:cover; background:#000; border:3px solid var(--accent); }
+.videonote-timer{ text-align:center; font-size:13px; color:var(--danger); margin-bottom:14px; font-weight:600; }
+.composer-video-btn{ background:var(--card); border:1px solid var(--border); color:var(--text-dim); width:38px;height:38px; border-radius:12px; font-size:16px; flex-shrink:0; }
+
 /* ---------- group detail screen ---------- */
 .group-topbar{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:16px 16px 12px; }
 .group-welcome-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
@@ -243,6 +260,9 @@ input,textarea{font-family:inherit;}
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
+.msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;margin-bottom:4px;background:#000; }
+@keyframes msgSlideUp{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
+.msg-row.msg-new{ animation:msgSlideUp .28s ease-out; }
 .pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
 .msg-meta{ display:flex; justify-content:flex-end; gap:4px; font-size:10.5px; color:var(--text-faint); margin-top:2px; }
 .ticks{ color:var(--text-faint); }
@@ -433,6 +453,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
 
     <div id="group-composer" class="composer">
       <button type="button" id="composer-file-btn" class="composer-file-btn">📎</button>
+      <button type="button" id="composer-video-btn" class="composer-video-btn" title="Видео-кружочик">🎥</button>
       <input type="file" id="composer-file-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" hidden>
       <div class="composer-input-wrap">
         <div id="composer-attachment-preview" class="attach-preview"></div>
@@ -464,6 +485,35 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       <div class="modal-actions">
         <button type="button" id="cg-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="cg-create-btn" class="btn-primary flex">Сохтан</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: ATTACH CAPTION PREVIEW (Telegram-style) ===================== -->
+  <div id="modal-attach-preview" class="modal-overlay">
+    <div class="modal-panel">
+      <h3 class="modal-title">Пеш аз ирсол</h3>
+      <div id="ap-media" class="attach-preview-media"></div>
+      <textarea id="ap-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
+      <div class="modal-actions">
+        <button type="button" id="ap-cancel-btn" class="btn-secondary">Бекор кардан</button>
+        <button type="button" id="ap-send-btn" class="btn-primary flex">Ирсол ➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: VIDEO NOTE RECORDER (Telegram-style circle) ===================== -->
+  <div id="modal-videonote" class="modal-overlay">
+    <div class="modal-panel">
+      <h3 class="modal-title">Видео-кружочик</h3>
+      <div class="videonote-circle-wrap">
+        <video id="vn-video" class="videonote-circle" autoplay muted playsinline></video>
+      </div>
+      <div id="vn-timer" class="videonote-timer" style="display:none;">● 0:00 / 0:15</div>
+      <div class="modal-actions">
+        <button type="button" id="vn-cancel-btn" class="btn-secondary">Бекор кардан</button>
+        <button type="button" id="vn-record-btn" class="btn-primary flex">● Сабт кардан</button>
+        <button type="button" id="vn-send-btn" class="btn-primary flex" style="display:none;">Ирсол ➤</button>
       </div>
     </div>
   </div>
@@ -522,6 +572,33 @@ let recordingTimer = null;
 let recordingSeconds = 0;
 let pendingAttachment = null; // {type:'image'|'document', data, name, size}
 let menuTargetGroupId = null;
+let knownMsgIds = new Set();
+let firstRenderForGroup = true;
+let vnStream = null;
+let vnRecorder = null;
+let vnChunks = [];
+let vnTimerInterval = null;
+let vnSeconds = 0;
+let vnResultData = null;
+const VN_MAX_SECONDS = 15;
+
+/* ===================== Notification sound ===================== */
+function playNotifySound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(880, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.32);
+  } catch (e) {}
+}
 
 /* ===================== Helpers ===================== */
 const $ = (sel) => document.querySelector(sel);
@@ -734,6 +811,7 @@ function renderChatList() {
   groups.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
   list.innerHTML = groups.map(([id, g]) => {
     const subCount = Object.keys(g.subscribers || {}).length;
+    const msgCount = Object.keys(g.messages || {}).length;
     const last = g.lastMessage;
     const preview = last ? lastMessagePreview(last) : "Ҳанӯз паём нест";
     const time = last ? formatTime(last.ts) : "";
@@ -741,7 +819,7 @@ function renderChatList() {
       <div class="room-card" data-id="${id}">
         <div class="room-avatar" style="background-image:url(${g.avatar})"></div>
         <div class="room-info">
-          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-time">${time}</span></div>
+          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-msgcount">💬 ${msgCount}</span><span class="room-time">${time}</span></div>
           <div class="room-bottom"><span class="room-preview">${preview}</span><span class="room-subs">👥 ${subCount}</span></div>
         </div>
       </div>`;
@@ -755,6 +833,7 @@ function lastMessagePreview(m) {
   if (m.type === "image") return "📷 Расм";
   if (m.type === "document") return "📄 Ҳуҷҷат";
   if (m.type === "voice") return "🎤 Паёми овозӣ";
+  if (m.type === "videonote") return "🎥 Видео-кружочик";
   return escapeHtml((m.text || "").slice(0, 40));
 }
 
@@ -773,11 +852,12 @@ function renderAdminList() {
   mine.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
   list.innerHTML = mine.map(([id, g]) => {
     const subCount = Object.keys(g.subscribers || {}).length;
+    const msgCount = Object.keys(g.messages || {}).length;
     return `
       <div class="room-card admin-room ${g.blocked ? "is-blocked" : ""}" data-id="${id}">
         <div class="room-avatar" style="background-image:url(${g.avatar})"></div>
         <div class="room-info">
-          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span></div>
+          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-msgcount">💬 ${msgCount}</span></div>
           <div class="room-bottom"><span class="room-subs">👥 ${subCount} обуначӣ</span>${g.blocked ? '<span class="badge-blocked">Блок шудааст</span>' : ""}</div>
         </div>
         <button class="icon-btn menu-dots" data-id="${id}">⋮</button>
@@ -881,6 +961,8 @@ function initCreateGroupModal() {
 function openGroup(groupId) {
   currentGroupId = groupId;
   pendingAttachment = null;
+  knownMsgIds = new Set();
+  firstRenderForGroup = true;
   showScreen("group");
   $("#composer-attachment-preview").innerHTML = "";
   $("#composer-textarea").value = "";
@@ -911,6 +993,7 @@ function closeGroup() {
   if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
   currentGroupId = null;
   stopRecordingIfAny(true);
+  closeVideoNoteModal();
   showScreen("main");
   showTab($(".nav-btn.active") ? $(".nav-btn.active").id.replace("nav-", "").replace("-btn", "") : "chat");
 }
@@ -986,6 +1069,7 @@ function renderMessages(groupId, messagesObj) {
   let html = "";
   let lastDate = null;
   const mySeenOthers = Object.entries(g.lastSeen || {}).filter(([u]) => u !== g.ownerId);
+  const newlyArrived = [];
 
   for (const [mid, m] of entries) {
     const d = new Date(m.ts || Date.now());
@@ -1008,6 +1092,8 @@ function renderMessages(groupId, messagesObj) {
       body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
     } else if (m.type === "voice") {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
+    } else if (m.type === "videonote") {
+      body = `<video class="msg-videonote" src="${m.data}" autoplay muted loop playsinline></video>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
@@ -1016,8 +1102,14 @@ function renderMessages(groupId, messagesObj) {
     const ticks = seenByOther ? '<span class="ticks seen">✓✓</span>' : '<span class="ticks">✓</span>';
     const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
 
+    const isNew = !knownMsgIds.has(mid);
+    if (isNew) {
+      knownMsgIds.add(mid);
+      if (!firstRenderForGroup) newlyArrived.push(m);
+    }
+
     html += `
-      <div class="msg-row ${isOwner ? "mine" : "theirs"}" data-mid="${mid}">
+      <div class="msg-row ${isOwner ? "mine" : "theirs"} ${isNew && !firstRenderForGroup ? "msg-new" : ""}" data-mid="${mid}">
         <div class="msg-bubble">
           ${pinnedFlag}
           ${body}
@@ -1032,6 +1124,8 @@ function renderMessages(groupId, messagesObj) {
       </div>`;
   }
   wrap.innerHTML = html || `<div class="msgs-empty">Ҳанӯз паёме нест</div>`;
+  firstRenderForGroup = false;
+  if (newlyArrived.length && newlyArrived.some((m) => m.senderId !== ME.uid)) playNotifySound();
 
   wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
     chip.addEventListener("click", () => toggleReaction(groupId, chip.dataset.mid, chip.dataset.emoji));
@@ -1092,19 +1186,43 @@ function updateSendMicIcon() {
   $("#composer-send-btn").textContent = hasContent ? "➤" : "🎤";
 }
 
-function renderAttachmentPreview() {
-  const box = $("#composer-attachment-preview");
-  if (!pendingAttachment) { box.innerHTML = ""; return; }
-  if (pendingAttachment.type === "image") {
-    box.innerHTML = `<div class="attach-chip"><img src="${pendingAttachment.data}"><button class="attach-remove">✕</button></div>`;
+/* ===================== Attach caption-preview modal (Telegram-style) ===================== */
+function openAttachPreview(attachment) {
+  pendingAttachment = attachment;
+  const media = $("#ap-media");
+  if (attachment.type === "image") {
+    media.innerHTML = `<img src="${attachment.data}" alt="расм">`;
   } else {
-    box.innerHTML = `<div class="attach-chip doc"><span>📄 ${escapeHtml(pendingAttachment.name)}</span><button class="attach-remove">✕</button></div>`;
+    media.innerHTML = `<div class="attach-preview-doc">📄 ${escapeHtml(attachment.name)}</div>`;
   }
-  box.querySelector(".attach-remove").addEventListener("click", () => {
+  $("#ap-caption").value = "";
+  openModal("modal-attach-preview");
+  setTimeout(() => $("#ap-caption").focus(), 50);
+}
+
+function initAttachPreviewModal() {
+  $("#ap-cancel-btn").addEventListener("click", () => {
     pendingAttachment = null;
-    renderAttachmentPreview();
-    updateSendMicIcon();
+    closeModal("modal-attach-preview");
   });
+  $("#ap-send-btn").addEventListener("click", () => {
+    const caption = $("#ap-caption").value.trim();
+    sendAttachmentMessage(caption);
+    closeModal("modal-attach-preview");
+  });
+}
+
+function sendAttachmentMessage(caption) {
+  if (!currentGroupId || !pendingAttachment) return;
+  const payload = { type: pendingAttachment.type, data: pendingAttachment.data, ts: TS, senderId: ME.uid };
+  if (pendingAttachment.name) payload.name = pendingAttachment.name;
+  if (caption) payload.text = caption;
+  const mRef = groupsRef.child(currentGroupId).child("messages").push();
+  mRef.set(payload);
+  groupsRef.child(currentGroupId).child("lastMessage").set({
+    type: payload.type, text: payload.text || "", ts: TS
+  });
+  pendingAttachment = null;
 }
 
 function initComposer() {
@@ -1117,24 +1235,25 @@ function initComposer() {
     e.target.value = "";
     if (!file) return;
     if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
-      toast("Видео ва мусиқӣ иҷозат дода намешавад");
+      toast("Видео ва мусиқӣ иҷозат дода намешавад — истифода баред 🎥 барои видео-кружочик");
       return;
     }
     if (file.type.startsWith("image/")) {
       toast("Расм фушурда мешавад...");
       const data = await compressImageFile(file);
-      pendingAttachment = { type: "image", data, name: file.name };
+      openAttachPreview({ type: "image", data, name: file.name });
     } else {
       if (file.size > 700 * 1024) { toast("Ҳуҷҷат хеле калон аст (макс 700 КБ)"); return; }
       const data = await readFileAsDataURL(file);
-      pendingAttachment = { type: "document", data, name: file.name };
+      openAttachPreview({ type: "document", data, name: file.name });
     }
-    renderAttachmentPreview();
-    updateSendMicIcon();
   });
 
+  initAttachPreviewModal();
+  initVideoNoteRecorder();
+
   $("#composer-send-btn").addEventListener("click", () => {
-    const hasContent = ta.value.trim().length > 0 || !!pendingAttachment;
+    const hasContent = ta.value.trim().length > 0;
     if (!hasContent) {
       toggleVoiceRecording();
     } else {
@@ -1147,16 +1266,8 @@ function sendMessage() {
   if (!currentGroupId) return;
   const ta = $("#composer-textarea");
   const text = ta.value.trim();
-  let payload = null;
-  if (pendingAttachment) {
-    payload = { type: pendingAttachment.type, ts: TS, senderId: ME.uid };
-    payload.data = pendingAttachment.data;
-    if (pendingAttachment.name) payload.name = pendingAttachment.name;
-    if (text) payload.text = text;
-  } else if (text) {
-    payload = { type: "text", text, ts: TS, senderId: ME.uid };
-  }
-  if (!payload) return;
+  if (!text) return;
+  const payload = { type: "text", text, ts: TS, senderId: ME.uid };
 
   const mRef = groupsRef.child(currentGroupId).child("messages").push();
   mRef.set(payload);
@@ -1166,9 +1277,95 @@ function sendMessage() {
 
   ta.value = "";
   autoGrowReset();
-  pendingAttachment = null;
-  renderAttachmentPreview();
   updateSendMicIcon();
+}
+
+/* ===================== Video note (round video message, Telegram-style) ===================== */
+function initVideoNoteRecorder() {
+  $("#composer-video-btn").addEventListener("click", openVideoNoteModal);
+  $("#vn-cancel-btn").addEventListener("click", closeVideoNoteModal);
+  $("#vn-record-btn").addEventListener("click", startVideoNoteRecording);
+  $("#vn-send-btn").addEventListener("click", sendVideoNote);
+}
+
+async function openVideoNoteModal() {
+  vnResultData = null;
+  $("#vn-timer").style.display = "none";
+  $("#vn-record-btn").style.display = "flex";
+  $("#vn-send-btn").style.display = "none";
+  openModal("modal-videonote");
+  try {
+    vnStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 240 }, height: { ideal: 240 }, aspectRatio: 1 },
+      audio: true
+    });
+    $("#vn-video").srcObject = vnStream;
+  } catch (err) {
+    toast("Барои сабти видео дастрасӣ ба камера лозим аст");
+    closeVideoNoteModal();
+  }
+}
+
+function closeVideoNoteModal() {
+  if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
+  clearInterval(vnTimerInterval);
+  if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
+  $("#vn-video").srcObject = null;
+  vnResultData = null;
+  closeModal("modal-videonote");
+}
+
+function startVideoNoteRecording() {
+  if (!vnStream) return;
+  vnChunks = [];
+  let mimeType = "video/webm;codecs=vp8,opus";
+  if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = "video/webm";
+  vnRecorder = new MediaRecorder(vnStream, { mimeType });
+  vnRecorder.ondataavailable = (e) => { if (e.data.size > 0) vnChunks.push(e.data); };
+  vnRecorder.onstop = () => {
+    const blob = new Blob(vnChunks, { type: "video/webm" });
+    const reader = new FileReader();
+    reader.onload = () => {
+      vnResultData = reader.result;
+      if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
+      $("#vn-video").srcObject = null;
+      $("#vn-video").src = vnResultData;
+      $("#vn-video").loop = true;
+      $("#vn-video").muted = true;
+      $("#vn-video").play();
+      $("#vn-record-btn").style.display = "none";
+      $("#vn-send-btn").style.display = "flex";
+    };
+    reader.readAsDataURL(blob);
+  };
+  vnRecorder.start();
+  vnSeconds = 0;
+  $("#vn-timer").style.display = "block";
+  $("#vn-timer").textContent = `● 0:00 / 0:${String(VN_MAX_SECONDS).padStart(2, "0")}`;
+  $("#vn-record-btn").textContent = "⏹ Истодан";
+  vnTimerInterval = setInterval(() => {
+    vnSeconds++;
+    $("#vn-timer").textContent = `● 0:${String(vnSeconds).padStart(2, "0")} / 0:${String(VN_MAX_SECONDS).padStart(2, "0")}`;
+    if (vnSeconds >= VN_MAX_SECONDS) stopVideoNoteRecording();
+  }, 1000);
+  $("#vn-record-btn").onclick = stopVideoNoteRecording;
+}
+
+function stopVideoNoteRecording() {
+  clearInterval(vnTimerInterval);
+  $("#vn-timer").style.display = "none";
+  if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
+  $("#vn-record-btn").onclick = startVideoNoteRecording;
+  $("#vn-record-btn").textContent = "● Сабт кардан";
+}
+
+function sendVideoNote() {
+  if (!currentGroupId || !vnResultData) return;
+  const mRef = groupsRef.child(currentGroupId).child("messages").push();
+  mRef.set({ type: "videonote", data: vnResultData, ts: TS, senderId: ME.uid });
+  groupsRef.child(currentGroupId).child("lastMessage").set({ type: "videonote", text: "", ts: TS });
+  closeModal("modal-videonote");
+  vnResultData = null;
 }
 
 /* ===================== Voice recording ===================== */
