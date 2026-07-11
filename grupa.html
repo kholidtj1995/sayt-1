@@ -56,6 +56,9 @@ input{font-family:inherit;}
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
+/* Вакте корбар тугмаеро пахш мекунад, ранги тексташ дигар мешавад */
+button:active{ color:var(--accent) !important; transition:color .12s ease; }
+
 /* Тугмаи нави баромадан */
 .exit-site-btn {
   position: absolute;
@@ -189,9 +192,9 @@ input{font-family:inherit;}
 .date-divider span{ background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; }
 .msgs-empty{ text-align:center; color:var(--text-faint); font-size:13px; margin-top:40px; }
 
-.msg-row{ display:flex; justify-content:flex-start; margin-bottom:14px; }
+.msg-row{ display:flex; justify-content:center; margin-bottom:14px; }
 .msg-bubble{
-  max-width:78%; background:var(--card-2); border-radius:16px 16px 16px 4px; padding:9px 12px 7px;
+  max-width:86%; background:var(--card-2); border-radius:16px; padding:9px 12px 7px;
   position:relative; font-size:14.5px; line-height:1.42;
 }
 .msg-text{ white-space:pre-wrap; word-break:break-word; }
@@ -386,6 +389,51 @@ function playNotifySound() {
   } catch (e) {}
 }
 
+/* ===================== UI sounds (тугмаҳо ва равзанаҳо) ===================== */
+let _sndCtx = null;
+function _getSndCtx() {
+  if (!_sndCtx) _sndCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_sndCtx.state === "suspended") _sndCtx.resume();
+  return _sndCtx;
+}
+function playClickSound() {
+  try {
+    const ctx = _getSndCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(720, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(920, ctx.currentTime + 0.06);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.14);
+  } catch (e) {}
+}
+function playOpenSound() {
+  try {
+    const ctx = _getSndCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(500, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.13);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.24);
+  } catch (e) {}
+}
+/* Ба хамаи тугмахо садои зебо (delegation — тугмахои ояндаро низ фаро мегирад) */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (btn) playClickSound();
+}, true);
+
 /* ===================== Helpers ===================== */
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -510,12 +558,13 @@ function saveMe() {
 
 /* ===================== Screens ===================== */
 function showScreen(name) {
+  playOpenSound();
   $$(".screen").forEach((s) => s.classList.remove("active"));
   $("#screen-" + name).classList.add("active");
 }
 
 /* ===================== Modals ===================== */
-function openModal(id) { $("#" + id).classList.add("open"); }
+function openModal(id) { playOpenSound(); $("#" + id).classList.add("open"); }
 function closeModal(id) { $("#" + id).classList.remove("open"); }
 
 function showConfirm(text, danger, onYes) {
