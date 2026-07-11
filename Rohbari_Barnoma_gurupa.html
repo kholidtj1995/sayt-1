@@ -179,6 +179,13 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 }
 .nav-btn .nav-icon{ font-size:19px; }
 .nav-btn.active{ color:var(--accent); }
+.nav-icon-wrap{ position:relative; display:inline-flex; }
+.nav-badge{
+  position:absolute; top:-6px; right:-10px; min-width:16px; height:16px; padding:0 4px;
+  background:var(--danger); color:#fff; border-radius:10px; font-size:10px; font-weight:700;
+  line-height:16px; text-align:center; display:none; box-shadow:0 0 0 2px var(--bg-elev);
+}
+.nav-badge.show{ display:block; }
 
 /* ---------- group menu dropdown ---------- */
 .dropdown-menu{
@@ -396,9 +403,20 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
   color:var(--text-dim); font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
 }
 .composer-send-btn.is-send{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.composer-send-btn.recording{ background:var(--danger); color:#fff; border-color:var(--danger); animation:micRecordPulse 1s infinite; }
+@keyframes micRecordPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(226,84,62,.55); } 50%{ box-shadow:0 0 0 9px rgba(226,84,62,0); } }
 .record-indicator{ display:none; align-items:center; gap:8px; padding:8px 14px; background:rgba(226,84,62,.12); color:var(--danger); font-size:13px; border-radius:14px; flex-shrink:0; }
 .record-dot{ width:8px;height:8px;border-radius:50%; background:var(--danger); animation:pulse 1s infinite; }
 @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+.voice-msg{ display:flex; align-items:center; gap:8px; min-width:200px; }
+.voice-msg-avatar{ width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--card-2); flex-shrink:0; }
+.voice-play-btn{
+  width:32px;height:32px;border-radius:50%;border:none;background:var(--accent);color:var(--accent-ink);
+  font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+}
+.voice-progress{ flex:1; accent-color:var(--accent); height:4px; }
+.voice-time{ font-size:10.5px; white-space:nowrap; opacity:.75; }
 
 /* ---------- toast ---------- */
 #toast-root{ position:fixed; bottom:90px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:200; pointer-events:none; }
@@ -508,7 +526,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
 
     <div class="bottom-nav">
       <button type="button" id="nav-chat-btn" class="nav-btn">
-        <span class="nav-icon">💬</span><span>Чат</span>
+        <span class="nav-icon-wrap"><span class="nav-icon">💬</span><span id="chat-nav-badge" class="nav-badge">0</span></span><span>Чат</span>
       </button>
       <button type="button" id="nav-admin-btn" class="nav-btn">
         <span class="nav-icon">⚙️</span><span>Админ</span>
@@ -756,6 +774,76 @@ function playNotifySound() {
   } catch (e) {}
 }
 
+/* ===================== Бейджи паёмҳои нав (тугмаи "Чат") =====================
+   Ин глобалист — новобаста аз он ки корбар дар кадом ҷо аст (дохили гурӯҳ,
+   дар табки Админ ва ғ.), чун ба sayt1_active_users гӯш медиҳад, на ба
+   таби ҷорӣ. Ҳамчунин кӯшиш мекунад шумораро берун аз браузер (дар апки
+   Android, тавассути web2appPro) низ нишон диҳад — рӯи иконаи барнома
+   (Badging API) ва тавассути огоҳиномаи система (Notification API).
+================================================================== */
+const APP_TITLE_BASE = document.title;
+let chatUnreadTotal = 0;
+let chatUnreadPrevSeen = null; // барои фарқ кардани "боркунии аввал"-ро аз "паёми воқеан нав"
+
+function updateChatNavBadge(count) {
+  const el = document.getElementById("chat-nav-badge");
+  if (!el) return;
+  if (count > 0) {
+    el.textContent = count > 99 ? "99+" : String(count);
+    el.classList.add("show");
+  } else {
+    el.textContent = "0";
+    el.classList.remove("show");
+  }
+  document.title = count > 0 ? `(${count > 99 ? "99+" : count}) ${APP_TITLE_BASE}` : APP_TITLE_BASE;
+
+  // Иконаи барнома (Android/PWA badge) — агар браузер/апки WebView онро дастгирӣ кунад
+  try {
+    if (count > 0 && navigator.setAppBadge) navigator.setAppBadge(count);
+    else if (navigator.clearAppBadge) navigator.clearAppBadge();
+  } catch (e) {}
+}
+
+function requestNotifyPermissionOnce() {
+  try {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  } catch (e) {}
+}
+
+function fireSystemNotification(count) {
+  try {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    const n = new Notification("Паёми нав", {
+      body: `Шумо ${count} паёми хонданашуда доред`,
+      tag: "sayt1-chat-unread",
+      renotify: true,
+      silent: false,
+    });
+    n.onclick = () => { try { window.focus(); } catch (e) {} n.close(); };
+  } catch (e) {}
+}
+
+function listenChatUnreadBadge() {
+  requestNotifyPermissionOnce();
+  db.ref("sayt1_active_users").on("value", (snap) => {
+    const data = snap.val() || {};
+    let total = 0;
+    Object.values(data).forEach((u) => { total += Number(u && u.unreadCount) || 0; });
+
+    const increased = chatUnreadPrevSeen !== null && total > chatUnreadPrevSeen;
+    chatUnreadPrevSeen = total;
+    chatUnreadTotal = total;
+    updateChatNavBadge(total);
+
+    if (increased) {
+      playNotifySound();
+      fireSystemNotification(total);
+    }
+  });
+}
+
 /* ===================== UI sounds (тугмаҳо ва равзанаҳо) ===================== */
 let _sndCtx = null;
 function _getSndCtx() {
@@ -801,6 +889,18 @@ document.addEventListener("click", (e) => {
   if (btn) playClickSound();
 }, true);
 
+/* Ҳангоме ки паёми овозӣ/видео-кружочик плей мешавад, ҳамаи дигар паёмҳои
+   плейшуда стоп мешаванд — то садоҳо бо ҳам чанг нахӯранд */
+let currentPlayingMedia = null;
+document.addEventListener("play", (e) => {
+  const el = e.target;
+  if (el.tagName !== "AUDIO" && el.tagName !== "VIDEO") return;
+  if (currentPlayingMedia && currentPlayingMedia !== el) {
+    try { currentPlayingMedia.pause(); } catch (err) {}
+  }
+  currentPlayingMedia = el;
+}, true);
+
 /* ===================== Helpers ===================== */
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -825,6 +925,11 @@ function linkify(text) {
 
 const TJ_WEEKDAYS = ["якшанбе", "душанбе", "сешанбе", "чоршанбе", "панҷшанбе", "ҷумъа", "шанбе"];
 const TJ_MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
+
+function formatVoiceDur(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+}
 
 function formatTime(ts) {
   if (!ts) return "";
@@ -1324,7 +1429,13 @@ function renderMessages(groupId, messagesObj) {
       body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
       if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
     } else if (m.type === "voice") {
-      body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
+      body = `<div class="voice-msg" data-mid="${mid}">
+        <div class="voice-msg-avatar" style="background-image:url(${g.avatar || ""})"></div>
+        <button type="button" class="voice-play-btn">▶️</button>
+        <input type="range" class="voice-progress" min="0" max="100" value="0">
+        <span class="voice-time">0:00</span>
+        <audio class="msg-audio" preload="metadata" src="${m.data}"></audio>
+      </div>`;
     } else if (m.type === "videonote") {
       body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
       if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
@@ -1406,6 +1517,35 @@ function renderMessages(groupId, messagesObj) {
     });
     volSlider.addEventListener("click", (e) => e.stopPropagation());
     volSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
+  });
+
+  wrap.querySelectorAll(".voice-msg").forEach((vm) => {
+    const audio = vm.querySelector(".msg-audio");
+    const playBtn = vm.querySelector(".voice-play-btn");
+    const slider = vm.querySelector(".voice-progress");
+    const timeLabel = vm.querySelector(".voice-time");
+
+    playBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (audio.paused || audio.ended) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause();
+      }
+    });
+    audio.addEventListener("play", () => { playBtn.textContent = "⏸"; });
+    audio.addEventListener("pause", () => { playBtn.textContent = "▶️"; });
+    audio.addEventListener("ended", () => { playBtn.textContent = "▶️"; slider.value = 0; timeLabel.textContent = formatVoiceDur(audio.duration); });
+    audio.addEventListener("loadedmetadata", () => { timeLabel.textContent = formatVoiceDur(audio.duration); });
+    audio.addEventListener("timeupdate", () => {
+      if (audio.duration) slider.value = (audio.currentTime / audio.duration) * 100;
+      if (!audio.paused && !audio.ended) timeLabel.textContent = formatVoiceDur(audio.currentTime);
+    });
+    slider.addEventListener("input", () => {
+      if (audio.duration) audio.currentTime = (Number(slider.value) / 100) * audio.duration;
+    });
+    slider.addEventListener("click", (e) => e.stopPropagation());
+    slider.addEventListener("pointerdown", (e) => e.stopPropagation());
   });
 
   if (nearBottom) wrap.scrollTop = wrap.scrollHeight;
@@ -1989,6 +2129,7 @@ async function startRecording() {
     recorder.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
       clearInterval(recordingTimer);
+      $("#composer-send-btn").classList.remove("recording");
       $("#composer-record-indicator").style.display = "none";
       if (recordedChunks.length === 0) return;
       const blob = new Blob(recordedChunks, { type: "audio/webm" });
@@ -2003,6 +2144,7 @@ async function startRecording() {
     };
     recorder.start();
     recordingSeconds = 0;
+    $("#composer-send-btn").classList.add("recording");
     $("#composer-record-indicator").style.display = "flex";
     $("#record-timer").textContent = "0:00";
     recordingTimer = setInterval(() => {
@@ -2066,6 +2208,7 @@ function enterApp() {
   showTab("chat");
   // Аввал ҳарду тугмаи поёнӣ сафед бошанд — ранг танҳо баъд аз клики корбар пайдо мешавад
   $$(".nav-btn").forEach((b) => b.classList.remove("active"));
+  listenChatUnreadBadge();
   groupsRef.on("value", (snap) => {
     const newGroups = snap.val() || {};
     const hasData = Object.keys(newGroups).length > 0;
