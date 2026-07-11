@@ -818,8 +818,10 @@ function renderMessages(groupId, messagesObj) {
     let body = "";
     if (m.type === "image") {
       body = `<img class="msg-image" src="${m.data}" alt="расм">`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
     } else if (m.type === "document") {
       body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
     } else if (m.type === "voice") {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
     } else if (m.type === "videonote") {
