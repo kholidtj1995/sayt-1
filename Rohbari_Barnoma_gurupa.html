@@ -728,6 +728,7 @@ let mmTarget = null; // {groupId, mid} — паёми нишонашуда да�
 let replyingTo = null; // {groupId, mid, preview} — паёме, ки ба он ҷавоб дода мешавад
 let knownMsgIds = new Set();
 let firstRenderForGroup = true;
+let dataEverSeen = false; // барои муайян кардани лаҳзае, ки маълумот аз Firebase пурра пок карда мешавад
 let vnStream = null;
 let vnRecorder = null;
 let vnChunks = [];
@@ -2066,7 +2067,16 @@ function enterApp() {
   // Аввал ҳарду тугмаи поёнӣ сафед бошанд — ранг танҳо баъд аз клики корбар пайдо мешавад
   $$(".nav-btn").forEach((b) => b.classList.remove("active"));
   groupsRef.on("value", (snap) => {
-    allGroups = snap.val() || {};
+    const newGroups = snap.val() || {};
+    const hasData = Object.keys(newGroups).length > 0;
+    if (hasData) {
+      dataEverSeen = true;
+    } else if (dataEverSeen) {
+      // Маълумот аз Firebase пурра пок карда шуд — ҳамаро аз ҳисоб бароварем
+      forceLogoutAll();
+      return;
+    }
+    allGroups = newGroups;
     const activeTab = $(".nav-btn.active");
     if (activeTab && activeTab.id === "nav-chat-btn") renderChatList();
     if (activeTab && activeTab.id === "nav-admin-btn") renderAdminList();
@@ -2074,6 +2084,12 @@ function enterApp() {
       renderGroupHeader(currentGroupId, allGroups[currentGroupId]);
     }
   });
+}
+
+function forceLogoutAll() {
+  localStorage.removeItem("lc_profile");
+  ME = null;
+  location.reload();
 }
 
 function init() {
