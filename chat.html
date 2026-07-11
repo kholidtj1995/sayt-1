@@ -62,8 +62,15 @@ body { background:#f0f2f5; display:flex; justify-content:center; align-items:cen
 .auth-card { width:100%; background:#fff; padding:30px 24px; border-radius:24px; box-shadow:0 10px 25px rgba(0,0,0,.05); text-align:center; }
 .auth-zone h2 { margin-bottom:8px; color:#1e293b; font-size:22px; font-weight:700; }
 .auth-zone p { color:#64748b; font-size:14px; margin-bottom:24px; }
-#joinBtn { margin-top:16px; border-radius:14px; width:100%; background:linear-gradient(135deg,#007bff,#0056b3); }
-#username { text-align:center; border-radius:14px; padding:14px 16px; width:100%; border:1px solid #e2e8f0; font-size:15px; }
+#joinBtn { margin-top:18px; border:none; border-radius:16px; width:100%; padding:15px 16px; background:linear-gradient(135deg,#3b9dff,#0056b3); color:#fff; font-size:16px; font-weight:700; letter-spacing:.3px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 10px 22px rgba(0,86,179,.32), inset 0 1px 0 rgba(255,255,255,.25); transition:transform .15s ease, box-shadow .15s ease, filter .15s ease; }
+#joinBtn:hover { filter:brightness(1.06); box-shadow:0 12px 26px rgba(0,86,179,.42), inset 0 1px 0 rgba(255,255,255,.25); }
+#joinBtn:active { transform:scale(.96); box-shadow:0 4px 10px rgba(0,86,179,.3); }
+#joinBtn .arrow { transition:transform .15s ease; }
+#joinBtn:hover .arrow { transform:translateX(3px); }
+#username { text-align:center; border-radius:14px; padding:14px 16px; width:100%; border:1px solid #e2e8f0; font-size:15px; transition:border-color .15s ease, box-shadow .15s ease; }
+#username:focus { border-color:#3b9dff; box-shadow:0 0 0 3px rgba(59,157,255,.15); outline:none; }
+
+.blocked-banner { display:none; align-items:center; justify-content:center; gap:8px; background:#fef2f2; color:#b91c1c; font-size:13px; font-weight:600; padding:14px 16px; border-top:1px solid #fee2e2; text-align:center; flex-shrink:0; }
 
 .reply-preview { display:none; align-items:center; justify-content:space-between; background:#eef4ff; padding:8px 14px; border-top:1px solid #dbe6f5; }
 .reply-preview-text { font-size:13px; color:#334155; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%; }
@@ -113,7 +120,7 @@ textarea:focus { border-color:#007bff; }
       <h2>Хуш омадед!</h2>
       <p>Лутфан номи худро нависед</p>
       <input type="text" id="username" placeholder="Номи шумо...">
-      <button onclick="joinChat()" id="joinBtn">Ворид шудан</button>
+      <button onclick="joinChat()" id="joinBtn">Ворид шудан <span class="arrow">→</span></button>
     </div>
   </div>
 
@@ -123,6 +130,7 @@ textarea:focus { border-color:#007bff; }
       <div class="reply-preview-text" id="replyPreviewText"></div>
       <button onclick="cancelReply()">✕</button>
     </div>
+    <div class="blocked-banner" id="blockedBanner">🚫 Дастрасии шумо ба чат маҳдуд карда шудааст</div>
     <div class="input-area">
       <button class="round-btn attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
       <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar,.ppt,.pptx">
@@ -221,7 +229,18 @@ function startChatUI(user){
   });
   listenAdminStatus();
   listenMessages();
+  listenBlockStatus();
   setTimeout(()=>document.getElementById('message').focus(),100);
+}
+
+/* ---------- Блок аз тарафи админ ---------- */
+function listenBlockStatus(){
+  onValue(ref(db, `sayt1_active_users/${currentUsername}/blocked`), snap=>{
+    const blocked = snap.val() === true;
+    document.getElementById('blockedBanner').style.display = blocked ? 'flex' : 'none';
+    document.querySelector('.input-area').style.display = blocked ? 'none' : 'flex';
+    document.getElementById('replyPreview').style.display = blocked ? 'none' : (replyingTo ? 'flex' : 'none');
+  });
 }
 
 document.getElementById('username').addEventListener('keydown', e=>{ if(e.key==='Enter'){ document.getElementById('customAlert').classList.contains('show') ? window.closeAlert() : window.joinChat(); } });
@@ -334,7 +353,7 @@ function startRec(e){
   }).catch(()=>window.showAlert('Дастрасӣ ба микрофон рад шуд'));
 }
 function stopRec(e){ if(recording && mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); recording=false; } }
-actionBtn.addEventListener('mousedown', e=>{ if(actionBtn.innerHTML.trim()==='➤'){ trySend(); } else startRec(e); });
+actionBtn.addEventListener('mousedown', e=>{ if(actionBtn.innerHTML.trim()!=='➤') startRec(e); });
 actionBtn.addEventListener('touchstart', e=>{ if(actionBtn.innerHTML.trim()!=='➤'){ startRec(e); } });
 actionBtn.addEventListener('mouseup', stopRec);
 actionBtn.addEventListener('mouseleave', stopRec);
