@@ -293,7 +293,8 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .pinned-bar span:first-child{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .unpin-btn{ background:none;border:none;color:var(--text-faint);font-size:12px; flex-shrink:0; }
 
-.messages-area{ flex:1; overflow-y:auto; padding:16px 12px 10px; }
+.messages-area{ flex:1; overflow-y:auto; padding:16px 12px 10px; scrollbar-width:none; -ms-overflow-style:none; }
+.messages-area::-webkit-scrollbar{ display:none; }
 .date-divider{ display:flex; justify-content:center; margin:14px 0; }
 .date-divider span{ background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; }
 .msgs-empty{ text-align:center; color:var(--text-faint); font-size:13px; margin-top:40px; }
@@ -353,9 +354,12 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .msg-row.msg-new{ animation:msgSlideUp .28s ease-out; }
 .pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
 @keyframes pinFlash{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,214,102,0); filter:brightness(1); } 25%,75%{ box-shadow:0 0 0 4px rgba(255,214,102,.95); filter:brightness(1.35); } }
-.msg-bubble.pin-focus{ animation:pinFlash 1.1s ease-in-out 2; }
+.msg-bubble.pin-focus{ animation:pinFlash 1.1s ease-in-out 3; }
 .msg-meta{ display:flex; justify-content:flex-end; gap:4px; font-size:10.5px; color:var(--text-faint); margin-top:2px; }
-.seen-count{ color:var(--text-faint); }
+.seen-count{
+  color:var(--text-faint); border:1px solid var(--border); border-radius:10px;
+  padding:0 5px; line-height:14px; display:inline-flex; align-items:center;
+}
 .edited-flag{ font-style:italic; opacity:.75; }
 .ticks{ color:var(--text-faint); }
 .ticks.seen{ color:#4FB2E8; }
@@ -636,6 +640,11 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
         <video id="vn-video" class="videonote-circle" autoplay muted playsinline></video>
       </div>
       <div id="vn-timer" class="videonote-timer" style="display:none;">● 0:00 / 0:15</div>
+      <div id="vn-caption-row" class="ap-caption-row" style="display:none;">
+        <textarea id="vn-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
+        <button type="button" id="vn-emoji-btn" class="ap-emoji-btn" title="Смайлик">😊</button>
+      </div>
+      <div id="vn-emoji-grid" class="emoji-grid ap-emoji-grid"></div>
       <div class="modal-actions">
         <button type="button" id="vn-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="vn-record-btn" class="btn-primary flex">● Сабт кардан</button>
@@ -1314,6 +1323,7 @@ function renderMessages(groupId, messagesObj) {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
     } else if (m.type === "videonote") {
       body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
@@ -1324,7 +1334,6 @@ function renderMessages(groupId, messagesObj) {
     const seenBadge = `<span class="seen-count" title="Шумораи одамоне, ки дидаанд">👁 ${seenCount}</span>`;
     const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
     const editedFlag = m.edited ? '<span class="edited-flag">тахрир шуд</span>' : "";
-    const canEdit = m.senderId === ME.uid && m.type !== "voice" && m.type !== "videonote";
     const replyQuote = m.replyTo
       ? `<div class="msg-reply-quote" data-scroll-mid="${m.replyTo.mid}"><span class="rq-name">Шумо</span><span class="rq-text">${escapeHtml(m.replyTo.preview || "")}</span></div>`
       : "";
@@ -1343,7 +1352,6 @@ function renderMessages(groupId, messagesObj) {
           ${body}
           <div class="msg-meta">${editedFlag} ${seenBadge} ${formatTime(m.ts)} ${ticks}</div>
           <div class="reaction-row">${reactionChips}</div>
-          ${canEdit ? `<div class="msg-actions"><button class="msg-action-btn edit-toggle" data-mid="${mid}">✏️</button></div>` : ""}
           <div class="emoji-picker" data-mid="${mid}"></div>
         </div>
       </div>`;
@@ -1354,6 +1362,21 @@ function renderMessages(groupId, messagesObj) {
 
   wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
     chip.addEventListener("click", () => toggleReaction(groupId, chip.dataset.mid, chip.dataset.emoji));
+  });
+  wrap.querySelectorAll(".msg-reply-quote").forEach((q) => {
+    q.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const targetMid = q.dataset.scrollMid;
+      const el = wrap.querySelector(`[data-mid="${targetMid}"]`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      const bubble = el.querySelector(".msg-bubble");
+      if (bubble) {
+        bubble.classList.remove("pin-focus");
+        void bubble.offsetWidth;
+        bubble.classList.add("pin-focus");
+      }
+    });
   });
   wrap.querySelectorAll(".videonote-wrap").forEach((vw) => {
     const video = vw.querySelector(".msg-videonote");
@@ -1379,12 +1402,6 @@ function renderMessages(groupId, messagesObj) {
     });
     volSlider.addEventListener("click", (e) => e.stopPropagation());
     volSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
-  });
-  wrap.querySelectorAll(".edit-toggle").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openEditMessageModal(groupId, btn.dataset.mid);
-    });
   });
 
   if (nearBottom) wrap.scrollTop = wrap.scrollHeight;
@@ -1780,6 +1797,24 @@ function initVideoNoteRecorder() {
   $("#vn-cancel-btn").addEventListener("click", closeVideoNoteModal);
   $("#vn-record-btn").addEventListener("click", startVideoNoteRecording);
   $("#vn-send-btn").addEventListener("click", sendVideoNote);
+
+  const vnGrid = $("#vn-emoji-grid");
+  vnGrid.innerHTML = EMOJI_LIST.map((em) => `<span>${em}</span>`).join("");
+  vnGrid.querySelectorAll("span").forEach((el) => {
+    el.addEventListener("click", () => {
+      const ta = $("#vn-caption");
+      const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+      const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
+      const val = ta.value;
+      ta.value = val.slice(0, start) + el.textContent + val.slice(end);
+      const pos = start + el.textContent.length;
+      ta.selectionStart = ta.selectionEnd = pos;
+      ta.focus();
+    });
+  });
+  $("#vn-emoji-btn").addEventListener("click", () => {
+    vnGrid.classList.toggle("open");
+  });
 }
 
 async function openVideoNoteModal() {
@@ -1789,6 +1824,9 @@ async function openVideoNoteModal() {
   $("#vn-timer").style.display = "none";
   $("#vn-record-btn").style.display = "flex";
   $("#vn-send-btn").style.display = "none";
+  $("#vn-caption-row").style.display = "none";
+  $("#vn-caption").value = "";
+  $("#vn-emoji-grid").classList.remove("open");
   openModal("modal-videonote");
   try {
     vnStream = await navigator.mediaDevices.getUserMedia({
@@ -1809,6 +1847,9 @@ function closeVideoNoteModal() {
   if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
   $("#vn-video").srcObject = null;
   vnResultData = null;
+  $("#vn-caption-row").style.display = "none";
+  $("#vn-caption").value = "";
+  $("#vn-emoji-grid").classList.remove("open");
   closeModal("modal-videonote");
 }
 
@@ -1845,6 +1886,7 @@ function startVideoNoteRecording() {
       $("#vn-video").play();
       $("#vn-record-btn").style.display = "none";
       $("#vn-send-btn").style.display = "flex";
+      $("#vn-caption-row").style.display = "flex";
     };
     reader.readAsDataURL(blob);
   };
@@ -1876,9 +1918,12 @@ function stopVideoNoteRecording() {
 
 function sendVideoNote() {
   if (!currentGroupId || !vnResultData) return;
+  const caption = $("#vn-caption").value.trim();
+  const payload = { type: "videonote", data: vnResultData, ts: TS, senderId: ME.uid };
+  if (caption) payload.text = caption;
   const mRef = groupsRef.child(currentGroupId).child("messages").push();
-  mRef.set({ type: "videonote", data: vnResultData, ts: TS, senderId: ME.uid });
-  groupsRef.child(currentGroupId).child("lastMessage").set({ type: "videonote", text: "", ts: TS });
+  mRef.set(payload);
+  groupsRef.child(currentGroupId).child("lastMessage").set({ type: "videonote", text: caption || "", ts: TS });
   $("#composer-video-btn").classList.remove("active");
   closeModal("modal-videonote");
   vnResultData = null;
