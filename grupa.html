@@ -212,12 +212,26 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
-.msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;margin-bottom:4px;background:#000; }
-.videonote-wrap{ position:relative; display:inline-block; }
-.vn-unmute-btn{
-  position:absolute; bottom:8px; right:4px; width:28px;height:28px;border-radius:50%;
-  background:rgba(0,0,0,.6); border:none; color:#fff; font-size:13px;
-  display:flex; align-items:center; justify-content:center;
+.msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;background:#000; }
+.videonote-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; width:170px; margin-bottom:4px; }
+.vn-controls{
+  display:flex; align-items:center; gap:8px; width:100%;
+  background:rgba(0,0,0,.35); border-radius:20px; padding:5px 10px;
+}
+.vn-playpause-btn{
+  width:26px;height:26px;border-radius:50%; background:rgba(255,255,255,.15); border:none; color:#fff;
+  font-size:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
+}
+.vn-volume-slider{
+  flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+  background:rgba(255,255,255,.3); outline:none; cursor:pointer; margin:0;
+}
+.vn-volume-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:13px;height:13px;border-radius:50%;
+  background:var(--accent); cursor:pointer; border:none;
+}
+.vn-volume-slider::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%; background:var(--accent); cursor:pointer; border:none;
 }
 @keyframes msgSlideUp{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
 .msg-row.msg-new{ animation:msgSlideUp .28s ease-out; }
@@ -832,7 +846,7 @@ function renderMessages(groupId, messagesObj) {
     } else if (m.type === "voice") {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
     } else if (m.type === "videonote") {
-      body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" autoplay loop playsinline></video><button type="button" class="vn-unmute-btn" style="display:none" title="Садоро фаъол кунед">🔇</button></div>`;
+      body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
@@ -867,22 +881,28 @@ function renderMessages(groupId, messagesObj) {
 
   wrap.querySelectorAll(".videonote-wrap").forEach((vw) => {
     const video = vw.querySelector(".msg-videonote");
-    const unmuteBtn = vw.querySelector(".vn-unmute-btn");
-    video.muted = false;
-    const attempt = video.play();
-    if (attempt && attempt.catch) {
-      attempt.catch(() => {
-        video.muted = true;
-        video.play().catch(() => {});
-        unmuteBtn.style.display = "flex";
-      });
-    }
-    unmuteBtn.addEventListener("click", (e) => {
+    const playBtn = vw.querySelector(".vn-playpause-btn");
+    const volSlider = vw.querySelector(".vn-volume-slider");
+    // Видео-кружочик дигар худ ба худ пахш намешавад — танҳо бо тугмаи плей
+    video.volume = 1;
+
+    playBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      video.muted = false;
-      video.play();
-      unmuteBtn.style.display = "none";
+      if (video.paused || video.ended) {
+        wrap.querySelectorAll(".msg-videonote").forEach((v) => { if (v !== video) v.pause(); });
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
     });
+    video.addEventListener("play", () => { playBtn.textContent = "⏸"; });
+    video.addEventListener("pause", () => { playBtn.textContent = "▶️"; });
+
+    volSlider.addEventListener("input", () => {
+      video.volume = Number(volSlider.value) / 100;
+    });
+    volSlider.addEventListener("click", (e) => e.stopPropagation());
+    volSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
   });
 
   wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
