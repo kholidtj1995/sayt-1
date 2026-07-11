@@ -197,7 +197,8 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 }
 .pinned-bar span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-.messages-area{ flex:1; overflow-y:auto; padding:16px 12px 10px; }
+.messages-area{ flex:1; overflow-y:auto; padding:16px 12px 10px; scrollbar-width:none; -ms-overflow-style:none; }
+.messages-area::-webkit-scrollbar{ display:none; }
 .date-divider{ display:flex; justify-content:center; margin:14px 0; }
 .date-divider span{ background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; }
 .msgs-empty{ text-align:center; color:var(--text-faint); font-size:13px; margin-top:40px; }
@@ -212,6 +213,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
+.msg-caption{ margin-top:5px; }
 .msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;background:#000; }
 .videonote-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; width:170px; margin-bottom:4px; }
 .vn-controls{
@@ -237,9 +239,12 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .msg-row.msg-new{ animation:msgSlideUp .28s ease-out; }
 .pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
 @keyframes pinFlash{ 0%,100%{ background:var(--card-2); box-shadow:0 0 0 0 rgba(255,214,102,0); } 25%,75%{ background:#4a3d12; box-shadow:0 0 0 3px rgba(255,214,102,.95); } }
-.msg-bubble.pin-focus{ animation:pinFlash 1.1s ease-in-out 2; }
+.msg-bubble.pin-focus{ animation:pinFlash 1.1s ease-in-out 3; }
 .msg-meta{ display:flex; justify-content:flex-end; gap:4px; font-size:10.5px; color:var(--text-faint); margin-top:2px; }
-.seen-count{ color:var(--text-faint); }
+.seen-count{
+  color:var(--text-faint); border:1px solid var(--border); border-radius:10px;
+  padding:0 5px; line-height:14px; display:inline-flex; align-items:center;
+}
 .reaction-row{ display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
 .reaction-chip{ font-size:11.5px; background:rgba(255,255,255,.06); border-radius:20px; padding:2px 7px; }
 .reaction-chip.mine{ background:rgba(231,169,60,.22); }
@@ -847,6 +852,7 @@ function renderMessages(groupId, messagesObj) {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
     } else if (m.type === "videonote") {
       body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
+      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
