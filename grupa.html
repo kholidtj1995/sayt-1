@@ -213,6 +213,14 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
+.voice-msg{ display:flex; align-items:center; gap:8px; min-width:200px; margin-bottom:4px; }
+.voice-msg-avatar{ width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--card-2); flex-shrink:0; }
+.voice-play-btn{
+  width:32px;height:32px;border-radius:50%;border:none;background:var(--accent);color:var(--accent-ink);
+  font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+}
+.voice-progress{ flex:1; accent-color:var(--accent); height:4px; }
+.voice-time{ font-size:10.5px; white-space:nowrap; opacity:.75; }
 .msg-caption{ margin-top:5px; }
 .msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;background:#000; }
 .videonote-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; width:170px; margin-bottom:4px; }
@@ -487,6 +495,18 @@ document.addEventListener("click", (e) => {
   if (btn) playClickSound();
 }, true);
 
+/* Ҳангоме ки паёми овозӣ/видео-кружочик плей мешавад, ҳамаи дигар паёмҳои
+   плейшуда стоп мешаванд — то садоҳо бо ҳам чанг нахӯранд */
+let currentPlayingMedia = null;
+document.addEventListener("play", (e) => {
+  const el = e.target;
+  if (el.tagName !== "AUDIO" && el.tagName !== "VIDEO") return;
+  if (currentPlayingMedia && currentPlayingMedia !== el) {
+    try { currentPlayingMedia.pause(); } catch (err) {}
+  }
+  currentPlayingMedia = el;
+}, true);
+
 /* Садои зангула (2 сония) — вакте гурухи обунашуда паёми нав мегирад */
 function playBellSound() {
   try {
@@ -537,6 +557,11 @@ function linkify(text) {
 }
 
 const TJ_MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
+
+function formatVoiceDur(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+}
 
 function formatTime(ts) {
   if (!ts) return "";
@@ -859,7 +884,13 @@ function renderMessages(groupId, messagesObj) {
       body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
       if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
     } else if (m.type === "voice") {
-      body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
+      body = `<div class="voice-msg" data-mid="${mid}">
+        <div class="voice-msg-avatar" style="background-image:url(${g.avatar || ""})"></div>
+        <button type="button" class="voice-play-btn">▶️</button>
+        <input type="range" class="voice-progress" min="0" max="100" value="0">
+        <span class="voice-time">0:00</span>
+        <audio class="msg-audio" preload="metadata" src="${m.data}"></audio>
+      </div>`;
     } else if (m.type === "videonote") {
       body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
       if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>`;
@@ -923,6 +954,35 @@ function renderMessages(groupId, messagesObj) {
     });
     volSlider.addEventListener("click", (e) => e.stopPropagation());
     volSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
+  });
+
+  wrap.querySelectorAll(".voice-msg").forEach((vm) => {
+    const audio = vm.querySelector(".msg-audio");
+    const playBtn = vm.querySelector(".voice-play-btn");
+    const slider = vm.querySelector(".voice-progress");
+    const timeLabel = vm.querySelector(".voice-time");
+
+    playBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (audio.paused || audio.ended) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause();
+      }
+    });
+    audio.addEventListener("play", () => { playBtn.textContent = "⏸"; });
+    audio.addEventListener("pause", () => { playBtn.textContent = "▶️"; });
+    audio.addEventListener("ended", () => { playBtn.textContent = "▶️"; slider.value = 0; timeLabel.textContent = formatVoiceDur(audio.duration); });
+    audio.addEventListener("loadedmetadata", () => { timeLabel.textContent = formatVoiceDur(audio.duration); });
+    audio.addEventListener("timeupdate", () => {
+      if (audio.duration) slider.value = (audio.currentTime / audio.duration) * 100;
+      if (!audio.paused && !audio.ended) timeLabel.textContent = formatVoiceDur(audio.currentTime);
+    });
+    slider.addEventListener("input", () => {
+      if (audio.duration) audio.currentTime = (Number(slider.value) / 100) * audio.duration;
+    });
+    slider.addEventListener("click", (e) => e.stopPropagation());
+    slider.addEventListener("pointerdown", (e) => e.stopPropagation());
   });
 
   wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
