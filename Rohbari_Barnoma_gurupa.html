@@ -305,6 +305,28 @@ textarea.caption-field:focus{ border-color:var(--teal); }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
 .msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;margin-bottom:4px;background:#000; }
+.videonote-wrap{ position:relative; display:inline-block; }
+.vn-unmute-btn{
+  position:absolute; bottom:8px; right:4px; width:28px;height:28px;border-radius:50%;
+  background:rgba(0,0,0,.6); border:none; color:#fff; font-size:13px;
+  display:flex; align-items:center; justify-content:center;
+}
+.reply-preview-bar{
+  display:none; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-elev);
+  border-top:1px solid var(--border);
+}
+.reply-preview-bar.open{ display:flex; }
+.reply-preview-line{ width:3px; align-self:stretch; background:var(--teal); border-radius:3px; flex-shrink:0; }
+.reply-preview-body{ flex:1; min-width:0; }
+.reply-preview-name{ font-size:12px; font-weight:700; color:var(--teal); }
+.reply-preview-text{ font-size:12.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reply-preview-cancel{ background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; flex-shrink:0; }
+.msg-reply-quote{
+  border-left:3px solid var(--teal); background:rgba(63,167,160,.10); border-radius:6px;
+  padding:4px 8px; margin-bottom:5px; font-size:12px; cursor:pointer;
+}
+.msg-reply-quote .rq-name{ color:var(--teal); font-weight:700; }
+.msg-reply-quote .rq-text{ color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
 @keyframes msgSlideUp{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
 .msg-row.msg-new{ animation:msgSlideUp .28s ease-out; }
 .pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
@@ -510,6 +532,15 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       </div>
     </div>
 
+    <div id="reply-preview-bar" class="reply-preview-bar">
+      <div class="reply-preview-line"></div>
+      <div class="reply-preview-body">
+        <div id="reply-preview-name" class="reply-preview-name"></div>
+        <div id="reply-preview-text" class="reply-preview-text"></div>
+      </div>
+      <button type="button" id="reply-preview-cancel" class="reply-preview-cancel">✕</button>
+    </div>
+
     <div id="group-composer" class="composer">
       <button type="button" id="composer-toggle-btn" class="composer-file-btn" title="Файл">📎</button>
       <button type="button" id="composer-video-btn" class="composer-video-btn" title="Видео-кружочик">🎥</button>
@@ -527,6 +558,15 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
     <button type="button" id="gm-clear" class="dropdown-item">Тоза кардани чат</button>
     <button type="button" id="gm-block" class="dropdown-item">Блок кардани гурӯҳ</button>
     <button type="button" id="gm-delete" class="dropdown-item danger">Нест кардани гурӯҳ</button>
+  </div>
+
+  <!-- ===================== SHARED: MESSAGE ACTION MENU (ёрирасон) ===================== -->
+  <div id="message-menu" class="dropdown-menu">
+    <button type="button" id="mm-reply" class="dropdown-item">↩️ Ҷавоб додан</button>
+    <button type="button" id="mm-react" class="dropdown-item">😊 Эмоция</button>
+    <button type="button" id="mm-edit" class="dropdown-item">✏️ Таҳрир кардан</button>
+    <button type="button" id="mm-pin" class="dropdown-item">📌 Пин кардан</button>
+    <button type="button" id="mm-delete" class="dropdown-item danger">🗑 Нест кардан</button>
   </div>
 
   <!-- ===================== MODAL: CREATE GROUP ===================== -->
@@ -645,6 +685,8 @@ let recordingTimer = null;
 let recordingSeconds = 0;
 let pendingAttachment = null; // {type:'image'|'document', data, name, size}
 let menuTargetGroupId = null;
+let mmTarget = null; // {groupId, mid} — паёми нишонашуда дар менюи ёрирасон
+let replyingTo = null; // {groupId, mid, preview} — паёме, ки ба он ҷавоб дода мешавад
 let knownMsgIds = new Set();
 let firstRenderForGroup = true;
 let vnStream = null;
@@ -1090,6 +1132,7 @@ function openGroup(groupId) {
   firstRenderForGroup = true;
   pinFocused = false;
   scrollBeforePinFocus = null;
+  cancelReply();
   showScreen("group");
   $("#composer-attachment-preview").innerHTML = "";
   $("#composer-textarea").value = "";
@@ -1121,6 +1164,8 @@ function closeGroup() {
   currentGroupId = null;
   stopRecordingIfAny(true);
   closeVideoNoteModal();
+  cancelReply();
+  closeMessageMenu();
   showScreen("main");
   showTab($(".nav-btn.active") ? $(".nav-btn.active").id.replace("nav-", "").replace("-btn", "") : "chat");
 }
@@ -1241,7 +1286,7 @@ function renderMessages(groupId, messagesObj) {
     } else if (m.type === "voice") {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
     } else if (m.type === "videonote") {
-      body = `<video class="msg-videonote" src="${m.data}" autoplay muted loop playsinline></video>`;
+      body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" autoplay loop playsinline></video><button type="button" class="vn-unmute-btn" style="display:none" title="Садоро фаъол кунед">🔇</button></div>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
@@ -1251,6 +1296,9 @@ function renderMessages(groupId, messagesObj) {
     const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
     const editedFlag = m.edited ? '<span class="edited-flag">тахрир шуд</span>' : "";
     const canEdit = m.senderId === ME.uid && m.type !== "voice" && m.type !== "videonote";
+    const replyQuote = m.replyTo
+      ? `<div class="msg-reply-quote" data-scroll-mid="${m.replyTo.mid}"><span class="rq-name">Шумо</span><span class="rq-text">${escapeHtml(m.replyTo.preview || "")}</span></div>`
+      : "";
 
     const isNew = !knownMsgIds.has(mid);
     if (isNew) {
@@ -1262,6 +1310,7 @@ function renderMessages(groupId, messagesObj) {
       <div class="msg-row ${isOwner ? "mine" : "theirs"} ${isNew && !firstRenderForGroup ? "msg-new" : ""}" data-mid="${mid}">
         <div class="msg-bubble">
           ${pinnedFlag}
+          ${replyQuote}
           ${body}
           <div class="msg-meta">${editedFlag} ${formatTime(m.ts)} ${ticks}</div>
           <div class="reaction-row">${reactionChips}</div>
@@ -1299,6 +1348,26 @@ function renderMessages(groupId, messagesObj) {
       }
     });
   });
+  wrap.querySelectorAll(".videonote-wrap").forEach((vw) => {
+    const video = vw.querySelector(".msg-videonote");
+    const unmuteBtn = vw.querySelector(".vn-unmute-btn");
+    video.muted = false;
+    const attempt = video.play();
+    if (attempt && attempt.catch) {
+      attempt.catch(() => {
+        // Браузер автоплейи бо садоро манъ кард — бе садо мебарорем ва тугмаи 🔇-ро нишон медиҳем
+        video.muted = true;
+        video.play().catch(() => {});
+        unmuteBtn.style.display = "flex";
+      });
+    }
+    unmuteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      video.muted = false;
+      video.play();
+      unmuteBtn.style.display = "none";
+    });
+  });
   wrap.querySelectorAll(".edit-toggle").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1314,6 +1383,130 @@ function renderMessages(groupId, messagesObj) {
   });
 
   if (nearBottom) wrap.scrollTop = wrap.scrollHeight;
+}
+
+/* ===================== Менюи ёрирасони паём (клики сабук ба паём) ===================== */
+function messagePreviewLabel(m) {
+  if (m.type === "image") return m.text ? m.text : "📷 Расм";
+  if (m.type === "document") return "📄 " + (m.name || "Ҳуҷҷат");
+  if (m.type === "voice") return "🎤 Паёми овозӣ";
+  if (m.type === "videonote") return "🎥 Видео-кружочик";
+  return m.text || "";
+}
+
+function openMessageMenu(e, groupId, mid) {
+  const g = allGroups[groupId];
+  const m = g && g.messages && g.messages[mid];
+  if (!g || !m) return;
+  const isOwnerOfGroup = g.ownerId === ME.uid;
+  mmTarget = { groupId, mid };
+
+  const canEditThis = isOwnerOfGroup && m.senderId === ME.uid && m.type !== "voice" && m.type !== "videonote";
+  const canDeleteThis = isOwnerOfGroup && m.senderId === ME.uid;
+  $("#mm-reply").style.display = isOwnerOfGroup ? "block" : "none";
+  $("#mm-edit").style.display = canEditThis ? "block" : "none";
+  $("#mm-pin").style.display = isOwnerOfGroup ? "block" : "none";
+  $("#mm-pin").textContent = g.pinnedMessageId === mid ? "📌 Рафъи пин" : "📌 Пин кардан";
+  $("#mm-delete").style.display = canDeleteThis ? "block" : "none";
+
+  const menu = $("#message-menu");
+  const px = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX)) || 100;
+  const py = (e.clientY != null ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY)) || 100;
+  menu.classList.add("open");
+  const menuH = menu.offsetHeight || 210;
+  const menuW = menu.offsetWidth || 190;
+  menu.style.top = Math.max(8, Math.min(py + 6, window.innerHeight - menuH - 8)) + "px";
+  menu.style.left = Math.max(8, Math.min(px - menuW / 2, window.innerWidth - menuW - 8)) + "px";
+}
+function closeMessageMenu() { $("#message-menu").classList.remove("open"); mmTarget = null; }
+
+function startReplyTo(groupId, mid) {
+  const g = allGroups[groupId];
+  const m = g && g.messages && g.messages[mid];
+  if (!m) return;
+  const preview = messagePreviewLabel(m);
+  replyingTo = { groupId, mid, preview };
+  $("#reply-preview-name").textContent = "Шумо";
+  $("#reply-preview-text").textContent = preview;
+  $("#reply-preview-bar").classList.add("open");
+  $("#composer-textarea").focus();
+}
+function cancelReply() {
+  replyingTo = null;
+  $("#reply-preview-bar").classList.remove("open");
+}
+
+function deleteMessage(groupId, mid) {
+  const g = allGroups[groupId];
+  if (!g || !g.messages || !g.messages[mid]) return;
+  const wasLast = g.lastMessage && g.lastMessage.ts === g.messages[mid].ts;
+  groupsRef.child(groupId).child("messages").child(mid).remove();
+  if (g.pinnedMessageId === mid) groupsRef.child(groupId).child("pinnedMessageId").set(null);
+  if (wasLast) {
+    const remaining = Object.entries(g.messages).filter(([k]) => k !== mid).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+    if (remaining.length) {
+      const [, lm] = remaining[remaining.length - 1];
+      groupsRef.child(groupId).child("lastMessage").set({ type: lm.type || "text", text: lm.text || "", ts: lm.ts || 0 });
+    } else {
+      groupsRef.child(groupId).child("lastMessage").remove();
+    }
+  }
+  if (replyingTo && replyingTo.mid === mid) cancelReply();
+}
+
+function initMessageMenu() {
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#message-menu") && !e.target.closest(".msg-bubble")) closeMessageMenu();
+  });
+  $("#group-messages").addEventListener("click", (e) => {
+    if (e.target.closest("a, audio, video, button, .reaction-chip, .emoji-picker, .msg-reply-quote")) return;
+    const bubble = e.target.closest(".msg-bubble");
+    if (!bubble) return;
+    const row = bubble.closest(".msg-row");
+    if (!row || !currentGroupId) return;
+    openMessageMenu(e, currentGroupId, row.dataset.mid);
+  });
+  $("#mm-reply").addEventListener("click", () => {
+    if (!mmTarget) return;
+    startReplyTo(mmTarget.groupId, mmTarget.mid);
+    closeMessageMenu();
+  });
+  $("#mm-react").addEventListener("click", () => {
+    if (!mmTarget) return;
+    const { groupId, mid } = mmTarget;
+    closeMessageMenu();
+    const wrap = $("#group-messages");
+    const picker = wrap.querySelector(`.emoji-picker[data-mid="${mid}"]`);
+    if (!picker) return;
+    wrap.querySelectorAll(".emoji-picker.open").forEach((p) => p.classList.remove("open"));
+    picker.innerHTML = REACTION_EMOJIS.map((em) => `<span data-emoji="${em}">${em}</span>`).join("");
+    picker.classList.add("open");
+    picker.querySelectorAll("span").forEach((s) => {
+      s.addEventListener("click", () => {
+        toggleReaction(groupId, mid, s.dataset.emoji);
+        picker.classList.remove("open");
+      });
+    });
+  });
+  $("#mm-edit").addEventListener("click", () => {
+    if (!mmTarget) return;
+    openEditMessageModal(mmTarget.groupId, mmTarget.mid);
+    closeMessageMenu();
+  });
+  $("#mm-pin").addEventListener("click", () => {
+    if (!mmTarget) return;
+    const g = allGroups[mmTarget.groupId];
+    const already = g.pinnedMessageId === mmTarget.mid;
+    groupsRef.child(mmTarget.groupId).child("pinnedMessageId").set(already ? null : mmTarget.mid);
+    closeMessageMenu();
+  });
+  $("#mm-delete").addEventListener("click", () => {
+    if (!mmTarget) return;
+    const { groupId, mid } = mmTarget;
+    closeMessageMenu();
+    showConfirm("Ин паём нест карда шавад?", true, () => deleteMessage(groupId, mid));
+  });
+  $("#reply-preview-cancel").addEventListener("click", cancelReply);
 }
 
 /* ===================== Таҳрири паём (равзанаи нав) ===================== */
@@ -1404,12 +1597,16 @@ function sendAttachmentMessage(caption) {
   const payload = { type: pendingAttachment.type, data: pendingAttachment.data, ts: TS, senderId: ME.uid };
   if (pendingAttachment.name) payload.name = pendingAttachment.name;
   if (caption) payload.text = caption;
+  if (replyingTo && replyingTo.groupId === currentGroupId) {
+    payload.replyTo = { mid: replyingTo.mid, preview: replyingTo.preview };
+  }
   const mRef = groupsRef.child(currentGroupId).child("messages").push();
   mRef.set(payload);
   groupsRef.child(currentGroupId).child("lastMessage").set({
     type: payload.type, text: payload.text || "", ts: TS
   });
   pendingAttachment = null;
+  cancelReply();
 }
 
 /* Тугмаи ягона дар composer: вакте кутии паём холист — файл (📎),
@@ -1534,6 +1731,9 @@ function sendMessage() {
   const text = ta.value.trim();
   if (!text) return;
   const payload = { type: "text", text, ts: TS, senderId: ME.uid };
+  if (replyingTo && replyingTo.groupId === currentGroupId) {
+    payload.replyTo = { mid: replyingTo.mid, preview: replyingTo.preview };
+  }
 
   const mRef = groupsRef.child(currentGroupId).child("messages").push();
   mRef.set(payload);
@@ -1544,6 +1744,7 @@ function sendMessage() {
   ta.value = "";
   autoGrowReset();
   updateSendMicIcon();
+  cancelReply();
 }
 
 /* ===================== Video note (round video message, Telegram-style) ===================== */
@@ -1564,7 +1765,7 @@ async function openVideoNoteModal() {
   openModal("modal-videonote");
   try {
     vnStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 480 }, aspectRatio: 1, frameRate: { ideal: 30, max: 30 } },
+      video: { facingMode: "user", width: { ideal: 260 }, height: { ideal: 260 }, aspectRatio: 1, frameRate: { ideal: 20, max: 24 } },
       audio: true
     });
     $("#vn-video").srcObject = vnStream;
@@ -1599,8 +1800,8 @@ function startVideoNoteRecording() {
   let mimeType = vnMimeCandidates.find((mt) => MediaRecorder.isTypeSupported(mt)) || "video/webm";
   vnRecorder = new MediaRecorder(vnStream, {
     mimeType,
-    videoBitsPerSecond: 1500000, // ~1.5 Mbps — миёнаи 1-2 Mbps, файли сабук
-    audioBitsPerSecond: 64000
+    videoBitsPerSecond: 350000, // сифати паст — файли сабук, вале то ҳанӯз тамошобоб
+    audioBitsPerSecond: 32000
   });
   vnOutMime = mimeType;
   vnRecorder.ondataavailable = (e) => { if (e.data.size > 0) vnChunks.push(e.data); };
@@ -1772,6 +1973,7 @@ function init() {
   initGroupMenu();
   initComposer();
   initEditMessageModal();
+  initMessageMenu();
 
 $("#nav-chat-btn").addEventListener("click", () => {
     $$(".nav-btn").forEach((b) => b.classList.remove("active"));
