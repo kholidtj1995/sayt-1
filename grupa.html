@@ -159,6 +159,7 @@ input{font-family:inherit;}
 .room-bottom{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:3px; }
 .room-preview{ font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .room-subs{ font-size:11px; color:var(--text-faint); flex-shrink:0; }
+.room-msgcount{ font-size:10.5px; color:var(--teal); background:rgba(63,167,160,.14); border-radius:20px; padding:2px 8px; flex-shrink:0; }
 
 /* ---------- group detail screen ---------- */
 .group-topbar{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:16px 16px 12px; }
@@ -198,6 +199,9 @@ input{font-family:inherit;}
 .msg-image{ max-width:100%; border-radius:10px; display:block; margin-bottom:4px; }
 .msg-document{ display:flex; align-items:center; gap:6px; color:var(--text); text-decoration:none; font-size:13.5px; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:10px; margin-bottom:4px; }
 .msg-audio{ width:200px; max-width:100%; margin-bottom:4px; }
+.msg-videonote{ width:170px;height:170px;border-radius:50%;object-fit:cover;display:block;margin-bottom:4px;background:#000; }
+@keyframes msgSlideUp{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
+.msg-row.msg-new{ animation:msgSlideUp .28s ease-out; }
 .pin-flag{ position:absolute; top:-8px; right:8px; font-size:12px; }
 .msg-meta{ display:flex; justify-content:flex-end; gap:4px; font-size:10.5px; color:var(--text-faint); margin-top:2px; }
 .reaction-row{ display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
@@ -361,6 +365,26 @@ let allGroups = {};
 let currentGroupId = null;
 let currentGroupUnsub = null;
 let messagesUnsub = null;
+let knownMsgIds = new Set();
+let firstRenderForGroup = true;
+
+/* ===================== Notification sound ===================== */
+function playNotifySound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(880, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.32);
+  } catch (e) {}
+}
 
 /* ===================== Helpers ===================== */
 const $ = (sel) => document.querySelector(sel);
@@ -551,6 +575,7 @@ function renderChatList() {
   groups.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
   list.innerHTML = groups.map(([id, g]) => {
     const subCount = Object.keys(g.subscribers || {}).length;
+    const msgCount = Object.keys(g.messages || {}).length;
     const last = g.lastMessage;
     const preview = last ? lastMessagePreview(last) : "Ҳанӯз паём нест";
     const time = last ? formatTime(last.ts) : "";
@@ -558,7 +583,7 @@ function renderChatList() {
       <div class="room-card" data-id="${id}">
         <div class="room-avatar" style="background-image:url(${g.avatar})"></div>
         <div class="room-info">
-          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-time">${time}</span></div>
+          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-msgcount">💬 ${msgCount}</span><span class="room-time">${time}</span></div>
           <div class="room-bottom"><span class="room-preview">${preview}</span><span class="room-subs">👥 ${subCount}</span></div>
         </div>
       </div>`;
@@ -572,12 +597,15 @@ function lastMessagePreview(m) {
   if (m.type === "image") return "📷 Расм";
   if (m.type === "document") return "📄 Ҳуҷҷат";
   if (m.type === "voice") return "🎤 Паёми овозӣ";
+  if (m.type === "videonote") return "🎥 Видео-кружочик";
   return escapeHtml((m.text || "").slice(0, 40));
 }
 
 /* ===================== Group detail screen ===================== */
 function openGroup(groupId) {
   currentGroupId = groupId;
+  knownMsgIds = new Set();
+  firstRenderForGroup = true;
   showScreen("group");
 
   if (currentGroupUnsub) currentGroupUnsub();
@@ -654,6 +682,7 @@ function renderMessages(groupId, messagesObj) {
   const entries = Object.entries(messagesObj).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
   let html = "";
   let lastDate = null;
+  const newlyArrived = [];
 
   for (const [mid, m] of entries) {
     const d = new Date(m.ts || Date.now());
@@ -676,14 +705,22 @@ function renderMessages(groupId, messagesObj) {
       body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
     } else if (m.type === "voice") {
       body = `<audio class="msg-audio" controls src="${m.data}"></audio>`;
+    } else if (m.type === "videonote") {
+      body = `<video class="msg-videonote" src="${m.data}" autoplay muted loop playsinline></video>`;
     } else {
       body = `<div class="msg-text">${linkify(m.text || "")}</div>`;
     }
 
     const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
 
+    const isNew = !knownMsgIds.has(mid);
+    if (isNew) {
+      knownMsgIds.add(mid);
+      if (!firstRenderForGroup) newlyArrived.push(m);
+    }
+
     html += `
-      <div class="msg-row" data-mid="${mid}">
+      <div class="msg-row ${isNew && !firstRenderForGroup ? "msg-new" : ""}" data-mid="${mid}">
         <div class="msg-bubble">
           ${pinnedFlag}
           ${body}
@@ -696,6 +733,8 @@ function renderMessages(groupId, messagesObj) {
         </div>
       </div>`;
   }
+  firstRenderForGroup = false;
+  if (newlyArrived.length) playNotifySound();
   wrap.innerHTML = html || `<div class="msgs-empty">Ҳанӯз паёме нест</div>`;
 
   wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
