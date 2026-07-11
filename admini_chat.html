@@ -25,10 +25,23 @@ body { background:#f0f2f5; display:flex; justify-content:center; align-items:cen
 .user-last-msg { font-size:13px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px; }
 .menu-dots { padding:8px; font-size:18px; color:#94a3b8; cursor:pointer; font-weight:bold; border-radius:50%; width:34px; height:34px; display:flex; justify-content:center; align-items:center; flex-shrink:0; }
 .menu-dots:hover { background:#e2e8f0; color:#475569; }
-.context-menu { position:absolute; right:16px; top:45px; background:#fff; box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05); border-radius:12px; width:170px; z-index:200; display:none; border:1px solid #e2e8f0; overflow:hidden; }
-.context-menu-item { padding:10px 14px; font-size:13px; font-weight:600; text-align:left; cursor:pointer; color:#334155; }
+.context-menu { position:absolute; right:16px; top:45px; background:#fff; box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05); border-radius:12px; width:190px; z-index:200; display:none; border:1px solid #e2e8f0; overflow:hidden; }
+.context-menu-item { padding:10px 14px; font-size:13px; font-weight:600; text-align:left; cursor:pointer; color:#334155; display:flex; align-items:center; gap:8px; }
 .context-menu-item:hover { background:#f1f5f9; }
+.context-menu-item.clear-chat { color:#334155; }
+.context-menu-item.block-user { color:#d97706; border-top:1px solid #f1f5f9; }
+.context-menu-item.archive-user { color:#0ea5e9; }
+.context-menu-item.unarchive-user { color:#10b981; }
 .context-menu-item.delete-user { color:#ef4444; border-top:1px solid #f1f5f9; }
+.blocked-badge { background:#f59e0b; color:#fff; font-size:10.5px; font-weight:bold; padding:1px 6px; border-radius:8px; display:none; }
+.admin-header-right { display:flex; align-items:center; gap:8px; }
+
+.search-bar { display:flex; align-items:center; gap:8px; background:#fff; margin:10px 14px; padding:9px 14px; border-radius:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,.04); flex-shrink:0; }
+.search-bar .search-icon { font-size:15px; color:#94a3b8; flex-shrink:0; }
+.search-bar input { flex:1; border:none; outline:none; font-size:14.5px; background:transparent; color:#1e293b; }
+.search-bar input::placeholder { color:#94a3b8; }
+.search-clear-btn { border:none; background:#e2e8f0; color:#64748b; width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer; display:none; align-items:center; justify-content:center; flex-shrink:0; }
+.no-results { padding:30px 20px; text-align:center; color:#94a3b8; font-size:14px; }
 
 .chat-screen { flex:1; display:none; flex-direction:column; overflow:hidden; background:#e9edf3; }
 #chatDisplay { flex:1; overflow-y:auto; padding:16px 16px 4px; display:flex; flex-direction:column; gap:4px; scrollbar-width:none; }
@@ -91,16 +104,40 @@ textarea { flex:1; padding:11px 14px; border:1px solid #e2e8f0; border-radius:20
 .reaction-picker { position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:#fff; border-radius:30px; padding:8px 12px; display:none; gap:8px; box-shadow:0 6px 20px rgba(0,0,0,.2); z-index:9999; }
 .reaction-picker.show { display:flex; }
 .reaction-picker span { font-size:22px; cursor:pointer; }
+
+.custom-alert-overlay { position:absolute; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(4px); display:flex; justify-content:center; align-items:center; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; }
+.custom-alert-overlay.show { opacity:1; pointer-events:auto; }
+.custom-alert-box { width:85%; max-width:320px; background:#fff; border-radius:22px; padding:28px 24px 22px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,.25); transform:scale(.85) translateY(10px); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.custom-alert-overlay.show .custom-alert-box { transform:scale(1) translateY(0); }
+.custom-alert-icon { font-size:38px; margin-bottom:12px; line-height:1; }
+.custom-alert-text { color:#1e293b; font-size:15.5px; font-weight:600; margin-bottom:22px; line-height:1.45; }
+.custom-alert-actions { display:flex; gap:10px; }
+.custom-alert-btn { flex:1; padding:13px; border:none; border-radius:13px; font-weight:700; font-size:14px; cursor:pointer; transition:transform .12s ease, filter .12s ease; }
+.custom-alert-btn:active { transform:scale(.95); }
+.custom-alert-btn.primary { background:linear-gradient(135deg,#3b9dff,#0056b3); color:#fff; box-shadow:0 8px 18px rgba(0,86,179,.3); }
+.custom-alert-btn.danger { background:linear-gradient(135deg,#f87171,#dc2626); color:#fff; box-shadow:0 8px 18px rgba(220,38,38,.3); }
+.custom-alert-btn.secondary { background:#f1f5f9; color:#334155; }
 </style>
 </head>
 <body>
 <div class="phone-container">
   <div class="admin-header">
     <div class="admin-header-left"><span class="online-badge"></span><span id="adminPanelTitle">Админ Панел</span></div>
-    <button id="backBtn" class="back-to-list" onclick="closeChat()">← Рӯйхат</button>
+    <div class="admin-header-right">
+      <button id="archiveBtn" class="back-to-list" style="display:flex;align-items:center;gap:6px;" onclick="openArchive()">🗄 Архив</button>
+      <button id="backBtn" class="back-to-list" onclick="goBack()">← Рӯйхат</button>
+    </div>
+  </div>
+
+  <div class="search-bar" id="searchBar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="userSearchInput" placeholder="Ковтуков бо ном ё рақами телефон..." oninput="onSearchInput(this.value)">
+    <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">✕</button>
   </div>
 
   <div id="usersListScreen" class="users-list-screen"></div>
+
+  <div id="archiveListScreen" class="users-list-screen" style="display:none;"></div>
 
   <div id="chatScreen" class="chat-screen">
     <div id="chatDisplay"></div>
@@ -132,6 +169,17 @@ textarea { flex:1; padding:11px 14px; border:1px solid #e2e8f0; border-radius:20
     <span onclick="selectReaction('😢')">😢</span>
     <span onclick="selectReaction('🙏')">🙏</span>
   </div>
+
+  <div id="customAlert" class="custom-alert-overlay">
+    <div class="custom-alert-box">
+      <div class="custom-alert-icon" id="alertIcon">⚠️</div>
+      <div class="custom-alert-text" id="alertText"></div>
+      <div class="custom-alert-actions">
+        <button class="custom-alert-btn secondary" id="alertCancelBtn" style="display:none;" onclick="closeAlert(false)">Бекор кардан</button>
+        <button class="custom-alert-btn primary" id="alertOkBtn" onclick="closeAlert(true)">Фаҳмидам</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -159,6 +207,10 @@ let activeReactionId = null;
 let currentPlayingAudio = null;
 let prevUnread = {};
 let usersInitDone = false;
+let listenedUsers = new Set();
+let usersData = {};
+let currentScreen = 'list'; // 'list' | 'chat' | 'archive'
+let searchQuery = '';
 
 /* ---------- Овозҳо ---------- */
 let audioCtx;
@@ -167,7 +219,40 @@ function tone(f1,f2,dur,type,g){ try{ const c=ctx(); const o=c.createOscillator(
 window.playClick = ()=>tone(880,640,.07,'triangle',.04);
 window.playSend = ()=>tone(500,900,.12,'sine',.05);
 window.playReceive = ()=>tone(700,500,.15,'sine',.05);
+window.playAlert = ()=>{ tone(520,780,.09,'sine',.05); setTimeout(()=>tone(780,520,.11,'sine',.05),90); };
 document.addEventListener('click', e=>{ if(e.target.closest('button,.doc-msg,.chat-image,.user-row')) window.playClick(); });
+
+/* ---------- Равзанаи зебои огоҳӣ/тасдиқ (ба ҷои confirm/alert-и браузер) ---------- */
+let alertResolve = null;
+window.showCustomAlert = (msg, icon)=>{
+  document.getElementById('alertIcon').textContent = icon || '⚠️';
+  document.getElementById('alertText').textContent = msg;
+  document.getElementById('alertCancelBtn').style.display = 'none';
+  const okBtn = document.getElementById('alertOkBtn');
+  okBtn.textContent = 'Фаҳмидам'; okBtn.className = 'custom-alert-btn primary';
+  document.getElementById('customAlert').classList.add('show');
+  window.playAlert();
+  return new Promise(res=>{ alertResolve = res; });
+};
+window.showCustomConfirm = (msg, opts)=>{
+  opts = opts || {};
+  document.getElementById('alertIcon').textContent = opts.icon || '❓';
+  document.getElementById('alertText').textContent = msg;
+  const cancelBtn = document.getElementById('alertCancelBtn');
+  const okBtn = document.getElementById('alertOkBtn');
+  cancelBtn.style.display = 'block';
+  cancelBtn.textContent = opts.cancelText || 'Бекор кардан';
+  okBtn.textContent = opts.okText || 'Тасдиқ';
+  okBtn.className = 'custom-alert-btn ' + (opts.danger ? 'danger' : 'primary');
+  document.getElementById('customAlert').classList.add('show');
+  window.playAlert();
+  return new Promise(res=>{ alertResolve = res; });
+};
+window.closeAlert = (result)=>{
+  document.getElementById('customAlert').classList.remove('show');
+  if(alertResolve){ const r = alertResolve; alertResolve = null; r(result); }
+};
+document.getElementById('customAlert').addEventListener('click', e=>{ if(e.target.id==='customAlert') window.closeAlert(false); });
 
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 function linkify(text){ return escapeHtml(text).replace(/((https?:\/\/|www\.)[^\s<]+)/g, m=>{ let u=m.startsWith('http')?m:'https://'+m; return `<a href="${u}" target="_blank" rel="noopener">${m}</a>`; }); }
@@ -176,54 +261,158 @@ function formatDur(sec){ sec=Math.max(0,Math.floor(sec||0)); return Math.floor(s
 function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 
 /* ---------- Рӯйхати корбарон ---------- */
+let allChatsData = {};
 onValue(ref(db, 'sayt1_active_users/'), snap=>{
-  const el = document.getElementById('usersListScreen');
-  el.innerHTML=''; const data = snap.val();
-  if(!data){ el.innerHTML='<div style="padding:20px;text-align:center;color:#94a3b8;">Ҳеҷ корбаре нест</div>'; usersInitDone=true; return; }
-
-  for(let username in data){
-    const u = data[username];
-    const lastMsg = u.lastMessage || "Паёме нест...";
-    const unread = u.unreadCount || 0;
+  usersData = snap.val() || {};
+  for(let username in usersData){
+    const unread = usersData[username].unreadCount || 0;
     if(usersInitDone && (prevUnread[username]||0) < unread) window.playReceive();
     prevUnread[username] = unread;
-
-    const row = document.createElement('div'); row.className='user-row'; row.onclick=()=>openChat(username);
-    row.innerHTML = `
-      <div class="user-info">
-        <div class="user-name-wrapper"><span class="user-name">${escapeHtml(username)}</span><span class="unread-badge" style="display:${unread>0?'inline-block':'none'}">${unread}</span></div>
-        <span class="user-last-msg">${escapeHtml(lastMsg)}</span>
-      </div>
-      <div class="menu-dots" onclick="toggleMenu(event,'${username}')">⋮</div>
-      <div id="menu-${username}" class="context-menu">
-        <div class="context-menu-item delete-user" onclick="deleteUser(event,'${username}')">Нест кардани корбар</div>
-      </div>`;
-    el.appendChild(row);
   }
+  renderUsersList();
+  if(currentScreen==='archive') renderArchiveList();
   usersInitDone = true;
 });
 
+/* Хониши тамоми чатҳо (барои ковтуков дар дохили паёмҳо) */
+onValue(ref(db, 'sayt1_chats/'), snap=>{
+  allChatsData = snap.val() || {};
+  if(searchQuery){ renderUsersList(); if(currentScreen==='archive') renderArchiveList(); }
+});
+
+/* ---------- Ковтуков зинда (ном, рақами телефон, ва матни дохили чат) ---------- */
+function textMatches(text, q, qDigits){
+  if(!text) return false;
+  const t = String(text).toLowerCase();
+  if(q && t.includes(q)) return true;
+  if(qDigits.length>=4){
+    const digits = String(text).replace(/\D/g,'');
+    if(digits.includes(qDigits)) return true;
+  }
+  return false;
+}
+function matchesSearch(username, u, query){
+  if(!query) return true;
+  const q = query.trim().toLowerCase();
+  const qDigits = query.replace(/\D/g,'');
+  if(textMatches(username, q, qDigits)) return true;
+  if(textMatches(u.lastMessage||'', q, qDigits)) return true;
+  const chat = allChatsData[username];
+  if(chat){
+    for(const key in chat){
+      const msg = chat[key];
+      if(textMatches(msg.text, q, qDigits)) return true;
+      if(textMatches(msg.fileName, q, qDigits)) return true;
+    }
+  }
+  return false;
+}
+window.onSearchInput = (val)=>{
+  searchQuery = val;
+  document.getElementById('searchClearBtn').style.display = val ? 'flex' : 'none';
+  renderUsersList();
+  if(currentScreen==='archive') renderArchiveList();
+};
+window.clearSearch = ()=>{
+  searchQuery = '';
+  document.getElementById('userSearchInput').value = '';
+  document.getElementById('searchClearBtn').style.display = 'none';
+  renderUsersList();
+  if(currentScreen==='archive') renderArchiveList();
+  document.getElementById('userSearchInput').focus();
+};
+
+function buildUserRow(username, u, opts){
+  const lastMsg = u.lastMessage || "Паёме нест...";
+  const unread = u.unreadCount || 0;
+  const isBlocked = !!u.blocked;
+  const row = document.createElement('div'); row.className='user-row'; row.onclick=()=>openChat(username);
+  row.innerHTML = `
+    <div class="user-info">
+      <div class="user-name-wrapper">
+        <span class="user-name">${escapeHtml(username)}</span>
+        <span class="unread-badge" style="display:${unread>0?'inline-block':'none'}">${unread}</span>
+        <span class="blocked-badge" style="display:${isBlocked?'inline-block':'none'}">Блок</span>
+      </div>
+      <span class="user-last-msg">${escapeHtml(lastMsg)}</span>
+    </div>
+    <div class="menu-dots" onclick="toggleMenu(event,'${username}')">⋮</div>
+    <div id="menu-${username}" class="context-menu">
+      <div class="context-menu-item clear-chat" onclick="clearChat(event,'${username}')">🧹 Тоза кардани чат</div>
+      <div class="context-menu-item block-user" onclick="toggleBlock(event,'${username}')">${isBlocked?'✅ Рафъи блок':'🚫 Блок кардани корбар'}</div>
+      ${opts && opts.archived
+        ? `<div class="context-menu-item unarchive-user" onclick="unarchiveUser(event,'${username}')">📤 Барқарор аз бойгонӣ</div>`
+        : `<div class="context-menu-item archive-user" onclick="archiveUser(event,'${username}')">🗄 Ба бойгонӣ гузарондан</div>`}
+      <div class="context-menu-item delete-user" onclick="deleteUser(event,'${username}')">🗑 Нест кардани корбар</div>
+    </div>`;
+  return row;
+}
+
+function renderUsersList(){
+  const el = document.getElementById('usersListScreen');
+  el.innerHTML='';
+  const all = Object.entries(usersData).filter(([,u])=>!u.archived);
+  const entries = all.filter(([username,u])=>matchesSearch(username, u, searchQuery));
+  if(all.length===0){ el.innerHTML='<div class="no-results">Ҳеҷ корбаре нест</div>'; return; }
+  if(entries.length===0){ el.innerHTML='<div class="no-results">🔍 Мутобиқат ёфт нашуд</div>'; return; }
+  entries.forEach(([username,u])=>{ el.appendChild(buildUserRow(username,u,{archived:false})); });
+}
+
+function renderArchiveList(){
+  const el = document.getElementById('archiveListScreen');
+  el.innerHTML='';
+  const all = Object.entries(usersData).filter(([,u])=>u.archived);
+  const entries = all.filter(([username,u])=>matchesSearch(username, u, searchQuery));
+  if(all.length===0){ el.innerHTML='<div class="no-results">Бойгонӣ холӣ аст</div>'; return; }
+  if(entries.length===0){ el.innerHTML='<div class="no-results">🔍 Мутобиқат ёфт нашуд</div>'; return; }
+  entries.forEach(([username,u])=>{ el.appendChild(buildUserRow(username,u,{archived:true})); });
+}
+
 window.openChat = (username)=>{
   selectedUser = username;
+  currentScreen = 'chat';
   update(ref(db,'admin_status/'), { current_chat:username });
   update(ref(db, `sayt1_active_users/${username}`), { unreadCount:0 });
   window.parent.postMessage({ type:"chat-conversation-open" }, "*");
   document.getElementById('usersListScreen').style.display='none';
+  document.getElementById('archiveListScreen').style.display='none';
+  document.getElementById('searchBar').style.display='none';
   document.getElementById('chatScreen').style.display='flex';
   document.getElementById('backBtn').style.display='block';
+  document.getElementById('archiveBtn').style.display='none';
   document.getElementById('adminPanelTitle').innerText = `Чат: ${username}`;
-  loadMessages(username);
+  if(!listenedUsers.has(username)){ listenedUsers.add(username); loadMessages(username); }
   setTimeout(()=>document.getElementById('adminMsg').focus(),100);
 };
-window.closeChat = ()=>{
-  selectedUser="";
-  update(ref(db,'admin_status/'), { current_chat:"" });
-  window.parent.postMessage({ type:"chat-conversation-closed" }, "*");
-  document.getElementById('usersListScreen').style.display='flex';
+
+window.openArchive = ()=>{
+  currentScreen = 'archive';
+  document.getElementById('usersListScreen').style.display='none';
   document.getElementById('chatScreen').style.display='none';
+  document.getElementById('archiveListScreen').style.display='flex';
+  document.getElementById('searchBar').style.display='flex';
+  document.getElementById('archiveBtn').style.display='none';
+  document.getElementById('backBtn').style.display='block';
+  document.getElementById('adminPanelTitle').innerText = "Бойгонӣ";
+  renderArchiveList();
+};
+
+window.goBack = ()=>{
+  if(currentScreen==='chat'){
+    selectedUser="";
+    update(ref(db,'admin_status/'), { current_chat:"" });
+    window.parent.postMessage({ type:"chat-conversation-closed" }, "*");
+  }
+  currentScreen = 'list';
+  document.getElementById('usersListScreen').style.display='flex';
+  document.getElementById('archiveListScreen').style.display='none';
+  document.getElementById('chatScreen').style.display='none';
+  document.getElementById('searchBar').style.display='flex';
   document.getElementById('backBtn').style.display='none';
+  document.getElementById('archiveBtn').style.display='flex';
   document.getElementById('adminPanelTitle').innerText = "Админ Панел";
 };
+window.closeChat = window.goBack;
 
 /* ---------- Матн вуруд/ирсол ---------- */
 window.onMsgInput = (ta)=>{
@@ -253,7 +442,7 @@ window.sendAdmin = async ()=>{
 /* ---------- Файл/расм ---------- */
 document.getElementById('fileInput').addEventListener('change', async e=>{
   const file = e.target.files[0]; if(!file || !selectedUser) return;
-  if(file.type.startsWith('audio/') || file.type.startsWith('video/')){ alert('Ирсоли мусиқӣ ва видео иҷозат дода намешавад'); e.target.value=''; return; }
+  if(file.type.startsWith('audio/') || file.type.startsWith('video/')){ window.showCustomAlert('Ирсоли мусиқӣ ва видео иҷозат дода намешавад','🚫'); e.target.value=''; return; }
   try{
     if(file.type.startsWith('image/')){
       const dataUrl = await compressImage(file);
@@ -261,13 +450,13 @@ document.getElementById('fileInput').addEventListener('change', async e=>{
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     } else {
-      if(file.size>5*1024*1024){ alert('Файл хеле калон аст (макс 5MB)'); e.target.value=''; return; }
+      if(file.size>5*1024*1024){ window.showCustomAlert('Файл хеле калон аст (макс 5MB)','📦'); e.target.value=''; return; }
       const dataUrl = await readAsDataURL(file);
       const data = { type:'document', fileData:dataUrl, fileName:file.name, fileSize:file.size };
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     }
-  }catch(err){ alert('Хатогӣ ҳангоми ирсоли файл'); }
+  }catch(err){ window.showCustomAlert('Хатогӣ ҳангоми ирсоли файл','⚠️'); }
   e.target.value='';
 });
 
@@ -317,10 +506,10 @@ function startRec(e){
       await pushMsg(data);
     };
     mediaRecorder.start();
-  }).catch(()=>alert('Дастрасӣ ба микрофон рад шуд'));
+  }).catch(()=>window.showCustomAlert('Дастрасӣ ба микрофон рад шуд','🎙️'));
 }
 function stopRec(){ if(recording && mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); recording=false; } }
-actionBtn.addEventListener('mousedown', e=>{ if(actionBtn.innerHTML.trim()==='➤'){ trySend(); } else startRec(e); });
+actionBtn.addEventListener('mousedown', e=>{ if(actionBtn.innerHTML.trim()!=='➤') startRec(e); });
 actionBtn.addEventListener('touchstart', e=>{ if(actionBtn.innerHTML.trim()!=='➤'){ startRec(e); } });
 actionBtn.addEventListener('mouseup', stopRec);
 actionBtn.addEventListener('mouseleave', stopRec);
@@ -374,14 +563,45 @@ window.toggleMenu = (event, username)=>{
   const menu = document.getElementById(`menu-${username}`);
   menu.style.display = menu.style.display==='block' ? 'none' : 'block';
 };
-window.deleteUser = (event, username)=>{
+window.deleteUser = async (event, username)=>{
   event.stopPropagation();
-  if(confirm(`Корбар ${username}-ро комилан нест мекунед?`)){
+  const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
+  const ok = await window.showCustomConfirm(`Корбар ${username}-ро комилан нест мекунед? Ин амал бебозгашт аст.`, { icon:'🗑️', okText:'Нест кардан', cancelText:'Бекор кардан', danger:true });
+  if(ok){
     remove(ref(db, `sayt1_chats/${username}`));
     remove(ref(db, `sayt1_active_users/${username}`));
-    if(selectedUser===username) closeChat();
+    if(selectedUser===username) goBack();
   }
-  document.getElementById(`menu-${username}`).style.display='none';
+};
+window.clearChat = async (event, username)=>{
+  event.stopPropagation();
+  const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
+  const ok = await window.showCustomConfirm(`Тамоми паёмҳои чат бо ${username} тоза карда шаванд?`, { icon:'🧹', okText:'Тоза кардан', cancelText:'Бекор кардан', danger:true });
+  if(ok){
+    remove(ref(db, `sayt1_chats/${username}`));
+  }
+};
+window.toggleBlock = async (event, username)=>{
+  event.stopPropagation();
+  const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
+  const isBlocked = !!(usersData[username] && usersData[username].blocked);
+  const ok = await window.showCustomConfirm(
+    isBlocked ? `Блокро аз ${username} бардоред?` : `Корбар ${username}-ро блок мекунед? Ӯ дигар паём фиристода натавонад.`,
+    { icon: isBlocked ? '✅' : '🚫', okText: isBlocked ? 'Рафъи блок' : 'Блок кардан', cancelText:'Бекор кардан', danger:!isBlocked }
+  );
+  if(ok) update(ref(db, `sayt1_active_users/${username}`), { blocked: !isBlocked });
+};
+window.archiveUser = async (event, username)=>{
+  event.stopPropagation();
+  const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
+  const ok = await window.showCustomConfirm(`Корбар ${username}-ро ба бойгонӣ гузаронед?`, { icon:'🗄', okText:'Ба бойгонӣ', cancelText:'Бекор кардан' });
+  if(ok){ update(ref(db, `sayt1_active_users/${username}`), { archived: true }); if(selectedUser===username) goBack(); }
+};
+window.unarchiveUser = async (event, username)=>{
+  event.stopPropagation();
+  const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
+  const ok = await window.showCustomConfirm(`Корбар ${username}-ро аз бойгонӣ барқарор кунед?`, { icon:'📤', okText:'Барқарор кардан', cancelText:'Бекор кардан' });
+  if(ok) update(ref(db, `sayt1_active_users/${username}`), { archived: false });
 };
 document.addEventListener('click', ()=>document.querySelectorAll('.context-menu').forEach(m=>m.style.display='none'));
 
