@@ -15,9 +15,18 @@ body { background:#f0f2f5; display:flex; justify-content:center; align-items:cen
 .online-badge { width:8px; height:8px; background:#10b981; border-radius:50%; display:inline-block; }
 .back-to-list { background:rgba(255,255,255,.2); color:#fff; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; display:none; }
 
-.users-list-screen { flex:1; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column; }
-.user-row { background:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #edf2f7; cursor:pointer; position:relative; }
-.user-row:hover { background:#f1f5f9; }
+.users-list-screen { flex:1; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column; scrollbar-width:none; -ms-overflow-style:none; }
+.users-list-screen::-webkit-scrollbar { display:none; width:0; height:0; }
+.user-row { background:#fff; padding:14px 16px; margin:8px 12px 0; display:flex; align-items:center; justify-content:space-between; border:1px solid #e7ebf0; border-radius:16px; box-shadow:0 2px 8px rgba(15,23,42,.05); cursor:pointer; position:relative; transition:transform .12s ease, box-shadow .12s ease, background .12s ease; }
+.user-row:last-child { margin-bottom:8px; }
+.user-row:hover { background:#f8fafc; box-shadow:0 4px 14px rgba(15,23,42,.09); }
+.user-row:active { transform:scale(.985); }
+.user-row.pinned { border-color:#bfe3ff; background:linear-gradient(180deg,#f4faff,#ffffff); }
+.pin-flag { position:absolute; top:-7px; left:14px; background:#0ea5e9; color:#fff; font-size:10px; font-weight:700; padding:1px 7px; border-radius:8px; box-shadow:0 2px 5px rgba(14,165,233,.35); }
+.row-actions { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.status-dot { width:14px; height:14px; border-radius:50%; border:2px solid #cbd5e1; background:#fff; cursor:pointer; flex-shrink:0; box-sizing:border-box; transition:background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.status-dot:hover { border-color:#94a3b8; }
+.status-dot.marked { background:#10b981; border-color:#10b981; box-shadow:0 0 0 3px rgba(16,185,129,.18); }
 .user-info { display:flex; flex-direction:column; gap:2px; flex:1; overflow:hidden; }
 .user-name-wrapper { display:flex; align-items:center; gap:8px; }
 .user-name { font-size:15px; font-weight:700; color:#1e293b; }
@@ -32,6 +41,7 @@ body { background:#f0f2f5; display:flex; justify-content:center; align-items:cen
 .context-menu-item.block-user { color:#d97706; border-top:1px solid #f1f5f9; }
 .context-menu-item.archive-user { color:#0ea5e9; }
 .context-menu-item.unarchive-user { color:#10b981; }
+.context-menu-item.pin-user { color:#0284c7; border-top:1px solid #f1f5f9; }
 .context-menu-item.delete-user { color:#ef4444; border-top:1px solid #f1f5f9; }
 .blocked-badge { background:#f59e0b; color:#fff; font-size:10.5px; font-weight:bold; padding:1px 6px; border-radius:8px; display:none; }
 .admin-header-right { display:flex; align-items:center; gap:8px; }
@@ -326,8 +336,11 @@ function buildUserRow(username, u, opts){
   const lastMsg = u.lastMessage || "Паёме нест...";
   const unread = u.unreadCount || 0;
   const isBlocked = !!u.blocked;
-  const row = document.createElement('div'); row.className='user-row'; row.onclick=()=>openChat(username);
+  const isPinned = !!u.pinned;
+  const isMarked = !!u.marked;
+  const row = document.createElement('div'); row.className='user-row'+(isPinned?' pinned':''); row.onclick=()=>openChat(username);
   row.innerHTML = `
+    ${isPinned?'<span class="pin-flag">📌 Собит</span>':''}
     <div class="user-info">
       <div class="user-name-wrapper">
         <span class="user-name">${escapeHtml(username)}</span>
@@ -336,8 +349,12 @@ function buildUserRow(username, u, opts){
       </div>
       <span class="user-last-msg">${escapeHtml(lastMsg)}</span>
     </div>
-    <div class="menu-dots" onclick="toggleMenu(event,'${username}')">⋮</div>
+    <div class="row-actions">
+      <span class="status-dot ${isMarked?'marked':''}" onclick="toggleMarked(event,'${username}')" title="Аломат гузоштан"></span>
+      <div class="menu-dots" onclick="toggleMenu(event,'${username}')">⋮</div>
+    </div>
     <div id="menu-${username}" class="context-menu">
+      <div class="context-menu-item pin-user" onclick="togglePin(event,'${username}')">${isPinned?'📌 Аз боло гирифтан':'📌 Дар боло собит кардан'}</div>
       <div class="context-menu-item clear-chat" onclick="clearChat(event,'${username}')">🧹 Тоза кардани чат</div>
       <div class="context-menu-item block-user" onclick="toggleBlock(event,'${username}')">${isBlocked?'✅ Рафъи блок':'🚫 Блок кардани корбар'}</div>
       ${opts && opts.archived
@@ -348,11 +365,15 @@ function buildUserRow(username, u, opts){
   return row;
 }
 
+function sortByPinned(entries){
+  return entries.sort((a,b)=> (b[1].pinned?1:0) - (a[1].pinned?1:0));
+}
+
 function renderUsersList(){
   const el = document.getElementById('usersListScreen');
   el.innerHTML='';
   const all = Object.entries(usersData).filter(([,u])=>!u.archived);
-  const entries = all.filter(([username,u])=>matchesSearch(username, u, searchQuery));
+  const entries = sortByPinned(all.filter(([username,u])=>matchesSearch(username, u, searchQuery)));
   if(all.length===0){ el.innerHTML='<div class="no-results">Ҳеҷ корбаре нест</div>'; return; }
   if(entries.length===0){ el.innerHTML='<div class="no-results">🔍 Мутобиқат ёфт нашуд</div>'; return; }
   entries.forEach(([username,u])=>{ el.appendChild(buildUserRow(username,u,{archived:false})); });
@@ -362,7 +383,7 @@ function renderArchiveList(){
   const el = document.getElementById('archiveListScreen');
   el.innerHTML='';
   const all = Object.entries(usersData).filter(([,u])=>u.archived);
-  const entries = all.filter(([username,u])=>matchesSearch(username, u, searchQuery));
+  const entries = sortByPinned(all.filter(([username,u])=>matchesSearch(username, u, searchQuery)));
   if(all.length===0){ el.innerHTML='<div class="no-results">Бойгонӣ холӣ аст</div>'; return; }
   if(entries.length===0){ el.innerHTML='<div class="no-results">🔍 Мутобиқат ёфт нашуд</div>'; return; }
   entries.forEach(([username,u])=>{ el.appendChild(buildUserRow(username,u,{archived:true})); });
@@ -602,6 +623,17 @@ window.unarchiveUser = async (event, username)=>{
   const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
   const ok = await window.showCustomConfirm(`Корбар ${username}-ро аз бойгонӣ барқарор кунед?`, { icon:'📤', okText:'Барқарор кардан', cancelText:'Бекор кардан' });
   if(ok) update(ref(db, `sayt1_active_users/${username}`), { archived: false });
+};
+window.togglePin = (event, username)=>{
+  event.stopPropagation();
+  const menu = document.getElementById(`menu-${username}`); if(menu) menu.style.display='none';
+  const isPinned = !!(usersData[username] && usersData[username].pinned);
+  update(ref(db, `sayt1_active_users/${username}`), { pinned: !isPinned });
+};
+window.toggleMarked = (event, username)=>{
+  event.stopPropagation();
+  const isMarked = !!(usersData[username] && usersData[username].marked);
+  update(ref(db, `sayt1_active_users/${username}`), { marked: !isMarked });
 };
 document.addEventListener('click', ()=>document.querySelectorAll('.context-menu').forEach(m=>m.style.display='none'));
 
