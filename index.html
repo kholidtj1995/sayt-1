@@ -382,8 +382,12 @@
 
         <div class="settings-frame">
             <div class="frame-title">Чат бо админ</div>
-           <a href="https://kholidtj1995.github.io/sayt-1/chat.html" target="chatWindow" class="social-btn chat-btn">
+           <a href="https://kholidtj1995.github.io/sayt-1/chat.html" target="chatWindow" class="social-btn chat-btn" id="chat-link-btn">
                 <div class="icon-container"><img src="https://cdn-icons-png.flaticon.com/128/10308/10308218.png"></div>Суҳбат кардан
+                <span class="group-notify" id="chat-notify" style="display:none;">
+                    <span class="group-notify-bell" id="chat-notify-bell">🔔</span>
+                    <span class="group-notify-count" id="chat-notify-count">0</span>
+                </span>
             </a>
         </div>
 
@@ -634,12 +638,12 @@
         }
     </script>
 
-    <!-- ---- Огоҳонии паёмҳои нави гурӯҳи "Групаи махсус" ---- -->
+    <!-- ---- Огоҳонии паёмҳои нав: "Групаи махсус" ва "Чат бо админ" ---- -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
     <script>
     (function () {
-        // Ҳамон конфиги Firebase, ки дар grupa.html истифода мешавад
+        // Ҳамон конфиги Firebase, ки дар grupa.html ва chat.html истифода мешавад
         const firebaseConfig = {
             apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
             authDomain: "live-chat-ea070.firebaseapp.com",
@@ -648,59 +652,28 @@
             storageBucket: "live-chat-ea070.firebasestorage.app"
         };
 
-        const notifyWrap = document.getElementById('group-notify');
-        const bellEl = document.getElementById('group-notify-bell');
-        const countEl = document.getElementById('group-notify-count');
-        if (!notifyWrap || !bellEl || !countEl) return;
-
-        // Профили корбар (ҳамон "lc_profile", ки grupa.html месозад).
-        // Агар корбар ҳанӯз ягон бор ба гурӯҳ надаромада бошад — чизе намоиш дода намешавад.
+        // Профили гурӯҳ (ҳамон "lc_profile", ки grupa.html месозад)
         let ME = null;
         try {
             const raw = localStorage.getItem('lc_profile');
             if (raw) ME = JSON.parse(raw);
         } catch (e) { ME = null; }
-        if (!ME || !ME.uid) return;
+        const hasGroupProfile = !!(ME && ME.uid);
+
+        // Номи корбар дар чати админ (ҳамон "sayt1_username", ки chat.html месозад)
+        let chatUsername = null;
+        try { chatUsername = localStorage.getItem('sayt1_username'); } catch (e) { chatUsername = null; }
+        const hasChatProfile = !!(chatUsername && chatUsername.trim() !== '');
+
+        // Агар корбар ҳанӯз ба ҳеҷ куҷо (на гурӯҳ, на чат) вонашуда бошад — ҳеҷ чиз лозим нест
+        if (!hasGroupProfile && !hasChatProfile) return;
 
         try {
             firebase.initializeApp(firebaseConfig);
         } catch (e) { return; }
-        const groupsRef = firebase.database().ref('groups');
+        const db = firebase.database();
 
-        let prevUnread = -1; // -1 = ҳанӯз санҷида нашудааст (боркунии аввал)
-
-        groupsRef.on('value', function (snap) {
-            const groups = snap.val() || {};
-            let totalUnread = 0;
-
-            Object.values(groups).forEach(function (g) {
-                if (!g || g.blocked) return;
-                if (!g.subscribers || !g.subscribers[ME.uid]) return; // танҳо гурӯҳҳое, ки корбар обуна шудааст
-                const lastSeenTs = (g.lastSeen && g.lastSeen[ME.uid]) || 0;
-                const msgs = g.messages || {};
-                Object.values(msgs).forEach(function (m) {
-                    if (m && (m.ts || 0) > lastSeenTs) totalUnread++;
-                });
-            });
-
-            if (totalUnread > 0) {
-                notifyWrap.style.display = 'flex';
-                countEl.textContent = totalUnread > 99 ? '99+' : String(totalUnread);
-                bellEl.classList.add('ring');
-            } else {
-                notifyWrap.style.display = 'none';
-                bellEl.classList.remove('ring');
-            }
-
-            // Садо мезанем ҳар вақте ки шумораи паёмҳои нахонда зиёд мешавад
-            // (аз ҷумла дафъаи аввали воридшавӣ ба сомона, агар паёми нахонда бошад)
-            if (totalUnread > 0 && totalUnread !== prevUnread) {
-                playGroupBellSound();
-            }
-            prevUnread = totalUnread;
-        });
-
-        /* ---- Садои зангула (Web Audio API, бе файли берунӣ) ---- */
+        /* ---- Садои зангула (Web Audio API, бе файли берунӣ) — муштарак барои ҳарду огоҳонӣ ---- */
         let notifyAudioCtx = null;
         let pendingBellPlay = false;
 
@@ -726,7 +699,7 @@
             });
         }
 
-        function playGroupBellSound() {
+        function playBellSound() {
             try {
                 if (!notifyAudioCtx) {
                     notifyAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -757,6 +730,84 @@
                 }).catch(function () {});
             }
         });
+
+        /* ===================== 1) Огоҳонии "Групаи махсус" ===================== */
+        if (hasGroupProfile) {
+            const notifyWrap = document.getElementById('group-notify');
+            const bellEl = document.getElementById('group-notify-bell');
+            const countEl = document.getElementById('group-notify-count');
+
+            if (notifyWrap && bellEl && countEl) {
+                let prevUnread = -1; // -1 = ҳанӯз санҷида нашудааст (боркунии аввал)
+
+                db.ref('groups').on('value', function (snap) {
+                    const groups = snap.val() || {};
+                    let totalUnread = 0;
+
+                    Object.values(groups).forEach(function (g) {
+                        if (!g || g.blocked) return;
+                        if (!g.subscribers || !g.subscribers[ME.uid]) return; // танҳо гурӯҳҳое, ки корбар обуна шудааст
+                        const lastSeenTs = (g.lastSeen && g.lastSeen[ME.uid]) || 0;
+                        const msgs = g.messages || {};
+                        Object.values(msgs).forEach(function (m) {
+                            if (m && (m.ts || 0) > lastSeenTs) totalUnread++;
+                        });
+                    });
+
+                    if (totalUnread > 0) {
+                        notifyWrap.style.display = 'flex';
+                        countEl.textContent = totalUnread > 99 ? '99+' : String(totalUnread);
+                        bellEl.classList.add('ring');
+                    } else {
+                        notifyWrap.style.display = 'none';
+                        bellEl.classList.remove('ring');
+                    }
+
+                    // Садо мезанем ҳар вақте ки шумораи паёмҳои нахонда зиёд мешавад
+                    // (аз ҷумла дафъаи аввали воридшавӣ ба сомона, агар паёми нахонда бошад)
+                    if (totalUnread > 0 && totalUnread !== prevUnread) {
+                        playBellSound();
+                    }
+                    prevUnread = totalUnread;
+                });
+            }
+        }
+
+        /* ===================== 2) Огоҳонии "Чат бо админ" ===================== */
+        if (hasChatProfile) {
+            const notifyWrap = document.getElementById('chat-notify');
+            const bellEl = document.getElementById('chat-notify-bell');
+            const countEl = document.getElementById('chat-notify-count');
+
+            if (notifyWrap && bellEl && countEl) {
+                let prevUnread = -1; // -1 = ҳанӯз санҷида нашудааст (боркунии аввал)
+
+                db.ref('sayt1_chats/' + chatUsername).on('value', function (snap) {
+                    const messages = snap.val() || {};
+                    let unread = 0;
+
+                    Object.values(messages).forEach(function (m) {
+                        // Паёмҳое, ки аз тарафи админ омадаанд ва корбар ҳанӯз надидааст
+                        // (chat.html вақте кушода мешавад, ҳамин "seenByUser"-ро true мекунад)
+                        if (m && m.user !== chatUsername && !m.seenByUser) unread++;
+                    });
+
+                    if (unread > 0) {
+                        notifyWrap.style.display = 'flex';
+                        countEl.textContent = unread > 99 ? '99+' : String(unread);
+                        bellEl.classList.add('ring');
+                    } else {
+                        notifyWrap.style.display = 'none';
+                        bellEl.classList.remove('ring');
+                    }
+
+                    if (unread > 0 && unread !== prevUnread) {
+                        playBellSound();
+                    }
+                    prevUnread = unread;
+                });
+            }
+        }
     })();
     </script>
 </body>
