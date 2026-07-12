@@ -69,13 +69,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
   mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
   pointer-events:none; transition:background .15s linear;
 }
-.vn-preview-playpause{
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:52px; height:52px; border-radius:50%; border:none;
-  background:rgba(0,0,0,.5); color:#fff; font-size:20px;
-  display:flex; align-items:center; justify-content:center; z-index:2;
-}
-#vn-record-btn.recording{ background:var(--danger); color:#fff; }
 
 /* ---------- ikat signature pattern ---------- */
 .ikat-bg{
@@ -692,19 +685,20 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       <h3 class="modal-title">Видео-кружочик</h3>
       <div class="videonote-circle-wrap">
         <video id="vn-video" class="videonote-circle" autoplay muted playsinline></video>
-        <button type="button" id="vn-playpause-btn" class="vn-preview-playpause" style="display:none;">▶️</button>
       </div>
       <div id="vn-timer" class="videonote-timer" style="display:none;">● 0:00 / 0:15</div>
       <div id="vn-caption-row" class="ap-caption-row" style="display:none;">
         <textarea id="vn-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
+        <button type="button" id="vn-emoji-btn" class="ap-emoji-btn" title="Смайлик">😊</button>
       </div>
+      <div id="vn-emoji-grid" class="emoji-grid ap-emoji-grid"></div>
       <div class="modal-actions">
         <button type="button" id="vn-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="vn-record-btn" class="btn-primary flex">● Сабт кардан</button>
+        <button type="button" id="vn-send-btn" class="btn-primary flex" style="display:none;">Ирсол ➤</button>
       </div>
     </div>
   </div>
-
 
   <!-- ===================== MODAL: CONFIRM ===================== -->
   <div id="modal-confirm" class="modal-overlay">
@@ -744,7 +738,6 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-storage-compat.min.js"></script>
 <script>
 /* ===================== Firebase ===================== */
 const firebaseConfig = {
@@ -758,29 +751,13 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const storage = firebase.storage();
 const groupsRef = db.ref("groups");
 const TS = firebase.database.ServerValue.TIMESTAMP;
 
-/* Боркунии файл/Blob ба Firebase Storage ва баргардонидани URL-и боргирӣ */
-function uploadToStorage(blobOrFile, filename, onProgress) {
-  const path = `group_uploads/${currentGroupId || "misc"}/${Date.now()}_${filename}`;
-  const sRef = storage.ref(path);
-  return new Promise((resolve, reject) => {
-    const task = sRef.put(blobOrFile);
-    task.on(
-      "state_changed",
-      (snap) => {
-        if (onProgress && snap.totalBytes) {
-          onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
-        }
-      },
-      (err) => reject(err),
-      () => {
-        sRef.getDownloadURL().then(resolve).catch(reject);
-      }
-    );
-  });
+/* Ба ҷои боркунӣ ба Firebase Storage — файл/Blob-ро мустақим ба base64 (data URL)
+   табдил медиҳем, то бевосита дар Realtime Database нигоҳ дошта шавад */
+async function uploadToStorage(blobOrFile, filename) {
+  return await readFileAsDataURL(blobOrFile);
 }
 
 /* Табдили dataURL (base64) ба Blob — барои боркунии расмҳои фушурдашуда */
@@ -2201,7 +2178,25 @@ function sendMessage() {
 function initVideoNoteRecorder() {
   $("#composer-video-btn").addEventListener("click", openVideoNoteModal);
   $("#vn-cancel-btn").addEventListener("click", closeVideoNoteModal);
-  $("#vn-playpause-btn").addEventListener("click", toggleVnPreviewPlayback);
+  $("#vn-send-btn").addEventListener("click", sendVideoNote);
+
+  const vnGrid = $("#vn-emoji-grid");
+  vnGrid.innerHTML = EMOJI_LIST.map((em) => `<span>${em}</span>`).join("");
+  vnGrid.querySelectorAll("span").forEach((el) => {
+    el.addEventListener("click", () => {
+      const ta = $("#vn-caption");
+      const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+      const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
+      const val = ta.value;
+      ta.value = val.slice(0, start) + el.textContent + val.slice(end);
+      const pos = start + el.textContent.length;
+      ta.selectionStart = ta.selectionEnd = pos;
+      ta.focus();
+    });
+  });
+  $("#vn-emoji-btn").addEventListener("click", () => {
+    vnGrid.classList.toggle("open");
+  });
 }
 
 async function openVideoNoteModal() {
@@ -2210,17 +2205,17 @@ async function openVideoNoteModal() {
   $("#composer-video-btn").classList.add("active");
   $(".videonote-circle-wrap").style.setProperty("--vn-pct", "0");
   $("#vn-timer").style.display = "none";
-  $("#vn-playpause-btn").style.display = "none";
   $("#vn-record-btn").style.display = "flex";
   $("#vn-record-btn").textContent = "● Сабт кардан";
-  $("#vn-record-btn").classList.remove("recording");
   $("#vn-record-btn").onclick = startVideoNoteRecording;
+  $("#vn-send-btn").style.display = "none";
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
+  $("#vn-emoji-grid").classList.remove("open");
   openModal("modal-videonote");
   try {
     vnStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 260 }, height: { ideal: 260 }, aspectRatio: 1, frameRate: { ideal: 20, max: 24 } },
+      video: { facingMode: "user", width: { ideal: 220 }, height: { ideal: 220 }, aspectRatio: 1, frameRate: { ideal: 15, max: 18 } },
       audio: true
     });
     $("#vn-video").srcObject = vnStream;
@@ -2235,15 +2230,12 @@ function closeVideoNoteModal() {
   if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
   clearInterval(vnTimerInterval);
   if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
-  const video = $("#vn-video");
-  video.pause();
-  video.srcObject = null;
-  video.src = "";
-  $("#vn-playpause-btn").style.display = "none";
+  $("#vn-video").srcObject = null;
   vnResultData = null;
   vnResultBlob = null;
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
+  $("#vn-emoji-grid").classList.remove("open");
   closeModal("modal-videonote");
 }
 
@@ -2262,8 +2254,8 @@ function startVideoNoteRecording() {
   let mimeType = vnMimeCandidates.find((mt) => MediaRecorder.isTypeSupported(mt)) || "video/webm";
   vnRecorder = new MediaRecorder(vnStream, {
     mimeType,
-    videoBitsPerSecond: 350000, // сифати паст — файли сабук, вале то ҳанӯз тамошобоб
-    audioBitsPerSecond: 32000
+    videoBitsPerSecond: 200000, // сифати паст — файли сабуктар, вале то ҳанӯз тамошобоб
+    audioBitsPerSecond: 24000
   });
   vnOutMime = mimeType;
   vnRecorder.ondataavailable = (e) => { if (e.data.size > 0) vnChunks.push(e.data); };
@@ -2274,21 +2266,14 @@ function startVideoNoteRecording() {
     reader.onload = () => {
       vnResultData = reader.result;
       if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
-      const video = $("#vn-video");
-      video.srcObject = null;
-      video.src = vnResultData;
-      video.loop = true;
-      video.muted = true;
-      video.pause();
-      video.currentTime = 0;
-      // Тугмаи плей/стоп барои тамошои пешакии видео
-      $("#vn-playpause-btn").textContent = "▶️";
-      $("#vn-playpause-btn").style.display = "flex";
+      $("#vn-video").srcObject = null;
+      $("#vn-video").src = vnResultData;
+      $("#vn-video").loop = true;
+      $("#vn-video").muted = true;
+      $("#vn-video").play();
+      $("#vn-record-btn").style.display = "none";
+      $("#vn-send-btn").style.display = "flex";
       $("#vn-caption-row").style.display = "flex";
-      // Тугмаи сабт акнун ба тугмаи ирсол табдил меёбад
-      $("#vn-record-btn").classList.remove("recording");
-      $("#vn-record-btn").textContent = "Ирсол ➤";
-      $("#vn-record-btn").onclick = sendVideoNote;
     };
     reader.readAsDataURL(blob);
   };
@@ -2299,7 +2284,6 @@ function startVideoNoteRecording() {
   $("#vn-timer").style.display = "block";
   $("#vn-timer").textContent = `● ${fmt(0)} / ${fmt(VN_MAX_SECONDS)}`;
   $("#vn-record-btn").textContent = "⏹ Истодан";
-  $("#vn-record-btn").classList.add("recording");
   vnTimerInterval = setInterval(() => {
     vnSeconds++;
     $("#vn-timer").textContent = `● ${fmt(vnSeconds)} / ${fmt(VN_MAX_SECONDS)}`;
@@ -2316,24 +2300,8 @@ function stopVideoNoteRecording() {
   $("#vn-timer").style.display = "none";
   $(".videonote-circle-wrap").style.setProperty("--vn-pct", "100");
   if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
-  // Тавассути onclick=null пешгирӣ мекунем, ки корбар дар лаҳзаи коркард дубора пахш кунад;
-  // ин ба тугмаи "Ирсол" дар vnRecorder.onstop иваз мешавад
-  $("#vn-record-btn").onclick = null;
-  $("#vn-record-btn").classList.remove("recording");
-  $("#vn-record-btn").textContent = "...";
-}
-
-function toggleVnPreviewPlayback() {
-  const video = $("#vn-video");
-  const btn = $("#vn-playpause-btn");
-  if (video.paused) {
-    video.muted = false;
-    video.play();
-    btn.textContent = "⏸";
-  } else {
-    video.pause();
-    btn.textContent = "▶️";
-  }
+  $("#vn-record-btn").onclick = startVideoNoteRecording;
+  $("#vn-record-btn").textContent = "● Сабт кардан";
 }
 
 function sendVideoNote() {
@@ -2349,31 +2317,18 @@ function sendVideoNote() {
   closeModal("modal-videonote");
   vnResultData = null;
   vnResultBlob = null;
-  toast("Видео дар ҳоли боркунӣ... 0%");
-  let lastPct = 0;
-  const stallWarn = setTimeout(() => {
-    toast("Боркунӣ хеле давом дорад — интернет ё танзими Firebase Storage-ро санҷед");
-  }, 20000);
+  toast("Видео дар ҳоли боркунӣ...");
   (async () => {
     try {
-      const url = await uploadToStorage(blob, `videonote_${Date.now()}.${ext}`, (pct) => {
-        if (pct - lastPct >= 20 || pct === 100) {
-          lastPct = pct;
-          toast(`Видео дар ҳоли боркунӣ... ${pct}%`);
-        }
-      });
-      clearTimeout(stallWarn);
+      const url = await uploadToStorage(blob, `videonote_${Date.now()}.${ext}`);
       const payload = { type: "videonote", data: url, ts: TS, senderId: ME.uid };
       if (caption) payload.text = caption;
       const mRef = groupsRef.child(groupId).child("messages").push();
       await mRef.set(payload);
       groupsRef.child(groupId).child("lastMessage").set({ type: "videonote", text: caption || "", ts: TS });
-      toast("Видео фиристода шуд ✓");
     } catch (err) {
-      clearTimeout(stallWarn);
       console.error("videonote upload/send error:", err);
-      const code = err && err.code ? ` (${err.code})` : "";
-      toast("Хатогӣ" + code + ": " + (err && err.message ? err.message : "боркунии видео ба анҷом нарасид"));
+      toast("Хатогӣ: " + (err && err.message ? err.message : "боркунии видео ба анҷом нарасид"));
     }
   })();
 }
