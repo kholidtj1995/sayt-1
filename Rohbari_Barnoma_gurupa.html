@@ -2309,7 +2309,10 @@ function stopVideoNoteRecording() {
 }
 
 function sendVideoNote() {
-  if (!currentGroupId || !vnResultBlob) return;
+  if (!currentGroupId || !vnResultBlob) {
+    toast("Видео ёфт нашуд, аз нав кӯшиш кунед");
+    return;
+  }
   const groupId = currentGroupId;
   const caption = $("#vn-caption").value.trim();
   const blob = vnResultBlob;
@@ -2318,16 +2321,18 @@ function sendVideoNote() {
   closeModal("modal-videonote");
   vnResultData = null;
   vnResultBlob = null;
+  toast("Видео дар ҳоли боркунӣ...");
   (async () => {
     try {
       const url = await uploadToStorage(blob, `videonote_${Date.now()}.${ext}`);
       const payload = { type: "videonote", data: url, ts: TS, senderId: ME.uid };
       if (caption) payload.text = caption;
       const mRef = groupsRef.child(groupId).child("messages").push();
-      mRef.set(payload);
+      await mRef.set(payload);
       groupsRef.child(groupId).child("lastMessage").set({ type: "videonote", text: caption || "", ts: TS });
     } catch (err) {
-      toast("Хатогӣ ҳангоми боркунии видео");
+      console.error("videonote upload/send error:", err);
+      toast("Хатогӣ: " + (err && err.message ? err.message : "боркунии видео ба анҷом нарасид"));
     }
   })();
 }
