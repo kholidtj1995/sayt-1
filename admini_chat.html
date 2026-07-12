@@ -194,7 +194,8 @@ textarea { flex:1; padding:11px 14px; border:1px solid #e2e8f0; border-radius:20
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, onDisconnect, remove, update, get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getDatabase, ref, push, set, onValue, onDisconnect, remove, update, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey:"AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
@@ -205,7 +206,9 @@ const firebaseConfig = {
   messagingSenderId:"321161064947",
   appId:"1:321161064947:web:53603c0e1be0b3baf66286"
 };
-const db = getDatabase(initializeApp(firebaseConfig));
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+const storage = getStorage(firebaseApp);
 const adminStatusRef = ref(db, 'admin_status/');
 set(adminStatusRef, { status:"online", current_chat:"" });
 onDisconnect(adminStatusRef).set({ status:"offline", current_chat:"" });
@@ -662,7 +665,8 @@ function renderMsg(msg, id){
 }
 
 function loadMessages(username){
-  onValue(ref(db, `sayt1_chats/${username}`), snap=>{
+  const messagesQuery = query(ref(db, `sayt1_chats/${username}`), limitToLast(50));
+  onValue(messagesQuery, snap=>{
     if(selectedUser!==username) return;
     const display = document.getElementById('chatDisplay');
     const data = snap.val() || {};
