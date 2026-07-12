@@ -763,11 +763,24 @@ const groupsRef = db.ref("groups");
 const TS = firebase.database.ServerValue.TIMESTAMP;
 
 /* Боркунии файл/Blob ба Firebase Storage ва баргардонидани URL-и боргирӣ */
-async function uploadToStorage(blobOrFile, filename) {
+function uploadToStorage(blobOrFile, filename, onProgress) {
   const path = `group_uploads/${currentGroupId || "misc"}/${Date.now()}_${filename}`;
   const sRef = storage.ref(path);
-  await sRef.put(blobOrFile);
-  return await sRef.getDownloadURL();
+  return new Promise((resolve, reject) => {
+    const task = sRef.put(blobOrFile);
+    task.on(
+      "state_changed",
+      (snap) => {
+        if (onProgress && snap.totalBytes) {
+          onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
+        }
+      },
+      (err) => reject(err),
+      () => {
+        sRef.getDownloadURL().then(resolve).catch(reject);
+      }
+    );
+  });
 }
 
 /* Табдили dataURL (base64) ба Blob — барои боркунии расмҳои фушурдашуда */
@@ -2336,18 +2349,31 @@ function sendVideoNote() {
   closeModal("modal-videonote");
   vnResultData = null;
   vnResultBlob = null;
-  toast("Видео дар ҳоли боркунӣ...");
+  toast("Видео дар ҳоли боркунӣ... 0%");
+  let lastPct = 0;
+  const stallWarn = setTimeout(() => {
+    toast("Боркунӣ хеле давом дорад — интернет ё танзими Firebase Storage-ро санҷед");
+  }, 20000);
   (async () => {
     try {
-      const url = await uploadToStorage(blob, `videonote_${Date.now()}.${ext}`);
+      const url = await uploadToStorage(blob, `videonote_${Date.now()}.${ext}`, (pct) => {
+        if (pct - lastPct >= 20 || pct === 100) {
+          lastPct = pct;
+          toast(`Видео дар ҳоли боркунӣ... ${pct}%`);
+        }
+      });
+      clearTimeout(stallWarn);
       const payload = { type: "videonote", data: url, ts: TS, senderId: ME.uid };
       if (caption) payload.text = caption;
       const mRef = groupsRef.child(groupId).child("messages").push();
       await mRef.set(payload);
       groupsRef.child(groupId).child("lastMessage").set({ type: "videonote", text: caption || "", ts: TS });
+      toast("Видео фиристода шуд ✓");
     } catch (err) {
+      clearTimeout(stallWarn);
       console.error("videonote upload/send error:", err);
-      toast("Хатогӣ: " + (err && err.message ? err.message : "боркунии видео ба анҷом нарасид"));
+      const code = err && err.code ? ` (${err.code})` : "";
+      toast("Хатогӣ" + code + ": " + (err && err.message ? err.message : "боркунии видео ба анҷом нарасид"));
     }
   })();
 }
