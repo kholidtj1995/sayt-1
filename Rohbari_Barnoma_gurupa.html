@@ -738,6 +738,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-storage-compat.min.js"></script>
 <script>
 /* ===================== Firebase ===================== */
 const firebaseConfig = {
@@ -751,8 +752,28 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const storage = firebase.storage();
 const groupsRef = db.ref("groups");
 const TS = firebase.database.ServerValue.TIMESTAMP;
+
+/* Боркунии файл/Blob ба Firebase Storage ва баргардонидани URL-и боргирӣ */
+async function uploadToStorage(blobOrFile, filename) {
+  const path = `group_uploads/${currentGroupId || "misc"}/${Date.now()}_${filename}`;
+  const sRef = storage.ref(path);
+  await sRef.put(blobOrFile);
+  return await sRef.getDownloadURL();
+}
+
+/* Табдили dataURL (base64) ба Blob — барои боркунии расмҳои фушурдашуда */
+function dataURLtoBlob(dataUrl) {
+  const [header, base64] = dataUrl.split(",");
+  const mimeMatch = header.match(/data:(.*?);base64/);
+  const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
 
 /* ===================== State ===================== */
 let ME = null; // {uid,name,avatar}
@@ -771,6 +792,7 @@ let menuTargetGroupId = null;
 let mmTarget = null; // {groupId, mid} — паёми нишонашуда дар менюи ёрирасон
 let replyingTo = null; // {groupId, mid, preview} — паёме, ки ба он ҷавоб дода мешавад
 let knownMsgIds = new Set();
+let msgRowSignatures = new Map();
 let firstRenderForGroup = true;
 let dataEverSeen = false; // барои муайян кардани лаҳзае, ки маълумот аз Firebase пурра пок карда мешавад
 let vnStream = null;
@@ -779,6 +801,7 @@ let vnChunks = [];
 let vnTimerInterval = null;
 let vnSeconds = 0;
 let vnResultData = null;
+let vnResultBlob = null;
 let vnOutMime = "video/webm";
 const VN_MAX_SECONDS = 60;
 
@@ -1405,7 +1428,11 @@ function openGroup(groupId) {
   currentGroupId = groupId;
   pendingAttachment = null;
   knownMsgIds = new Set();
+  msgRowSignatures = new Map();
   firstRenderForGroup = true;
+  const groupMessagesWrap = $("#group-messages");
+  groupMessagesWrap.innerHTML = "";
+  delete groupMessagesWrap.dataset.lastDividerDate;
   pinFocused = false;
   scrollBeforePinFocus = null;
   cancelReply();
@@ -1526,91 +1553,78 @@ function renderGroupHeader(groupId, g) {
 
 const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
-function renderMessages(groupId, messagesObj) {
-  const g = allGroups[groupId] || {};
-  const isOwner = g.ownerId === ME.uid;
-  const wrap = $("#group-messages");
-  const nearBottom = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 120;
-
-  const entries = Object.entries(messagesObj).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
-  let html = "";
-  let lastDate = null;
+function computeMsgSignature(mid, m, g) {
   const mySeenOthers = Object.entries(g.lastSeen || {}).filter(([u]) => u !== g.ownerId);
-  const newlyArrived = [];
+  const seenByOther = mySeenOthers.some(([, ts]) => ts >= (m.ts || 0));
+  const seenCount = mySeenOthers.filter(([, ts]) => ts >= (m.ts || 0)).length;
+  const pinned = g.pinnedMessageId === mid;
+  return JSON.stringify({
+    type: m.type, text: m.text || "", data: m.data || "", name: m.name || "",
+    reactions: m.reactions || null, edited: !!m.edited,
+    replyTo: m.replyTo || null, seenByOther, seenCount, pinned
+  });
+}
 
-  for (const [mid, m] of entries) {
-    const d = new Date(m.ts || Date.now());
-    if (!lastDate || !sameDay(d, lastDate)) {
-      html += `<div class="date-divider"><span>${formatDateDivider(m.ts)}</span></div>`;
-      lastDate = d;
-    }
-    const reactions = m.reactions || {};
-    const reactionChips = REACTION_EMOJIS.map((em) => {
-      const users = reactions[em] ? Object.keys(reactions[em]) : [];
-      if (users.length === 0) return "";
-      const mine = users.includes(ME.uid);
-      return `<span class="reaction-chip ${mine ? "mine" : ""}" data-mid="${mid}" data-emoji="${em}">${em} ${users.length}</span>`;
-    }).join("");
+function buildMessageRowHtml(groupId, mid, m, isOwner, highlightNew) {
+  const g = allGroups[groupId] || {};
+  const mySeenOthers = Object.entries(g.lastSeen || {}).filter(([u]) => u !== g.ownerId);
+  const reactions = m.reactions || {};
+  const reactionChips = REACTION_EMOJIS.map((em) => {
+    const users = reactions[em] ? Object.keys(reactions[em]) : [];
+    if (users.length === 0) return "";
+    const mine = users.includes(ME.uid);
+    return `<span class="reaction-chip ${mine ? "mine" : ""}" data-mid="${mid}" data-emoji="${em}">${em} ${users.length}</span>`;
+  }).join("");
 
-    let body = "";
-    if (m.type === "image") {
-      body = `<img class="msg-image" src="${m.data}" alt="расм">`;
-      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
-    } else if (m.type === "document") {
-      body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
-      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
-    } else if (m.type === "voice") {
-      body = `<div class="voice-msg" data-mid="${mid}">
-        <div class="voice-msg-avatar" style="background-image:url(${g.avatar || ""})"></div>
-        <button type="button" class="voice-play-btn">▶️</button>
-        <input type="range" class="voice-progress" min="0" max="100" value="0">
-        <span class="voice-time">0:00</span>
-        <audio class="msg-audio" preload="metadata" src="${m.data}"></audio>
-      </div>`;
-    } else if (m.type === "videonote") {
-      body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
-      if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
-    } else {
-      body = `<div class="msg-text">${linkify(m.text || "")}</div>${buildLinkPreviews(m.text, mid)}`;
-    }
-
-    const seenByOther = mySeenOthers.some(([, ts]) => ts >= (m.ts || 0));
-    const ticks = seenByOther ? '<span class="ticks seen">✓✓</span>' : '<span class="ticks">✓</span>';
-    const seenCount = mySeenOthers.filter(([, ts]) => ts >= (m.ts || 0)).length;
-    const seenBadge = `<span class="seen-count" title="Шумораи одамоне, ки дидаанд">👁 ${seenCount}</span>`;
-    const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
-    const editedFlag = m.edited ? '<span class="edited-flag">тахрир шуд</span>' : "";
-    const replyQuote = m.replyTo
-      ? `<div class="msg-reply-quote" data-scroll-mid="${m.replyTo.mid}"><span class="rq-name">Шумо</span><span class="rq-text">${escapeHtml(m.replyTo.preview || "")}</span></div>`
-      : "";
-
-    const isNew = !knownMsgIds.has(mid);
-    if (isNew) {
-      knownMsgIds.add(mid);
-      if (!firstRenderForGroup) newlyArrived.push(m);
-    }
-
-    html += `
-      <div class="msg-row ${isOwner ? "mine" : "theirs"} ${isNew && !firstRenderForGroup ? "msg-new" : ""}" data-mid="${mid}">
-        <div class="msg-bubble">
-          ${pinnedFlag}
-          ${replyQuote}
-          ${body}
-          <div class="msg-meta">${editedFlag} ${seenBadge} ${formatTime(m.ts)} ${ticks}</div>
-          <div class="reaction-row">${reactionChips}</div>
-          <div class="emoji-picker" data-mid="${mid}"></div>
-        </div>
-      </div>`;
+  let body = "";
+  if (m.type === "image") {
+    body = `<img class="msg-image" src="${m.data}" alt="расм">`;
+    if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
+  } else if (m.type === "document") {
+    body = `<a class="msg-document" href="${m.data}" download="${escapeHtml(m.name || "file")}">📄 ${escapeHtml(m.name || "Ҳуҷҷат")}</a>`;
+    if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
+  } else if (m.type === "voice") {
+    body = `<div class="voice-msg" data-mid="${mid}">
+      <div class="voice-msg-avatar" style="background-image:url(${g.avatar || ""})"></div>
+      <button type="button" class="voice-play-btn">▶️</button>
+      <input type="range" class="voice-progress" min="0" max="100" value="0">
+      <span class="voice-time">0:00</span>
+      <audio class="msg-audio" preload="metadata" src="${m.data}"></audio>
+    </div>`;
+  } else if (m.type === "videonote") {
+    body = `<div class="videonote-wrap"><video class="msg-videonote" src="${m.data}" loop playsinline></video><div class="vn-controls"><button type="button" class="vn-playpause-btn" title="Плей / Стоп">▶️</button><input type="range" class="vn-volume-slider" min="0" max="100" value="100" title="Садо"></div></div>`;
+    if (m.text) body += `<div class="msg-text msg-caption">${linkify(m.text)}</div>${buildLinkPreviews(m.text, mid)}`;
+  } else {
+    body = `<div class="msg-text">${linkify(m.text || "")}</div>${buildLinkPreviews(m.text, mid)}`;
   }
-  wrap.innerHTML = html || `<div class="msgs-empty">Ҳанӯз паёме нест</div>`;
-  firstRenderForGroup = false;
-  if (newlyArrived.length && newlyArrived.some((m) => m.senderId !== ME.uid)) playNotifySound();
-  processVideoEmbeds(wrap);
 
-  wrap.querySelectorAll(".reaction-chip").forEach((chip) => {
+  const seenByOther = mySeenOthers.some(([, ts]) => ts >= (m.ts || 0));
+  const ticks = seenByOther ? '<span class="ticks seen">✓✓</span>' : '<span class="ticks">✓</span>';
+  const seenCount = mySeenOthers.filter(([, ts]) => ts >= (m.ts || 0)).length;
+  const seenBadge = `<span class="seen-count" title="Шумораи одамоне, ки дидаанд">👁 ${seenCount}</span>`;
+  const pinnedFlag = g.pinnedMessageId === mid ? '<span class="pin-flag">📌</span>' : "";
+  const editedFlag = m.edited ? '<span class="edited-flag">тахрир шуд</span>' : "";
+  const replyQuote = m.replyTo
+    ? `<div class="msg-reply-quote" data-scroll-mid="${m.replyTo.mid}"><span class="rq-name">Шумо</span><span class="rq-text">${escapeHtml(m.replyTo.preview || "")}</span></div>`
+    : "";
+
+  return `<div class="msg-row ${isOwner ? "mine" : "theirs"} ${highlightNew ? "msg-new" : ""}" data-mid="${mid}">
+    <div class="msg-bubble">
+      ${pinnedFlag}
+      ${replyQuote}
+      ${body}
+      <div class="msg-meta">${editedFlag} ${seenBadge} ${formatTime(m.ts)} ${ticks}</div>
+      <div class="reaction-row">${reactionChips}</div>
+      <div class="emoji-picker" data-mid="${mid}"></div>
+    </div>
+  </div>`;
+}
+
+function bindMessageRowEvents(wrap, groupId, row) {
+  row.querySelectorAll(".reaction-chip").forEach((chip) => {
     chip.addEventListener("click", () => toggleReaction(groupId, chip.dataset.mid, chip.dataset.emoji));
   });
-  wrap.querySelectorAll(".msg-reply-quote").forEach((q) => {
+  row.querySelectorAll(".msg-reply-quote").forEach((q) => {
     q.addEventListener("click", (e) => {
       e.stopPropagation();
       const targetMid = q.dataset.scrollMid;
@@ -1625,13 +1639,13 @@ function renderMessages(groupId, messagesObj) {
       }
     });
   });
-  wrap.querySelectorAll(".videonote-wrap").forEach((vw) => {
-    const video = vw.querySelector(".msg-videonote");
-    const playBtn = vw.querySelector(".vn-playpause-btn");
-    const volSlider = vw.querySelector(".vn-volume-slider");
+  const videonoteWrap = row.querySelector(".videonote-wrap");
+  if (videonoteWrap) {
+    const video = videonoteWrap.querySelector(".msg-videonote");
+    const playBtn = videonoteWrap.querySelector(".vn-playpause-btn");
+    const volSlider = videonoteWrap.querySelector(".vn-volume-slider");
     // Видео-кружочик дигар худ ба худ пахш намешавад — танҳо бо тугмаи плей
     video.volume = 1;
-
     playBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (video.paused || video.ended) {
@@ -1643,27 +1657,19 @@ function renderMessages(groupId, messagesObj) {
     });
     video.addEventListener("play", () => { playBtn.textContent = "⏸"; });
     video.addEventListener("pause", () => { playBtn.textContent = "▶️"; });
-
-    volSlider.addEventListener("input", () => {
-      video.volume = Number(volSlider.value) / 100;
-    });
+    volSlider.addEventListener("input", () => { video.volume = Number(volSlider.value) / 100; });
     volSlider.addEventListener("click", (e) => e.stopPropagation());
     volSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
-  });
-
-  wrap.querySelectorAll(".voice-msg").forEach((vm) => {
-    const audio = vm.querySelector(".msg-audio");
-    const playBtn = vm.querySelector(".voice-play-btn");
-    const slider = vm.querySelector(".voice-progress");
-    const timeLabel = vm.querySelector(".voice-time");
-
+  }
+  const voiceMsg = row.querySelector(".voice-msg");
+  if (voiceMsg) {
+    const audio = voiceMsg.querySelector(".msg-audio");
+    const playBtn = voiceMsg.querySelector(".voice-play-btn");
+    const slider = voiceMsg.querySelector(".voice-progress");
+    const timeLabel = voiceMsg.querySelector(".voice-time");
     playBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (audio.paused || audio.ended) {
-        audio.play().catch(() => {});
-      } else {
-        audio.pause();
-      }
+      if (audio.paused || audio.ended) { audio.play().catch(() => {}); } else { audio.pause(); }
     });
     audio.addEventListener("play", () => { playBtn.textContent = "⏸"; });
     audio.addEventListener("pause", () => { playBtn.textContent = "▶️"; });
@@ -1678,10 +1684,72 @@ function renderMessages(groupId, messagesObj) {
     });
     slider.addEventListener("click", (e) => e.stopPropagation());
     slider.addEventListener("pointerdown", (e) => e.stopPropagation());
-  });
+  }
+}
+
+/* Диффи сатрӣ: ба ҷои бозсозии пурраи чат (innerHTML=''), танҳо сатрҳои
+   нав ё тағйирёфта илова/иваз карда мешаванд — сатрҳои тағйирнаёфта дастнорас мемонанд. */
+function renderMessages(groupId, messagesObj) {
+  const g = allGroups[groupId] || {};
+  const isOwner = g.ownerId === ME.uid;
+  const wrap = $("#group-messages");
+  const nearBottom = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 120;
+
+  const entries = Object.entries(messagesObj).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+
+  if (entries.length === 0) {
+    wrap.innerHTML = `<div class="msgs-empty">Ҳанӯз паёме нест</div>`;
+    knownMsgIds = new Set();
+    msgRowSignatures = new Map();
+    delete wrap.dataset.lastDividerDate;
+    firstRenderForGroup = false;
+    return;
+  }
+
+  const emptyEl = wrap.querySelector(".msgs-empty");
+  if (emptyEl) emptyEl.remove();
+
+  const newlyArrived = [];
+  let lastDividerDate = wrap.dataset.lastDividerDate ? new Date(wrap.dataset.lastDividerDate) : null;
+
+  for (const [mid, m] of entries) {
+    const isFirstTimeSeen = !knownMsgIds.has(mid);
+    const signature = computeMsgSignature(mid, m, g);
+    if (!isFirstTimeSeen && msgRowSignatures.get(mid) === signature) continue; // ин сатр тағйир наёфтааст
+
+    const highlightNew = isFirstTimeSeen && !firstRenderForGroup;
+    const rowHtml = buildMessageRowHtml(groupId, mid, m, isOwner, highlightNew);
+    msgRowSignatures.set(mid, signature);
+
+    if (isFirstTimeSeen) {
+      knownMsgIds.add(mid);
+      if (!firstRenderForGroup) newlyArrived.push(m);
+      const d = new Date(m.ts || Date.now());
+      if (!lastDividerDate || !sameDay(d, lastDividerDate)) {
+        wrap.insertAdjacentHTML("beforeend", `<div class="date-divider"><span>${formatDateDivider(m.ts)}</span></div>`);
+        lastDividerDate = d;
+        wrap.dataset.lastDividerDate = d.toISOString();
+      }
+      wrap.insertAdjacentHTML("beforeend", rowHtml);
+      const row = wrap.querySelector(`.msg-row[data-mid="${mid}"]`);
+      if (row) bindMessageRowEvents(wrap, groupId, row);
+    } else {
+      const existingRow = wrap.querySelector(`.msg-row[data-mid="${mid}"]`);
+      if (existingRow) {
+        existingRow.outerHTML = rowHtml;
+        const row = wrap.querySelector(`.msg-row[data-mid="${mid}"]`);
+        if (row) bindMessageRowEvents(wrap, groupId, row);
+      }
+    }
+  }
+
+  firstRenderForGroup = false;
+  if (newlyArrived.length && newlyArrived.some((m) => m.senderId !== ME.uid)) playNotifySound();
+  processVideoEmbeds(wrap);
 
   if (nearBottom) wrap.scrollTop = wrap.scrollHeight;
 }
+
 
 /* ===================== Менюи ёрирасони паём (клики сабук ба паём) ===================== */
 function messagePreviewLabel(m) {
@@ -1879,7 +1947,7 @@ function openAttachPreview(attachment) {
   pendingAttachment = attachment;
   const media = $("#ap-media");
   if (attachment.type === "image") {
-    media.innerHTML = `<img src="${attachment.data}" alt="расм">`;
+    media.innerHTML = `<img src="${attachment.previewData}" alt="расм">`;
   } else {
     media.innerHTML = `<div class="attach-preview-doc">📄 ${escapeHtml(attachment.name)}</div>`;
   }
@@ -1924,19 +1992,29 @@ function initAttachPreviewModal() {
 
 function sendAttachmentMessage(caption) {
   if (!currentGroupId || !pendingAttachment) return;
-  const payload = { type: pendingAttachment.type, data: pendingAttachment.data, ts: TS, senderId: ME.uid };
-  if (pendingAttachment.name) payload.name = pendingAttachment.name;
-  if (caption) payload.text = caption;
-  if (replyingTo && replyingTo.groupId === currentGroupId) {
-    payload.replyTo = { mid: replyingTo.mid, preview: replyingTo.preview };
-  }
-  const mRef = groupsRef.child(currentGroupId).child("messages").push();
-  mRef.set(payload);
-  groupsRef.child(currentGroupId).child("lastMessage").set({
-    type: payload.type, text: payload.text || "", ts: TS
-  });
+  const groupId = currentGroupId;
+  const attachment = pendingAttachment;
+  const replySnapshot = (replyingTo && replyingTo.groupId === groupId)
+    ? { mid: replyingTo.mid, preview: replyingTo.preview }
+    : null;
   pendingAttachment = null;
   cancelReply();
+  (async () => {
+    try {
+      const url = await uploadToStorage(attachment.file, attachment.name || "file");
+      const payload = { type: attachment.type, data: url, ts: TS, senderId: ME.uid };
+      if (attachment.name) payload.name = attachment.name;
+      if (caption) payload.text = caption;
+      if (replySnapshot) payload.replyTo = replySnapshot;
+      const mRef = groupsRef.child(groupId).child("messages").push();
+      mRef.set(payload);
+      groupsRef.child(groupId).child("lastMessage").set({
+        type: payload.type, text: payload.text || "", ts: TS
+      });
+    } catch (err) {
+      toast("Хатогӣ ҳангоми боркунии файл");
+    }
+  })();
 }
 
 /* Тугмаи ягона дар composer: вакте кутии паём холист — файл (📎),
@@ -1979,11 +2057,11 @@ function initComposer() {
     e.preventDefault();
     if (imageFile.type === "image/gif") {
       if (imageFile.size > 1.5 * 1024 * 1024) { toast("GIF/стикер хеле калон аст (макс 1.5 МБ)"); return; }
-      const data = await readFileAsDataURL(imageFile);
-      openAttachPreview({ type: "image", data, name: imageFile.name || "stiker.gif" });
+      const previewData = await readFileAsDataURL(imageFile);
+      openAttachPreview({ type: "image", previewData, file: imageFile, name: imageFile.name || "stiker.gif" });
     } else {
-      const data = await compressImageFile(imageFile);
-      openAttachPreview({ type: "image", data, name: imageFile.name || "stiker.png" });
+      const previewData = await compressImageFile(imageFile);
+      openAttachPreview({ type: "image", previewData, file: dataURLtoBlob(previewData), name: imageFile.name || "stiker.png" });
     }
   });
 
@@ -2006,16 +2084,15 @@ function initComposer() {
     if (file.type === "image/gif") {
       // GIF-ро бе фушурдан мехонем, то ҳаракаташ гум нашавад
       if (file.size > 1.5 * 1024 * 1024) { toast("GIF хеле калон аст (макс 1.5 МБ)"); return; }
-      const data = await readFileAsDataURL(file);
-      openAttachPreview({ type: "image", data, name: file.name });
+      const previewData = await readFileAsDataURL(file);
+      openAttachPreview({ type: "image", previewData, file, name: file.name });
     } else if (file.type.startsWith("image/")) {
       toast("Расм фушурда мешавад...");
-      const data = await compressImageFile(file);
-      openAttachPreview({ type: "image", data, name: file.name });
+      const previewData = await compressImageFile(file);
+      openAttachPreview({ type: "image", previewData, file: dataURLtoBlob(previewData), name: file.name });
     } else {
       if (file.size > 700 * 1024) { toast("Ҳуҷҷат хеле калон аст (макс 700 КБ)"); return; }
-      const data = await readFileAsDataURL(file);
-      openAttachPreview({ type: "document", data, name: file.name });
+      openAttachPreview({ type: "document", previewData: null, file, name: file.name });
     }
   });
 
@@ -2129,6 +2206,7 @@ function initVideoNoteRecorder() {
 
 async function openVideoNoteModal() {
   vnResultData = null;
+  vnResultBlob = null;
   $("#composer-video-btn").classList.add("active");
   $(".videonote-circle-wrap").style.setProperty("--vn-pct", "0");
   $("#vn-timer").style.display = "none";
@@ -2157,6 +2235,7 @@ function closeVideoNoteModal() {
   if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
   $("#vn-video").srcObject = null;
   vnResultData = null;
+  vnResultBlob = null;
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
   $("#vn-emoji-grid").classList.remove("open");
@@ -2185,6 +2264,7 @@ function startVideoNoteRecording() {
   vnRecorder.ondataavailable = (e) => { if (e.data.size > 0) vnChunks.push(e.data); };
   vnRecorder.onstop = () => {
     const blob = new Blob(vnChunks, { type: vnOutMime });
+    vnResultBlob = blob;
     const reader = new FileReader();
     reader.onload = () => {
       vnResultData = reader.result;
@@ -2227,16 +2307,27 @@ function stopVideoNoteRecording() {
 }
 
 function sendVideoNote() {
-  if (!currentGroupId || !vnResultData) return;
+  if (!currentGroupId || !vnResultBlob) return;
+  const groupId = currentGroupId;
   const caption = $("#vn-caption").value.trim();
-  const payload = { type: "videonote", data: vnResultData, ts: TS, senderId: ME.uid };
-  if (caption) payload.text = caption;
-  const mRef = groupsRef.child(currentGroupId).child("messages").push();
-  mRef.set(payload);
-  groupsRef.child(currentGroupId).child("lastMessage").set({ type: "videonote", text: caption || "", ts: TS });
+  const blob = vnResultBlob;
+  const ext = vnOutMime.includes("mp4") ? "mp4" : "webm";
   $("#composer-video-btn").classList.remove("active");
   closeModal("modal-videonote");
   vnResultData = null;
+  vnResultBlob = null;
+  (async () => {
+    try {
+      const url = await uploadToStorage(blob, `videonote_${Date.now()}.${ext}`);
+      const payload = { type: "videonote", data: url, ts: TS, senderId: ME.uid };
+      if (caption) payload.text = caption;
+      const mRef = groupsRef.child(groupId).child("messages").push();
+      mRef.set(payload);
+      groupsRef.child(groupId).child("lastMessage").set({ type: "videonote", text: caption || "", ts: TS });
+    } catch (err) {
+      toast("Хатогӣ ҳангоми боркунии видео");
+    }
+  })();
 }
 
 /* ===================== Voice recording ===================== */
@@ -2264,15 +2355,17 @@ async function startRecording() {
       $("#composer-send-btn").classList.remove("recording");
       $("#composer-record-indicator").style.display = "none";
       if (recordedChunks.length === 0) return;
+      if (!currentGroupId) return;
+      const groupId = currentGroupId;
       const blob = new Blob(recordedChunks, { type: "audio/webm" });
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (!currentGroupId) return;
-        const mRef = groupsRef.child(currentGroupId).child("messages").push();
-        mRef.set({ type: "voice", data: reader.result, ts: TS, senderId: ME.uid });
-        groupsRef.child(currentGroupId).child("lastMessage").set({ type: "voice", text: "", ts: TS });
-      };
-      reader.readAsDataURL(blob);
+      try {
+        const url = await uploadToStorage(blob, `voice_${Date.now()}.webm`);
+        const mRef = groupsRef.child(groupId).child("messages").push();
+        mRef.set({ type: "voice", data: url, ts: TS, senderId: ME.uid });
+        groupsRef.child(groupId).child("lastMessage").set({ type: "voice", text: "", ts: TS });
+      } catch (err) {
+        toast("Хатогӣ ҳангоми боркунии овоз");
+      }
     };
     recorder.start();
     recordingSeconds = 0;
