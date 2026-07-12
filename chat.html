@@ -166,7 +166,8 @@ textarea:focus { border-color:#007bff; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, set, get, update, query, limitToLast } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey:"AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
@@ -177,7 +178,9 @@ const firebaseConfig = {
   messagingSenderId:"321161064947",
   appId:"1:321161064947:web:53603c0e1be0b3baf66286"
 };
-const db = getDatabase(initializeApp(firebaseConfig));
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+const storage = getStorage(firebaseApp);
 let currentUsername = "";
 let allMessages = {};
 let replyingTo = null;
@@ -287,14 +290,15 @@ document.getElementById('fileInput').addEventListener('change', async e=>{
   if(file.type.startsWith('audio/') || file.type.startsWith('video/')){ window.showAlert('Ирсоли мусиқӣ ва видео иҷозат дода намешавад'); e.target.value=''; return; }
   try{
     if(file.type.startsWith('image/')){
-      const dataUrl = await compressImage(file);
-      const data = { type:'image', fileData:dataUrl, fileName:file.name, fileSize:Math.round(dataUrl.length*3/4) };
+      const blob = await compressImage(file);
+      const url = await uploadToStorage(blob, file.name);
+      const data = { type:'image', fileURL:url, fileName:file.name, fileSize:blob.size };
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     } else {
       if(file.size > 5*1024*1024){ window.showAlert('Файл хеле калон аст (макс 5MB)'); e.target.value=''; return; }
-      const dataUrl = await readAsDataURL(file);
-      const data = { type:'document', fileData:dataUrl, fileName:file.name, fileSize:file.size };
+      const url = await uploadToStorage(file, file.name);
+      const data = { type:'document', fileURL:url, fileName:file.name, fileSize:file.size };
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     }
@@ -303,6 +307,13 @@ document.getElementById('fileInput').addEventListener('change', async e=>{
 });
 
 function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+async function uploadToStorage(blobOrFile, filename){
+  const path = `chat_uploads/${currentUsername}/${Date.now()}_${filename}`;
+  const sRef = storageRef(storage, path);
+  await uploadBytes(sRef, blobOrFile);
+  return await getDownloadURL(sRef);
+}
 
 function compressImage(file, maxBytes=60*1024){
   return new Promise((resolve,reject)=>{
@@ -314,13 +325,15 @@ function compressImage(file, maxBytes=60*1024){
         if(w>maxDim||h>maxDim){ if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; } else { w=Math.round(w*maxDim/h); h=maxDim; } }
         const canvas = document.createElement('canvas'); canvas.width=w; canvas.height=h;
         const cx = canvas.getContext('2d'); cx.drawImage(img,0,0,w,h);
-        let quality=0.8, dataUrl=canvas.toDataURL('image/jpeg',quality);
-        const sizeOf = du => Math.round(du.length*3/4);
-        let tries=0;
-        while(sizeOf(dataUrl)>maxBytes && quality>0.12 && tries<12){ quality-=0.08; dataUrl=canvas.toDataURL('image/jpeg',quality); tries++; }
-        tries=0;
-        while(sizeOf(dataUrl)>maxBytes && tries<6){ w=Math.round(w*0.85); h=Math.round(h*0.85); canvas.width=w; canvas.height=h; cx.drawImage(img,0,0,w,h); dataUrl=canvas.toDataURL('image/jpeg',quality); tries++; }
-        resolve(dataUrl);
+        const toBlob = q => new Promise(res=>canvas.toBlob(res,'image/jpeg',q));
+        (async ()=>{
+          let quality=0.8, blob=await toBlob(quality);
+          let tries=0;
+          while(blob.size>maxBytes && quality>0.12 && tries<12){ quality-=0.08; blob=await toBlob(quality); tries++; }
+          tries=0;
+          while(blob.size>maxBytes && tries<6){ w=Math.round(w*0.85); h=Math.round(h*0.85); canvas.width=w; canvas.height=h; cx.drawImage(img,0,0,w,h); blob=await toBlob(quality); tries++; }
+          resolve(blob);
+        })();
       };
       img.onerror = reject; img.src = e.target.result;
     };
@@ -344,8 +357,8 @@ function startRec(e){
       stream.getTracks().forEach(t=>t.stop());
       if(dur<1 || audioChunks.length===0) return;
       const blob = new Blob(audioChunks, {type:'audio/webm'});
-      const dataUrl = await readAsDataURL(blob);
-      const data = { type:'voice', fileData:dataUrl, fileSize:blob.size, duration:dur };
+      const url = await uploadToStorage(blob, `voice_${Date.now()}.webm`);
+      const data = { type:'voice', fileURL:url, fileSize:blob.size, duration:dur };
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     };
@@ -374,8 +387,9 @@ document.getElementById('chatDisplay').addEventListener('input', e=>{ if(e.targe
 /* ---------- Lightbox ---------- */
 window.openLightbox = (id)=>{
   const m = allMessages[id]; if(!m) return;
-  document.getElementById('lightboxImg').src = m.fileData;
-  document.getElementById('lightboxDownload').href = m.fileData;
+  const url = m.fileURL || m.fileData;
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxDownload').href = url;
   document.getElementById('lightboxDownload').download = m.fileName || 'image.jpg';
   document.getElementById('lightboxOverlay').classList.add('show');
 };
@@ -426,9 +440,9 @@ function renderReactions(reactions){
 function renderMsg(msg, id){
   const isMine = msg.user === currentUsername;
   let content = '';
-  if(msg.type==='image'){ content = `<img class="chat-image" src="${msg.fileData}" onclick="openLightbox('${id}')">`; }
-  else if(msg.type==='document'){ const kb=Math.round((msg.fileSize||0)/1024); content = `<a class="doc-msg" href="${msg.fileData}" download="${escapeHtml(msg.fileName||'file')}"><span class="doc-icon">📄</span><span class="doc-info"><span class="doc-name">${escapeHtml(msg.fileName||'Файл')}</span><span class="doc-size">${kb} KB</span></span></a>`; }
-  else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileData}" preload="none"></audio></div>`; }
+  if(msg.type==='image'){ content = `<img class="chat-image" src="${msg.fileURL||msg.fileData}" onclick="openLightbox('${id}')">`; }
+  else if(msg.type==='document'){ const kb=Math.round((msg.fileSize||0)/1024); content = `<a class="doc-msg" href="${msg.fileURL||msg.fileData}" download="${escapeHtml(msg.fileName||'file')}"><span class="doc-icon">📄</span><span class="doc-info"><span class="doc-name">${escapeHtml(msg.fileName||'Файл')}</span><span class="doc-size">${kb} KB</span></span></a>`; }
+  else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileURL||msg.fileData}" preload="none"></audio></div>`; }
   else { content = linkify(msg.text||''); }
 
   const replyHtml = msg.replyTo ? `<div class="reply-quote"><b>${escapeHtml(msg.replyTo.user)}</b>${escapeHtml(msg.replyTo.text)}</div>` : '';
@@ -443,22 +457,29 @@ function renderMsg(msg, id){
   </div>`;
 }
 
+let renderedMsgKeys = new Set();
+let lastRenderedDate = '';
+
 function listenMessages(){
-  onValue(ref(db, `sayt1_chats/${currentUsername}`), snap=>{
+  const messagesQuery = query(ref(db, `sayt1_chats/${currentUsername}`), limitToLast(50));
+  onValue(messagesQuery, snap=>{
     const display = document.getElementById('chatDisplay');
     const data = snap.val() || {};
     allMessages = data;
-    display.innerHTML = '';
-    let lastDate = '';
     const keys = Object.keys(data);
     keys.forEach(key=>{
       const msg = data[key];
+      if(msg.user!==currentUsername && !msg.seenByUser) update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
+      if(renderedMsgKeys.has(key)){
+        processedKeys.add(key);
+        return;
+      }
       if(msg.timestamp){
         const dStr = new Date(msg.timestamp).toDateString();
-        if(dStr !== lastDate){ display.innerHTML += `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`; lastDate = dStr; }
+        if(dStr !== lastRenderedDate){ display.insertAdjacentHTML('beforeend', `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`); lastRenderedDate = dStr; }
       }
-      display.innerHTML += renderMsg(msg, key);
-      if(msg.user!==currentUsername && !msg.seenByUser) update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
+      display.insertAdjacentHTML('beforeend', renderMsg(msg, key));
+      renderedMsgKeys.add(key);
       if(initialLoadDone && msg.user!==currentUsername && !processedKeys.has(key)) window.playReceive();
       processedKeys.add(key);
     });
