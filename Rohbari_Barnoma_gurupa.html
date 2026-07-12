@@ -69,6 +69,13 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
   mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
   pointer-events:none; transition:background .15s linear;
 }
+.vn-preview-playpause{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:52px; height:52px; border-radius:50%; border:none;
+  background:rgba(0,0,0,.5); color:#fff; font-size:20px;
+  display:flex; align-items:center; justify-content:center; z-index:2;
+}
+#vn-record-btn.recording{ background:var(--danger); color:#fff; }
 
 /* ---------- ikat signature pattern ---------- */
 .ikat-bg{
@@ -685,20 +692,19 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       <h3 class="modal-title">Видео-кружочик</h3>
       <div class="videonote-circle-wrap">
         <video id="vn-video" class="videonote-circle" autoplay muted playsinline></video>
+        <button type="button" id="vn-playpause-btn" class="vn-preview-playpause" style="display:none;">▶️</button>
       </div>
       <div id="vn-timer" class="videonote-timer" style="display:none;">● 0:00 / 0:15</div>
       <div id="vn-caption-row" class="ap-caption-row" style="display:none;">
         <textarea id="vn-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
-        <button type="button" id="vn-emoji-btn" class="ap-emoji-btn" title="Смайлик">😊</button>
       </div>
-      <div id="vn-emoji-grid" class="emoji-grid ap-emoji-grid"></div>
       <div class="modal-actions">
         <button type="button" id="vn-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="vn-record-btn" class="btn-primary flex">● Сабт кардан</button>
-        <button type="button" id="vn-send-btn" class="btn-primary flex" style="display:none;">Ирсол ➤</button>
       </div>
     </div>
   </div>
+
 
   <!-- ===================== MODAL: CONFIRM ===================== -->
   <div id="modal-confirm" class="modal-overlay">
@@ -2182,25 +2188,7 @@ function sendMessage() {
 function initVideoNoteRecorder() {
   $("#composer-video-btn").addEventListener("click", openVideoNoteModal);
   $("#vn-cancel-btn").addEventListener("click", closeVideoNoteModal);
-  $("#vn-send-btn").addEventListener("click", sendVideoNote);
-
-  const vnGrid = $("#vn-emoji-grid");
-  vnGrid.innerHTML = EMOJI_LIST.map((em) => `<span>${em}</span>`).join("");
-  vnGrid.querySelectorAll("span").forEach((el) => {
-    el.addEventListener("click", () => {
-      const ta = $("#vn-caption");
-      const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
-      const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
-      const val = ta.value;
-      ta.value = val.slice(0, start) + el.textContent + val.slice(end);
-      const pos = start + el.textContent.length;
-      ta.selectionStart = ta.selectionEnd = pos;
-      ta.focus();
-    });
-  });
-  $("#vn-emoji-btn").addEventListener("click", () => {
-    vnGrid.classList.toggle("open");
-  });
+  $("#vn-playpause-btn").addEventListener("click", toggleVnPreviewPlayback);
 }
 
 async function openVideoNoteModal() {
@@ -2209,13 +2197,13 @@ async function openVideoNoteModal() {
   $("#composer-video-btn").classList.add("active");
   $(".videonote-circle-wrap").style.setProperty("--vn-pct", "0");
   $("#vn-timer").style.display = "none";
+  $("#vn-playpause-btn").style.display = "none";
   $("#vn-record-btn").style.display = "flex";
   $("#vn-record-btn").textContent = "● Сабт кардан";
+  $("#vn-record-btn").classList.remove("recording");
   $("#vn-record-btn").onclick = startVideoNoteRecording;
-  $("#vn-send-btn").style.display = "none";
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
-  $("#vn-emoji-grid").classList.remove("open");
   openModal("modal-videonote");
   try {
     vnStream = await navigator.mediaDevices.getUserMedia({
@@ -2234,12 +2222,15 @@ function closeVideoNoteModal() {
   if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
   clearInterval(vnTimerInterval);
   if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
-  $("#vn-video").srcObject = null;
+  const video = $("#vn-video");
+  video.pause();
+  video.srcObject = null;
+  video.src = "";
+  $("#vn-playpause-btn").style.display = "none";
   vnResultData = null;
   vnResultBlob = null;
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
-  $("#vn-emoji-grid").classList.remove("open");
   closeModal("modal-videonote");
 }
 
@@ -2270,14 +2261,21 @@ function startVideoNoteRecording() {
     reader.onload = () => {
       vnResultData = reader.result;
       if (vnStream) { vnStream.getTracks().forEach((t) => t.stop()); vnStream = null; }
-      $("#vn-video").srcObject = null;
-      $("#vn-video").src = vnResultData;
-      $("#vn-video").loop = true;
-      $("#vn-video").muted = true;
-      $("#vn-video").play();
-      $("#vn-record-btn").style.display = "none";
-      $("#vn-send-btn").style.display = "flex";
+      const video = $("#vn-video");
+      video.srcObject = null;
+      video.src = vnResultData;
+      video.loop = true;
+      video.muted = true;
+      video.pause();
+      video.currentTime = 0;
+      // Тугмаи плей/стоп барои тамошои пешакии видео
+      $("#vn-playpause-btn").textContent = "▶️";
+      $("#vn-playpause-btn").style.display = "flex";
       $("#vn-caption-row").style.display = "flex";
+      // Тугмаи сабт акнун ба тугмаи ирсол табдил меёбад
+      $("#vn-record-btn").classList.remove("recording");
+      $("#vn-record-btn").textContent = "Ирсол ➤";
+      $("#vn-record-btn").onclick = sendVideoNote;
     };
     reader.readAsDataURL(blob);
   };
@@ -2288,6 +2286,7 @@ function startVideoNoteRecording() {
   $("#vn-timer").style.display = "block";
   $("#vn-timer").textContent = `● ${fmt(0)} / ${fmt(VN_MAX_SECONDS)}`;
   $("#vn-record-btn").textContent = "⏹ Истодан";
+  $("#vn-record-btn").classList.add("recording");
   vnTimerInterval = setInterval(() => {
     vnSeconds++;
     $("#vn-timer").textContent = `● ${fmt(vnSeconds)} / ${fmt(VN_MAX_SECONDS)}`;
@@ -2304,8 +2303,24 @@ function stopVideoNoteRecording() {
   $("#vn-timer").style.display = "none";
   $(".videonote-circle-wrap").style.setProperty("--vn-pct", "100");
   if (vnRecorder && vnRecorder.state === "recording") vnRecorder.stop();
-  $("#vn-record-btn").onclick = startVideoNoteRecording;
-  $("#vn-record-btn").textContent = "● Сабт кардан";
+  // Тавассути onclick=null пешгирӣ мекунем, ки корбар дар лаҳзаи коркард дубора пахш кунад;
+  // ин ба тугмаи "Ирсол" дар vnRecorder.onstop иваз мешавад
+  $("#vn-record-btn").onclick = null;
+  $("#vn-record-btn").classList.remove("recording");
+  $("#vn-record-btn").textContent = "...";
+}
+
+function toggleVnPreviewPlayback() {
+  const video = $("#vn-video");
+  const btn = $("#vn-playpause-btn");
+  if (video.paused) {
+    video.muted = false;
+    video.play();
+    btn.textContent = "⏸";
+  } else {
+    video.pause();
+    btn.textContent = "▶️";
+  }
 }
 
 function sendVideoNote() {
