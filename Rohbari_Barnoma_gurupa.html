@@ -669,9 +669,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       <div id="ap-media" class="attach-preview-media"></div>
       <div class="ap-caption-row">
         <textarea id="ap-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
-        <button type="button" id="ap-emoji-btn" class="ap-emoji-btn" title="Смайлик">😊</button>
       </div>
-      <div id="ap-emoji-grid" class="emoji-grid ap-emoji-grid"></div>
       <div class="modal-actions">
         <button type="button" id="ap-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="ap-send-btn" class="btn-primary flex">Ирсол ➤</button>
@@ -1946,7 +1944,6 @@ function openAttachPreview(attachment) {
     media.innerHTML = `<div class="attach-preview-doc">📄 ${escapeHtml(attachment.name)}</div>`;
   }
   $("#ap-caption").value = "";
-  $("#ap-emoji-grid").classList.remove("open");
   openModal("modal-attach-preview");
   setTimeout(() => $("#ap-caption").focus(), 50);
 }
@@ -1954,33 +1951,12 @@ function openAttachPreview(attachment) {
 function initAttachPreviewModal() {
   $("#ap-cancel-btn").addEventListener("click", () => {
     pendingAttachment = null;
-    $("#ap-emoji-grid").classList.remove("open");
     closeModal("modal-attach-preview");
   });
   $("#ap-send-btn").addEventListener("click", () => {
     const caption = $("#ap-caption").value.trim();
     sendAttachmentMessage(caption);
-    $("#ap-emoji-grid").classList.remove("open");
     closeModal("modal-attach-preview");
-  });
-
-  // Тугмаи смайлик барои камент (матн зери расм)
-  const apGrid = $("#ap-emoji-grid");
-  apGrid.innerHTML = EMOJI_LIST.map((em) => `<span>${em}</span>`).join("");
-  apGrid.querySelectorAll("span").forEach((el) => {
-    el.addEventListener("click", () => {
-      const ta = $("#ap-caption");
-      const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
-      const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
-      const val = ta.value;
-      ta.value = val.slice(0, start) + el.textContent + val.slice(end);
-      const pos = start + el.textContent.length;
-      ta.selectionStart = ta.selectionEnd = pos;
-      ta.focus();
-    });
-  });
-  $("#ap-emoji-btn").addEventListener("click", () => {
-    apGrid.classList.toggle("open");
   });
 }
 
