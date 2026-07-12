@@ -163,6 +163,30 @@
         .group-btn { background: #3498db; }
         .download-btn { background: linear-gradient(135deg, #5c7a99, #37485c); margin: auto 0 8px; }
 
+        /* ---- Огоҳонии паёмҳои нави "Групаи махсус" (зангула + шумора) ---- */
+        .group-notify {
+            display: flex; align-items: center; gap: 4px;
+            margin-left: auto; flex-shrink: 0; padding-left: 6px;
+        }
+        .group-notify-bell {
+            font-size: 17px; line-height: 1;
+            filter: drop-shadow(0 0 2px rgba(0,0,0,0.35));
+        }
+        .group-notify-count {
+            background: #e74c3c; color: #fff; font-size: 11px; font-weight: bold;
+            min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        }
+        @keyframes groupBellRing {
+            0%, 100% { transform: rotate(0); }
+            10% { transform: rotate(22deg); } 20% { transform: rotate(-20deg); }
+            30% { transform: rotate(16deg); } 40% { transform: rotate(-14deg); }
+            50% { transform: rotate(10deg); } 60% { transform: rotate(-8deg); }
+            70% { transform: rotate(5deg); } 80% { transform: rotate(-3deg); }
+        }
+        .group-notify-bell.ring { animation: groupBellRing 1.8s ease-in-out infinite; transform-origin: top center; }
+
         /* ---- Равзанаи (модал) тасдиқи скачат кардан ---- */
         .modal-overlay {
             position: fixed; inset: 0;
@@ -366,11 +390,15 @@
 <div class="settings-frame">
     <div class="frame-title">Групаи махсус</div>
     <a href="https://kholidtj1995.github.io/sayt-1/grupa.html" 
-       class="social-btn group-btn">
+       class="social-btn group-btn" id="group-link-btn">
         <div class="icon-container">
             <img src="https://images.icon-icons.com/407/PNG/96/Group_40731.png" alt="Icon">
         </div>
         Хабарҳои нав
+        <span class="group-notify" id="group-notify" style="display:none;">
+            <span class="group-notify-bell" id="group-notify-bell">🔔</span>
+            <span class="group-notify-count" id="group-notify-count">0</span>
+        </span>
     </a>
 </div>
 
@@ -604,6 +632,132 @@
             body.classList.toggle('dark-mode');
             icon.innerHTML = body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
+    </script>
+
+    <!-- ---- Огоҳонии паёмҳои нави гурӯҳи "Групаи махсус" ---- -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
+    <script>
+    (function () {
+        // Ҳамон конфиги Firebase, ки дар grupa.html истифода мешавад
+        const firebaseConfig = {
+            apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+            authDomain: "live-chat-ea070.firebaseapp.com",
+            databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+            projectId: "live-chat-ea070",
+            storageBucket: "live-chat-ea070.firebasestorage.app"
+        };
+
+        const notifyWrap = document.getElementById('group-notify');
+        const bellEl = document.getElementById('group-notify-bell');
+        const countEl = document.getElementById('group-notify-count');
+        if (!notifyWrap || !bellEl || !countEl) return;
+
+        // Профили корбар (ҳамон "lc_profile", ки grupa.html месозад).
+        // Агар корбар ҳанӯз ягон бор ба гурӯҳ надаромада бошад — чизе намоиш дода намешавад.
+        let ME = null;
+        try {
+            const raw = localStorage.getItem('lc_profile');
+            if (raw) ME = JSON.parse(raw);
+        } catch (e) { ME = null; }
+        if (!ME || !ME.uid) return;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (e) { return; }
+        const groupsRef = firebase.database().ref('groups');
+
+        let prevUnread = -1; // -1 = ҳанӯз санҷида нашудааст (боркунии аввал)
+
+        groupsRef.on('value', function (snap) {
+            const groups = snap.val() || {};
+            let totalUnread = 0;
+
+            Object.values(groups).forEach(function (g) {
+                if (!g || g.blocked) return;
+                if (!g.subscribers || !g.subscribers[ME.uid]) return; // танҳо гурӯҳҳое, ки корбар обуна шудааст
+                const lastSeenTs = (g.lastSeen && g.lastSeen[ME.uid]) || 0;
+                const msgs = g.messages || {};
+                Object.values(msgs).forEach(function (m) {
+                    if (m && (m.ts || 0) > lastSeenTs) totalUnread++;
+                });
+            });
+
+            if (totalUnread > 0) {
+                notifyWrap.style.display = 'flex';
+                countEl.textContent = totalUnread > 99 ? '99+' : String(totalUnread);
+                bellEl.classList.add('ring');
+            } else {
+                notifyWrap.style.display = 'none';
+                bellEl.classList.remove('ring');
+            }
+
+            // Садо мезанем ҳар вақте ки шумораи паёмҳои нахонда зиёд мешавад
+            // (аз ҷумла дафъаи аввали воридшавӣ ба сомона, агар паёми нахонда бошад)
+            if (totalUnread > 0 && totalUnread !== prevUnread) {
+                playGroupBellSound();
+            }
+            prevUnread = totalUnread;
+        });
+
+        /* ---- Садои зангула (Web Audio API, бе файли берунӣ) ---- */
+        let notifyAudioCtx = null;
+        let pendingBellPlay = false;
+
+        function emitBellTone(ctx) {
+            const now = ctx.currentTime;
+            const duration = 1.6;
+            [
+                { f: 880, g: 0.28 },
+                { f: 1320, g: 0.16 },
+                { f: 1760, g: 0.09 }
+            ].forEach(function (p) {
+                const o = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(p.f, now);
+                gainNode.gain.setValueAtTime(0.0001, now);
+                gainNode.gain.exponentialRampToValueAtTime(p.g, now + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+                o.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                o.start(now);
+                o.stop(now + duration + 0.05);
+            });
+        }
+
+        function playGroupBellSound() {
+            try {
+                if (!notifyAudioCtx) {
+                    notifyAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (notifyAudioCtx.state === 'suspended') {
+                    // Браузер садоро то ишораи корбар (клик) манъ мекунад — интизор мемонем
+                    pendingBellPlay = true;
+                    notifyAudioCtx.resume().then(function () {
+                        if (pendingBellPlay) {
+                            pendingBellPlay = false;
+                            emitBellTone(notifyAudioCtx);
+                        }
+                    }).catch(function () {});
+                    return;
+                }
+                emitBellTone(notifyAudioCtx);
+            } catch (e) { /* садо дастрас нест - сарфи назар мекунем */ }
+        }
+
+        // Дафъаи аввали клики корбар дар саҳифа - агар садои интизоршуда бошад, месозем
+        document.addEventListener('click', function () {
+            if (notifyAudioCtx && notifyAudioCtx.state === 'suspended') {
+                notifyAudioCtx.resume().then(function () {
+                    if (pendingBellPlay) {
+                        pendingBellPlay = false;
+                        emitBellTone(notifyAudioCtx);
+                    }
+                }).catch(function () {});
+            }
+        });
+    })();
     </script>
 </body>
 </html>
