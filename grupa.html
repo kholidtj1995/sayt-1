@@ -424,6 +424,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-storage-compat.min.js"></script>
 <script>
 /* ===================== Firebase ===================== */
 const firebaseConfig = {
@@ -437,6 +438,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const storage = firebase.storage();
 const groupsRef = db.ref("groups");
 const TS = firebase.database.ServerValue.TIMESTAMP;
 
