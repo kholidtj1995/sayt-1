@@ -689,9 +689,7 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
       <div id="vn-timer" class="videonote-timer" style="display:none;">● 0:00 / 0:15</div>
       <div id="vn-caption-row" class="ap-caption-row" style="display:none;">
         <textarea id="vn-caption" class="caption-field" rows="1" placeholder="Каментарӣ илова кунед..."></textarea>
-        <button type="button" id="vn-emoji-btn" class="ap-emoji-btn" title="Смайлик">😊</button>
       </div>
-      <div id="vn-emoji-grid" class="emoji-grid ap-emoji-grid"></div>
       <div class="modal-actions">
         <button type="button" id="vn-cancel-btn" class="btn-secondary">Бекор кардан</button>
         <button type="button" id="vn-record-btn" class="btn-primary flex">● Сабт кардан</button>
@@ -2015,27 +2013,9 @@ function sendAttachmentMessage(caption) {
 
 /* Тугмаи ягона дар composer: вакте кутии паём холист — файл (📎),
    ҳамин ки корбар ба кутии паём клик/фокус кард — ба смайлик (😊) табдил меёбад */
-let composerMode = "file";
-function setComposerMode(mode) {
-  composerMode = mode;
-  const btn = $("#composer-toggle-btn");
-  if (mode === "emoji") {
-    btn.textContent = "😊";
-    btn.title = "Смайлик ва GIF";
-  } else {
-    btn.textContent = "📎";
-    btn.title = "Файл";
-    $("#emoji-panel").classList.remove("open");
-  }
-}
-
 function initComposer() {
   const ta = $("#composer-textarea");
   ta.addEventListener("input", () => { autoGrow(); updateSendMicIcon(); });
-  ta.addEventListener("focus", () => setComposerMode("emoji"));
-  ta.addEventListener("blur", () => {
-    if (!ta.value.trim()) setComposerMode("file");
-  });
 
   // Стикер/наклейка/GIF аз клавиатураи телефон (масалан Gboard) — вақте корбар
   // онро дар кутии паём "паст" мекунад, мо расмашро мегирем ва мисли паёмаки
@@ -2062,12 +2042,8 @@ function initComposer() {
   });
 
   $("#composer-toggle-btn").addEventListener("click", () => {
-    if (composerMode === "file") {
-      $("#composer-file-input").accept = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt";
-      $("#composer-file-input").click();
-    } else {
-      $("#emoji-panel").classList.toggle("open");
-    }
+    $("#composer-file-input").accept = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt";
+    $("#composer-file-input").click();
   });
   $("#composer-file-input").addEventListener("change", async (e) => {
     const file = e.target.files[0];
@@ -2179,24 +2155,6 @@ function initVideoNoteRecorder() {
   $("#composer-video-btn").addEventListener("click", openVideoNoteModal);
   $("#vn-cancel-btn").addEventListener("click", closeVideoNoteModal);
   $("#vn-send-btn").addEventListener("click", sendVideoNote);
-
-  const vnGrid = $("#vn-emoji-grid");
-  vnGrid.innerHTML = EMOJI_LIST.map((em) => `<span>${em}</span>`).join("");
-  vnGrid.querySelectorAll("span").forEach((el) => {
-    el.addEventListener("click", () => {
-      const ta = $("#vn-caption");
-      const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
-      const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
-      const val = ta.value;
-      ta.value = val.slice(0, start) + el.textContent + val.slice(end);
-      const pos = start + el.textContent.length;
-      ta.selectionStart = ta.selectionEnd = pos;
-      ta.focus();
-    });
-  });
-  $("#vn-emoji-btn").addEventListener("click", () => {
-    vnGrid.classList.toggle("open");
-  });
 }
 
 async function openVideoNoteModal() {
@@ -2211,7 +2169,6 @@ async function openVideoNoteModal() {
   $("#vn-send-btn").style.display = "none";
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
-  $("#vn-emoji-grid").classList.remove("open");
   openModal("modal-videonote");
   try {
     vnStream = await navigator.mediaDevices.getUserMedia({
@@ -2235,7 +2192,6 @@ function closeVideoNoteModal() {
   vnResultBlob = null;
   $("#vn-caption-row").style.display = "none";
   $("#vn-caption").value = "";
-  $("#vn-emoji-grid").classList.remove("open");
   closeModal("modal-videonote");
 }
 
