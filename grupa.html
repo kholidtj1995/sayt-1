@@ -381,6 +381,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
         <button type="button" id="group-back-btn" class="back-btn">←</button>
         <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
         <div class="header-actions" style="margin-left:auto;">
+          <button type="button" id="group-subscribe-btn" class="subscribe-btn">Обуна шудан</button>
           <div id="group-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
             <div id="group-user-avatar" class="user-badge-avatar"></div>
             <span id="group-user-name" class="user-badge-name"></span>
@@ -393,7 +394,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
           <div id="group-name" class="group-name"></div>
           <div id="group-sub-count" class="group-sub-count"></div>
         </div>
-        <button type="button" id="group-subscribe-btn" class="subscribe-btn">Обуна шудан</button>
       </div>
     </div>
 
@@ -459,6 +459,7 @@ let chatListFirstLoad = true;
 let knownMsgIds = new Set();
 let firstRenderForGroup = true;
 let dataEverSeen = false; // барои муайян кардани лаҳзае, ки маълумот аз Firebase пурра пок карда мешавад
+let hasAutoEnteredGroup = false; // то корбар бевосита ба комната ворид шавад, на ба рӯйхат
 
 /* ===================== Notification sound ===================== */
 function playNotifySound() {
@@ -1219,6 +1220,20 @@ function enterApp() {
     chatListFirstLoad = false;
 
     allGroups = newGroups;
+
+    // Дафъаи аввал: ба ҷои нишон додани рӯйхати комнатаҳо, мустақим ба
+    // комнатаи мавҷуда ворид мешавем (агар комнатае вуҷуд дошта бошад)
+    if (!hasAutoEnteredGroup) {
+      hasAutoEnteredGroup = true;
+      const available = Object.entries(allGroups || {}).filter(([id, g]) => !g.blocked);
+      if (available.length > 0) {
+        available.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+        openGroup(available[0][0]);
+        return;
+      }
+      showScreen("main");
+    }
+
     renderChatList();
     if (shouldPlayBell) playBellSound();
     if (currentGroupId && allGroups[currentGroupId]) {
@@ -1258,7 +1273,7 @@ function init() {
   $("#main-user-badge").addEventListener("click", logoutFully);
   $("#group-user-badge").addEventListener("click", logoutFully);
 
-  $("#group-back-btn").addEventListener("click", closeGroup);
+  $("#group-back-btn").addEventListener("click", goToExternalSite);
   $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
   $$(".modal-overlay").forEach((ov) => {
