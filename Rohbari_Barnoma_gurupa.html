@@ -1622,15 +1622,30 @@ function bindMessageRowEvents(wrap, groupId, row) {
     q.addEventListener("click", (e) => {
       e.stopPropagation();
       const targetMid = q.dataset.scrollMid;
-      const el = wrap.querySelector(`[data-mid="${targetMid}"]`);
+      const el = wrap.querySelector(`.msg-row[data-mid="${targetMid}"]`);
       if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
       const bubble = el.querySelector(".msg-bubble");
-      if (bubble) {
+      const flash = () => {
+        if (!bubble) return;
         bubble.classList.remove("reply-focus");
         void bubble.offsetWidth;
         bubble.classList.add("reply-focus");
-      }
+      };
+      // Мунтазир мемонем, ки smooth-scroll пурра тамом шавад, баъд рамкаро зард карда мижазанем —
+      // вагарна дар чатҳои дароз мижазанӣ пеш аз расидани паём ба экран тамом мешавад ва дида намешавад.
+      let flashed = false;
+      const onScrollEnd = () => {
+        if (flashed) return;
+        flashed = true;
+        wrap.removeEventListener("scrollend", onScrollEnd);
+        flash();
+      };
+      wrap.addEventListener("scrollend", onScrollEnd);
+      // Пуштибон барои браузерҳое, ки "scrollend"-ро дастгирӣ намекунанд (масалан Safari-и куҳна)
+      setTimeout(() => {
+        if (!flashed) { flashed = true; wrap.removeEventListener("scrollend", onScrollEnd); flash(); }
+      }, 700);
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
   const videonoteWrap = row.querySelector(".videonote-wrap");
