@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="tg" translate="no">
 <head>
-<script>
-window.onerror = function(msg, url, line, col){ alert('JS ХАТО: ' + msg + ' (сатри ' + line + ')'); return false; };
-window.addEventListener('unhandledrejection', function(e){ alert('PROMISE ХАТО: ' + (e.reason && (e.reason.message||e.reason))); });
-</script>
 <meta charset="UTF-8">
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -180,7 +176,7 @@ textarea:focus { border-color:var(--teal); }
     <div class="recording-indicator" id="recordingIndicator">
       <span class="rec-dot"></span>
       <span class="rec-timer" id="recTimer">0:00</span>
-      <span class="rec-hint">Сабти садо... барои ирсол сар диҳед</span>
+      <span class="rec-hint">Сабти садо... барои бас кардан ва ирсол боз як бор пахш кунед</span>
     </div>
     <div class="blocked-banner" id="blockedBanner">🚫 Дастрасии шумо ба чат маҳдуд карда шудааст</div>
     <div class="input-area">
@@ -410,9 +406,11 @@ function hideRecIndicator(){
   if(recTimerInterval){ clearInterval(recTimerInterval); recTimerInterval=null; }
   recordingIndicator.classList.remove('show');
 }
-function resetRecUI(){ actionBtn.classList.remove('recording'); recording=false; pendingStart=false; pendingStop=false; hideRecIndicator(); }
-function startRec(e){
-  if(e) e.preventDefault();
+function resetRecUI(){ actionBtn.classList.remove('recording'); recording=false; pendingStart=false; hideRecIndicator(); }
+function toggleVoiceRecording(){
+  if(recording){ stopRec(); } else { startRec(); }
+}
+function startRec(){
   if(document.getElementById('message').value.trim()!=='') return;
   if(recording || pendingStart) return; // ду бор оғоз нашавад
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -426,11 +424,6 @@ function startRec(e){
   pendingStart = true;
   navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
     pendingStart = false;
-    if(pendingStop){ // корбар пеш аз тайёр шудани микрофон тугмаро сар дод
-      pendingStop = false;
-      stream.getTracks().forEach(t=>t.stop());
-      return;
-    }
     mediaRecorder = new MediaRecorder(stream); audioChunks=[]; recording=true; recordStart=Date.now();
     actionBtn.classList.add('recording');
     showRecIndicator();
@@ -451,18 +444,14 @@ function startRec(e){
     mediaRecorder.start();
   }).catch(()=>{ resetRecUI(); window.showAlert('Дастрасӣ ба микрофон рад шуд'); });
 }
-function stopRec(e){
-  if(e) e.preventDefault();
-  if(pendingStart && !recording){ pendingStop = true; return; }
+function stopRec(){
   if(recording && mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); }
   recording = false;
 }
-actionBtn.addEventListener('contextmenu', e=>e.preventDefault());
-actionBtn.addEventListener('pointerdown', e=>{ if(actionBtn.innerHTML.trim()!=='➤') startRec(e); });
-actionBtn.addEventListener('pointerup', e=>{ if(actionBtn.innerHTML.trim()!=='➤') stopRec(e); });
-actionBtn.addEventListener('pointercancel', stopRec);
-actionBtn.addEventListener('pointerleave', stopRec);
-actionBtn.addEventListener('click', e=>{ if(actionBtn.innerHTML.trim()==='➤') trySend(); });
+actionBtn.addEventListener('click', e=>{
+  if(actionBtn.innerHTML.trim()==='➤'){ trySend(); }
+  else { toggleVoiceRecording(); }
+});
 
 /* ---------- Плеери овоз ---------- */
 window.toggleVoicePlay = (id, btn)=>{
