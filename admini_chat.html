@@ -132,6 +132,11 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .reply-preview { display:none; align-items:center; justify-content:space-between; background:var(--bg-elev); padding:8px 14px; border-top:1px solid var(--border); }
 .reply-preview-text { font-size:13px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%; }
 .reply-preview button { background:none; border:none; font-size:16px; color:var(--text-faint); cursor:pointer; }
+.recording-indicator { display:none; align-items:center; gap:8px; background:var(--bg-elev); padding:8px 14px; border-top:1px solid var(--border); }
+.recording-indicator.show { display:flex; }
+.rec-dot { width:10px; height:10px; border-radius:50%; background:var(--danger); flex-shrink:0; animation:pulseGlow 1s infinite; }
+.rec-timer { font-size:13px; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
+.rec-hint { font-size:12px; color:var(--text-faint); margin-left:auto; }
 
 .input-zone { padding:10px 12px 16px; background:var(--bg-elev); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; border-top:1px solid var(--border); }
 textarea { flex:1; padding:11px 14px; border:1px solid var(--border); border-radius:14px; font-size:15px; background:var(--card); color:var(--text); outline:none; resize:none; min-height:42px; max-height:110px; line-height:20px; overflow-y:auto; }
@@ -192,6 +197,11 @@ textarea::placeholder { color:var(--text-faint); }
     <div class="reply-preview" id="replyPreview">
       <div class="reply-preview-text" id="replyPreviewText"></div>
       <button onclick="cancelReply()">✕</button>
+    </div>
+    <div class="recording-indicator" id="recordingIndicator">
+      <span class="rec-dot"></span>
+      <span class="rec-timer" id="recTimer">0:00</span>
+      <span class="rec-hint">Сабти садо... барои ирсол сар диҳед</span>
     </div>
     <div class="input-zone">
       <button class="round-btn attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
@@ -547,10 +557,25 @@ function compressImage(file, maxBytes=60*1024){
 }
 
 /* ---------- Овоз ---------- */
-let mediaRecorder, audioChunks=[], recording=false, recordStart=0, pendingStart=false, pendingStop=false;
+let mediaRecorder, audioChunks=[], recording=false, recordStart=0, pendingStart=false, pendingStop=false, recTimerInterval=null;
 const actionBtn = document.getElementById('actionBtn');
+const recordingIndicator = document.getElementById('recordingIndicator');
+const recTimerEl = document.getElementById('recTimer');
 actionBtn.style.touchAction = 'none';
-function resetRecUI(){ actionBtn.classList.remove('recording'); recording=false; pendingStart=false; pendingStop=false; }
+function formatRecTime(sec){ const m=Math.floor(sec/60); const s=sec%60; return `${m}:${s<10?'0':''}${s}`; }
+function showRecIndicator(){
+  recTimerEl.textContent='0:00';
+  recordingIndicator.classList.add('show');
+  recTimerInterval = setInterval(()=>{
+    const elapsed = Math.floor((Date.now()-recordStart)/1000);
+    recTimerEl.textContent = formatRecTime(elapsed);
+  }, 200);
+}
+function hideRecIndicator(){
+  if(recTimerInterval){ clearInterval(recTimerInterval); recTimerInterval=null; }
+  recordingIndicator.classList.remove('show');
+}
+function resetRecUI(){ actionBtn.classList.remove('recording'); recording=false; pendingStart=false; pendingStop=false; hideRecIndicator(); }
 function startRec(e){
   if(e) e.preventDefault();
   if(document.getElementById('adminMsg').value.trim()!=='' || !selectedUser) return;
@@ -573,6 +598,7 @@ function startRec(e){
     }
     mediaRecorder = new MediaRecorder(stream); audioChunks=[]; recording=true; recordStart=Date.now();
     actionBtn.classList.add('recording');
+    showRecIndicator();
     mediaRecorder.ondataavailable = ev=>{ if(ev.data && ev.data.size>0) audioChunks.push(ev.data); };
     mediaRecorder.onstop = async ()=>{
       resetRecUI();
