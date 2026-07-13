@@ -165,10 +165,10 @@ textarea::placeholder { color:var(--text-faint); }
 .reaction-picker.show { display:flex; }
 .reaction-picker span { font-size:22px; cursor:pointer; }
 
-.custom-alert-overlay { position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:center; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; padding:0 20px; }
+.custom-alert-overlay { position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:flex-end; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; }
 .custom-alert-overlay.show { opacity:1; pointer-events:auto; }
-.custom-alert-box { width:100%; max-width:320px; background:var(--bg-elev); border:1px solid var(--border); border-radius:22px; padding:28px 24px 22px; text-align:center; transform:scale(.92); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
-.custom-alert-overlay.show .custom-alert-box { transform:scale(1); }
+.custom-alert-box { width:100%; background:var(--bg-elev); border:1px solid var(--border); border-top-left-radius:22px; border-top-right-radius:22px; padding:28px 24px 22px; text-align:center; transform:translateY(10px); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.custom-alert-overlay.show .custom-alert-box { transform:translateY(0); }
 .custom-alert-icon { font-size:38px; margin-bottom:12px; line-height:1; }
 .custom-alert-text { color:var(--text); font-size:15.5px; font-weight:600; margin-bottom:22px; line-height:1.45; }
 .custom-alert-actions { display:flex; gap:10px; }
@@ -177,7 +177,7 @@ textarea::placeholder { color:var(--text-faint); }
 .custom-alert-btn.primary { background:var(--accent); color:var(--accent-ink); }
 .custom-alert-btn.danger { background:var(--danger); color:#fff; }
 .custom-alert-btn.secondary { background:var(--card); color:var(--text); border:1px solid var(--border); }
-
+@media (min-width:461px){ .custom-alert-overlay{ align-items:center; } .custom-alert-box{ max-width:320px; border-radius:22px; } }
 </style>
 </head>
 <body>
@@ -412,30 +412,65 @@ function buildUserRow(username, u, opts){
   const isBlocked = !!u.blocked;
   const isPinned = !!u.pinned;
   const isMarked = !!u.marked;
-  const row = document.createElement('div'); row.className='user-row'+(isPinned?' pinned':''); row.onclick=()=>openChat(username);
-  row.innerHTML = `
-    ${isPinned?'<span class="pin-flag">📌 Собит</span>':''}
-    <div class="user-info">
-      <div class="user-name-wrapper">
-        <span class="user-name">${escapeHtml(username)}</span>
-        <span class="unread-badge" style="display:${unread>0?'inline-block':'none'}">${unread}</span>
-        <span class="blocked-badge" style="display:${isBlocked?'inline-block':'none'}">Блок</span>
-      </div>
-      <span class="user-last-msg${isTyping?' typing':''}">${isTyping ? 'менависад<span class="typing-dots"><span></span><span></span><span></span></span>' : escapeHtml(lastMsg)}</span>
-    </div>
-    <div class="row-actions">
-      <span class="status-dot ${isMarked?'marked':''}" onclick="toggleMarked(event,'${username}')" title="Аломат гузоштан"></span>
-      <div class="menu-dots" onclick="toggleMenu(event,'${username}')">⋮</div>
-    </div>
-    <div id="menu-${username}" class="context-menu">
-      <div class="context-menu-item pin-user" onclick="togglePin(event,'${username}')">${isPinned?'📌 Аз боло гирифтан':'📌 Дар боло собит кардан'}</div>
-      <div class="context-menu-item clear-chat" onclick="clearChat(event,'${username}')">🧹 Тоза кардани чат</div>
-      <div class="context-menu-item block-user" onclick="toggleBlock(event,'${username}')">${isBlocked?'✅ Рафъи блок':'🚫 Блок кардани корбар'}</div>
-      ${opts && opts.archived
-        ? `<div class="context-menu-item unarchive-user" onclick="unarchiveUser(event,'${username}')">📤 Барқарор аз бойгонӣ</div>`
-        : `<div class="context-menu-item archive-user" onclick="archiveUser(event,'${username}')">🗄 Ба бойгонӣ гузарондан</div>`}
-      <div class="context-menu-item delete-user" onclick="deleteUser(event,'${username}')">🗑 Нест кардани корбар</div>
-    </div>`;
+  const archived = !!(opts && opts.archived);
+
+  const row = document.createElement('div');
+  row.className = 'user-row'+(isPinned?' pinned':'');
+  row.onclick = ()=>openChat(username);
+
+  if(isPinned){
+    const flag = document.createElement('span');
+    flag.className = 'pin-flag';
+    flag.textContent = '📌 Собит';
+    row.appendChild(flag);
+  }
+
+  const info = document.createElement('div'); info.className = 'user-info';
+  const nameWrap = document.createElement('div'); nameWrap.className = 'user-name-wrapper';
+  const nameEl = document.createElement('span'); nameEl.className = 'user-name'; nameEl.textContent = username;
+  const unreadEl = document.createElement('span'); unreadEl.className = 'unread-badge';
+  unreadEl.style.display = unread>0 ? 'inline-block' : 'none'; unreadEl.textContent = unread;
+  const blockedEl = document.createElement('span'); blockedEl.className = 'blocked-badge';
+  blockedEl.style.display = isBlocked ? 'inline-block' : 'none'; blockedEl.textContent = 'Блок';
+  nameWrap.append(nameEl, unreadEl, blockedEl);
+
+  const lastMsgEl = document.createElement('span');
+  lastMsgEl.className = 'user-last-msg'+(isTyping?' typing':'');
+  if(isTyping){ lastMsgEl.innerHTML = 'менависад<span class="typing-dots"><span></span><span></span><span></span></span>'; }
+  else { lastMsgEl.textContent = lastMsg; }
+  info.append(nameWrap, lastMsgEl);
+
+  const actions = document.createElement('div'); actions.className = 'row-actions';
+  const statusDot = document.createElement('span');
+  statusDot.className = 'status-dot'+(isMarked?' marked':'');
+  statusDot.title = 'Аломат гузоштан';
+  statusDot.addEventListener('click', event=>{ event.stopPropagation(); window.toggleMarked(event, username); });
+  const menuDots = document.createElement('div');
+  menuDots.className = 'menu-dots'; menuDots.textContent = '⋮';
+  menuDots.addEventListener('click', event=>{ event.stopPropagation(); window.toggleMenu(event, username); });
+  actions.append(statusDot, menuDots);
+
+  const menu = document.createElement('div');
+  menu.className = 'context-menu';
+  menu.id = `menu-${username}`;
+
+  function menuItem(cls, label, handler){
+    const item = document.createElement('div');
+    item.className = 'context-menu-item '+cls;
+    item.textContent = label;
+    item.addEventListener('click', event=>{ event.stopPropagation(); handler(event, username); });
+    return item;
+  }
+
+  menu.appendChild(menuItem('pin-user', isPinned?'📌 Аз боло гирифтан':'📌 Дар боло собит кардан', window.togglePin));
+  menu.appendChild(menuItem('clear-chat', '🧹 Тоза кардани чат', window.clearChat));
+  menu.appendChild(menuItem('block-user', isBlocked?'✅ Рафъи блок':'🚫 Блок кардани корбар', window.toggleBlock));
+  menu.appendChild(archived
+    ? menuItem('unarchive-user', '📤 Барқарор аз бойгонӣ', window.unarchiveUser)
+    : menuItem('archive-user', '🗄 Ба бойгонӣ гузарондан', window.archiveUser));
+  menu.appendChild(menuItem('delete-user', '🗑 Нест кардани корбар', window.deleteUser));
+
+  row.append(info, actions, menu);
   return row;
 }
 
