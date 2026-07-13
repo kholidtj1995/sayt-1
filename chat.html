@@ -34,7 +34,13 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .back-btn { background:var(--card); border:1px solid var(--border); color:var(--text); padding:8px 14px; border-radius:10px; cursor:pointer; text-decoration:none; font-size:14px; font-weight:600; }
 .back-btn:active { background:var(--card-2); }
 .header-title { font-family:var(--font-display); font-size:18px; font-weight:700; }
-.admin-subtitle { font-size:12px; color:var(--text-dim); font-weight:600; }
+.admin-subtitle { font-size:12px; color:var(--text-dim); font-weight:600; display:flex; align-items:center; gap:4px; }
+.admin-subtitle.typing { color:var(--teal); }
+.typing-dots { display:inline-flex; align-items:center; gap:2px; }
+.typing-dots span { width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.4; animation:typingBounce 1.1s infinite; }
+.typing-dots span:nth-child(2){ animation-delay:.15s; }
+.typing-dots span:nth-child(3){ animation-delay:.3s; }
+@keyframes typingBounce { 0%,60%,100%{ transform:translateY(0); opacity:.4; } 30%{ transform:translateY(-3px); opacity:1; } }
 .admin-status-dot { width:9px; height:9px; background:var(--bg); border:2px solid var(--text-faint); border-radius:50%; display:inline-block; }
 .admin-status-dot.online { background:var(--teal); border-color:var(--teal); box-shadow:0 0 8px 2px rgba(63,167,160,.5); animation:pulseGlow 1.5s infinite; }
 @keyframes pulseGlow { 0%{transform:scale(.9);opacity:.6;} 50%{transform:scale(1.15);opacity:1;} 100%{transform:scale(.9);opacity:.6;} }
@@ -214,7 +220,7 @@ textarea:focus { border-color:var(--teal); }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, set, get, update, query, limitToLast } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, set, get, update, query, limitToLast, onDisconnect } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -278,6 +284,7 @@ function startChatUI(user){
   get(ref(db, `sayt1_active_users/${currentUsername}`)).then(s=>{
     if(!s.exists()) set(ref(db, `sayt1_active_users/${currentUsername}`), { lastActive:Date.now(), unreadCount:0 });
   });
+  onDisconnect(ref(db, `sayt1_active_users/${currentUsername}/userTyping`)).set(false);
   listenAdminStatus();
   listenMessages();
   listenBlockStatus();
@@ -300,6 +307,7 @@ document.getElementById('username').addEventListener('keydown', e=>{ if(e.key===
 window.onMsgInput = (ta)=>{
   ta.style.height='42px'; ta.style.height=(ta.scrollHeight<110?ta.scrollHeight:110)+'px';
   document.getElementById('actionBtn').innerHTML = ta.value.trim()==='' ? '🎤' : '➤';
+  handleUserTyping(ta.value.trim()!=='');
 };
 document.getElementById('message').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); trySend(); } });
 
@@ -308,9 +316,27 @@ function trySend(){
   if(ta.value.trim()!=='') sendMessage();
 }
 
+/* ---------- Аломати "менависад..." (Корбар -> Админ) ---------- */
+let userTypingTimeout = null;
+let userTypingOn = false;
+function setUserTyping(on){
+  if(!currentUsername || userTypingOn===on) return;
+  userTypingOn = on;
+  update(ref(db, `sayt1_active_users/${currentUsername}`), { userTyping:on }).catch(()=>{});
+}
+function handleUserTyping(hasText){
+  if(!currentUsername) return;
+  if(!hasText){ clearTimeout(userTypingTimeout); setUserTyping(false); return; }
+  setUserTyping(true);
+  clearTimeout(userTypingTimeout);
+  userTypingTimeout = setTimeout(()=>setUserTyping(false), 2000);
+}
+function stopUserTyping(){ clearTimeout(userTypingTimeout); setUserTyping(false); }
+
 async function pushMsg(data){
   const msgRef = push(ref(db, `sayt1_chats/${currentUsername}`));
   await set(msgRef, Object.assign({ user:currentUsername, timestamp:Date.now() }, data));
+  stopUserTyping();
   const userRef = ref(db, `sayt1_active_users/${currentUsername}`);
   const snap = await get(userRef);
   const cur = snap.val()?.unreadCount || 0;
@@ -503,8 +529,19 @@ function listenAdminStatus(){
     const subtitle = document.getElementById('adminSubtitle');
     const dot = document.getElementById('adminStatusDot');
     const isOnline = !!d && d.status==='online' && d.current_chat===currentUsername;
-    if(isOnline){ subtitle.innerText='Админ пайваст шуд'; dot.className='admin-status-dot online'; if(!adminWasOnline && initialLoadDone) window.playConnect(); }
-    else { subtitle.innerText='Админ пайваст нест'; dot.className='admin-status-dot'; }
+    const isTyping = isOnline && !!d.typing;
+    if(isTyping){
+      subtitle.innerHTML = 'Админ менависад<span class="typing-dots"><span></span><span></span><span></span></span>';
+      subtitle.classList.add('typing');
+      dot.className='admin-status-dot online';
+    } else if(isOnline){
+      subtitle.textContent='Админ пайваст шуд'; subtitle.classList.remove('typing');
+      dot.className='admin-status-dot online';
+      if(!adminWasOnline && initialLoadDone) window.playConnect();
+    } else {
+      subtitle.textContent='Админ пайваст нест'; subtitle.classList.remove('typing');
+      dot.className='admin-status-dot';
+    }
     adminWasOnline = isOnline;
   });
 }
