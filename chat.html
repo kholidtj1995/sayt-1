@@ -288,7 +288,21 @@ function startChatUI(user){
   listenAdminStatus();
   listenMessages();
   listenBlockStatus();
+  listenAccountDeleted();
   setTimeout(()=>document.getElementById('message').focus(),100);
+}
+
+/* ---------- Хориҷшавии худкор агар админ ҳисобро нест кунад ---------- */
+let accountSeenAlive = false;
+function listenAccountDeleted(){
+  onValue(ref(db, `sayt1_active_users/${currentUsername}`), snap=>{
+    if(snap.exists()){ accountSeenAlive = true; return; }
+    if(accountSeenAlive){
+      localStorage.removeItem('sayt1_username');
+      window.showAlert('Ҳисоби шумо аз тарафи админ нест карда шуд.');
+      setTimeout(()=>{ window.location.reload(); }, 1500);
+    }
+  });
 }
 
 /* ---------- Блок аз тарафи админ ---------- */
@@ -574,9 +588,6 @@ function renderMsg(msg, id){
   </div>`;
 }
 
-let renderedMsgKeys = new Set();
-let lastRenderedDate = '';
-
 function listenMessages(){
   const messagesQuery = query(ref(db, `sayt1_chats/${currentUsername}`), limitToLast(50));
   onValue(messagesQuery, snap=>{
@@ -584,22 +595,24 @@ function listenMessages(){
     const data = snap.val() || {};
     allMessages = data;
     const keys = Object.keys(data);
+    const newKeys = keys.filter(k=>!processedKeys.has(k));
+
+    display.innerHTML = '';
+    let lastDate = '';
     keys.forEach(key=>{
       const msg = data[key];
       if(msg.user!==currentUsername && !msg.seenByUser) update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
-      if(renderedMsgKeys.has(key)){
-        processedKeys.add(key);
-        return;
-      }
       if(msg.timestamp){
         const dStr = new Date(msg.timestamp).toDateString();
-        if(dStr !== lastRenderedDate){ display.insertAdjacentHTML('beforeend', `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`); lastRenderedDate = dStr; }
+        if(dStr !== lastDate){ display.insertAdjacentHTML('beforeend', `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`); lastDate = dStr; }
       }
       display.insertAdjacentHTML('beforeend', renderMsg(msg, key));
-      renderedMsgKeys.add(key);
-      if(initialLoadDone && msg.user!==currentUsername && !processedKeys.has(key)) window.playReceive();
-      processedKeys.add(key);
     });
+
+    if(initialLoadDone){
+      newKeys.forEach(key=>{ if(data[key].user!==currentUsername) window.playReceive(); });
+    }
+    processedKeys = new Set(keys);
     display.scrollTop = display.scrollHeight;
     initialLoadDone = true;
   });
