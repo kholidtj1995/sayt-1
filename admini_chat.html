@@ -555,6 +555,14 @@ function startRec(e){
   if(e) e.preventDefault();
   if(document.getElementById('adminMsg').value.trim()!=='' || !selectedUser) return;
   if(recording || pendingStart) return; // ду бор оғоз нашавад
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    window.showCustomAlert('Сабти садо дастрас нест: сайт бояд тавассути HTTPS (ё localhost) кушода шавад, на аз file:// ё http:// оддӣ.','🎙️');
+    return;
+  }
+  if(typeof MediaRecorder==='undefined'){
+    window.showCustomAlert('Браузери шумо MediaRecorder-ро дастгирӣ намекунад.','🎙️');
+    return;
+  }
   pendingStart = true;
   navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
     pendingStart = false;
