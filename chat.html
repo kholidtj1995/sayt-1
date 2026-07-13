@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="tg" translate="no">
 <head>
+<script>
+window.onerror = function(msg, url, line, col){ alert('JS ХАТО: ' + msg + ' (сатри ' + line + ')'); return false; };
+window.addEventListener('unhandledrejection', function(e){ alert('PROMISE ХАТО: ' + (e.reason && (e.reason.message||e.reason))); });
+</script>
 <meta charset="UTF-8">
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
