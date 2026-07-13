@@ -757,7 +757,7 @@ function renderMsg(msg, id){
   let content='';
   if(msg.type==='image'){ content = `<img class="chat-image" src="${msg.fileData}" onclick="openLightbox('${id}')">`; }
   else if(msg.type==='document'){ const kb=Math.round((msg.fileSize||0)/1024); content = `<a class="doc-msg" href="${msg.fileData}" download="${escapeHtml(msg.fileName||'file')}"><span class="doc-icon">📄</span><span class="doc-info"><span class="doc-name">${escapeHtml(msg.fileName||'Файл')}</span><span class="doc-size">${kb} KB</span></span></a>`; }
-  else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileData}" preload="none"></audio></div>`; }
+  else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileData||msg.fileURL}" preload="none"></audio></div>`; }
   else { content = linkify(msg.text||''); }
 
   const replyHtml = msg.replyTo ? `<div class="reply-quote"><b>${escapeHtml(msg.replyTo.user)}</b>${escapeHtml(msg.replyTo.text)}</div>` : '';
