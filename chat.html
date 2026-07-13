@@ -80,7 +80,8 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .voice-msg { display:flex; align-items:center; gap:8px; min-width:190px; }
 .voice-play-btn { width:32px; height:32px; border-radius:50%; border:none; background:var(--accent); color:var(--accent-ink); font-size:13px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .msg-row.theirs .voice-play-btn { background:var(--accent); color:var(--accent-ink); }
-.voice-progress { flex:1; accent-color:var(--accent); height:4px; }
+.voice-progress { flex:1; accent-color:var(--teal); height:4px; }
+.msg-row.mine .voice-progress { accent-color:var(--accent-ink); }
 .voice-time { font-size:10.5px; white-space:nowrap; opacity:.8; }
 .voice-speed-btn { border:none; background:rgba(255,255,255,.12); color:inherit; border-radius:20px; font-size:10.5px; padding:2px 7px; cursor:pointer; flex-shrink:0; }
 .msg-row.mine .voice-speed-btn { background:rgba(36,23,3,.16); }
@@ -377,35 +378,52 @@ function compressImage(file, maxBytes=60*1024){
 
 
 /* ---------- Овоз (микрофон) ---------- */
-let mediaRecorder, audioChunks=[], recording=false, recordStart=0;
+let mediaRecorder, audioChunks=[], recording=false, recordStart=0, pendingStart=false, pendingStop=false;
 const actionBtn = document.getElementById('actionBtn');
+actionBtn.style.touchAction = 'none';
+function resetRecUI(){ actionBtn.classList.remove('recording'); recording=false; pendingStart=false; pendingStop=false; }
 function startRec(e){
+  if(e) e.preventDefault();
   if(document.getElementById('message').value.trim()!=='') return;
-  e.preventDefault();
+  if(recording || pendingStart) return; // ду бор оғоз нашавад
+  pendingStart = true;
   navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    pendingStart = false;
+    if(pendingStop){ // корбар пеш аз тайёр шудани микрофон тугмаро сар дод
+      pendingStop = false;
+      stream.getTracks().forEach(t=>t.stop());
+      return;
+    }
     mediaRecorder = new MediaRecorder(stream); audioChunks=[]; recording=true; recordStart=Date.now();
     actionBtn.classList.add('recording');
-    mediaRecorder.ondataavailable = ev=>audioChunks.push(ev.data);
+    mediaRecorder.ondataavailable = ev=>{ if(ev.data && ev.data.size>0) audioChunks.push(ev.data); };
     mediaRecorder.onstop = async ()=>{
-      actionBtn.classList.remove('recording');
+      resetRecUI();
       const dur = Math.round((Date.now()-recordStart)/1000);
       stream.getTracks().forEach(t=>t.stop());
       if(dur<1 || audioChunks.length===0) return;
-      const blob = new Blob(audioChunks, {type:'audio/webm'});
-      const url = await uploadToStorage(blob, `voice_${Date.now()}.webm`);
-      const data = { type:'voice', fileURL:url, fileSize:blob.size, duration:dur };
-      if(replyingTo) data.replyTo = replyingTo;
-      await pushMsg(data);
+      try{
+        const blob = new Blob(audioChunks, {type:'audio/webm'});
+        const url = await uploadToStorage(blob, `voice_${Date.now()}.webm`);
+        const data = { type:'voice', fileURL:url, fileSize:blob.size, duration:dur };
+        if(replyingTo) data.replyTo = replyingTo;
+        await pushMsg(data);
+      }catch(err){ window.showAlert('Хатогӣ ҳангоми ирсоли овоз'); }
     };
     mediaRecorder.start();
-  }).catch(()=>window.showAlert('Дастрасӣ ба микрофон рад шуд'));
+  }).catch(()=>{ resetRecUI(); window.showAlert('Дастрасӣ ба микрофон рад шуд'); });
 }
-function stopRec(e){ if(recording && mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); recording=false; } }
-actionBtn.addEventListener('mousedown', e=>{ if(actionBtn.innerHTML.trim()!=='➤') startRec(e); });
-actionBtn.addEventListener('touchstart', e=>{ if(actionBtn.innerHTML.trim()!=='➤'){ startRec(e); } });
-actionBtn.addEventListener('mouseup', stopRec);
-actionBtn.addEventListener('mouseleave', stopRec);
-actionBtn.addEventListener('touchend', stopRec);
+function stopRec(e){
+  if(e) e.preventDefault();
+  if(pendingStart && !recording){ pendingStop = true; return; }
+  if(recording && mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); }
+  recording = false;
+}
+actionBtn.addEventListener('contextmenu', e=>e.preventDefault());
+actionBtn.addEventListener('pointerdown', e=>{ if(actionBtn.innerHTML.trim()!=='➤') startRec(e); });
+actionBtn.addEventListener('pointerup', e=>{ if(actionBtn.innerHTML.trim()!=='➤') stopRec(e); });
+actionBtn.addEventListener('pointercancel', stopRec);
+actionBtn.addEventListener('pointerleave', stopRec);
 actionBtn.addEventListener('click', e=>{ if(actionBtn.innerHTML.trim()==='➤') trySend(); });
 
 /* ---------- Плеери овоз ---------- */
