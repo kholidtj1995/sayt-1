@@ -165,10 +165,10 @@ textarea::placeholder { color:var(--text-faint); }
 .reaction-picker.show { display:flex; }
 .reaction-picker span { font-size:22px; cursor:pointer; }
 
-.custom-alert-overlay { position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:flex-end; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; }
+.custom-alert-overlay { position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:center; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; padding:0 20px; }
 .custom-alert-overlay.show { opacity:1; pointer-events:auto; }
-.custom-alert-box { width:100%; background:var(--bg-elev); border:1px solid var(--border); border-top-left-radius:22px; border-top-right-radius:22px; padding:28px 24px 22px; text-align:center; transform:translateY(10px); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
-.custom-alert-overlay.show .custom-alert-box { transform:translateY(0); }
+.custom-alert-box { width:100%; max-width:320px; background:var(--bg-elev); border:1px solid var(--border); border-radius:22px; padding:28px 24px 22px; text-align:center; transform:scale(.92); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.custom-alert-overlay.show .custom-alert-box { transform:scale(1); }
 .custom-alert-icon { font-size:38px; margin-bottom:12px; line-height:1; }
 .custom-alert-text { color:var(--text); font-size:15.5px; font-weight:600; margin-bottom:22px; line-height:1.45; }
 .custom-alert-actions { display:flex; gap:10px; }
@@ -177,7 +177,7 @@ textarea::placeholder { color:var(--text-faint); }
 .custom-alert-btn.primary { background:var(--accent); color:var(--accent-ink); }
 .custom-alert-btn.danger { background:var(--danger); color:#fff; }
 .custom-alert-btn.secondary { background:var(--card); color:var(--text); border:1px solid var(--border); }
-@media (min-width:461px){ .custom-alert-overlay{ align-items:center; } .custom-alert-box{ max-width:320px; border-radius:22px; } }
+
 </style>
 </head>
 <body>
