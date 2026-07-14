@@ -602,7 +602,7 @@ window.onMsgInput = (ta)=>{
   handleAdminTyping(ta.value.trim()!=='');
 };
 document.getElementById('adminMsg').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); trySend(); } });
-function trySend(){ const ta=document.getElementById('adminMsg'); if(ta.value.trim()!=='') sendAdmin(); }
+function trySend(){ const ta=document.getElementById('adminMsg'); if(ta.value.trim()!=='' && !isSendingMsg) sendAdmin(); }
 
 /* ---------- Аломати "менависад..." (Admin -> Корбар) ---------- */
 let adminTypingTimeout = null;
@@ -636,14 +636,14 @@ async function pushMsg(data){
   }
 }
 
-window.sendAdmin = async ()=>{
+window.sendAdmin = ()=>{
   const inputEl = document.getElementById('adminMsg');
   const text = inputEl.value.trim();
-  if(text===""||!selectedUser) return;
+  if(text===""||!selectedUser||isSendingMsg) return;
   const data = { text, type:'text' };
   if(replyingTo) data.replyTo = replyingTo;
-  await pushMsg(data);
   inputEl.value=''; inputEl.style.height='42px'; window.onMsgInput(inputEl);
+  pushMsg(data);
 };
 
 /* ---------- Файл/расм ---------- */
