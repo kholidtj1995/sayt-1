@@ -287,6 +287,7 @@ let prevUnread = {};
 let usersInitDone = false;
 let listenedUsers = new Set();
 let usersData = {};
+let knownUserKeys = new Set();
 let currentScreen = 'list'; // 'list' | 'chat' | 'archive'
 let searchQuery = '';
 
@@ -351,6 +352,18 @@ onValue(ref(db, 'sayt1_active_users/'), snap=>{
     forceCloseAdminPanel();
     return;
   }
+  // Агар корбаре пештар дар рӯйхат буд, вале ҳоло нест шудааст (масалан бевосита аз
+  // Firebase Console пок карда шудааст), паёмҳои чати ӯ низ пок карда шаванд, то дар
+  // маълумот ҳеҷ "боқимонда" намонад ва рӯйхати корбарон ҳамеша тоза бошад.
+  const newKeys = new Set(Object.keys(usersData));
+  knownUserKeys.forEach(username=>{
+    if(!newKeys.has(username)){
+      remove(ref(db, `sayt1_chats/${username}`));
+      listenedUsers.delete(username);
+      if(selectedUser===username) goBack();
+    }
+  });
+  knownUserKeys = newKeys;
   for(let username in usersData){
     const unread = usersData[username].unreadCount || 0;
     if(usersInitDone && (prevUnread[username]||0) < unread) window.playReceive();
@@ -608,12 +621,19 @@ function handleAdminTyping(hasText){
 }
 function stopAdminTyping(){ clearTimeout(adminTypingTimeout); setAdminTyping(false); }
 
+let isSendingMsg = false;
 async function pushMsg(data){
   if(!selectedUser) return;
-  const msgRef = push(ref(db, `sayt1_chats/${selectedUser}`));
-  await set(msgRef, Object.assign({ user:"Админ", timestamp:Date.now() }, data));
-  stopAdminTyping();
-  window.playSend(); window.cancelReply();
+  if(isSendingMsg) return; // пешгирии ирсоли такрории як паём
+  isSendingMsg = true;
+  try{
+    const msgRef = push(ref(db, `sayt1_chats/${selectedUser}`));
+    await set(msgRef, Object.assign({ user:"Админ", timestamp:Date.now() }, data));
+    stopAdminTyping();
+    window.playSend(); window.cancelReply();
+  } finally {
+    isSendingMsg = false;
+  }
 }
 
 window.sendAdmin = async ()=>{
