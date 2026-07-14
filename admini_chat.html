@@ -337,8 +337,17 @@ function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileRe
 
 /* ---------- Рӯйхати корбарон ---------- */
 let allChatsData = {};
+let activeUsersDataEverSeen = false;
 onValue(ref(db, 'sayt1_active_users/'), snap=>{
   usersData = snap.val() || {};
+  const hasData = Object.keys(usersData).length > 0;
+  if(hasData){
+    activeUsersDataEverSeen = true;
+  } else if(activeUsersDataEverSeen){
+    // Маълумот аз Firebase пурра пок карда шуд — панелро бастан/бозсозӣ кардан
+    forceCloseAdminPanel();
+    return;
+  }
   for(let username in usersData){
     const unread = usersData[username].unreadCount || 0;
     if(usersInitDone && (prevUnread[username]||0) < unread) window.playReceive();
@@ -349,6 +358,11 @@ onValue(ref(db, 'sayt1_active_users/'), snap=>{
   updateChatTypingSubtitle();
   usersInitDone = true;
 });
+
+function forceCloseAdminPanel(){
+  try{ window.parent.postMessage({type:'chat-conversation-closed'}, '*'); }catch(e){}
+  window.location.reload();
+}
 
 function updateChatTypingSubtitle(){
   const sub = document.getElementById('adminChatSubtitle');
