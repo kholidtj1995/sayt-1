@@ -355,7 +355,7 @@ document.getElementById('message').addEventListener('keydown', e=>{ if(e.key==='
 
 function trySend(){
   const ta = document.getElementById('message');
-  if(ta.value.trim()!=='') sendMessage();
+  if(ta.value.trim()!=='' && !isSendingMsg) sendMessage();
 }
 
 /* ---------- Аломати "менависад..." (Корбар -> Админ) ---------- */
@@ -375,28 +375,35 @@ function handleUserTyping(hasText){
 }
 function stopUserTyping(){ clearTimeout(userTypingTimeout); setUserTyping(false); }
 
+let isSendingMsg = false;
 async function pushMsg(data){
-  const msgRef = push(ref(db, `sayt1_chats/${currentUsername}`));
-  await set(msgRef, Object.assign({ user:currentUsername, timestamp:Date.now() }, data));
-  stopUserTyping();
-  const userRef = ref(db, `sayt1_active_users/${currentUsername}`);
-  const snap = await get(userRef);
-  const cur = snap.val()?.unreadCount || 0;
-  const preview = data.text || (data.type==='image'?'📷 Расм':data.type==='document'?'📄 Файл':data.type==='voice'?'🎤 Овоз':'');
-  update(userRef, { lastActive:Date.now(), lastMessage:preview, unreadCount:cur+1 });
-  window.playSend();
-  window.cancelReply();
+  if(isSendingMsg) return; // пешгирии ирсоли такрории як паём
+  isSendingMsg = true;
+  try{
+    const msgRef = push(ref(db, `sayt1_chats/${currentUsername}`));
+    await set(msgRef, Object.assign({ user:currentUsername, timestamp:Date.now() }, data));
+    stopUserTyping();
+    const userRef = ref(db, `sayt1_active_users/${currentUsername}`);
+    const snap = await get(userRef);
+    const cur = snap.val()?.unreadCount || 0;
+    const preview = data.text || (data.type==='image'?'📷 Расм':data.type==='document'?'📄 Файл':data.type==='voice'?'🎤 Овоз':'');
+    update(userRef, { lastActive:Date.now(), lastMessage:preview, unreadCount:cur+1 });
+    window.playSend();
+    window.cancelReply();
+  } finally {
+    isSendingMsg = false;
+  }
 }
 
 function sendMessage(){
   const inputEl = document.getElementById('message');
   const text = inputEl.value.trim();
-  if(text==="" || !currentUsername) return;
+  if(text==="" || !currentUsername || isSendingMsg) return;
   const data = { text, type:'text' };
   if(replyingTo) data.replyTo = replyingTo;
-  pushMsg(data);
   inputEl.value=''; inputEl.style.height='42px';
   window.onMsgInput(inputEl);
+  pushMsg(data);
 }
 window.sendMessage = sendMessage;
 
