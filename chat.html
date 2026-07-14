@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Админ Панел</title>
+<title>Chat</title>
 <style>
 :root{
   --bg:#0F1320;
@@ -26,86 +26,39 @@
   --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
 }
 * { box-sizing:border-box; margin:0; padding:0; font-family:var(--font-body); -webkit-tap-highlight-color:transparent; }
-body { background:#070911; display:flex; justify-content:center; align-items:center; height:100vh; height:100dvh; overflow:hidden; }
-.phone-container { width:100%; max-width:480px; height:100vh; height:100dvh; background:var(--bg); display:flex; flex-direction:column; position:relative; box-shadow:0 0 60px rgba(0,0,0,.5); overflow:hidden; }
-
-.admin-header { background:var(--bg-elev); color:var(--text); padding:14px 16px; font-size:16px; font-weight:700; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
-.admin-header-left { display:flex; align-items:center; gap:8px; font-family:var(--font-display); }
-.admin-header-titles { display:flex; flex-direction:column; gap:1px; line-height:1.25; }
-.admin-chat-subtitle { font-size:11.5px; font-weight:600; color:var(--teal); font-family:var(--font-body); display:flex; align-items:center; gap:4px; }
-.admin-chat-phone { font-size:11.5px; font-weight:500; color:var(--text-dim); font-family:var(--font-body); text-align:left; }
-.online-badge { width:8px; height:8px; background:var(--teal); border-radius:50%; display:inline-block; box-shadow:0 0 8px 2px rgba(63,167,160,.5); animation:pulseGlow 1.6s infinite; }
-@keyframes pulseGlow { 0%{transform:scale(.9);opacity:.6;} 50%{transform:scale(1.15);opacity:1;} 100%{transform:scale(.9);opacity:.6;} }
-.back-to-list { background:var(--card); border:1px solid var(--border); color:var(--text); padding:6px 12px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; display:none; }
+body { background:#070911; display:flex; justify-content:center; align-items:center; height:100vh; height:100dvh; overflow:hidden; position:fixed; width:100%; }
+.phone-container { width:100%; max-width:480px; height:100vh; height:100dvh; background:var(--bg); display:flex; flex-direction:column; position:relative; box-shadow:0 0 60px rgba(0,0,0,.5); overflow:hidden; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+.chat-header { position:sticky; top:0; z-index:100; background:var(--bg-elev); color:var(--text); padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); flex-shrink:0; }
+.chat-header-left { display:flex; align-items:center; gap:12px; }
+.chat-header-right { display:flex; align-items:center; gap:8px; }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--text); padding:8px 14px; border-radius:10px; cursor:pointer; text-decoration:none; font-size:14px; font-weight:600; }
+.back-btn:active { background:var(--card-2); }
+.header-title { font-family:var(--font-display); font-size:18px; font-weight:700; }
+.admin-subtitle { font-size:12px; color:var(--text-dim); font-weight:600; display:flex; align-items:center; gap:4px; }
+.admin-subtitle.typing { color:var(--teal); }
 .typing-dots { display:inline-flex; align-items:center; gap:2px; }
 .typing-dots span { width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.4; animation:typingBounce 1.1s infinite; }
 .typing-dots span:nth-child(2){ animation-delay:.15s; }
 .typing-dots span:nth-child(3){ animation-delay:.3s; }
 @keyframes typingBounce { 0%,60%,100%{ transform:translateY(0); opacity:.4; } 30%{ transform:translateY(-3px); opacity:1; } }
-.user-last-msg.typing { color:var(--teal); font-weight:600; }
+.admin-status-dot { width:9px; height:9px; background:var(--bg); border:2px solid var(--text-faint); border-radius:50%; display:inline-block; }
+.admin-status-dot.online { background:var(--teal); border-color:var(--teal); box-shadow:0 0 8px 2px rgba(63,167,160,.5); animation:pulseGlow 1.5s infinite; }
+@keyframes pulseGlow { 0%{transform:scale(.9);opacity:.6;} 50%{transform:scale(1.15);opacity:1;} 100%{transform:scale(.9);opacity:.6;} }
 
-.users-list-screen {
-  flex:1; overflow-y:auto; display:flex; flex-direction:column; scrollbar-width:none; -ms-overflow-style:none;
+#chatDisplay {
+  flex:1; overflow-y:auto; padding:16px 16px 4px; display:flex; flex-direction:column; gap:4px; scrollbar-width:none;
   background-color:var(--bg);
   background-image:
     radial-gradient(circle at 20% 20%, rgba(231,169,60,.05) 0, transparent 40%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg fill='none' stroke='%233FA7A0' stroke-opacity='0.10' stroke-width='1.4'%3E%3Cpath d='M42 2 L74 42 L42 82 L10 42 Z'/%3E%3Cpath d='M42 18 L58 42 L42 66 L26 42 Z'/%3E%3C/g%3E%3C/svg%3E");
   background-size:auto, 84px 84px;
 }
-.users-list-screen::-webkit-scrollbar { display:none; width:0; height:0; }
-.user-row { background:var(--card); padding:14px 16px; margin:8px 12px 0; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border); border-radius:16px; cursor:pointer; position:relative; z-index:1; transition:transform .12s ease, background .12s ease, border-color .12s ease; }
-.user-row:last-child { margin-bottom:8px; }
-.user-row:hover { background:var(--card-2); }
-.user-row:active { transform:scale(.985); }
-.user-row.pinned { border-color:#3B9DF6; box-shadow:0 0 0 1px rgba(59,157,246,.25); }
-.user-row.menu-open { z-index:50; }
-.pin-flag { position:absolute; top:-10px; left:14px; background:#3B9DF6; color:#fff; font-size:10.5px; font-weight:700; padding:3px 10px 3px 8px; border-radius:20px; box-shadow:0 2px 6px rgba(59,157,246,.4); }
-.row-actions { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-.status-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--border); background:var(--card); cursor:pointer; flex-shrink:0; box-sizing:border-box; transition:background .15s ease, border-color .15s ease; }
-.status-dot:hover { border-color:var(--text-faint); }
-.status-dot.marked { background:var(--teal); border-color:var(--teal); box-shadow:0 0 0 3px rgba(63,167,160,.18); }
-.user-info { display:flex; flex-direction:column; gap:2px; flex:1; overflow:hidden; }
-.user-name-wrapper { display:flex; align-items:center; gap:8px; }
-.user-name { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--text); }
-.user-phone { font-size:12px; color:var(--text-dim); font-weight:500; }
-.unread-badge { background:var(--accent); color:var(--accent-ink); font-size:11px; font-weight:bold; padding:2px 7px; border-radius:20px; display:none; }
-.user-last-msg { font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px; }
-.menu-dots { padding:8px; font-size:18px; color:var(--text-faint); cursor:pointer; font-weight:bold; border-radius:50%; width:34px; height:34px; display:flex; justify-content:center; align-items:center; flex-shrink:0; }
-.menu-dots:hover { background:var(--card-2); color:var(--text); }
-.context-menu { position:absolute; right:16px; top:45px; background:var(--bg-elev); box-shadow:0 10px 20px rgba(0,0,0,.4); border-radius:14px; width:190px; z-index:999; display:none; border:1px solid var(--border); overflow:hidden; }
-.context-menu-item { padding:10px 14px; font-size:13px; font-weight:600; text-align:left; cursor:pointer; color:var(--text); display:flex; align-items:center; gap:8px; }
-.context-menu-item:hover { background:var(--card); }
-.context-menu-item.clear-chat { color:var(--text); }
-.context-menu-item.block-user { color:var(--danger); border-top:1px solid var(--border); }
-.context-menu-item.archive-user { color:var(--teal); }
-.context-menu-item.unarchive-user { color:var(--teal); }
-.context-menu-item.pin-user { color:var(--accent); border-top:1px solid var(--border); }
-.context-menu-item.delete-user { color:var(--danger); font-weight:700; border-top:1px solid var(--border); }
-.blocked-badge { background:rgba(226,84,62,.18); color:var(--danger); font-size:10.5px; font-weight:bold; padding:1px 7px; border-radius:20px; display:none; }
-.admin-header-right { display:flex; align-items:center; gap:8px; }
-
-.search-bar { display:flex; align-items:center; gap:8px; background:var(--card); margin:10px 14px; padding:9px 14px; border-radius:14px; border:1px solid var(--border); flex-shrink:0; }
-.search-bar .search-icon { font-size:15px; color:var(--text-faint); flex-shrink:0; }
-.search-bar input { flex:1; border:none; outline:none; font-size:14.5px; background:transparent; color:var(--text); }
-.search-bar input::placeholder { color:var(--text-faint); }
-.search-clear-btn { border:none; background:var(--card-2); color:var(--text-dim); width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer; display:none; align-items:center; justify-content:center; flex-shrink:0; }
-.no-results { padding:30px 20px; text-align:center; color:var(--text-faint); font-size:14px; }
-
-.chat-screen {
-  flex:1; display:none; flex-direction:column; overflow:hidden;
-  background-color:var(--bg);
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(231,169,60,.05) 0, transparent 40%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg fill='none' stroke='%233FA7A0' stroke-opacity='0.10' stroke-width='1.4'%3E%3Cpath d='M42 2 L74 42 L42 82 L10 42 Z'/%3E%3Cpath d='M42 18 L58 42 L42 66 L26 42 Z'/%3E%3C/g%3E%3C/svg%3E");
-  background-size:auto, 84px 84px;
-}
-#chatDisplay { flex:1; overflow-y:auto; padding:16px 16px 4px; display:flex; flex-direction:column; gap:4px; scrollbar-width:none; }
 #chatDisplay::-webkit-scrollbar { display:none; }
 .date-separator { align-self:center; background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; margin:10px 0; }
 .msg-row { display:flex; flex-direction:column; max-width:78%; margin-bottom:6px; }
 .msg-row.mine { align-self:flex-end; align-items:flex-end; }
 .msg-row.theirs { align-self:flex-start; align-items:flex-start; }
-.msg { padding:9px 12px 7px; border-radius:16px; font-size:14.5px; line-height:1.42; word-break:break-word; white-space:pre-wrap; }
+.msg { padding:9px 12px 7px; border-radius:16px; font-size:14.5px; line-height:1.42; word-break:break-word; white-space:pre-wrap; position:relative; }
 .msg-row.mine .msg { background:var(--accent); color:var(--accent-ink); border-bottom-right-radius:4px; }
 .msg-row.theirs .msg { background:var(--card-2); color:var(--text); border-bottom-left-radius:4px; }
 .msg a { color:var(--teal-dark); text-decoration:underline; word-break:break-all; }
@@ -139,6 +92,28 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .voice-speed-btn { border:none; background:rgba(255,255,255,.12); color:inherit; border-radius:20px; font-size:10.5px; padding:2px 7px; cursor:pointer; flex-shrink:0; }
 .msg-row.mine .voice-speed-btn { background:rgba(36,23,3,.16); }
 
+.auth-zone {
+  flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:32px 26px; text-align:center;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(231,169,60,.05) 0, transparent 40%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg fill='none' stroke='%233FA7A0' stroke-opacity='0.10' stroke-width='1.4'%3E%3Cpath d='M42 2 L74 42 L42 82 L10 42 Z'/%3E%3Cpath d='M42 18 L58 42 L42 66 L26 42 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:auto, 84px 84px;
+}
+.auth-card { width:100%; background:transparent; text-align:center; }
+.auth-zone h2 { margin-bottom:8px; color:var(--text); font-family:var(--font-display); font-size:26px; font-weight:700; }
+.auth-zone p { color:var(--text-dim); font-size:14px; margin-bottom:24px; max-width:280px; margin-left:auto; margin-right:auto; }
+#joinBtn { margin-top:4px; border:none; border-radius:14px; width:100%; max-width:300px; padding:14px 16px; background:var(--accent); color:var(--accent-ink); font-size:15px; font-weight:700; letter-spacing:.2px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-left:auto; margin-right:auto; transition:transform .15s ease, filter .15s ease; }
+#joinBtn:hover { filter:brightness(1.05); }
+#joinBtn:active { background:var(--accent-dark); transform:scale(.97); }
+#joinBtn .arrow { transition:transform .15s ease; }
+#joinBtn:hover .arrow { transform:translateX(3px); }
+#username, #phone { text-align:center; border-radius:14px; padding:14px 16px; width:100%; max-width:300px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:15px; margin:0 auto 14px; display:block; transition:border-color .15s ease; }
+#username::placeholder, #phone::placeholder { color:var(--text-faint); }
+#username:focus, #phone:focus { border-color:var(--teal); outline:none; }
+
+.blocked-banner { display:none; align-items:center; justify-content:center; gap:8px; background:rgba(226,84,62,.14); color:var(--danger); font-size:13px; font-weight:600; padding:14px 16px; border-top:1px solid var(--border); text-align:center; flex-shrink:0; }
+
 .reply-preview { display:none; align-items:center; justify-content:space-between; background:var(--bg-elev); padding:8px 14px; border-top:1px solid var(--border); }
 .reply-preview-text { font-size:13px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%; }
 .reply-preview button { background:none; border:none; font-size:16px; color:var(--text-faint); cursor:pointer; }
@@ -148,9 +123,10 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .rec-timer { font-size:13px; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
 .rec-hint { font-size:12px; color:var(--text-faint); margin-left:auto; }
 
-.input-zone { padding:10px 12px 16px; background:var(--bg-elev); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; border-top:1px solid var(--border); }
-textarea { flex:1; padding:11px 14px; border:1px solid var(--border); border-radius:14px; font-size:15px; background:var(--card); color:var(--text); outline:none; resize:none; min-height:42px; max-height:110px; line-height:20px; overflow-y:auto; }
+.input-area { padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:var(--bg-elev); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; border-top:1px solid var(--border); }
+textarea { width:100%; padding:11px 14px; border:1px solid var(--border); border-radius:14px; font-size:15px; background:var(--card); color:var(--text); outline:none; resize:none; min-height:42px; max-height:110px; line-height:20px; overflow-y:auto; }
 textarea::placeholder { color:var(--text-faint); }
+textarea:focus { border-color:var(--teal); }
 .round-btn { width:42px; height:42px; border-radius:50%; border:none; background:var(--accent); color:var(--accent-ink); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .round-btn:active { background:var(--accent-dark); }
 .round-btn.recording { background:var(--danger); color:#fff; animation:pulseGlow 1s infinite; }
@@ -167,49 +143,38 @@ textarea::placeholder { color:var(--text-faint); }
 .reaction-picker.show { display:flex; }
 .reaction-picker span { font-size:22px; cursor:pointer; }
 
-.custom-alert-overlay { position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:flex-end; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; }
+.custom-alert-overlay { position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:flex-end; z-index:999999; opacity:0; pointer-events:none; transition:opacity .3s; }
 .custom-alert-overlay.show { opacity:1; pointer-events:auto; }
-.custom-alert-box { width:100%; background:var(--bg-elev); border:1px solid var(--border); border-top-left-radius:22px; border-top-right-radius:22px; padding:28px 24px 22px; text-align:center; transform:translateY(10px); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
-.custom-alert-overlay.show .custom-alert-box { transform:translateY(0); }
-.custom-alert-icon { font-size:38px; margin-bottom:12px; line-height:1; }
-.custom-alert-text { color:var(--text); font-size:15.5px; font-weight:600; margin-bottom:22px; line-height:1.45; }
-.custom-alert-actions { display:flex; gap:10px; }
-.custom-alert-btn { flex:1; padding:13px; border:none; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer; transition:transform .12s ease, filter .12s ease; }
-.custom-alert-btn:active { transform:scale(.95); }
-.custom-alert-btn.primary { background:var(--accent); color:var(--accent-ink); }
-.custom-alert-btn.danger { background:var(--danger); color:#fff; }
-.custom-alert-btn.secondary { background:var(--card); color:var(--text); border:1px solid var(--border); }
+.custom-alert-box { width:100%; background:var(--bg-elev); border:1px solid var(--border); border-top-left-radius:22px; border-top-right-radius:22px; padding:22px 22px 26px; text-align:center; }
+.custom-alert-text { color:var(--text); font-size:16px; font-weight:600; margin-bottom:20px; }
+.custom-alert-btn { width:100%; padding:13px; background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px; font-weight:700; cursor:pointer; }
 @media (min-width:461px){ .custom-alert-overlay{ align-items:center; } .custom-alert-box{ max-width:320px; border-radius:22px; } }
 </style>
 </head>
 <body>
 <div class="phone-container">
-  <div class="admin-header">
-    <div class="admin-header-left">
-      <span class="online-badge"></span>
-      <div class="admin-header-titles">
-        <span id="adminPanelTitle">Админ Панел</span>
-        <span id="adminChatPhone" class="admin-chat-phone" style="display:none;"></span>
-        <span id="adminChatSubtitle" class="admin-chat-subtitle" style="display:none;">✍️ менависад<span class="typing-dots"><span></span><span></span><span></span></span></span>
-      </div>
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <a href="https://kholidtj1995.github.io/sayt-1/" class="back-btn">←</a>
+      <div class="header-title" id="headerTitle">Sait 1</div>
     </div>
-    <div class="admin-header-right">
-      <button id="archiveBtn" class="back-to-list" style="display:flex;align-items:center;gap:6px;" onclick="openArchive()">🗄 Архив</button>
-      <button id="backBtn" class="back-to-list" onclick="goBack()">← Рӯйхат</button>
+    <div class="chat-header-right">
+      <div class="admin-subtitle" id="adminSubtitle" style="display:none;">Админ пайваст нест</div>
+      <div id="adminStatusDot" class="admin-status-dot" style="display:none;"></div>
     </div>
   </div>
 
-  <div class="search-bar" id="searchBar">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="userSearchInput" placeholder="Ковтуков бо ном ё рақами телефон..." oninput="onSearchInput(this.value)">
-    <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">✕</button>
+  <div id="authBox" class="auth-zone">
+    <div class="auth-card">
+      <h2>Хуш омадед!</h2>
+      <p>Лутфан номи худро нависед</p>
+      <input type="text" id="username" placeholder="Номи шумо...">
+      <input type="tel" id="phone" placeholder="Рақами телефони шумо...">
+      <button onclick="joinChat()" id="joinBtn">Ворид шудан <span class="arrow">→</span></button>
+    </div>
   </div>
 
-  <div id="usersListScreen" class="users-list-screen"></div>
-
-  <div id="archiveListScreen" class="users-list-screen" style="display:none;"></div>
-
-  <div id="chatScreen" class="chat-screen">
+  <div id="chatBox" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
     <div id="chatDisplay"></div>
     <div class="reply-preview" id="replyPreview">
       <div class="reply-preview-text" id="replyPreviewText"></div>
@@ -220,10 +185,11 @@ textarea::placeholder { color:var(--text-faint); }
       <span class="rec-timer" id="recTimer">0:00</span>
       <span class="rec-hint">Сабти садо... барои бас кардан ва ирсол боз як бор пахш кунед</span>
     </div>
-    <div class="input-zone">
+    <div class="blocked-banner" id="blockedBanner">🚫 Дастрасии шумо ба чат маҳдуд карда шудааст</div>
+    <div class="input-area">
       <button class="round-btn attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
       <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar,.ppt,.pptx">
-      <textarea id="adminMsg" placeholder="Ҷавоб ба корбар..." rows="1" oninput="onMsgInput(this)"></textarea>
+      <textarea id="message" placeholder="Паёмак..." rows="1" oninput="onMsgInput(this)"></textarea>
       <button class="round-btn" id="actionBtn">🎤</button>
     </div>
   </div>
@@ -247,19 +213,15 @@ textarea::placeholder { color:var(--text-faint); }
 
   <div id="customAlert" class="custom-alert-overlay">
     <div class="custom-alert-box">
-      <div class="custom-alert-icon" id="alertIcon">⚠️</div>
-      <div class="custom-alert-text" id="alertText"></div>
-      <div class="custom-alert-actions">
-        <button class="custom-alert-btn secondary" id="alertCancelBtn" style="display:none;" onclick="closeAlert(false)">Бекор кардан</button>
-        <button class="custom-alert-btn primary" id="alertOkBtn" onclick="closeAlert(true)">Фаҳмидам</button>
-      </div>
+      <div class="custom-alert-text" id="alertText">Лутфан номи худро ворид кунед!</div>
+      <button class="custom-alert-btn" onclick="closeAlert()">Фаҳмо аст</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, onDisconnect, remove, update, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, set, get, update, query, limitToLast, onDisconnect } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -274,21 +236,14 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 const storage = getStorage(firebaseApp);
-const adminStatusRef = ref(db, 'admin_status/');
-set(adminStatusRef, { status:"online", current_chat:"", typing:false });
-onDisconnect(adminStatusRef).set({ status:"offline", current_chat:"", typing:false });
-
-let selectedUser = "";
+let currentUsername = "";
 let allMessages = {};
 let replyingTo = null;
 let activeReactionId = null;
+let initialLoadDone = false;
+let processedKeys = new Set();
+let adminWasOnline = false;
 let currentPlayingAudio = null;
-let prevUnread = {};
-let usersInitDone = false;
-let listenedUsers = new Set();
-let usersData = {};
-let currentScreen = 'list'; // 'list' | 'chat' | 'archive'
-let searchQuery = '';
 
 /* ---------- Овозҳо ---------- */
 let audioCtx;
@@ -297,339 +252,158 @@ function tone(f1,f2,dur,type,g){ try{ const c=ctx(); const o=c.createOscillator(
 window.playClick = ()=>tone(880,640,.07,'triangle',.04);
 window.playSend = ()=>tone(500,900,.12,'sine',.05);
 window.playReceive = ()=>tone(700,500,.15,'sine',.05);
-window.playAlert = ()=>{ tone(520,780,.09,'sine',.05); setTimeout(()=>tone(780,520,.11,'sine',.05),90); };
-document.addEventListener('click', e=>{ if(e.target.closest('button,.doc-msg,.chat-image,.user-row')) window.playClick(); });
+window.playConnect = ()=>tone(400,800,.25,'sine',.05);
+document.addEventListener('click', e=>{ if(e.target.closest('button,.doc-msg,.chat-image')) window.playClick(); });
 
-/* ---------- Равзанаи зебои огоҳӣ/тасдиқ (ба ҷои confirm/alert-и браузер) ---------- */
-let alertResolve = null;
-window.showCustomAlert = (msg, icon)=>{
-  document.getElementById('alertIcon').textContent = icon || '⚠️';
-  document.getElementById('alertText').textContent = msg;
-  document.getElementById('alertCancelBtn').style.display = 'none';
-  const okBtn = document.getElementById('alertOkBtn');
-  okBtn.textContent = 'Фаҳмидам'; okBtn.className = 'custom-alert-btn primary';
-  document.getElementById('customAlert').classList.add('show');
-  window.playAlert();
-  return new Promise(res=>{ alertResolve = res; });
-};
-window.showCustomConfirm = (msg, opts)=>{
-  opts = opts || {};
-  document.getElementById('alertIcon').textContent = opts.icon || '❓';
-  document.getElementById('alertText').textContent = msg;
-  const cancelBtn = document.getElementById('alertCancelBtn');
-  const okBtn = document.getElementById('alertOkBtn');
-  cancelBtn.style.display = 'block';
-  cancelBtn.textContent = opts.cancelText || 'Бекор кардан';
-  okBtn.textContent = opts.okText || 'Тасдиқ';
-  okBtn.className = 'custom-alert-btn ' + (opts.danger ? 'danger' : 'primary');
-  document.getElementById('customAlert').classList.add('show');
-  window.playAlert();
-  return new Promise(res=>{ alertResolve = res; });
-};
-window.closeAlert = (result)=>{
-  document.getElementById('customAlert').classList.remove('show');
-  if(alertResolve){ const r = alertResolve; alertResolve = null; r(result); }
-};
-document.getElementById('customAlert').addEventListener('click', e=>{ if(e.target.id==='customAlert') window.closeAlert(false); });
-
+/* ---------- Ёрирасон ---------- */
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 function linkify(text){ return escapeHtml(text).replace(/((https?:\/\/|www\.)[^\s<]+)/g, m=>{ let u=m.startsWith('http')?m:'https://'+m; return `<a href="${u}" target="_blank" rel="noopener">${m}</a>`; }); }
 function formatTime(ts){ const d=new Date(ts); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 function formatDur(sec){ sec=Math.max(0,Math.floor(sec||0)); return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'); }
-function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 
-/* ---------- Рӯйхати корбарон ---------- */
-let allChatsData = {};
-let activeUsersDataEverSeen = false;
-onValue(ref(db, 'sayt1_active_users/'), snap=>{
-  usersData = snap.val() || {};
-  const hasData = Object.keys(usersData).length > 0;
-  if(hasData){
-    activeUsersDataEverSeen = true;
-  } else if(activeUsersDataEverSeen){
-    // Маълумот аз Firebase пурра пок карда шуд — панелро бастан/бозсозӣ кардан
-    forceCloseAdminPanel();
-    return;
-  }
-  for(let username in usersData){
-    const unread = usersData[username].unreadCount || 0;
-    if(usersInitDone && (prevUnread[username]||0) < unread) window.playReceive();
-    prevUnread[username] = unread;
-  }
-  renderUsersList();
-  if(currentScreen==='archive') renderArchiveList();
-  if(currentScreen==='chat' && selectedUser){
-    const phoneEl = document.getElementById('adminChatPhone');
-    const userPhone = usersData[selectedUser] && usersData[selectedUser].phone;
-    if(userPhone){ phoneEl.textContent = '📞 '+userPhone; phoneEl.style.display='block'; }
-    else { phoneEl.style.display='none'; }
-  }
-  updateChatTypingSubtitle();
-  usersInitDone = true;
-});
+window.showAlert = (msg)=>{ document.getElementById('alertText').innerText = msg || 'Лутфан номи худро ворид кунед!'; document.getElementById('customAlert').classList.add('show'); };
+window.closeAlert = ()=>{ document.getElementById('customAlert').classList.remove('show'); };
 
-function forceCloseAdminPanel(){
-  try{ window.parent.postMessage({type:'chat-conversation-closed'}, '*'); }catch(e){}
-  window.location.reload();
-}
-
-function updateChatTypingSubtitle(){
-  const sub = document.getElementById('adminChatSubtitle');
-  if(!sub) return;
-  const isTyping = currentScreen==='chat' && selectedUser && usersData[selectedUser] && usersData[selectedUser].userTyping;
-  sub.style.display = isTyping ? 'flex' : 'none';
-}
-
-/* Хониши тамоми чатҳо (барои ковтуков дар дохили паёмҳо) */
-onValue(ref(db, 'sayt1_chats/'), snap=>{
-  allChatsData = snap.val() || {};
-  if(searchQuery){ renderUsersList(); if(currentScreen==='archive') renderArchiveList(); }
-});
-
-/* ---------- Ковтуков зинда (ном, рақами телефон, ва матни дохили чат) ---------- */
-function textMatches(text, q, qDigits){
-  if(!text) return false;
-  const t = String(text).toLowerCase();
-  if(q && t.includes(q)) return true;
-  if(qDigits.length>=4){
-    const digits = String(text).replace(/\D/g,'');
-    if(digits.includes(qDigits)) return true;
-  }
-  return false;
-}
-function matchesSearch(username, u, query){
-  if(!query) return true;
-  const q = query.trim().toLowerCase();
-  const qDigits = query.replace(/\D/g,'');
-  if(textMatches(username, q, qDigits)) return true;
-  if(textMatches(u.phone||'', q, qDigits)) return true;
-  if(textMatches(u.lastMessage||'', q, qDigits)) return true;
-  const chat = allChatsData[username];
-  if(chat){
-    for(const key in chat){
-      const msg = chat[key];
-      if(textMatches(msg.text, q, qDigits)) return true;
-      if(textMatches(msg.fileName, q, qDigits)) return true;
+/* ---------- Сабти ном (localStorage) ---------- */
+const savedName = localStorage.getItem('sayt1_username');
+const savedPhone = localStorage.getItem('sayt1_phone') || '';
+if(savedName){
+  // Кеш (localStorage) танҳо барои дар ёд доштани сессия истифода мешавад — ҳуҷҷати аслӣ ҳамеша дар Firebase аст.
+  // Пеш аз ворид кардани корбар ба чат, ҳатман санҷед: агар админ ин корбарро аз Firebase нест карда бошад,
+  // кеши куҳна эътибор надорад ва корбар бояд аз барнома берун монад (на дубора худкор сабт шавад).
+  get(ref(db, `sayt1_active_users/${savedName}`)).then(s=>{
+    if(s.exists()){
+      startChatUI(savedName, savedPhone, false);
+    } else {
+      localStorage.removeItem('sayt1_username');
+      localStorage.removeItem('sayt1_phone');
     }
-  }
-  return false;
-}
-window.onSearchInput = (val)=>{
-  searchQuery = val;
-  document.getElementById('searchClearBtn').style.display = val ? 'flex' : 'none';
-  renderUsersList();
-  if(currentScreen==='archive') renderArchiveList();
-};
-window.clearSearch = ()=>{
-  searchQuery = '';
-  document.getElementById('userSearchInput').value = '';
-  document.getElementById('searchClearBtn').style.display = 'none';
-  renderUsersList();
-  if(currentScreen==='archive') renderArchiveList();
-  document.getElementById('userSearchInput').focus();
-};
-
-function buildUserRow(username, u, opts){
-  const lastMsg = u.lastMessage || "Паёме нест...";
-  const isTyping = !!u.userTyping;
-  const unread = u.unreadCount || 0;
-  const isBlocked = !!u.blocked;
-  const isPinned = !!u.pinned;
-  const isMarked = !!u.marked;
-  const archived = !!(opts && opts.archived);
-
-  const row = document.createElement('div');
-  row.className = 'user-row'+(isPinned?' pinned':'');
-  row.onclick = ()=>openChat(username);
-
-  if(isPinned){
-    const flag = document.createElement('span');
-    flag.className = 'pin-flag';
-    flag.textContent = '📌 Собит';
-    row.appendChild(flag);
-  }
-
-  const info = document.createElement('div'); info.className = 'user-info';
-  const nameWrap = document.createElement('div'); nameWrap.className = 'user-name-wrapper';
-  const nameEl = document.createElement('span'); nameEl.className = 'user-name'; nameEl.textContent = username;
-  const unreadEl = document.createElement('span'); unreadEl.className = 'unread-badge';
-  unreadEl.style.display = unread>0 ? 'inline-block' : 'none'; unreadEl.textContent = unread;
-  const blockedEl = document.createElement('span'); blockedEl.className = 'blocked-badge';
-  blockedEl.style.display = isBlocked ? 'inline-block' : 'none'; blockedEl.textContent = 'Блок';
-  nameWrap.append(nameEl, unreadEl, blockedEl);
-  if(u.phone){
-    const phoneEl = document.createElement('span'); phoneEl.className = 'user-phone'; phoneEl.textContent = '📞 '+u.phone;
-    nameWrap.appendChild(phoneEl);
-  }
-
-  const lastMsgEl = document.createElement('span');
-  lastMsgEl.className = 'user-last-msg'+(isTyping?' typing':'');
-  if(isTyping){ lastMsgEl.innerHTML = 'менависад<span class="typing-dots"><span></span><span></span><span></span></span>'; }
-  else { lastMsgEl.textContent = lastMsg; }
-  info.append(nameWrap, lastMsgEl);
-
-  const actions = document.createElement('div'); actions.className = 'row-actions';
-  const statusDot = document.createElement('span');
-  statusDot.className = 'status-dot'+(isMarked?' marked':'');
-  statusDot.title = 'Аломат гузоштан';
-  statusDot.addEventListener('click', event=>{ event.stopPropagation(); window.toggleMarked(event, username); });
-  const menuDots = document.createElement('div');
-  menuDots.className = 'menu-dots'; menuDots.textContent = '⋮';
-  menuDots.addEventListener('click', event=>{ event.stopPropagation(); window.toggleMenu(event, username); });
-  actions.append(statusDot, menuDots);
-
-  const menu = document.createElement('div');
-  menu.className = 'context-menu';
-  menu.id = `menu-${username}`;
-
-  function menuItem(cls, label, handler){
-    const item = document.createElement('div');
-    item.className = 'context-menu-item '+cls;
-    item.textContent = label;
-    item.addEventListener('click', event=>{ event.stopPropagation(); handler(event, username); });
-    return item;
-  }
-
-  menu.appendChild(menuItem('pin-user', isPinned?'📌 Аз боло гирифтан':'📌 Дар боло собит кардан', window.togglePin));
-  menu.appendChild(menuItem('clear-chat', '🧹 Тоза кардани чат', window.clearChat));
-  menu.appendChild(menuItem('block-user', isBlocked?'✅ Рафъи блок':'🚫 Блок кардани корбар', window.toggleBlock));
-  menu.appendChild(archived
-    ? menuItem('unarchive-user', '📤 Барқарор аз бойгонӣ', window.unarchiveUser)
-    : menuItem('archive-user', '🗄 Ба бойгонӣ гузарондан', window.archiveUser));
-  menu.appendChild(menuItem('delete-user', '🗑 Нест кардани корбар', window.deleteUser));
-
-  row.append(info, actions, menu);
-  return row;
+  }).catch(()=>{
+    // Агар Firebase дастрас набошад, бо кеши куҳна ворид накунед — амният аз рӯи Firebase муайян мешавад, на кеш.
+    localStorage.removeItem('sayt1_username');
+    localStorage.removeItem('sayt1_phone');
+  });
 }
 
-function sortByPinned(entries){
-  return entries.sort((a,b)=> (b[1].pinned?1:0) - (a[1].pinned?1:0));
-}
-
-function renderUsersList(){
-  const el = document.getElementById('usersListScreen');
-  el.innerHTML='';
-  const all = Object.entries(usersData).filter(([,u])=>!u.archived);
-  const entries = sortByPinned(all.filter(([username,u])=>matchesSearch(username, u, searchQuery)));
-  if(all.length===0){ el.innerHTML='<div class="no-results">Ҳеҷ корбаре нест</div>'; return; }
-  if(entries.length===0){ el.innerHTML='<div class="no-results">🔍 Мутобиқат ёфт нашуд</div>'; return; }
-  entries.forEach(([username,u])=>{ el.appendChild(buildUserRow(username,u,{archived:false})); });
-}
-
-function renderArchiveList(){
-  const el = document.getElementById('archiveListScreen');
-  el.innerHTML='';
-  const all = Object.entries(usersData).filter(([,u])=>u.archived);
-  const entries = sortByPinned(all.filter(([username,u])=>matchesSearch(username, u, searchQuery)));
-  if(all.length===0){ el.innerHTML='<div class="no-results">Бойгонӣ холӣ аст</div>'; return; }
-  if(entries.length===0){ el.innerHTML='<div class="no-results">🔍 Мутобиқат ёфт нашуд</div>'; return; }
-  entries.forEach(([username,u])=>{ el.appendChild(buildUserRow(username,u,{archived:true})); });
-}
-
-window.openChat = (username)=>{
-  stopAdminTyping();
-  selectedUser = username;
-  currentScreen = 'chat';
-  update(ref(db,'admin_status/'), { current_chat:username });
-  update(ref(db, `sayt1_active_users/${username}`), { unreadCount:0 });
-  window.parent.postMessage({ type:"chat-conversation-open" }, "*");
-  document.getElementById('usersListScreen').style.display='none';
-  document.getElementById('archiveListScreen').style.display='none';
-  document.getElementById('searchBar').style.display='none';
-  document.getElementById('chatScreen').style.display='flex';
-  document.getElementById('backBtn').style.display='block';
-  document.getElementById('archiveBtn').style.display='none';
-  document.getElementById('adminPanelTitle').innerText = `Чат: ${username}`;
-  const phoneEl = document.getElementById('adminChatPhone');
-  const userPhone = usersData[username] && usersData[username].phone;
-  if(userPhone){ phoneEl.textContent = '📞 '+userPhone; phoneEl.style.display='block'; }
-  else { phoneEl.style.display='none'; }
-  updateChatTypingSubtitle();
-  if(!listenedUsers.has(username)){ listenedUsers.add(username); loadMessages(username); }
-  setTimeout(()=>document.getElementById('adminMsg').focus(),100);
+window.joinChat = ()=>{
+  const user = document.getElementById('username').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  if(user==="" || /[\/\.\#\$\[\]]/.test(user)){ window.showAlert(); return; }
+  if(phone===""){ window.showAlert('Лутфан рақами телефони худро ворид кунед!'); return; }
+  localStorage.setItem('sayt1_username', user);
+  localStorage.setItem('sayt1_phone', phone);
+  startChatUI(user, phone, true);
 };
 
-window.openArchive = ()=>{
-  currentScreen = 'archive';
-  document.getElementById('usersListScreen').style.display='none';
-  document.getElementById('chatScreen').style.display='none';
-  document.getElementById('archiveListScreen').style.display='flex';
-  document.getElementById('searchBar').style.display='flex';
-  document.getElementById('archiveBtn').style.display='none';
-  document.getElementById('backBtn').style.display='block';
-  document.getElementById('adminPanelTitle').innerText = "Бойгонӣ";
-  document.getElementById('adminChatPhone').style.display='none';
-  renderArchiveList();
-};
-
-window.goBack = ()=>{
-  if(currentScreen==='chat'){
-    stopAdminTyping();
-    selectedUser="";
-    update(ref(db,'admin_status/'), { current_chat:"" });
-    window.parent.postMessage({ type:"chat-conversation-closed" }, "*");
+function startChatUI(user, phone, isNewJoin){
+  currentUsername = user;
+  document.getElementById('authBox').style.display='none';
+  document.getElementById('chatBox').style.display='flex';
+  document.getElementById('headerTitle').innerText = "Чат бо Admin";
+  document.getElementById('adminSubtitle').style.display='block';
+  document.getElementById('adminStatusDot').style.display='block';
+  if(isNewJoin){
+    // Танҳо ҳангоми воридшавии нав (тугмаи "Ворид шудан") иҷозат аст, ки сабти нав дар Firebase сохта шавад.
+    get(ref(db, `sayt1_active_users/${currentUsername}`)).then(s=>{
+      if(!s.exists()) set(ref(db, `sayt1_active_users/${currentUsername}`), { lastActive:Date.now(), unreadCount:0, phone:phone||'' });
+      else if(phone) update(ref(db, `sayt1_active_users/${currentUsername}`), { phone });
+    });
+  } else if(phone){
+    update(ref(db, `sayt1_active_users/${currentUsername}`), { phone }).catch(()=>{});
   }
-  currentScreen = 'list';
-  document.getElementById('usersListScreen').style.display='flex';
-  document.getElementById('archiveListScreen').style.display='none';
-  document.getElementById('chatScreen').style.display='none';
-  document.getElementById('searchBar').style.display='flex';
-  document.getElementById('backBtn').style.display='none';
-  document.getElementById('archiveBtn').style.display='flex';
-  document.getElementById('adminPanelTitle').innerText = "Админ Панел";
-  document.getElementById('adminChatSubtitle').style.display='none';
-  document.getElementById('adminChatPhone').style.display='none';
-};
-window.closeChat = window.goBack;
+  onDisconnect(ref(db, `sayt1_active_users/${currentUsername}/userTyping`)).set(false);
+  listenAdminStatus();
+  listenMessages();
+  listenBlockStatus();
+  listenAccountDeleted();
+  setTimeout(()=>document.getElementById('message').focus(),100);
+}
 
-/* ---------- Матн вуруд/ирсол ---------- */
+/* ---------- Хориҷшавии худкор агар админ ҳисобро нест кунад ---------- */
+let accountSeenAlive = false;
+function listenAccountDeleted(){
+  onValue(ref(db, `sayt1_active_users/${currentUsername}`), snap=>{
+    if(snap.exists()){ accountSeenAlive = true; return; }
+    if(accountSeenAlive){
+      localStorage.removeItem('sayt1_username');
+      window.showAlert('Ҳисоби шумо аз тарафи админ нест карда шуд.');
+      setTimeout(()=>{ window.location.reload(); }, 1500);
+    }
+  });
+}
+
+/* ---------- Блок аз тарафи админ ---------- */
+function listenBlockStatus(){
+  onValue(ref(db, `sayt1_active_users/${currentUsername}/blocked`), snap=>{
+    const blocked = snap.val() === true;
+    document.getElementById('blockedBanner').style.display = blocked ? 'flex' : 'none';
+    document.querySelector('.input-area').style.display = blocked ? 'none' : 'flex';
+    document.getElementById('replyPreview').style.display = blocked ? 'none' : (replyingTo ? 'flex' : 'none');
+  });
+}
+
+document.getElementById('username').addEventListener('keydown', e=>{ if(e.key==='Enter'){ document.getElementById('customAlert').classList.contains('show') ? window.closeAlert() : document.getElementById('phone').focus(); } });
+document.getElementById('phone').addEventListener('keydown', e=>{ if(e.key==='Enter'){ document.getElementById('customAlert').classList.contains('show') ? window.closeAlert() : window.joinChat(); } });
+
+/* ---------- Ирсоли матн ---------- */
 window.onMsgInput = (ta)=>{
   ta.style.height='42px'; ta.style.height=(ta.scrollHeight<110?ta.scrollHeight:110)+'px';
   document.getElementById('actionBtn').innerHTML = ta.value.trim()==='' ? '🎤' : '➤';
-  handleAdminTyping(ta.value.trim()!=='');
+  handleUserTyping(ta.value.trim()!=='');
 };
-document.getElementById('adminMsg').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); trySend(); } });
-function trySend(){ const ta=document.getElementById('adminMsg'); if(ta.value.trim()!=='') sendAdmin(); }
+document.getElementById('message').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); trySend(); } });
 
-/* ---------- Аломати "менависад..." (Admin -> Корбар) ---------- */
-let adminTypingTimeout = null;
-let adminTypingOn = false;
-function setAdminTyping(on){
-  if(adminTypingOn===on) return;
-  adminTypingOn = on;
-  update(ref(db,'admin_status/'), { typing:on }).catch(()=>{});
+function trySend(){
+  const ta = document.getElementById('message');
+  if(ta.value.trim()!=='') sendMessage();
 }
-function handleAdminTyping(hasText){
-  if(!selectedUser){ return; }
-  if(!hasText){ clearTimeout(adminTypingTimeout); setAdminTyping(false); return; }
-  setAdminTyping(true);
-  clearTimeout(adminTypingTimeout);
-  adminTypingTimeout = setTimeout(()=>setAdminTyping(false), 2000);
+
+/* ---------- Аломати "менависад..." (Корбар -> Админ) ---------- */
+let userTypingTimeout = null;
+let userTypingOn = false;
+function setUserTyping(on){
+  if(!currentUsername || userTypingOn===on) return;
+  userTypingOn = on;
+  update(ref(db, `sayt1_active_users/${currentUsername}`), { userTyping:on }).catch(()=>{});
 }
-function stopAdminTyping(){ clearTimeout(adminTypingTimeout); setAdminTyping(false); }
+function handleUserTyping(hasText){
+  if(!currentUsername) return;
+  if(!hasText){ clearTimeout(userTypingTimeout); setUserTyping(false); return; }
+  setUserTyping(true);
+  clearTimeout(userTypingTimeout);
+  userTypingTimeout = setTimeout(()=>setUserTyping(false), 2000);
+}
+function stopUserTyping(){ clearTimeout(userTypingTimeout); setUserTyping(false); }
 
 async function pushMsg(data){
-  if(!selectedUser) return;
-  const msgRef = push(ref(db, `sayt1_chats/${selectedUser}`));
-  await set(msgRef, Object.assign({ user:"Админ", timestamp:Date.now() }, data));
-  stopAdminTyping();
-  window.playSend(); window.cancelReply();
+  const msgRef = push(ref(db, `sayt1_chats/${currentUsername}`));
+  await set(msgRef, Object.assign({ user:currentUsername, timestamp:Date.now() }, data));
+  stopUserTyping();
+  const userRef = ref(db, `sayt1_active_users/${currentUsername}`);
+  const snap = await get(userRef);
+  const cur = snap.val()?.unreadCount || 0;
+  const preview = data.text || (data.type==='image'?'📷 Расм':data.type==='document'?'📄 Файл':data.type==='voice'?'🎤 Овоз':'');
+  update(userRef, { lastActive:Date.now(), lastMessage:preview, unreadCount:cur+1 });
+  window.playSend();
+  window.cancelReply();
 }
 
-window.sendAdmin = async ()=>{
-  const inputEl = document.getElementById('adminMsg');
+function sendMessage(){
+  const inputEl = document.getElementById('message');
   const text = inputEl.value.trim();
-  if(text===""||!selectedUser) return;
+  if(text==="" || !currentUsername) return;
   const data = { text, type:'text' };
   if(replyingTo) data.replyTo = replyingTo;
-  await pushMsg(data);
-  inputEl.value=''; inputEl.style.height='42px'; window.onMsgInput(inputEl);
-};
+  pushMsg(data);
+  inputEl.value=''; inputEl.style.height='42px';
+  window.onMsgInput(inputEl);
+}
+window.sendMessage = sendMessage;
 
-/* ---------- Файл/расм ---------- */
+/* ---------- Файл / расм (мисли тугмаи файли Админ Панел — бе Firebase Storage, тавассути dataURL) ---------- */
 document.getElementById('fileInput').addEventListener('change', async e=>{
-  const file = e.target.files[0]; if(!file || !selectedUser) return;
-  if(file.type.startsWith('audio/') || file.type.startsWith('video/')){ window.showCustomAlert('Ирсоли мусиқӣ ва видео иҷозат дода намешавад','🚫'); e.target.value=''; return; }
+  const file = e.target.files[0]; if(!file) return;
+  if(file.type.startsWith('audio/') || file.type.startsWith('video/')){ window.showAlert('Ирсоли мусиқӣ ва видео иҷозат дода намешавад'); e.target.value=''; return; }
   try{
     if(file.type.startsWith('image/')){
       const dataUrl = await compressImage(file);
@@ -637,15 +411,24 @@ document.getElementById('fileInput').addEventListener('change', async e=>{
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     } else {
-      if(file.size>5*1024*1024){ window.showCustomAlert('Файл хеле калон аст (макс 5MB)','📦'); e.target.value=''; return; }
+      if(file.size > 5*1024*1024){ window.showAlert('Файл хеле калон аст (макс 5MB)'); e.target.value=''; return; }
       const dataUrl = await readAsDataURL(file);
       const data = { type:'document', fileData:dataUrl, fileName:file.name, fileSize:file.size };
       if(replyingTo) data.replyTo = replyingTo;
       await pushMsg(data);
     }
-  }catch(err){ window.showCustomAlert('Хатогӣ ҳангоми ирсоли файл','⚠️'); }
+  }catch(err){ window.showAlert('Хатогӣ ҳангоми ирсоли файл'); }
   e.target.value='';
 });
+
+function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+async function uploadToStorage(blobOrFile, filename){
+  const path = `chat_uploads/${currentUsername}/${Date.now()}_${filename}`;
+  const sRef = storageRef(storage, path);
+  await uploadBytes(sRef, blobOrFile);
+  return await getDownloadURL(sRef);
+}
 
 function compressImage(file, maxBytes=60*1024){
   return new Promise((resolve,reject)=>{
@@ -665,13 +448,14 @@ function compressImage(file, maxBytes=60*1024){
         while(sizeOf(dataUrl)>maxBytes && tries<6){ w=Math.round(w*0.85); h=Math.round(h*0.85); canvas.width=w; canvas.height=h; cx.drawImage(img,0,0,w,h); dataUrl=canvas.toDataURL('image/jpeg',quality); tries++; }
         resolve(dataUrl);
       };
-      img.onerror=reject; img.src=e.target.result;
+      img.onerror = reject; img.src = e.target.result;
     };
-    reader.onerror=reject; reader.readAsDataURL(file);
+    reader.onerror = reject; reader.readAsDataURL(file);
   });
 }
 
-/* ---------- Овоз ---------- */
+
+/* ---------- Овоз (микрофон) ---------- */
 let mediaRecorder, audioChunks=[], recording=false, recordStart=0, pendingStart=false, pendingStop=false, recTimerInterval=null;
 const actionBtn = document.getElementById('actionBtn');
 const recordingIndicator = document.getElementById('recordingIndicator');
@@ -695,14 +479,14 @@ function toggleVoiceRecording(){
   if(recording){ stopRec(); } else { startRec(); }
 }
 function startRec(){
-  if(document.getElementById('adminMsg').value.trim()!=='' || !selectedUser) return;
+  if(document.getElementById('message').value.trim()!=='') return;
   if(recording || pendingStart) return; // ду бор оғоз нашавад
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    window.showCustomAlert('Сабти садо дастрас нест: сайт бояд тавассути HTTPS (ё localhost) кушода шавад, на аз file:// ё http:// оддӣ.','🎙️');
+    window.showAlert('Сабти садо дастрас нест: сайт бояд тавассути HTTPS (ё localhost) кушода шавад, на аз file:// ё http:// оддӣ.');
     return;
   }
   if(typeof MediaRecorder==='undefined'){
-    window.showCustomAlert('Браузери шумо MediaRecorder-ро дастгирӣ намекунад.','🎙️');
+    window.showAlert('Браузери шумо MediaRecorder-ро дастгирӣ намекунад.');
     return;
   }
   pendingStart = true;
@@ -718,15 +502,15 @@ function startRec(){
       stream.getTracks().forEach(t=>t.stop());
       if(dur<1 || audioChunks.length===0) return;
       try{
-        const blob = new Blob(audioChunks,{type:'audio/webm'});
+        const blob = new Blob(audioChunks, {type:'audio/webm'});
         const dataUrl = await readAsDataURL(blob);
         const data = { type:'voice', fileData:dataUrl, fileSize:blob.size, duration:dur };
         if(replyingTo) data.replyTo = replyingTo;
         await pushMsg(data);
-      }catch(err){ window.showCustomAlert('Хатогӣ ҳангоми ирсоли овоз','🎙️'); }
+      }catch(err){ window.showAlert('Хатогӣ ҳангоми ирсоли овоз'); }
     };
     mediaRecorder.start();
-  }).catch(()=>{ resetRecUI(); window.showCustomAlert('Дастрасӣ ба микрофон рад шуд','🎙️'); });
+  }).catch(()=>{ resetRecUI(); window.showAlert('Дастрасӣ ба микрофон рад шуд'); });
 }
 function stopRec(){
   if(recording && mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); }
@@ -751,152 +535,114 @@ document.getElementById('chatDisplay').addEventListener('input', e=>{ if(e.targe
 /* ---------- Lightbox ---------- */
 window.openLightbox = (id)=>{
   const m = allMessages[id]; if(!m) return;
-  document.getElementById('lightboxImg').src = m.fileData;
-  document.getElementById('lightboxDownload').href = m.fileData;
+  const url = m.fileURL || m.fileData;
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxDownload').href = url;
   document.getElementById('lightboxDownload').download = m.fileName || 'image.jpg';
   document.getElementById('lightboxOverlay').classList.add('show');
 };
 document.getElementById('lightboxOverlay').addEventListener('click', e=>{ if(e.target.id==='lightboxOverlay') e.target.classList.remove('show'); });
 
-/* ---------- Ҷавоб/реаксия ---------- */
+/* ---------- Ҷавоб додан ---------- */
 window.setReply = (id)=>{
   const m = allMessages[id]; if(!m) return;
-  const who = m.user==="Админ" ? 'Шумо' : m.user;
-  const preview = m.text || (m.type==='image'?'📷 Расм':m.type==='document'?'📄 '+(m.fileName||'Файл'):m.type==='voice'?'🎤 Овоз':'');
-  replyingTo = { key:id, user:m.user, text:preview.slice(0,80) };
+  const who = m.user===currentUsername ? 'Шумо' : m.user;
+  const preview = m.text || (m.type==='image'?'📷 Расм':m.type==='document'?'📄 '+ (m.fileName||'Файл'):m.type==='voice'?'🎤 Овоз':'');
+  replyingTo = { key:id, user: m.user, text: preview.slice(0,80) };
   document.getElementById('replyPreview').style.display='flex';
   document.getElementById('replyPreviewText').textContent = who+': '+preview.slice(0,60);
-  document.getElementById('adminMsg').focus();
+  document.getElementById('message').focus();
 };
 window.cancelReply = ()=>{ replyingTo=null; document.getElementById('replyPreview').style.display='none'; };
+
+/* ---------- Реаксия ---------- */
 window.openReactionPicker = (id)=>{ activeReactionId=id; document.getElementById('reactionPicker').classList.add('show'); };
 window.selectReaction = (emoji)=>{
-  if(!activeReactionId || !selectedUser) return;
-  set(ref(db, `sayt1_chats/${selectedUser}/${activeReactionId}/reactions/Админ`), emoji);
+  if(!activeReactionId) return;
+  set(ref(db, `sayt1_chats/${currentUsername}/${activeReactionId}/reactions/${currentUsername}`), emoji);
   document.getElementById('reactionPicker').classList.remove('show'); activeReactionId=null;
 };
 document.addEventListener('click', e=>{ if(!e.target.closest('.reaction-picker') && !e.target.closest('.msg-actions')) document.getElementById('reactionPicker').classList.remove('show'); });
 
-/* ---------- Менюи корбар (танҳо нест кардан) ---------- */
-function closeAllMenus(){
-  document.querySelectorAll('.context-menu').forEach(m=>{ m.style.display='none'; });
-  document.querySelectorAll('.user-row.menu-open').forEach(r=>r.classList.remove('menu-open'));
+/* ---------- Статуси Админ ---------- */
+function listenAdminStatus(){
+  onValue(ref(db, 'admin_status/'), snap=>{
+    const d = snap.val();
+    const subtitle = document.getElementById('adminSubtitle');
+    const dot = document.getElementById('adminStatusDot');
+    const isOnline = !!d && d.status==='online' && d.current_chat===currentUsername;
+    const isTyping = isOnline && !!d.typing;
+    if(isTyping){
+      subtitle.innerHTML = 'Админ менависад<span class="typing-dots"><span></span><span></span><span></span></span>';
+      subtitle.classList.add('typing');
+      dot.className='admin-status-dot online';
+    } else if(isOnline){
+      subtitle.textContent='Админ пайваст шуд'; subtitle.classList.remove('typing');
+      dot.className='admin-status-dot online';
+      if(!adminWasOnline && initialLoadDone) window.playConnect();
+    } else {
+      subtitle.textContent='Админ пайваст нест'; subtitle.classList.remove('typing');
+      dot.className='admin-status-dot';
+    }
+    adminWasOnline = isOnline;
+  });
 }
-function closeMenuFor(username){
-  const menu = document.getElementById(`menu-${username}`);
-  if(menu){
-    menu.style.display='none';
-    const row = menu.closest('.user-row');
-    if(row) row.classList.remove('menu-open');
-  }
-}
-window.toggleMenu = (event, username)=>{
-  event.stopPropagation();
-  const menu = document.getElementById(`menu-${username}`);
-  const row = menu ? menu.closest('.user-row') : null;
-  const opening = !menu || menu.style.display !== 'block';
-  closeAllMenus();
-  if(opening && menu){
-    menu.style.display = 'block';
-    if(row) row.classList.add('menu-open');
-  }
-};
-window.deleteUser = async (event, username)=>{
-  event.stopPropagation();
-  closeMenuFor(username);
-  const ok = await window.showCustomConfirm(`Корбар ${username}-ро комилан нест мекунед? Ин амал бебозгашт аст.`, { icon:'🗑️', okText:'Нест кардан', cancelText:'Бекор кардан', danger:true });
-  if(ok){
-    remove(ref(db, `sayt1_chats/${username}`));
-    remove(ref(db, `sayt1_active_users/${username}`));
-    if(selectedUser===username) goBack();
-  }
-};
-window.clearChat = async (event, username)=>{
-  event.stopPropagation();
-  closeMenuFor(username);
-  const ok = await window.showCustomConfirm(`Тамоми паёмҳои чат бо ${username} тоза карда шаванд?`, { icon:'🧹', okText:'Тоза кардан', cancelText:'Бекор кардан', danger:true });
-  if(ok){
-    remove(ref(db, `sayt1_chats/${username}`));
-  }
-};
-window.toggleBlock = async (event, username)=>{
-  event.stopPropagation();
-  closeMenuFor(username);
-  const isBlocked = !!(usersData[username] && usersData[username].blocked);
-  const ok = await window.showCustomConfirm(
-    isBlocked ? `Блокро аз ${username} бардоред?` : `Корбар ${username}-ро блок мекунед? Ӯ дигар паём фиристода натавонад.`,
-    { icon: isBlocked ? '✅' : '🚫', okText: isBlocked ? 'Рафъи блок' : 'Блок кардан', cancelText:'Бекор кардан', danger:!isBlocked }
-  );
-  if(ok) update(ref(db, `sayt1_active_users/${username}`), { blocked: !isBlocked });
-};
-window.archiveUser = async (event, username)=>{
-  event.stopPropagation();
-  closeMenuFor(username);
-  const ok = await window.showCustomConfirm(`Корбар ${username}-ро ба бойгонӣ гузаронед?`, { icon:'🗄', okText:'Ба бойгонӣ', cancelText:'Бекор кардан' });
-  if(ok){ update(ref(db, `sayt1_active_users/${username}`), { archived: true }); if(selectedUser===username) goBack(); }
-};
-window.unarchiveUser = async (event, username)=>{
-  event.stopPropagation();
-  closeMenuFor(username);
-  const ok = await window.showCustomConfirm(`Корбар ${username}-ро аз бойгонӣ барқарор кунед?`, { icon:'📤', okText:'Барқарор кардан', cancelText:'Бекор кардан' });
-  if(ok) update(ref(db, `sayt1_active_users/${username}`), { archived: false });
-};
-window.togglePin = (event, username)=>{
-  event.stopPropagation();
-  closeMenuFor(username);
-  const isPinned = !!(usersData[username] && usersData[username].pinned);
-  update(ref(db, `sayt1_active_users/${username}`), { pinned: !isPinned });
-};
-window.toggleMarked = (event, username)=>{
-  event.stopPropagation();
-  const isMarked = !!(usersData[username] && usersData[username].marked);
-  update(ref(db, `sayt1_active_users/${username}`), { marked: !isMarked });
-};
-document.addEventListener('click', ()=>closeAllMenus());
 
-/* ---------- Рендери паёмҳо ---------- */
+/* ---------- Паёмҳо ---------- */
 function renderReactions(reactions){
   if(!reactions) return '';
-  const counts={}; Object.values(reactions).forEach(e=>counts[e]=(counts[e]||0)+1);
+  const counts = {};
+  Object.values(reactions).forEach(e=>counts[e]=(counts[e]||0)+1);
   return `<div class="reactions-row">${Object.entries(counts).map(([e,c])=>`<span class="reaction-badge">${e} ${c>1?c:''}</span>`).join('')}</div>`;
 }
+
 function renderMsg(msg, id){
-  const isMine = msg.user === "Админ";
-  let content='';
-  if(msg.type==='image'){ content = `<img class="chat-image" src="${msg.fileData}" onclick="openLightbox('${id}')">`; }
-  else if(msg.type==='document'){ const kb=Math.round((msg.fileSize||0)/1024); content = `<a class="doc-msg" href="${msg.fileData}" download="${escapeHtml(msg.fileName||'file')}"><span class="doc-icon">📄</span><span class="doc-info"><span class="doc-name">${escapeHtml(msg.fileName||'Файл')}</span><span class="doc-size">${kb} KB</span></span></a>`; }
-  else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileData||msg.fileURL}" preload="none"></audio></div>`; }
+  const isMine = msg.user === currentUsername;
+  let content = '';
+  if(msg.type==='image'){ content = `<img class="chat-image" src="${msg.fileURL||msg.fileData}" onclick="openLightbox('${id}')">`; }
+  else if(msg.type==='document'){ const kb=Math.round((msg.fileSize||0)/1024); content = `<a class="doc-msg" href="${msg.fileURL||msg.fileData}" download="${escapeHtml(msg.fileName||'file')}"><span class="doc-icon">📄</span><span class="doc-info"><span class="doc-name">${escapeHtml(msg.fileName||'Файл')}</span><span class="doc-size">${kb} KB</span></span></a>`; }
+  else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileURL||msg.fileData}" preload="none"></audio></div>`; }
   else { content = linkify(msg.text||''); }
 
   const replyHtml = msg.replyTo ? `<div class="reply-quote"><b>${escapeHtml(msg.replyTo.user)}</b>${escapeHtml(msg.replyTo.text)}</div>` : '';
-  const ticks = isMine ? `<span class="tick ${msg.seenByUser?'seen':''}">✓✓</span>` : '';
+  const ticks = isMine ? `<span class="tick ${msg.seenByAdmin?'seen':''}">✓✓</span>` : '';
 
   return `<div class="msg-row ${isMine?'mine':'theirs'}">
-    <div class="msg">${replyHtml}${content}<div class="msg-meta"><span>${formatTime(msg.timestamp||Date.now())}</span>${ticks}</div></div>
+    <div class="msg">${replyHtml}${content}
+      <div class="msg-meta"><span>${formatTime(msg.timestamp||Date.now())}</span>${ticks}</div>
+    </div>
     ${renderReactions(msg.reactions)}
     <div class="msg-actions"><button onclick="setReply('${id}')">↩ Ҷавоб</button><button onclick="openReactionPicker('${id}')">🙂 Реаксия</button></div>
   </div>`;
 }
 
-function loadMessages(username){
-  const messagesQuery = query(ref(db, `sayt1_chats/${username}`), limitToLast(50));
+function listenMessages(){
+  const messagesQuery = query(ref(db, `sayt1_chats/${currentUsername}`), limitToLast(50));
   onValue(messagesQuery, snap=>{
-    if(selectedUser!==username) return;
     const display = document.getElementById('chatDisplay');
     const data = snap.val() || {};
     allMessages = data;
-    display.innerHTML='';
-    let lastDate='';
-    Object.keys(data).forEach(key=>{
+    const keys = Object.keys(data);
+    const newKeys = keys.filter(k=>!processedKeys.has(k));
+
+    display.innerHTML = '';
+    let lastDate = '';
+    keys.forEach(key=>{
       const msg = data[key];
+      if(msg.user!==currentUsername && !msg.seenByUser) update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
       if(msg.timestamp){
         const dStr = new Date(msg.timestamp).toDateString();
-        if(dStr!==lastDate){ display.innerHTML += `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`; lastDate=dStr; }
+        if(dStr !== lastDate){ display.insertAdjacentHTML('beforeend', `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`); lastDate = dStr; }
       }
-      display.innerHTML += renderMsg(msg, key);
-      if(msg.user!=="Админ" && !msg.seenByAdmin) update(ref(db, `sayt1_chats/${username}/${key}`), { seenByAdmin:true });
+      display.insertAdjacentHTML('beforeend', renderMsg(msg, key));
     });
+
+    if(initialLoadDone){
+      newKeys.forEach(key=>{ if(data[key].user!==currentUsername) window.playReceive(); });
+    }
+    processedKeys = new Set(keys);
     display.scrollTop = display.scrollHeight;
+    initialLoadDone = true;
   });
 }
 </script>
