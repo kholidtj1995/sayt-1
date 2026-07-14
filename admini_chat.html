@@ -33,6 +33,7 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .admin-header-left { display:flex; align-items:center; gap:8px; font-family:var(--font-display); }
 .admin-header-titles { display:flex; flex-direction:column; gap:1px; line-height:1.25; }
 .admin-chat-subtitle { font-size:11.5px; font-weight:600; color:var(--teal); font-family:var(--font-body); display:flex; align-items:center; gap:4px; }
+.admin-chat-phone { font-size:11.5px; font-weight:500; color:var(--text-dim); font-family:var(--font-body); text-align:left; }
 .online-badge { width:8px; height:8px; background:var(--teal); border-radius:50%; display:inline-block; box-shadow:0 0 8px 2px rgba(63,167,160,.5); animation:pulseGlow 1.6s infinite; }
 @keyframes pulseGlow { 0%{transform:scale(.9);opacity:.6;} 50%{transform:scale(1.15);opacity:1;} 100%{transform:scale(.9);opacity:.6;} }
 .back-to-list { background:var(--card); border:1px solid var(--border); color:var(--text); padding:6px 12px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; display:none; }
@@ -66,6 +67,7 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .user-info { display:flex; flex-direction:column; gap:2px; flex:1; overflow:hidden; }
 .user-name-wrapper { display:flex; align-items:center; gap:8px; }
 .user-name { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--text); }
+.user-phone { font-size:12px; color:var(--text-dim); font-weight:500; }
 .unread-badge { background:var(--accent); color:var(--accent-ink); font-size:11px; font-weight:bold; padding:2px 7px; border-radius:20px; display:none; }
 .user-last-msg { font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px; }
 .menu-dots { padding:8px; font-size:18px; color:var(--text-faint); cursor:pointer; font-weight:bold; border-radius:50%; width:34px; height:34px; display:flex; justify-content:center; align-items:center; flex-shrink:0; }
@@ -187,6 +189,7 @@ textarea::placeholder { color:var(--text-faint); }
       <span class="online-badge"></span>
       <div class="admin-header-titles">
         <span id="adminPanelTitle">Админ Панел</span>
+        <span id="adminChatPhone" class="admin-chat-phone" style="display:none;"></span>
         <span id="adminChatSubtitle" class="admin-chat-subtitle" style="display:none;">✍️ менависад<span class="typing-dots"><span></span><span></span><span></span></span></span>
       </div>
     </div>
@@ -355,6 +358,12 @@ onValue(ref(db, 'sayt1_active_users/'), snap=>{
   }
   renderUsersList();
   if(currentScreen==='archive') renderArchiveList();
+  if(currentScreen==='chat' && selectedUser){
+    const phoneEl = document.getElementById('adminChatPhone');
+    const userPhone = usersData[selectedUser] && usersData[selectedUser].phone;
+    if(userPhone){ phoneEl.textContent = '📞 '+userPhone; phoneEl.style.display='block'; }
+    else { phoneEl.style.display='none'; }
+  }
   updateChatTypingSubtitle();
   usersInitDone = true;
 });
@@ -393,6 +402,7 @@ function matchesSearch(username, u, query){
   const q = query.trim().toLowerCase();
   const qDigits = query.replace(/\D/g,'');
   if(textMatches(username, q, qDigits)) return true;
+  if(textMatches(u.phone||'', q, qDigits)) return true;
   if(textMatches(u.lastMessage||'', q, qDigits)) return true;
   const chat = allChatsData[username];
   if(chat){
@@ -447,6 +457,10 @@ function buildUserRow(username, u, opts){
   const blockedEl = document.createElement('span'); blockedEl.className = 'blocked-badge';
   blockedEl.style.display = isBlocked ? 'inline-block' : 'none'; blockedEl.textContent = 'Блок';
   nameWrap.append(nameEl, unreadEl, blockedEl);
+  if(u.phone){
+    const phoneEl = document.createElement('span'); phoneEl.className = 'user-phone'; phoneEl.textContent = '📞 '+u.phone;
+    nameWrap.appendChild(phoneEl);
+  }
 
   const lastMsgEl = document.createElement('span');
   lastMsgEl.className = 'user-last-msg'+(isTyping?' typing':'');
@@ -526,6 +540,10 @@ window.openChat = (username)=>{
   document.getElementById('backBtn').style.display='block';
   document.getElementById('archiveBtn').style.display='none';
   document.getElementById('adminPanelTitle').innerText = `Чат: ${username}`;
+  const phoneEl = document.getElementById('adminChatPhone');
+  const userPhone = usersData[username] && usersData[username].phone;
+  if(userPhone){ phoneEl.textContent = '📞 '+userPhone; phoneEl.style.display='block'; }
+  else { phoneEl.style.display='none'; }
   updateChatTypingSubtitle();
   if(!listenedUsers.has(username)){ listenedUsers.add(username); loadMessages(username); }
   setTimeout(()=>document.getElementById('adminMsg').focus(),100);
@@ -540,6 +558,7 @@ window.openArchive = ()=>{
   document.getElementById('archiveBtn').style.display='none';
   document.getElementById('backBtn').style.display='block';
   document.getElementById('adminPanelTitle').innerText = "Бойгонӣ";
+  document.getElementById('adminChatPhone').style.display='none';
   renderArchiveList();
 };
 
@@ -559,6 +578,7 @@ window.goBack = ()=>{
   document.getElementById('archiveBtn').style.display='flex';
   document.getElementById('adminPanelTitle').innerText = "Админ Панел";
   document.getElementById('adminChatSubtitle').style.display='none';
+  document.getElementById('adminChatPhone').style.display='none';
 };
 window.closeChat = window.goBack;
 
