@@ -108,9 +108,9 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 #joinBtn:active { background:var(--accent-dark); transform:scale(.97); }
 #joinBtn .arrow { transition:transform .15s ease; }
 #joinBtn:hover .arrow { transform:translateX(3px); }
-#username { text-align:center; border-radius:14px; padding:14px 16px; width:100%; max-width:300px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:15px; margin:0 auto 14px; display:block; transition:border-color .15s ease; }
-#username::placeholder { color:var(--text-faint); }
-#username:focus { border-color:var(--teal); outline:none; }
+#username, #phone { text-align:center; border-radius:14px; padding:14px 16px; width:100%; max-width:300px; background:var(--card); border:1px solid var(--border); color:var(--text); font-size:15px; margin:0 auto 14px; display:block; transition:border-color .15s ease; }
+#username::placeholder, #phone::placeholder { color:var(--text-faint); }
+#username:focus, #phone:focus { border-color:var(--teal); outline:none; }
 
 .blocked-banner { display:none; align-items:center; justify-content:center; gap:8px; background:rgba(226,84,62,.14); color:var(--danger); font-size:13px; font-weight:600; padding:14px 16px; border-top:1px solid var(--border); text-align:center; flex-shrink:0; }
 
@@ -169,6 +169,7 @@ textarea:focus { border-color:var(--teal); }
       <h2>Хуш омадед!</h2>
       <p>Лутфан номи худро нависед</p>
       <input type="text" id="username" placeholder="Номи шумо...">
+      <input type="tel" id="phone" placeholder="Рақами телефони шумо...">
       <button onclick="joinChat()" id="joinBtn">Ворид шудан <span class="arrow">→</span></button>
     </div>
   </div>
@@ -265,25 +266,51 @@ window.closeAlert = ()=>{ document.getElementById('customAlert').classList.remov
 
 /* ---------- Сабти ном (localStorage) ---------- */
 const savedName = localStorage.getItem('sayt1_username');
-if(savedName){ startChatUI(savedName); }
+const savedPhone = localStorage.getItem('sayt1_phone') || '';
+if(savedName){
+  // Кеш (localStorage) танҳо барои дар ёд доштани сессия истифода мешавад — ҳуҷҷати аслӣ ҳамеша дар Firebase аст.
+  // Пеш аз ворид кардани корбар ба чат, ҳатман санҷед: агар админ ин корбарро аз Firebase нест карда бошад,
+  // кеши куҳна эътибор надорад ва корбар бояд аз барнома берун монад (на дубора худкор сабт шавад).
+  get(ref(db, `sayt1_active_users/${savedName}`)).then(s=>{
+    if(s.exists()){
+      startChatUI(savedName, savedPhone, false);
+    } else {
+      localStorage.removeItem('sayt1_username');
+      localStorage.removeItem('sayt1_phone');
+    }
+  }).catch(()=>{
+    // Агар Firebase дастрас набошад, бо кеши куҳна ворид накунед — амният аз рӯи Firebase муайян мешавад, на кеш.
+    localStorage.removeItem('sayt1_username');
+    localStorage.removeItem('sayt1_phone');
+  });
+}
 
 window.joinChat = ()=>{
   const user = document.getElementById('username').value.trim();
+  const phone = document.getElementById('phone').value.trim();
   if(user==="" || /[\/\.\#\$\[\]]/.test(user)){ window.showAlert(); return; }
+  if(phone===""){ window.showAlert('Лутфан рақами телефони худро ворид кунед!'); return; }
   localStorage.setItem('sayt1_username', user);
-  startChatUI(user);
+  localStorage.setItem('sayt1_phone', phone);
+  startChatUI(user, phone, true);
 };
 
-function startChatUI(user){
+function startChatUI(user, phone, isNewJoin){
   currentUsername = user;
   document.getElementById('authBox').style.display='none';
   document.getElementById('chatBox').style.display='flex';
   document.getElementById('headerTitle').innerText = "Чат бо Admin";
   document.getElementById('adminSubtitle').style.display='block';
   document.getElementById('adminStatusDot').style.display='block';
-  get(ref(db, `sayt1_active_users/${currentUsername}`)).then(s=>{
-    if(!s.exists()) set(ref(db, `sayt1_active_users/${currentUsername}`), { lastActive:Date.now(), unreadCount:0 });
-  });
+  if(isNewJoin){
+    // Танҳо ҳангоми воридшавии нав (тугмаи "Ворид шудан") иҷозат аст, ки сабти нав дар Firebase сохта шавад.
+    get(ref(db, `sayt1_active_users/${currentUsername}`)).then(s=>{
+      if(!s.exists()) set(ref(db, `sayt1_active_users/${currentUsername}`), { lastActive:Date.now(), unreadCount:0, phone:phone||'' });
+      else if(phone) update(ref(db, `sayt1_active_users/${currentUsername}`), { phone });
+    });
+  } else if(phone){
+    update(ref(db, `sayt1_active_users/${currentUsername}`), { phone }).catch(()=>{});
+  }
   onDisconnect(ref(db, `sayt1_active_users/${currentUsername}/userTyping`)).set(false);
   listenAdminStatus();
   listenMessages();
@@ -315,7 +342,8 @@ function listenBlockStatus(){
   });
 }
 
-document.getElementById('username').addEventListener('keydown', e=>{ if(e.key==='Enter'){ document.getElementById('customAlert').classList.contains('show') ? window.closeAlert() : window.joinChat(); } });
+document.getElementById('username').addEventListener('keydown', e=>{ if(e.key==='Enter'){ document.getElementById('customAlert').classList.contains('show') ? window.closeAlert() : document.getElementById('phone').focus(); } });
+document.getElementById('phone').addEventListener('keydown', e=>{ if(e.key==='Enter'){ document.getElementById('customAlert').classList.contains('show') ? window.closeAlert() : window.joinChat(); } });
 
 /* ---------- Ирсоли матн ---------- */
 window.onMsgInput = (ta)=>{
