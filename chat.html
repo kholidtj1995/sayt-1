@@ -253,6 +253,7 @@ const autoNumbers = urlParams.get('numbers') || '';
 const autoReqId = urlParams.get('reqId') || '';
 const autoSumSomoni = urlParams.get('sumSomoni') || '';
 const autoSumRuble = urlParams.get('sumRuble') || '';
+const autoText = urlParams.get('autotext') || '';
 if(autoName) document.getElementById('username').value = autoName;
 if(autoPhone) document.getElementById('phone').value = autoPhone;
 
@@ -338,17 +339,29 @@ function startChatUI(user, phone, isNewJoin){
 
 /* ---------- Фиристодани хулосаи харид ба чат (аз барномаи лотерея) ---------- */
 function trySendOrderSummary(){
-  if(!autoNumbers || !autoReqId) return;
-  const sentKey = 'sayt1_sent_req_' + autoReqId;
-  if(localStorage.getItem(sentKey)) return; // пешгирии фиристодани такрорӣ агар саҳифа боз кушода шавад
-  const numbersArr = autoNumbers.split(',').filter(Boolean);
-  const count = numbersArr.length;
-  const sumSomoni = autoSumSomoni || (count*10);
-  const sumRuble = autoSumRuble || (count*100);
-  const text = `🎟 Дархости харидории нав\n———————————————\n👤 Ном: ${currentUsername}\n📞 Телефон: ${autoPhone || savedPhone || ''}\n🔢 Рақамҳо: ${numbersArr.join(', ')}\n📦 Миқдор: ${count} рақам\n💰 Сумма: ${sumSomoni} сомонӣ / ${sumRuble} ₽\n———————————————\nИлтимос тасдиқ кунед ✅`;
-  pushMsg({ text, type:'text', orderReqId: autoReqId }).then(()=>{
-    localStorage.setItem(sentKey, '1');
-  });
+  // Ҳолати 1: аз бозӣ рақамҳо ва reqId омадаанд — хулосаи харид (бо матни автоматӣ дар аввал, агар бошад) фиристода шавад
+  if(autoNumbers && autoReqId){
+    const sentKey = 'sayt1_sent_req_' + autoReqId;
+    if(localStorage.getItem(sentKey)) return; // пешгирии фиристодани такрорӣ агар саҳифа боз кушода шавад
+    const numbersArr = autoNumbers.split(',').filter(Boolean);
+    const count = numbersArr.length;
+    const sumSomoni = autoSumSomoni || (count*10);
+    const sumRuble = autoSumRuble || (count*100);
+    const greeting = autoText ? autoText + '\n\n' : '';
+    const text = `${greeting}🎟 Дархости харидории нав\n———————————————\n👤 Ном: ${currentUsername}\n📞 Телефон: ${autoPhone || savedPhone || ''}\n🔢 Рақамҳо: ${numbersArr.join(', ')}\n📦 Миқдор: ${count} рақам\n💰 Сумма: ${sumSomoni} сомонӣ / ${sumRuble} ₽\n———————————————\nИлтимос тасдиқ кунед ✅`;
+    pushMsg({ text, type:'text', orderReqId: autoReqId }).then(()=>{
+      localStorage.setItem(sentKey, '1');
+    });
+    return;
+  }
+  // Ҳолати 2: танҳо матни автоматӣ (autotext) омадааст, бе рақамҳо — онро низ фиристем
+  if(autoText){
+    const sentKey = 'sayt1_sent_text_' + encodeURIComponent(autoText).slice(0,60);
+    if(localStorage.getItem(sentKey)) return;
+    pushMsg({ text: autoText, type:'text' }).then(()=>{
+      localStorage.setItem(sentKey, '1');
+    });
+  }
 }
 
 /* ---------- Хориҷшавии худкор агар админ ҳисобро нест кунад ---------- */
