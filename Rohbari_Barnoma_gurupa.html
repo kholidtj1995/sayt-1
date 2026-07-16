@@ -480,6 +480,10 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
 /* вакте ки дар дохили чати як корбари мушаххас ҳастем — тугмаҳои Чат/Админ пинҳон мешаванд */
 .app-shell.ext-chat-inner .bottom-nav{ display:none; }
 
+/* game-mode: на X, вале тугмаҳои поёнӣ дастрас мемонанд (мисли chat-mode) */
+.ext-window-overlay.game-mode .ext-window-close{ display:none; }
+.app-shell.ext-game-mode .bottom-nav{ position:relative; z-index:600; }
+
 </style>
 </head>
 <body>
@@ -553,6 +557,9 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
     <div class="bottom-nav">
       <button type="button" id="nav-chat-btn" class="nav-btn">
         <span class="nav-icon-wrap"><span class="nav-icon">💬</span><span id="chat-nav-badge" class="nav-badge">0</span></span><span>Чат</span>
+      </button>
+      <button type="button" id="nav-game-btn" class="nav-btn">
+        <span class="nav-icon">🎮</span><span>Игра</span>
       </button>
       <button type="button" id="nav-admin-btn" class="nav-btn">
         <span class="nav-icon">⚙️</span><span>Админ</span>
@@ -721,15 +728,15 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
   </div>
 
   <!-- ===================== EXTERNAL WINDOW OVERLAY ===================== -->
-  <div id="ext-window-overlay" class="ext-window-overlay">
-    <div class="ext-window-topbar">
-      <span id="ext-window-title" class="ext-window-title"></span>
-      <button type="button" id="ext-window-close" class="ext-window-close">✕</button>
-    </div>
-    <iframe id="ext-window-frame" class="ext-window-frame" src="" allow="camera;microphone;clipboard-write"></iframe>
-  </div>
-
   <div id="toast-root"></div>
+</div>
+
+<div id="ext-window-overlay" class="ext-window-overlay">
+  <div class="ext-window-topbar">
+    <span id="ext-window-title" class="ext-window-title"></span>
+    <button type="button" id="ext-window-close" class="ext-window-close">✕</button>
+  </div>
+  <iframe id="ext-window-frame" class="ext-window-frame" src="" allow="camera;microphone;clipboard-write"></iframe>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
@@ -2333,18 +2340,22 @@ function openExternalWindow(url, title, mode) {
   const overlay = $("#ext-window-overlay");
   const shell = $(".app-shell");
   overlay.classList.add("open");
+  overlay.classList.remove("chat-mode", "game-mode");
+  shell.classList.remove("ext-chat-mode", "ext-game-mode");
   if (mode === "chat") {
     overlay.classList.add("chat-mode");
     shell.classList.add("ext-chat-mode");
-  } else {
-    overlay.classList.remove("chat-mode");
-    shell.classList.remove("ext-chat-mode");
+  } else if (mode === "game") {
+    overlay.classList.add("game-mode");
+    shell.classList.add("ext-game-mode");
   }
 }
 function closeExternalWindow() {
   $("#ext-window-overlay").classList.remove("open");
   $("#ext-window-overlay").classList.remove("chat-mode");
+  $("#ext-window-overlay").classList.remove("game-mode");
   $(".app-shell").classList.remove("ext-chat-mode");
+  $(".app-shell").classList.remove("ext-game-mode");
   $(".app-shell").classList.remove("ext-chat-inner");
   $("#ext-window-frame").src = "";
 }
@@ -2403,6 +2414,11 @@ function init() {
   initEditMessageModal();
   initMessageMenu();
 
+$("#nav-game-btn").addEventListener("click", () => {
+    $$(".nav-btn").forEach((b) => b.classList.remove("active"));
+    $("#nav-game-btn").classList.add("active");
+    openExternalWindow("https://kholidtj1995.github.io/sayt-1/admin.html", "Бозӣ", "game");
+});
 $("#nav-chat-btn").addEventListener("click", () => {
     $$(".nav-btn").forEach((b) => b.classList.remove("active"));
     $("#nav-chat-btn").classList.add("active");
