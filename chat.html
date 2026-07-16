@@ -245,6 +245,17 @@ let processedKeys = new Set();
 let adminWasOnline = false;
 let currentPlayingAudio = null;
 
+/* ---------- Маълумот аз барномаи лотерея (URL параметрҳо) ---------- */
+const urlParams = new URLSearchParams(window.location.search);
+const autoName = urlParams.get('name') || '';
+const autoPhone = urlParams.get('phone') || '';
+const autoNumbers = urlParams.get('numbers') || '';
+const autoReqId = urlParams.get('reqId') || '';
+const autoSumSomoni = urlParams.get('sumSomoni') || '';
+const autoSumRuble = urlParams.get('sumRuble') || '';
+if(autoName) document.getElementById('username').value = autoName;
+if(autoPhone) document.getElementById('phone').value = autoPhone;
+
 /* ---------- Овозҳо ---------- */
 let audioCtx;
 function ctx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); return audioCtx; }
@@ -267,7 +278,12 @@ window.closeAlert = ()=>{ document.getElementById('customAlert').classList.remov
 /* ---------- Сабти ном (localStorage) ---------- */
 const savedName = localStorage.getItem('sayt1_username');
 const savedPhone = localStorage.getItem('sayt1_phone') || '';
-if(savedName){
+if(autoName && autoPhone){
+  // Корбар аз барномаи лотерея бо ном/телефон омад — дигар напурсем, худкор ворид шавад
+  localStorage.setItem('sayt1_username', autoName);
+  localStorage.setItem('sayt1_phone', autoPhone);
+  startChatUI(autoName, autoPhone, true);
+} else if(savedName){
   // Кеш (localStorage) танҳо барои дар ёд доштани сессия истифода мешавад — ҳуҷҷати аслӣ ҳамеша дар Firebase аст.
   // Пеш аз ворид кардани корбар ба чат, ҳатман санҷед: агар админ ин корбарро аз Firebase нест карда бошад,
   // кеши куҳна эътибор надорад ва корбар бояд аз барнома берун монад (на дубора худкор сабт шавад).
@@ -316,7 +332,23 @@ function startChatUI(user, phone, isNewJoin){
   listenMessages();
   listenBlockStatus();
   listenAccountDeleted();
+  trySendOrderSummary();
   setTimeout(()=>document.getElementById('message').focus(),100);
+}
+
+/* ---------- Фиристодани хулосаи харид ба чат (аз барномаи лотерея) ---------- */
+function trySendOrderSummary(){
+  if(!autoNumbers || !autoReqId) return;
+  const sentKey = 'sayt1_sent_req_' + autoReqId;
+  if(localStorage.getItem(sentKey)) return; // пешгирии фиристодани такрорӣ агар саҳифа боз кушода шавад
+  const numbersArr = autoNumbers.split(',').filter(Boolean);
+  const count = numbersArr.length;
+  const sumSomoni = autoSumSomoni || (count*10);
+  const sumRuble = autoSumRuble || (count*100);
+  const text = `🎟 Дархости харидории нав\n———————————————\n👤 Ном: ${currentUsername}\n📞 Телефон: ${autoPhone || savedPhone || ''}\n🔢 Рақамҳо: ${numbersArr.join(', ')}\n📦 Миқдор: ${count} рақам\n💰 Сумма: ${sumSomoni} сомонӣ / ${sumRuble} ₽\n———————————————\nИлтимос тасдиқ кунед ✅`;
+  pushMsg({ text, type:'text', orderReqId: autoReqId }).then(()=>{
+    localStorage.setItem(sentKey, '1');
+  });
 }
 
 /* ---------- Хориҷшавии худкор агар админ ҳисобро нест кунад ---------- */
