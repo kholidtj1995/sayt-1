@@ -116,6 +116,15 @@
   .home-card h3{margin:0 0 3px;font-family:'Space Grotesk',sans-serif;font-size:17px;}
   .home-card.game h3{font-family:'Fraunces',serif;font-weight:700;}
   .home-card p{margin:0;font-size:12.5px;color:#8B93A7;}
+  .backHomeBtn{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:10px 18px;border-radius:14px;
+    background:linear-gradient(120deg,#F2B705,#F2905A);color:#2b1900;
+    font-weight:700;font-size:13px;text-decoration:none;cursor:pointer;
+    border:none;transition:transform .12s ease, opacity .12s ease;
+    margin-bottom:14px;
+  }
+  .backHomeBtn:active{transform:scale(.93);opacity:.85;}
 
   /* ================= ADMIN THEME ================= */
   .theme-admin{
@@ -393,7 +402,7 @@
   <!-- GAME LOGIN -->
   <div class="screen theme-game" id="screen-gameLogin">
     <div class="auth-wrap">
-      <div class="name-tag">Кисми Бозӣ</div>
+      <a href="https://behruztv.ru/" class="backHomeBtn" onclick="playClick('game')">🏠 Бозгашт ба саҳифаи асосӣ</a>
       <h2 class="auth-title">Воридшавӣ ба бозӣ</h2>
       <p class="auth-sub">Ном, рақами телефон ва рамзи худро ворид кунед</p>
       <div class="field-label">Ном</div>
