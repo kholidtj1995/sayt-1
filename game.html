@@ -307,6 +307,43 @@
   .theme-admin .name-tag{background:rgba(217,164,65,.14);color:#F2C572;}
   .theme-game .name-tag{background:rgba(242,183,5,.16);color:#F2C572;}
 
+  /* ---- player id frame (icon + name + logout) ---- */
+  .player-frame{
+    display:flex;align-items:center;gap:8px;flex:0 1 auto;min-width:0;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+    border-radius:100px;padding:5px 6px 5px 5px;
+  }
+  .player-frame .p-icon{
+    width:30px;height:30px;border-radius:50%;flex:0 0 auto;
+    background:rgba(242,183,5,.2);color:#F2C572;
+    display:flex;align-items:center;justify-content:center;font-size:15px;
+  }
+  .player-frame .p-name{
+    font-weight:700;font-size:13px;max-width:88px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .player-frame .logoutBtn{padding:6px 12px;font-size:11.5px;flex:0 0 auto;}
+
+  /* ---- middle rounded badge ---- */
+  .reg-frame{
+    flex:0 0 auto;
+    border:1.5px solid rgba(242,183,5,.4);border-radius:100px;
+    padding:8px 14px;font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:12px;color:#F2C572;text-align:center;white-space:nowrap;
+    background:rgba(242,183,5,.06);
+  }
+
+  /* ---- home icon button (matches cartBtn/logoutBtn style) ---- */
+  .homeIconBtn{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+    color:inherit;width:38px;height:38px;border-radius:100px;font-size:16px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    text-decoration:none;flex:0 0 auto;
+  }
+  .homeIconBtn:active{transform:scale(.93);}
+
+  .theme-game .dash-head{flex-wrap:wrap;row-gap:10px;}
+
   /* ================= SOLD / BLOCKED BALLS ================= */
   .ball-sold{
     background:radial-gradient(circle at 32% 28%, #F27E71, #A62B21) !important;
@@ -418,13 +455,15 @@
   <!-- GAME BOARD -->
   <div class="screen theme-game hidden" id="screen-gameBoard">
     <div class="dash-head">
-      <div>
-        <div class="name-tag">Бозикунанда</div>
-        <h2 id="gameGreet">Хуш омадед</h2>
+      <div class="player-frame">
+        <span class="p-icon">👤</span>
+        <span class="p-name" id="gamePlayerName">Корбар</span>
+        <button class="logoutBtn" onclick="confirmGameLogout()">Баромад</button>
       </div>
+      <div class="reg-frame">Бақайдгирӣ</div>
       <div class="head-actions">
+        <a href="https://behruztv.ru/" class="homeIconBtn" onclick="playClick('game')" title="Бозгашт ба саҳифаи асосӣ">🏠</a>
         <button class="cartBtn" onclick="openCartModal()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
-        <button class="logoutBtn" onclick="logout('game')">Баромад</button>
       </div>
     </div>
     <div class="card">
@@ -818,8 +857,14 @@ function adminLogin(){
   listenSoldNumbers();
   listenRequestsForAdmin();
 }
+function confirmGameLogout(){
+  playClick('game');
+  if(confirm('Шумо мутмаинед, ки мехоҳед аз ҳисоби худ бароед?')){
+    logout('game');
+  }
+}
 function logout(which){
-  playClick(which);
+  if(which!=='game') playClick(which);
   if(which==='admin'){
     document.getElementById('adminPass').value='';
     document.getElementById('adminLoginErr').textContent='';
@@ -834,6 +879,11 @@ function logout(which){
     if(state.gamePhone){
       db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone)).off();
     }
+    localStorage.removeItem('sayt1_game_name');
+    localStorage.removeItem('sayt1_game_phone');
+    localStorage.removeItem('sayt1_game_pass');
+    state.gameName = '';
+    state.gamePhone = '';
     goTo('gameLogin');
   }
 }
@@ -1243,7 +1293,10 @@ async function gameLogin(){
   errEl.textContent = '';
   state.gameName = name;
   state.gamePhone = phone;
-  document.getElementById('gameGreet').textContent = 'Хуш омадед, ' + name;
+  localStorage.setItem('sayt1_game_name', name);
+  localStorage.setItem('sayt1_game_phone', phone);
+  localStorage.setItem('sayt1_game_pass', pass);
+  document.getElementById('gamePlayerName').textContent = name;
   goTo('gameBoard');
   playSuccess('game');
   renderBuyBar();
@@ -1443,8 +1496,27 @@ db.ref(K_GAME_NAME).on('value', (snap)=>{
   }
 });
 
+/* ---------- Автоматӣ ворид шудан (localStorage) ---------- */
+async function tryAutoGameLogin(){
+  const savedName = localStorage.getItem('sayt1_game_name');
+  const savedPhone = localStorage.getItem('sayt1_game_phone');
+  const savedPass = localStorage.getItem('sayt1_game_pass');
+  if(!savedName || !savedPhone || !savedPass) return;
+  document.getElementById('gameName').value = savedName;
+  document.getElementById('gamePhone').value = savedPhone;
+  document.getElementById('gamePass').value = savedPass;
+  await gameLogin();
+  // агар рамз тағйир ёфта бошад ва вуруд бо хато анҷом ёфт, кэши куҳнаро пок мекунем
+  if(state.view !== 'gameBoard'){
+    localStorage.removeItem('sayt1_game_name');
+    localStorage.removeItem('sayt1_game_phone');
+    localStorage.removeItem('sayt1_game_pass');
+  }
+}
+
 /* init */
 renderNumbers();
+tryAutoGameLogin();
 </script>
 </body>
 </html>
