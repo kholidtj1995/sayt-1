@@ -462,6 +462,7 @@
       </div>
       <div class="reg-frame">Бақайдгирӣ</div>
       <div class="head-actions">
+        <button class="bellBtn" id="gameChatBtn" onclick="openChatFromGame()" title="Чат бо админ">💬<span class="bell-badge hidden" id="gameChatBadge">0</span></button>
         <a href="https://behruztv.ru/" class="homeIconBtn" onclick="playClick('game')" title="Бозгашт ба саҳифаи асосӣ">🏠</a>
         <button class="cartBtn" onclick="openCartModal()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
       </div>
@@ -840,6 +841,12 @@ function logout(which){
     if(state.gamePhone){
       db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone)).off();
     }
+    if(state.gameName){
+      db.ref('sayt1_chats/' + state.gameName).off();
+    }
+    gameChatProcessedKeys = new Set();
+    gameChatInitialLoadDone = false;
+    updateGameChatBadge(0);
     localStorage.removeItem('sayt1_game_name');
     localStorage.removeItem('sayt1_game_phone');
     localStorage.removeItem('sayt1_game_pass');
@@ -1265,6 +1272,57 @@ async function gameLogin(){
   await renderNumbers();
   listenSoldNumbers();
   listenPlayerNode(phone);
+  listenGameChat(name);
+}
+
+/* ============ CHAT ICON (unread badge + sound + auto-send on open) ============ */
+let gameChatProcessedKeys = new Set();
+let gameChatInitialLoadDone = false;
+function listenGameChat(name){
+  if(!name) return;
+  gameChatProcessedKeys = new Set();
+  gameChatInitialLoadDone = false;
+  db.ref('sayt1_chats/' + name).off();
+  db.ref('sayt1_chats/' + name).on('value', (snap)=>{
+    const data = snap.val() || {};
+    const keys = Object.keys(data);
+    const newKeys = keys.filter(k=>!gameChatProcessedKeys.has(k));
+    let unread = 0;
+    keys.forEach(k=>{
+      const m = data[k];
+      if(m && m.user !== name && !m.seenByUser) unread++;
+    });
+    if(gameChatInitialLoadDone){
+      newKeys.forEach(k=>{
+        const m = data[k];
+        if(m && m.user !== name) playNotify('game');
+      });
+    }
+    gameChatProcessedKeys = new Set(keys);
+    gameChatInitialLoadDone = true;
+    updateGameChatBadge(unread);
+  });
+}
+function updateGameChatBadge(count){
+  const badge = document.getElementById('gameChatBadge');
+  const btn = document.getElementById('gameChatBtn');
+  if(!badge) return;
+  if(count > 0){
+    badge.textContent = count;
+    badge.classList.remove('hidden');
+    if(btn) btn.classList.add('ring');
+  } else {
+    badge.classList.add('hidden');
+    if(btn) btn.classList.remove('ring');
+  }
+}
+function openChatFromGame(){
+  playClick('game');
+  const name = state.gameName || '';
+  const phone = state.gamePhone || '';
+  const greeting = '✋Салом, ман аз бозӣ ба чат омадам';
+  const url = CHAT_URL + '?autotext=' + encodeURIComponent(greeting) + '&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone);
+  window.open(url, '_blank');
 }
 async function savePlayerCart(phone){
   const pKey = safeKey(phone);
