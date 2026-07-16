@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Лотерея — Бозӣ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --r-sm:10px; --r-md:16px; --r-lg:22px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;touch-action:manipulation;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:#090b10;
+    color:#EDEEF3;
+    min-height:100vh;
+    min-height:100dvh;
+    overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    user-select:none;
+  }
+  button, .ball, .home-card{
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;user-select:none;
+  }
+  input, textarea{
+    -webkit-touch-callout:default;
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    user-select:text;
+  }
+  #app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+
+  /* ---------- utility ---------- */
+  .hidden{display:none !important;}
+  .screen{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    min-height:100dvh;
+    padding:20px 18px 32px;
+    animation:fadeIn .35s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .backBtn{
+    background:none;border:none;color:inherit;opacity:.75;
+    font-size:15px;font-weight:600;cursor:pointer;padding:8px 4px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .backBtn:active{opacity:.4;}
+  .logoutBtn{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+    color:inherit;padding:8px 14px;border-radius:100px;font-size:13px;font-weight:600;
+    cursor:pointer;
+  }
+  .head-actions{display:flex;align-items:center;gap:8px;}
+  .cartBtn{
+    position:relative;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+    color:inherit;width:38px;height:38px;border-radius:100px;font-size:16px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .cartBtn .cart-badge{
+    position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:100px;background:#E2574C;color:#fff;font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  button{font-family:inherit;}
+  input{font-family:inherit;}
+
+  /* ================= HOME ================= */
+  .home{
+    background:radial-gradient(120% 100% at 50% 0%, #171d2b 0%, #090b10 60%);
+    justify-content:center;align-items:center;text-align:center;gap:34px;
+  }
+  .home-hero h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:42px;letter-spacing:-.5px;margin:0 0 6px;
+    background:linear-gradient(120deg,#F2B705,#E2574C);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .home-hero p{color:#8B93A7;margin:0;font-size:15px;}
+  .home-cards{display:flex;flex-direction:column;gap:16px;width:100%;max-width:360px;}
+  .home-card{
+    border-radius:var(--r-lg);
+    padding:22px 20px;
+    text-align:left;
+    border:1px solid rgba(255,255,255,.08);
+    cursor:pointer;
+    display:flex;align-items:center;gap:16px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .home-card:active{transform:scale(.97);}
+  .home-card.admin{background:linear-gradient(135deg,#1A2130,#12161f);}
+  .home-card.game{background:linear-gradient(135deg,#123F3B,#0B2E2C);}
+  .home-card .ic{
+    width:50px;height:50px;border-radius:14px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;font-size:24px;
+  }
+  .home-card.admin .ic{background:rgba(217,164,65,.16);}
+  .home-card.game .ic{background:rgba(242,183,5,.18);}
+  .home-card h3{margin:0 0 3px;font-family:'Space Grotesk',sans-serif;font-size:17px;}
+  .home-card.game h3{font-family:'Fraunces',serif;font-weight:700;}
+  .home-card p{margin:0;font-size:12.5px;color:#8B93A7;}
+
+  /* ================= ADMIN THEME ================= */
+  .theme-admin{
+    background:radial-gradient(120% 100% at 50% 0%, #171d2b 0%, #090b10 65%);
+  }
+  .theme-admin .brand{font-family:'Space Grotesk',sans-serif;font-weight:700;}
+  .card{
+    background:#1A2130;border:1px solid #2B3450;border-radius:var(--r-lg);
+    padding:22px;
+  }
+  .field-label{font-size:12.5px;color:#8B93A7;margin:0 0 6px;font-weight:600;letter-spacing:.2px;}
+  .field{
+    width:100%;padding:14px 15px;border-radius:var(--r-sm);
+    border:1px solid #2B3450;background:#12161f;color:#EDEEF3;
+    font-size:15px;margin-bottom:16px;outline:none;
+  }
+  .field:focus{border-color:#D9A441;}
+  .btn{
+    width:100%;padding:15px;border-radius:100px;border:none;
+    font-size:15.5px;font-weight:700;cursor:pointer;
+    transition:transform .1s ease, opacity .1s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-admin-primary{background:linear-gradient(120deg,#D9A441,#E2574C);color:#1a1200;}
+  .btn-game-primary{background:linear-gradient(120deg,#F2B705,#F2905A);color:#2b1900;}
+  .btn-secondary{background:rgba(255,255,255,.07);color:inherit;border:1px solid rgba(255,255,255,.14);}
+  .btn-danger{background:rgba(226,87,76,.15);color:#FF8F86;border:1px solid rgba(226,87,76,.4);}
+  .err-msg{color:#FF8F86;font-size:13px;margin:-8px 0 14px;min-height:16px;font-weight:600;}
+  .auth-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:400px;margin:0 auto;width:100%;}
+  .auth-title{font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0 0 4px;}
+  .auth-sub{color:#8B93A7;font-size:13.5px;margin:0 0 26px;}
+
+  .dash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+  .dash-head h2{font-family:'Space Grotesk',sans-serif;font-size:20px;margin:0;}
+  .dash-head span{color:#8B93A7;font-size:13px;}
+  .add-btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(120deg,#D9A441,#E2574C);color:#1a1200;
+    border:none;border-radius:100px;padding:15px;font-weight:700;font-size:15px;
+    cursor:pointer;margin-bottom:20px;width:100%;
+  }
+  .balls-frame{
+    border:1.5px dashed #2B3450;border-radius:var(--r-lg);
+    padding:16px;min-height:180px;max-height:62vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .empty-state{color:#5A6478;font-size:13.5px;text-align:center;padding:20px 10px;margin:auto 0;}
+  .game-name-caption{
+    width:100%;text-align:center;margin-top:14px;padding-top:12px;
+    border-top:1px dashed rgba(255,255,255,.12);
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;
+    color:#F2C572;
+  }
+  .theme-game .game-name-caption{color:#F2B705;border-top-color:rgba(255,255,255,.14);}
+  .count-tag{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .count-tag .lbl{font-size:12.5px;color:#8B93A7;font-weight:600;letter-spacing:.2px;}
+  .count-tag .val{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+    background:rgba(217,164,65,.14);color:#F2C572;
+    padding:4px 12px;border-radius:100px;
+  }
+  .theme-game .count-tag .val{background:rgba(242,183,5,.16);color:#F2C572;}
+
+  /* ================= GAME THEME ================= */
+  .theme-game{
+    background:radial-gradient(120% 100% at 50% 0%, #0F3D3A 0%, #0B2E2C 70%);
+  }
+  .theme-game .card{background:#123F3B;border:1px solid #1C5A52;}
+  .theme-game .field{background:#0E332F;border:1px solid #1C5A52;color:#F5F1E6;}
+  .theme-game .field:focus{border-color:#F2B705;}
+  .theme-game .field-label{color:#9FC4BD;}
+  .theme-game .auth-title{font-family:'Fraunces',serif;font-weight:700;}
+  .theme-game .auth-sub{color:#9FC4BD;}
+  .theme-game .dash-head h2{font-family:'Fraunces',serif;font-weight:700;}
+  .theme-game .dash-head span{color:#9FC4BD;}
+  .theme-game .balls-frame{border:1.5px dashed #1C5A52;}
+  .theme-game .empty-state{color:#6FA79E;}
+  .theme-game .logoutBtn{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16);}
+
+  /* ================= BALLS GRID ================= */
+  .balls-page{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:10px 8px;
+    width:100%;
+    align-content:start;
+  }
+  .ball{
+    aspect-ratio:1/1;
+    width:100%;
+    max-width:52px;
+    margin:0 auto;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:clamp(11px,3.4vw,15px);
+    line-height:1;
+    color:#fff;
+    overflow:hidden;
+    position:relative;
+    box-shadow:inset 0 3px 5px rgba(255,255,255,.35), inset 0 -6px 10px rgba(0,0,0,.35), 0 3px 6px rgba(0,0,0,.4);
+    opacity:0;transform:scale(.3) rotate(-30deg);
+    animation:ballPop .5s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes ballPop{
+    to{opacity:1;transform:scale(1) rotate(0);}
+  }
+  .ball-solid{background:radial-gradient(circle at 32% 28%, #F2C94C, #C4842E);}
+  .ball-selectable{cursor:pointer;}
+  .ball-selectable:active{transform:scale(.9);}
+  .ball-selected{outline:3px solid #F2B705;outline-offset:2px;}
+  .ball-noanim{opacity:1 !important;transform:scale(1) rotate(0) !important;animation:none !important;}
+  .buy-bar{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+  .buy-bar-row{display:flex;gap:10px;width:100%;}
+  .buy-bar-row .btn{flex:1;width:auto;padding:14px 8px;font-size:13.5px;white-space:nowrap;}
+  .cart-item{
+    border:1px dashed #1C5A52;border-radius:var(--r-md);
+    padding:12px 14px;margin-bottom:10px;
+  }
+  .cart-item .count-tag{margin-bottom:8px;}
+  .cart-item .count-tag:last-child{margin-bottom:0;}
+  .cart-item .val{text-align:right;max-width:60%;word-break:break-word;}
+  .ball-placeholder{
+    background:transparent !important;
+    border:1.5px dashed rgba(255,255,255,.14);
+    box-shadow:none !important;
+    opacity:.5 !important;
+    animation:none !important;
+    transform:none !important;
+  }
+
+  /* ================= MODAL ================= */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(4,6,10,.6);backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;z-index:50;
+    padding:20px;
+    animation:fadeIn .2s ease;
+  }
+  .modal-sheet{
+    background:#151b28;border-radius:var(--r-lg);
+    padding:24px 20px 26px;width:100%;max-width:420px;
+    border:1px solid #2B3450;
+    max-height:85vh;max-height:85dvh;overflow-y:auto;
+    animation:modalPop .22s cubic-bezier(.22,1,.36,1);
+  }
+  .theme-game .modal-sheet{background:#0F3733;border:1px solid #1C5A52;}
+  @keyframes modalPop{from{opacity:0;transform:scale(.94) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+  .modal-handle{display:none;}
+  .modal-title{font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0 0 4px;}
+  .theme-game .modal-title{font-family:'Fraunces',serif;font-weight:700;}
+  .modal-sub{color:#8B93A7;font-size:13px;margin:0 0 18px;}
+  .modal-actions{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+
+  /* ================= TOAST ================= */
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:#1c2331;border:1px solid rgba(255,255,255,.12);
+    padding:13px 20px;border-radius:100px;font-size:13.5px;font-weight:600;
+    display:flex;align-items:center;gap:9px;
+    opacity:0;transition:all .3s ease;z-index:80;max-width:88vw;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.success{border-color:rgba(95,203,139,.5);}
+  .toast.error{border-color:rgba(226,87,76,.5);}
+  .toast .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+  .toast.success .dot{background:#5FCB8B;}
+  .toast.error .dot{background:#E2574C;}
+  .toast.info .dot{background:#F2B705;}
+
+  .name-tag{
+    display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;
+    margin-bottom:14px;letter-spacing:.3px;text-transform:uppercase;
+  }
+  .theme-admin .name-tag{background:rgba(217,164,65,.14);color:#F2C572;}
+  .theme-game .name-tag{background:rgba(242,183,5,.16);color:#F2C572;}
+
+  /* ================= SOLD / BLOCKED BALLS ================= */
+  .ball-sold{
+    background:radial-gradient(circle at 32% 28%, #F27E71, #A62B21) !important;
+    box-shadow:inset 0 3px 5px rgba(255,255,255,.25), inset 0 -6px 10px rgba(0,0,0,.4), 0 3px 6px rgba(0,0,0,.4) !important;
+    cursor:not-allowed !important;
+    position:relative;
+  }
+  .ball-sold::after{
+    content:'';position:absolute;inset:0;border-radius:50%;
+    border:2px solid rgba(255,255,255,.35);
+  }
+
+  /* ================= BELL / NOTIFICATIONS ================= */
+  .bellBtn{
+    position:relative;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+    color:inherit;width:38px;height:38px;border-radius:100px;font-size:16px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .bellBtn .bell-badge{
+    position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:100px;background:#E2574C;color:#fff;font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .bellBtn.ring{animation:bellRing 1s ease infinite;}
+  @keyframes bellRing{0%,100%{transform:rotate(0);}20%{transform:rotate(-14deg);}40%{transform:rotate(12deg);}60%{transform:rotate(-8deg);}80%{transform:rotate(6deg);}}
+
+  .req-item{
+    border:1px dashed #2B3450;border-radius:var(--r-md);
+    padding:12px 14px;margin-bottom:10px;
+  }
+  .req-item .count-tag{margin-bottom:8px;}
+  .req-item .count-tag:last-child{margin-bottom:10px;}
+  .req-item .val{text-align:right;max-width:60%;word-break:break-word;}
+  .req-item .btn{margin-top:2px;}
+
+  /* ================= WAITING OVERLAY (dim background while awaiting admin) ================= */
+  .waiting-overlay{
+    position:fixed;inset:0;z-index:40;
+    background:rgba(4,6,10,.55);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    animation:fadeIn .25s ease;
+  }
+  .waiting-card{
+    background:#0F3733;border:1px solid #1C5A52;border-radius:var(--r-lg);
+    padding:26px 22px;max-width:360px;width:100%;text-align:center;
+  }
+  .waiting-card .spin{
+    width:38px;height:38px;border-radius:50%;margin:0 auto 16px;
+    border:3px solid rgba(242,183,5,.25);border-top-color:#F2B705;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .waiting-card h3{font-family:'Fraunces',serif;font-weight:700;margin:0 0 8px;font-size:18px;}
+  .waiting-card p{color:#9FC4BD;font-size:13.5px;margin:0 0 18px;line-height:1.5;}
+
+  /* ================= CART STATUS TEXT ================= */
+  .cart-status{font-weight:700;font-size:12.5px;margin-top:6px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.12);}
+  .cart-status.pending{color:#F2C572;}
+  .cart-status.approved{color:#5FCB8B;}
+  .cart-status.conflict{color:#FF8F86;}
+
+  /* ================= PLAYERS LIST ================= */
+  .player-row{
+    display:flex;align-items:center;gap:8px;
+    border:1px solid #2B3450;border-radius:var(--r-md);
+    padding:12px 12px;margin-bottom:10px;
+    position:relative;
+  }
+  .player-row .pinfo{flex:1;min-width:0;cursor:pointer;}
+  .player-row .pinfo .pname{font-weight:700;font-size:14.5px;margin-bottom:2px;}
+  .player-row .pinfo .pphone{font-size:12.5px;color:#8B93A7;}
+  .row-icon-btn{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+    color:inherit;width:34px;height:34px;border-radius:100px;font-size:15px;flex:0 0 auto;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .dot-menu-wrap{position:relative;flex:0 0 auto;}
+  .dot-dropdown{
+    position:absolute;top:40px;right:0;z-index:60;
+    background:#1A2130;border:1px solid #2B3450;border-radius:12px;
+    min-width:160px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+  .dot-dropdown button{
+    width:100%;text-align:left;padding:12px 14px;background:none;border:none;
+    color:#FF8F86;font-weight:600;font-size:13.5px;cursor:pointer;
+  }
+  .dot-dropdown button:active{background:rgba(255,255,255,.06);}
+</style>
+<body>
+<div id="app">
+
+  <!-- GAME LOGIN -->
+  <div class="screen theme-game" id="screen-gameLogin">
+    <div class="auth-wrap">
+      <div class="name-tag">Кисми Бозӣ</div>
+      <h2 class="auth-title">Воридшавӣ ба бозӣ</h2>
+      <p class="auth-sub">Ном, рақами телефон ва рамзи худро ворид кунед</p>
+      <div class="field-label">Ном</div>
+      <input class="field" id="gameName" placeholder="Номи шумо" autocomplete="off">
+      <div class="field-label">Рақами телефон</div>
+      <input class="field" id="gamePhone" placeholder="+992 ..." inputmode="tel">
+      <div class="field-label">Рамз</div>
+      <input class="field" id="gamePass" type="password" placeholder="••••" inputmode="numeric">
+      <div class="err-msg" id="gameLoginErr"></div>
+      <button class="btn btn-game-primary" onclick="gameLogin()">Ворид шав</button>
+    </div>
+  </div>
+  <!-- GAME BOARD -->
+  <div class="screen theme-game hidden" id="screen-gameBoard">
+    <div class="dash-head">
+      <div>
+        <div class="name-tag">Бозикунанда</div>
+        <h2 id="gameGreet">Хуш омадед</h2>
+      </div>
+      <div class="head-actions">
+        <button class="cartBtn" onclick="openCartModal()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
+        <button class="logoutBtn" onclick="logout('game')">Баромад</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="count-tag">
+        <span class="lbl">Рақамҳои бароварда</span>
+        <span class="val" id="gameCountVal">0 рақам</span>
+      </div>
+      <div class="balls-frame" id="gameBallsFrame">
+        <div class="empty-state">Рақамҳо ҳанӯз эълон нашудаанд.<br>Интизор шавед...</div>
+      </div>
+      <div class="buy-bar" id="buyBar">
+        <button class="btn btn-game-primary" onclick="toggleBuyMode()">🎟️ Харидани рақам</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase (compat, works with plain <script> tags, no bundler needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/* ============ FIREBASE INIT ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+  authDomain: "live-chat-ea070.firebaseapp.com",
+  databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+  projectId: "live-chat-ea070",
+  storageBucket: "live-chat-ea070.firebasestorage.app",
+  messagingSenderId: "321161064947",
+  appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ============ STORAGE HELPERS (Firebase Realtime Database) ============ */
+async function getShared(key, def){
+  try{
+    const snap = await db.ref(key).get();
+    return snap.exists() ? snap.val() : def;
+  }catch(e){ console.error('firebase get failed', e); return def; }
+}
+async function setShared(key, value){
+  try{ await db.ref(key).set(value); }catch(e){ console.error('firebase set failed', e); }
+}
+
+const K_NUMBERS = 'numbers';
+const K_PLAYERS = 'players';
+const K_SOLD = 'soldNumbers';
+const K_REQUESTS = 'requests';
+const K_GAME_NAME = 'currentGame';
+const ADMIN_PASSWORD = '1995';
+const CHAT_URL = 'https://kholidtj1995.github.io/sayt-1/chat.html';
+
+let state = {
+  view:'gameLogin',
+  adminName:'',
+  gameName:'',
+  gamePhone:'',
+  lastNumbersJSON:'[]',
+  cart:[],
+  currentNumbers:[],
+  currentGameName:'',
+  soldNumbers:{},
+  buyMode:false,
+  selected:[],
+  pendingRequestIds:[],
+  requestsListenerAttached:false,
+  playersListenerAttached:false,
+  hadPlayersData:false
+};
+
+/* ============ CART LOGIC (game section) ============ */
+function formatDate(d){
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}.${mm}.${yy}, ${hh}:${mi}`;
+}
+function updateCartBadge(){
+  const b = document.getElementById('cartBadge');
+  if(!b) return;
+  if(state.buyMode){
+    b.textContent = state.selected.length;
+  } else {
+    const total = state.cart.reduce((sum, rec)=>sum + rec.numbers.length, 0);
+    b.textContent = total;
+  }
+}
+const PRICE_SOMONI = 10;
+const PRICE_RUBLE = 100;
+function openCartModal(){
+  playClick('game');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'cartModalOverlay';
+  const itemsHtml = state.cart.length
+    ? state.cart.slice().reverse().map(rec => {
+        const totalSomoni = rec.numbers.length * PRICE_SOMONI;
+        const totalRuble = rec.numbers.length * PRICE_RUBLE;
+        const status = rec.status || 'pending';
+        let statusHtml = '';
+        let numColor = '#EDEEF3';
+        if(status === 'approved'){
+          statusHtml = `<div class="cart-status approved">✅ Рақамҳои шумо дар бозӣ ёфта шуданд</div>`;
+          numColor = '#5FCB8B';
+        } else if(status === 'conflict'){
+          statusHtml = `<div class="cart-status conflict">⚠️ Мутаассифона, ин рақамҳо аллакай фурӯхта шуданд</div>`;
+          numColor = '#FF8F86';
+        } else {
+          statusHtml = `<div class="cart-status pending">⏳ Интизори тасдиқи админ...</div>`;
+          numColor = '#F2C572';
+        }
+        return `
+      <div class="cart-item">
+        <div class="count-tag"><span class="lbl">Сана</span><span class="val">${rec.date}${rec.game ? ' · '+rec.game : ''}</span></div>
+        <div class="count-tag"><span class="lbl">Ном</span><span class="val">${rec.name}</span></div>
+        <div class="count-tag"><span class="lbl">Рақами телефон</span><span class="val">${rec.phone}</span></div>
+        <div class="count-tag"><span class="lbl">Рақами билет</span><span class="val" style="color:${numColor};font-weight:700;">${rec.numbers.join(', ')}</span></div>
+        <div class="count-tag"><span class="lbl">Сумма</span><span class="val">${totalSomoni} сомонӣ / ${totalRuble} ₽</span></div>
+        ${statusHtml}
+      </div>`;
+      }).join('')
+    : '<div class="empty-state">Сабад холист.</div>';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-game">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Сабад</div>
+      <p class="modal-sub">Билетҳои харидашудаи шумо дар ин ҷо нишон дода мешаванд.</p>
+      ${itemsHtml}
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('cartModalOverlay')">Пӯшидан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('cartModalOverlay'); });
+}
+
+/* ============ BUY / SELECT NUMBERS (game section) ============ */
+function toggleBuyMode(){
+  playClick('game');
+  state.buyMode = !state.buyMode;
+  if(!state.buyMode){ state.selected = []; }
+  renderBuyBar();
+  renderGameBalls();
+  updateCartBadge();
+}
+function renderBuyBar(){
+  const bar = document.getElementById('buyBar');
+  if(!bar) return;
+  if(!state.buyMode){
+    bar.innerHTML = `<button class="btn btn-game-primary" onclick="toggleBuyMode()">🎟️ Харидани рақам</button>`;
+  } else {
+    let html = '<div class="buy-bar-row">';
+    html += `<button class="btn btn-secondary" onclick="toggleBuyMode()">Бекор кардан</button>`;
+    if(state.selected.length > 0){
+      html += `<button class="btn btn-game-primary" onclick="openPayModal()">💳 Пардохт (${state.selected.length})</button>`;
+    }
+    html += '</div>';
+    bar.innerHTML = html;
+  }
+}
+function toggleSelectNumber(num){
+  if(!state.buyMode) return;
+  if(state.soldNumbers && state.soldNumbers[num]) return;
+  playClick('game');
+  const idx = state.selected.indexOf(num);
+  if(idx > -1){ state.selected.splice(idx,1); } else { state.selected.push(num); }
+  const ballEl = document.querySelector('#gameBallsFrame .ball[data-num="'+num+'"]');
+  if(ballEl) ballEl.classList.toggle('ball-selected');
+  renderBuyBar();
+  updateCartBadge();
+}
+function buildGameBallsHTML(numbers, animate){
+  if(!numbers || numbers.length===0) return null;
+  let html = '<div class="balls-page">';
+  numbers.forEach((num, idx)=>{
+    const isSold = !!(state.soldNumbers && state.soldNumbers[num]);
+    const selectable = (state.buyMode && !isSold) ? ' ball-selectable' : '';
+    const selected = (state.buyMode && state.selected.includes(num)) ? ' ball-selected' : '';
+    const sold = isSold ? ' ball-sold' : '';
+    const noanim = animate ? '' : ' ball-noanim';
+    const click = (state.buyMode && !isSold) ? ` onclick="toggleSelectNumber(${num})"` : '';
+    const delay = animate ? ` style="animation-delay:${Math.min(idx*0.03,1)}s"` : '';
+    html += `<div class="ball ball-solid${selectable}${selected}${sold}${noanim}" data-num="${num}"${delay}${click}>${num}</div>`;
+  });
+  html += '</div>';
+  return html;
+}
+function renderGameBalls(){
+  const gameFrame = document.getElementById('gameBallsFrame');
+  if(!gameFrame) return;
+  const html = buildGameBallsHTML(state.currentNumbers, false);
+  const gameNameCaption = (state.currentNumbers.length>0 && state.currentGameName) ? `<div class="game-name-caption">🎯 ${state.currentGameName}</div>` : '';
+  gameFrame.innerHTML = (html || '<div class="empty-state">Рақамҳо ҳанӯз эълон нашудаанд.<br>Интизор шавед...</div>') + gameNameCaption;
+}
+function openPayModal(){
+  playClick('game');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'payModalOverlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-game">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Пардохт кардан</div>
+      <p class="modal-sub">Шумо ${state.selected.length} рақам интихоб кардед. Барои идома ном ва рақами телефони худро тасдиқ кунед.</p>
+      <div class="field-label">Ном</div>
+      <input class="field" id="payName" placeholder="Номи шумо" autocomplete="off" value="${(state.gameName||'').replace(/"/g,'&quot;')}">
+      <div class="field-label">Рақами телефон</div>
+      <input class="field" id="payPhone" placeholder="+992 ..." inputmode="tel" value="${(state.gamePhone||'').replace(/"/g,'&quot;')}">
+      <div class="err-msg" id="payErr"></div>
+      <div class="modal-actions">
+        <button class="btn btn-game-primary" onclick="confirmPurchase()">Тасдиқ кардан</button>
+        <button class="btn btn-secondary" onclick="closeModal('payModalOverlay')">Бекор кардан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('payModalOverlay'); });
+}
+async function confirmPurchase(){
+  const name = document.getElementById('payName').value.trim();
+  const phone = document.getElementById('payPhone').value.trim();
+  const errEl = document.getElementById('payErr');
+  if(!name || !phone){
+    errEl.textContent = 'Ҳамаи майдонҳоро пур кунед.';
+    playError('game');
+    return;
+  }
+  const numbers = state.selected.slice();
+  const reqRef = db.ref(K_REQUESTS).push();
+  const reqId = reqRef.key;
+  const reqObj = { phone, name, numbers, status:'pending', createdAt: Date.now(), game: state.currentGameName||'' };
+  await reqRef.set(reqObj);
+
+  const cartRec = {
+    date: formatDate(new Date()),
+    name, phone, numbers,
+    status:'pending',
+    reqId,
+    game: state.currentGameName||''
+  };
+  state.cart.push(cartRec);
+  await savePlayerCart(phone);
+
+  state.selected = [];
+  state.buyMode = false;
+  closeModal('payModalOverlay');
+  renderBuyBar();
+  renderGameBalls();
+  updateCartBadge();
+  playSuccess('game');
+  openConfirmSendModal(reqId, name, phone, numbers);
+}
+
+/* ============ ROUTE TO ADMIN CHAT FOR CONFIRMATION ============ */
+function openConfirmSendModal(reqId, name, phone, numbers){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'confirmSendOverlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-game">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Тасдиқи иштирок</div>
+      <p class="modal-sub">Барои иштирок дар бозӣ ба админ хабар фиристед, то ки ӯ ба шумо иҷозат диҳад.</p>
+      <div class="modal-actions">
+        <button class="btn btn-game-primary" onclick="sendToAdminChat('${reqId}','${escapeAttr(name)}','${escapeAttr(phone)}','${numbers.join(',')}')">💬 Рафтан ба чат</button>
+        <button class="btn btn-secondary" onclick="closeModal('confirmSendOverlay')">Пӯшидан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('confirmSendOverlay'); });
+  showWaitingOverlay();
+}
+function escapeAttr(s){ return String(s).replace(/'/g, "\\'"); }
+function sendToAdminChat(reqId, name, phone, numbersStr){
+  playClick('game');
+  const count = numbersStr.split(',').filter(Boolean).length;
+  const sumSomoni = count * PRICE_SOMONI;
+  const sumRuble = count * PRICE_RUBLE;
+  const msg = `Ассалому алейкум! Ман ${name}, рақами телефон: ${phone}. Мехоҳам иштирок кунам бо рақамҳои: ${numbersStr}. Лутфан иҷозат диҳед. (reqId: ${reqId})`;
+  const url = CHAT_URL + '?autotext=' + encodeURIComponent(msg) + '&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone) + '&numbers=' + encodeURIComponent(numbersStr) + '&reqId=' + encodeURIComponent(reqId) + '&sumSomoni=' + sumSomoni + '&sumRuble=' + sumRuble;
+  window.open(url, '_blank');
+  closeModal('confirmSendOverlay');
+}
+
+/* ============ WAITING OVERLAY (dims app while a request is pending) ============ */
+function showWaitingOverlay(){
+  if(document.getElementById('waitingOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'waiting-overlay';
+  overlay.id = 'waitingOverlay';
+  overlay.innerHTML = `
+    <div class="waiting-card">
+      <div class="spin"></div>
+      <h3>Интизори тасдиқ</h3>
+      <p>Дархости шумо ба админ фиристода шуд. Ҳамин ки админ иҷозат диҳад, рақамҳои шумо дар бозӣ фаъол мешаванд.</p>
+      <button class="btn btn-secondary" onclick="closeModal('waitingOverlay')">Пинҳон кардан</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function hideWaitingOverlay(){ closeModal('waitingOverlay'); }
+function hasPendingCartItems(){
+  return state.cart.some(rec => (rec.status||'pending') === 'pending');
+}
+function refreshWaitingOverlayVisibility(){
+  if(hasPendingCartItems()){ showWaitingOverlay(); } else { hideWaitingOverlay(); }
+}
+
+/* ============ SOUND ENGINE ============ */
+let actx = null;
+function ensureCtx(){ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+function tone(freq, start, dur, type='sine', vol=.22){
+  const ctx = ensureCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, ctx.currentTime+start);
+  gain.gain.linearRampToValueAtTime(vol, ctx.currentTime+start+0.012);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+start+dur);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+start+dur+0.02);
+}
+function playClick(theme){
+  const base = theme==='game' ? 620 : 420;
+  tone(base, 0, .07, 'square', .12);
+}
+function playSuccess(theme){
+  const base = theme==='game' ? 660 : 480;
+  tone(base,0,.14,'sine',.2); tone(base*1.5,.11,.18,'sine',.2);
+}
+function playError(theme){
+  const base = theme==='game' ? 300 : 260;
+  tone(base,0,.14,'sawtooth',.16); tone(base*0.75,.12,.18,'sawtooth',.16);
+}
+function playDelete(theme){
+  const base = theme==='game' ? 260 : 220;
+  tone(base,0,.16,'triangle',.2); tone(base*0.6,.13,.22,'triangle',.18);
+}
+function playNotify(theme){
+  const base = theme==='game' ? 780 : 560;
+  tone(base,0,.1,'sine',.18); tone(base*1.25,.09,.12,'sine',.16);
+}
+function playBallPop(i, theme){
+  const base = (theme==='game' ? 500 : 380) + (i%5)*40;
+  tone(base, 0, .09, 'sine', .14);
+}
+
+/* ============ NAVIGATION ============ */
+const screens = ['gameLogin','gameBoard'];
+function goTo(name, theme){
+  screens.forEach(s=>document.getElementById('screen-'+s).classList.add('hidden'));
+  document.getElementById('screen-'+name).classList.remove('hidden');
+  state.view = name;
+  if(theme) playClick(theme);
+  window.scrollTo(0,0);
+}
+
+/* ============ TOAST ============ */
+let toastTimer=null;
+function showToast(msg, kind='info'){
+  const t = document.getElementById('toast');
+  t.className = 'toast show '+kind;
+  t.innerHTML = '<span class="dot"></span>'+msg;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.classList.remove('show'); }, 2400);
+}
+
+/* ============ ADMIN LOGIC ============ */
+function adminLogin(){
+  playClick('admin');
+  const user = document.getElementById('adminUser').value.trim();
+  const pass = document.getElementById('adminPass').value.trim();
+  const errEl = document.getElementById('adminLoginErr');
+  if(!user){ errEl.textContent = 'Номи корбарро нависед.'; playError('admin'); return; }
+  if(pass !== ADMIN_PASSWORD){
+    errEl.textContent = 'Рамз нодуруст аст!';
+    playError('admin');
+    return;
+  }
+  errEl.textContent = '';
+  state.adminName = user;
+  document.getElementById('adminGreet').textContent = 'Хуш омадед, ' + user;
+  goTo('adminDash');
+  playSuccess('admin');
+  renderNumbers();
+  listenSoldNumbers();
+  listenRequestsForAdmin();
+}
+function logout(which){
+  playClick(which);
+  if(which==='admin'){
+    document.getElementById('adminPass').value='';
+    document.getElementById('adminLoginErr').textContent='';
+    db.ref(K_REQUESTS).off();
+    goTo('adminLogin');
+  } else {
+    document.getElementById('gamePass').value='';
+    document.getElementById('gameLoginErr').textContent='';
+    state.buyMode = false;
+    state.selected = [];
+    hideWaitingOverlay();
+    if(state.gamePhone){
+      db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone)).off();
+    }
+    goTo('gameLogin');
+  }
+}
+
+/* ============ ADMIN: PENDING REQUESTS (bell) ============ */
+let requestsCache = {};
+function listenRequestsForAdmin(){
+  db.ref(K_REQUESTS).off();
+  db.ref(K_REQUESTS).on('value', (snap)=>{
+    requestsCache = snap.val() || {};
+    renderBellBadge();
+    if(document.getElementById('requestsModalOverlay')) renderRequestsList();
+  });
+}
+function renderBellBadge(){
+  const badge = document.getElementById('bellBadge');
+  const bell = document.getElementById('adminBellBtn');
+  if(!badge) return;
+  const pendingCount = Object.values(requestsCache).filter(r=>r.status==='pending').length;
+  if(pendingCount > 0){
+    badge.textContent = pendingCount;
+    badge.classList.remove('hidden');
+    if(bell) bell.classList.add('ring');
+  } else {
+    badge.classList.add('hidden');
+    if(bell) bell.classList.remove('ring');
+  }
+}
+function openRequestsModal(){
+  playClick('admin');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'requestsModalOverlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-admin">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Дархостҳои тасдиқ</div>
+      <p class="modal-sub">Корбароне, ки рақам харидорӣ карда, барои тасдиқ ба чат рафтаанд.</p>
+      <div id="requestsListWrap"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('requestsModalOverlay')">Пӯшидан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('requestsModalOverlay'); });
+  renderRequestsList();
+}
+function renderRequestsList(){
+  const wrap = document.getElementById('requestsListWrap');
+  if(!wrap) return;
+  const pending = Object.entries(requestsCache).filter(([id,r])=>r.status==='pending');
+  if(pending.length === 0){
+    wrap.innerHTML = '<div class="empty-state">Дархости фаъол нест.</div>';
+    return;
+  }
+  wrap.innerHTML = pending.map(([id,r])=>{
+    const nums = r.numbers||[];
+    const count = nums.length;
+    const sumSomoni = count * PRICE_SOMONI;
+    const sumRuble = count * PRICE_RUBLE;
+    const dateStr = r.createdAt ? formatDate(new Date(r.createdAt)) : '';
+    return `
+    <div class="req-item">
+      <div class="count-tag"><span class="lbl">Сана</span><span class="val">${dateStr}${r.game ? ' · '+r.game : ''}</span></div>
+      <div class="count-tag"><span class="lbl">Ном</span><span class="val">${r.name}</span></div>
+      <div class="count-tag"><span class="lbl">Телефон</span><span class="val">${r.phone}</span></div>
+      <div class="count-tag"><span class="lbl">Рақамҳо</span><span class="val" style="font-weight:700;">${nums.join(', ')}</span></div>
+      <div class="count-tag"><span class="lbl">Миқдор</span><span class="val">${count} рақам</span></div>
+      <div class="count-tag"><span class="lbl">Сумма</span><span class="val">${sumSomoni} сомонӣ / ${sumRuble} ₽</span></div>
+      <button class="btn btn-admin-primary" onclick="allowRequest('${id}')">✅ Иҷозат додан</button>
+    </div>`;
+  }).join('');
+}
+async function allowRequest(reqId){
+  playClick('admin');
+  const req = requestsCache[reqId];
+  if(!req || req.status !== 'pending') return;
+  const approvedAt = Date.now();
+
+  // 1. mark this request approved
+  await db.ref(K_REQUESTS + '/' + reqId + '/status').set('approved');
+  await db.ref(K_REQUESTS + '/' + reqId + '/approvedAt').set(approvedAt);
+
+  // 2. mark the numbers as sold/blocked
+  const soldUpdates = {};
+  (req.numbers||[]).forEach(n=>{ soldUpdates[n] = { name:req.name, phone:req.phone, approvedAt }; });
+  await db.ref(K_SOLD).update(soldUpdates);
+
+  // 3. update the buyer's cart entry + notify them
+  const buyerKey = safeKey(req.phone);
+  await updatePlayerCartStatus(buyerKey, reqId, 'approved', req.numbers);
+  await db.ref(K_PLAYERS + '/' + buyerKey + '/notifications').push({ type:'approved', numbers: req.numbers, ts: Date.now() });
+
+  // 4. resolve conflicts: remove these numbers from any OTHER pending requests
+  const soldSet = new Set((req.numbers||[]).map(String));
+  const entries = Object.entries(requestsCache);
+  for(const [otherId, other] of entries){
+    if(otherId === reqId || other.status !== 'pending') continue;
+    const overlap = (other.numbers||[]).filter(n=>soldSet.has(String(n)));
+    if(overlap.length === 0) continue;
+    const remaining = (other.numbers||[]).filter(n=>!soldSet.has(String(n)));
+    const otherKey = safeKey(other.phone);
+    if(remaining.length === 0){
+      await db.ref(K_REQUESTS + '/' + otherId + '/status').set('conflict');
+      await db.ref(K_REQUESTS + '/' + otherId + '/numbers').set([]);
+      await updatePlayerCartStatus(otherKey, otherId, 'conflict', []);
+    } else {
+      await db.ref(K_REQUESTS + '/' + otherId + '/numbers').set(remaining);
+      await updatePlayerCartStatus(otherKey, otherId, 'pending', remaining);
+    }
+    await db.ref(K_PLAYERS + '/' + otherKey + '/notifications').push({ type:'conflict', numbers: overlap, ts: Date.now() });
+  }
+
+  showToast('Дархост тасдиқ шуд', 'success');
+  playSuccess('admin');
+  await renderNumbers();
+}
+async function updatePlayerCartStatus(playerKey, reqId, status, numbers){
+  const snap = await db.ref(K_PLAYERS + '/' + playerKey + '/cart').get();
+  const cart = snap.exists() ? snap.val() : [];
+  if(!Array.isArray(cart)) return;
+  const updated = cart.map(rec=>{
+    if(rec.reqId === reqId){
+      return { ...rec, status, numbers: numbers.length ? numbers : rec.numbers };
+    }
+    return rec;
+  });
+  await db.ref(K_PLAYERS + '/' + playerKey + '/cart').set(updated);
+}
+
+/* ============ ADMIN: PLAYERS LIST ============ */
+let playersCache = {};
+function openPlayersModal(){
+  playClick('admin');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'playersModalOverlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-admin">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Рӯйхати бозингарон</div>
+      <p class="modal-sub">Ном, рақами телефон ва рақамҳои харидаи ҳар корбар.</p>
+      <div id="playersListWrap"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('playersModalOverlay')">Пӯшидан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('playersModalOverlay'); });
+  db.ref(K_PLAYERS).off('value', renderPlayersList);
+  db.ref(K_PLAYERS).on('value', renderPlayersList);
+}
+function renderPlayersList(snap){
+  playersCache = snap.val() || {};
+  const wrap = document.getElementById('playersListWrap');
+  if(!wrap) return;
+  const entries = Object.entries(playersCache);
+  if(entries.length === 0){
+    wrap.innerHTML = '<div class="empty-state">Ҳанӯз бозингаре нест.</div>';
+    return;
+  }
+  wrap.innerHTML = entries.map(([pKey, p])=>`
+    <div class="player-row">
+      <div class="pinfo" onclick="openPlayerNumbersModal('${pKey}')">
+        <div class="pname">${p.name||'—'}</div>
+        <div class="pphone">${p.phone||''}</div>
+      </div>
+      <button class="row-icon-btn" title="Чат" onclick="openAdminChatFor('${pKey}')">💬</button>
+      <div class="dot-menu-wrap">
+        <button class="row-icon-btn" onclick="toggleDotMenu('${pKey}')">⋮</button>
+        <div class="dot-dropdown hidden" id="dotMenu-${pKey}">
+          <button onclick="deletePlayer('${pKey}')">🗑️ Удалит кардан</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleDotMenu(pKey){
+  document.querySelectorAll('.dot-dropdown').forEach(el=>{
+    if(el.id !== 'dotMenu-'+pKey) el.classList.add('hidden');
+  });
+  const el = document.getElementById('dotMenu-'+pKey);
+  if(el) el.classList.toggle('hidden');
+}
+function openPlayerNumbersModal(pKey){
+  const p = playersCache[pKey];
+  if(!p) return;
+  const cart = p.cart || [];
+  const itemsHtml = cart.length ? cart.slice().reverse().map(rec=>{
+    const status = rec.status || 'pending';
+    const label = status==='approved' ? 'Тасдиқшуда ✅' : status==='conflict' ? 'Бекоршуда ⚠️' : 'Интизор ⏳';
+    const color = status==='approved' ? '#5FCB8B' : status==='conflict' ? '#FF8F86' : '#F2C572';
+    const nums = rec.numbers || [];
+    const count = nums.length;
+    const sumSomoni = count * PRICE_SOMONI;
+    const sumRuble = count * PRICE_RUBLE;
+    return `<div class="req-item">
+      <div class="count-tag"><span class="lbl">Сана</span><span class="val">${rec.date||''}${rec.game ? ' · '+rec.game : ''}</span></div>
+      <div class="count-tag"><span class="lbl">Рақамҳо</span><span class="val" style="color:${color};font-weight:700;">${nums.join(', ')}</span></div>
+      <div class="count-tag"><span class="lbl">Миқдор</span><span class="val">${count} рақам</span></div>
+      <div class="count-tag"><span class="lbl">Сумма</span><span class="val">${sumSomoni} сомонӣ / ${sumRuble} ₽</span></div>
+      <div class="count-tag"><span class="lbl">Ҳолат</span><span class="val" style="color:${color};">${label}</span></div>
+    </div>`;
+  }).join('') : '<div class="empty-state">Ин корбар ҳанӯз рақам нахаридааст.</div>';
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'playerNumbersOverlay';
+  overlay.style.zIndex = '70';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-admin">
+      <div class="modal-handle"></div>
+      <div class="modal-title">${p.name||''}</div>
+      <p class="modal-sub">${p.phone||''}</p>
+      ${itemsHtml}
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('playerNumbersOverlay')">Пӯшидан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('playerNumbersOverlay'); });
+}
+function openAdminChatFor(pKey){
+  playClick('admin');
+  const p = playersCache[pKey];
+  if(!p) return;
+  const url = 'https://kholidtj1995.github.io/sayt-1/admini_chat.html?phone=' + encodeURIComponent(p.phone||'') + '&name=' + encodeURIComponent(p.name||'');
+  window.open(url, '_blank');
+}
+async function deletePlayer(pKey){
+  const p = playersCache[pKey];
+  if(!p) return;
+  if(!confirm('Оё мутмаин ҳастед, ки мехоҳед ' + (p.name||'') + '-ро тамоман нест кунед? Ҳамаи рақамҳои ӯ ба рӯйхат бармегарданд.')) return;
+  playClick('admin');
+
+  // 1. free up all numbers this player held (sold or pending)
+  const soldRemovals = {};
+  (p.cart||[]).forEach(rec=>{ (rec.numbers||[]).forEach(n=>{ soldRemovals[n] = null; }); });
+  if(Object.keys(soldRemovals).length) await db.ref(K_SOLD).update(soldRemovals);
+
+  // 2. remove any of their requests
+  const reqSnap = await db.ref(K_REQUESTS).get();
+  const reqs = reqSnap.exists() ? reqSnap.val() : {};
+  const reqUpdates = {};
+  Object.entries(reqs).forEach(([id,r])=>{ if(r.phone === p.phone) reqUpdates[id] = null; });
+  if(Object.keys(reqUpdates).length) await db.ref(K_REQUESTS).update(reqUpdates);
+
+  // 3. remove the player entirely -> their own listener detects this and force-logs them out
+  await db.ref(K_PLAYERS + '/' + pKey).remove();
+
+  showToast('Корбар нест карда шуд', 'success');
+  playDelete('admin');
+  await renderNumbers();
+}
+
+/* ---- Add / Clear numbers modal ---- */
+function openAddModal(){
+  playClick('admin');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'addModalOverlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-admin">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Сохтани рақамҳо</div>
+      <p class="modal-sub">Миқдори рақамҳоро нависед (масалан 10). Рақамҳо аз 1 то ин адад сохта мешаванд.</p>
+      <div class="field-label">Номи бозӣ</div>
+      <input class="field" id="gameNameInput" placeholder="масалан Бозии 1" autocomplete="off" value="${(state.currentGameName||'').replace(/"/g,'&quot;')}">
+      <div class="field-label">Миқдори рақамҳо</div>
+      <input class="field" id="numCountInput" type="number" min="1" placeholder="масалан 10" inputmode="numeric">
+      <div class="err-msg" id="numCountErr"></div>
+      <div class="modal-actions">
+        <button class="btn btn-admin-primary" onclick="createNumbers()">Сохтан</button>
+        <button class="btn btn-danger" onclick="askClearPassword()">Тоза кардани рақамҳо</button>
+        <button class="btn btn-secondary" onclick="closeModal('addModalOverlay')">Бекор кардан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('addModalOverlay'); });
+}
+function closeModal(id){
+  const el = document.getElementById(id);
+  if(el) el.remove();
+  if(id === 'playersModalOverlay'){
+    db.ref(K_PLAYERS).off('value', renderPlayersList);
+  }
+}
+async function createNumbers(){
+  playClick('admin');
+  const input = document.getElementById('numCountInput');
+  const errEl = document.getElementById('numCountErr');
+  const n = parseInt(input.value, 10);
+  if(!n || n < 1){
+    errEl.textContent = 'Ададро дуруст нависед (аз 1 боло).';
+    playError('admin');
+    return;
+  }
+  const gameNameInput = document.getElementById('gameNameInput');
+  const gameNameVal = gameNameInput ? gameNameInput.value.trim() : '';
+  const numbers = Array.from({length:n}, (_,i)=>i+1);
+  await setShared(K_NUMBERS, numbers);
+  await setShared(K_GAME_NAME, gameNameVal);
+  state.currentGameName = gameNameVal;
+  state.lastNumbersJSON = JSON.stringify(numbers);
+  closeModal('addModalOverlay');
+  showToast(n+' рақам сохта шуд', 'success');
+  playSuccess('admin');
+  await renderNumbers();
+}
+function askClearPassword(){
+  playClick('admin');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'clearPassOverlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-admin">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Тасдиқи пок кардан</div>
+      <p class="modal-sub">Барои тоза кардани ҳамаи рақамҳо рамзи худро ворид кунед.</p>
+      <input class="field" id="clearPassInput" type="password" placeholder="Рамз" inputmode="numeric">
+      <div class="err-msg" id="clearPassErr"></div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="confirmClearNumbers()">Тасдиқ ва пок кардан</button>
+        <button class="btn btn-secondary" onclick="closeModal('clearPassOverlay')">Бекор кардан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('clearPassOverlay'); });
+}
+async function confirmClearNumbers(){
+  const pass = document.getElementById('clearPassInput').value.trim();
+  const errEl = document.getElementById('clearPassErr');
+  if(pass !== ADMIN_PASSWORD){
+    errEl.textContent = 'Рамз нодуруст аст!';
+    playError('admin');
+    return;
+  }
+
+  // 1. wipe the numbers themselves
+  await setShared(K_NUMBERS, []);
+  state.lastNumbersJSON = '[]';
+  state.currentNumbers = [];
+
+  // 1b. wipe the game name so the app is fully back to a blank slate for a new game
+  await setShared(K_GAME_NAME, '');
+  state.currentGameName = '';
+
+  // 2. wipe sold/blocked status so old numbers don't stay "sold" after a fresh set is built
+  await db.ref(K_SOLD).set(null);
+  state.soldNumbers = {};
+
+  // 3. wipe all pending/approved requests so nothing lingers in the admin bell
+  await db.ref(K_REQUESTS).set(null);
+  requestsCache = {};
+  renderBellBadge();
+  if(document.getElementById('requestsModalOverlay')) renderRequestsList();
+
+  // 4. empty every player's cart so old purchases don't reappear once numbers are rebuilt
+  const playersSnap = await db.ref(K_PLAYERS).get();
+  const players = playersSnap.exists() ? playersSnap.val() : {};
+  const cartUpdates = {};
+  Object.keys(players).forEach(pKey=>{ cartUpdates[pKey + '/cart'] = []; });
+  if(Object.keys(cartUpdates).length) await db.ref(K_PLAYERS).update(cartUpdates);
+  if(state.view === 'gameBoard'){
+    state.cart = [];
+    updateCartBadge();
+  }
+
+  closeModal('clearPassOverlay');
+  closeModal('addModalOverlay');
+  showToast('Ҳамаи рақамҳо пок карда шуданд', 'success');
+  playDelete('admin');
+  await renderNumbers();
+  if(state.view === 'gameBoard') renderGameBalls();
+}
+
+/* ============ HELPERS ============ */
+function safeKey(str){
+  return String(str).replace(/[.#$\[\]\/\s]/g, '_');
+}
+
+/* ============ GAME LOGIN LOGIC ============ */
+async function gameLogin(){
+  playClick('game');
+  const name = document.getElementById('gameName').value.trim();
+  const phone = document.getElementById('gamePhone').value.trim();
+  const pass = document.getElementById('gamePass').value.trim();
+  const errEl = document.getElementById('gameLoginErr');
+  if(!name || !phone || !pass){
+    errEl.textContent = 'Ҳамаи майдонҳоро пур кунед.';
+    playError('game');
+    return;
+  }
+  const pKey = safeKey(phone);
+  const players = await getShared(K_PLAYERS, {});
+  if(players[pKey]){
+    if(players[pKey].password !== pass){
+      errEl.textContent = 'Рамз нодуруст аст!';
+      playError('game');
+      return;
+    }
+    players[pKey].name = name;
+    state.cart = players[pKey].cart || [];
+  } else {
+    players[pKey] = { name, phone, password: pass, cart: [] };
+    state.cart = [];
+  }
+  await setShared(K_PLAYERS + '/' + pKey, players[pKey]);
+  errEl.textContent = '';
+  state.gameName = name;
+  state.gamePhone = phone;
+  document.getElementById('gameGreet').textContent = 'Хуш омадед, ' + name;
+  goTo('gameBoard');
+  playSuccess('game');
+  renderBuyBar();
+  updateCartBadge();
+  await renderNumbers();
+  listenSoldNumbers();
+  listenPlayerNode(phone);
+  refreshWaitingOverlayVisibility();
+}
+async function savePlayerCart(phone){
+  const pKey = safeKey(phone);
+  await db.ref(K_PLAYERS + '/' + pKey + '/cart').set(state.cart);
+}
+function listenPlayerNode(phone){
+  const pKey = safeKey(phone);
+  db.ref(K_PLAYERS + '/' + pKey).off();
+  db.ref(K_PLAYERS + '/' + pKey).on('value', (snap)=>{
+    if(!snap.exists()){
+      // this player's record was wiped from Firebase -> force them out
+      if(state.view === 'gameBoard'){
+        hideWaitingOverlay();
+        showToast('Маълумоти шумо пок карда шуд. Лутфан аз нав ворид шавед.', 'error');
+        playError('game');
+        logout('game');
+      }
+      return;
+    }
+    const data = snap.val();
+    state.cart = data.cart || [];
+    updateCartBadge();
+    refreshWaitingOverlayVisibility();
+  });
+  db.ref(K_PLAYERS + '/' + pKey + '/notifications').off();
+  db.ref(K_PLAYERS + '/' + pKey + '/notifications').on('child_added', (snap)=>{
+    const n = snap.val();
+    handlePlayerNotification(n);
+    db.ref(K_PLAYERS + '/' + pKey + '/notifications/' + snap.key).remove();
+  });
+}
+function handlePlayerNotification(n){
+  if(!n) return;
+  if(n.type === 'approved'){
+    showToast('Табрик! Рақамҳои шумо (' + (n.numbers||[]).join(', ') + ') дар бозӣ фаъол шуданд', 'success');
+    playSuccess('game');
+    // pull the freshest cart straight from Firebase instead of trusting listener ordering,
+    // so the waiting overlay never gets stuck open after an approval
+    if(state.gamePhone){
+      db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone) + '/cart').get().then(snap=>{
+        state.cart = snap.exists() ? snap.val() : state.cart;
+        updateCartBadge();
+        refreshWaitingOverlayVisibility();
+      }).catch(()=>{ refreshWaitingOverlayVisibility(); });
+    } else {
+      refreshWaitingOverlayVisibility();
+    }
+    maybeShowPayReminder(n.numbers||[]);
+  } else if(n.type === 'conflict'){
+    playError('game');
+    openSoldOutModal(n.numbers||[]);
+  }
+}
+/* ============ ЁДРАСОНИИ ПАРДОХТ (агар бозингар дар чат нанавишта бошад) ============ */
+function maybeShowPayReminder(numbers){
+  if(!state.gameName) return;
+  setTimeout(()=>{
+    if(state.view !== 'gameBoard' || !state.gameName) return;
+    db.ref('sayt1_chats/' + state.gameName).get().then(snap=>{
+      if(!snap.exists()){
+        openPayReminderModal(numbers);
+      }
+      // агар алакай дар чат навишта бошад — ин равзана нишон дода намешавад,
+      // зеро админ метавонад бевосита дар он ҷо ба ӯ нависад
+    }).catch(()=>{});
+  }, 3000);
+}
+function openPayReminderModal(numbers){
+  closeModal('payReminderOverlay');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'payReminderOverlay';
+  overlay.style.zIndex = '95';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-game">
+      <div class="modal-handle"></div>
+      <div class="modal-title">💬 Барои пардохт ба чат нависед</div>
+      <p class="modal-sub">Рақамҳои шумо (<b>${(numbers||[]).join(', ')}</b>) тасдиқ шуданд. Лутфан ба чат бо админ дароед ва барои пардохт хабар нависед. Агар нанависед, рақамҳои шумо бозпас гирифта мешаванд.</p>
+      <div class="modal-actions">
+        <button class="btn btn-game-primary" onclick="goToChatForPayment()">💬 Рафтан ба чат</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('payReminderOverlay'); });
+}
+function goToChatForPayment(){
+  closeModal('payReminderOverlay');
+  const url = CHAT_URL + '?name=' + encodeURIComponent(state.gameName||'') + '&phone=' + encodeURIComponent(state.gamePhone||'');
+  window.open(url, '_blank');
+}
+function openSoldOutModal(numbers){
+  closeModal('soldOutModalOverlay');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'soldOutModalOverlay';
+  overlay.style.zIndex = '90';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-game">
+      <div class="modal-handle"></div>
+      <div class="modal-title">⚠️ Рақам аллакай фурӯхта шуд</div>
+      <p class="modal-sub">Мутаассифона, рақами <b>${numbers.join(', ')}</b> пеш аз шумо ба нафари дигар фурӯхта шуд. Лутфан рақами дигар интихоб кунед.</p>
+      <div class="modal-actions">
+        <button class="btn btn-game-primary" onclick="closeModal('soldOutModalOverlay'); reopenBuyMode();">Интихоби рақами нав</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  refreshWaitingOverlayVisibility();
+}
+function reopenBuyMode(){
+  if(state.view !== 'gameBoard') return;
+  state.selected = [];
+  state.buyMode = true;
+  renderBuyBar();
+  renderGameBalls();
+  updateCartBadge();
+}
+function listenSoldNumbers(){
+  db.ref(K_SOLD).off();
+  db.ref(K_SOLD).on('value', (snap)=>{
+    state.soldNumbers = snap.val() || {};
+    if(state.view === 'gameBoard') renderGameBalls();
+    if(state.view === 'adminDash') renderNumbers();
+  });
+}
+
+/* ============ RENDER NUMBERS (shared) ============ */
+function buildBallsHTML(numbers){
+  if(!numbers || numbers.length===0){
+    return null;
+  }
+  let html = '<div class="balls-page">';
+  numbers.forEach((num, idx)=>{
+    const sold = (state.soldNumbers && state.soldNumbers[num]) ? ' ball-sold' : '';
+    html += `<div class="ball ball-solid${sold}" style="animation-delay:${Math.min(idx*0.03,1)}s">${num}</div>`;
+  });
+  html += '</div>';
+  return html;
+}
+async function renderNumbers(isPoll){
+  const numbers = state.currentNumbers && isPoll ? state.currentNumbers : await getShared(K_NUMBERS, []);
+  const json = JSON.stringify(numbers);
+
+  if(isPoll && json === state.lastNumbersJSON){
+    return;
+  }
+
+  state.currentNumbers = numbers;
+  const adminHtml = buildBallsHTML(numbers);
+  const gameHtml = buildGameBallsHTML(numbers, true);
+  const adminFrame = document.getElementById('adminBallsFrame');
+  const gameFrame = document.getElementById('gameBallsFrame');
+  const adminCount = document.getElementById('adminCountVal');
+  const gameCount = document.getElementById('gameCountVal');
+  const countLabel = numbers.length + ' рақам';
+  if(adminCount) adminCount.textContent = countLabel;
+  if(gameCount) gameCount.textContent = countLabel;
+
+  const gameNameCaption = (numbers.length>0 && state.currentGameName) ? `<div class="game-name-caption">🎯 ${state.currentGameName}</div>` : '';
+
+  if(adminFrame){ adminFrame.innerHTML = (adminHtml || '<div class="empty-state">Ҳанӯз рақаме сохта нашудааст.<br>Тугмаи «Илова кардани рақамҳо»-ро пахш кунед.</div>') + gameNameCaption; adminFrame.scrollTop = 0; }
+  if(gameFrame){ gameFrame.innerHTML = (gameHtml || '<div class="empty-state">Рақамҳо ҳанӯз эълон нашудаанд.<br>Интизор шавед...</div>') + gameNameCaption; gameFrame.scrollTop = 0; }
+
+  if(isPoll && json !== state.lastNumbersJSON && state.view === 'gameBoard' && numbers.length>0){
+    showToast('Рақамҳои нав эълон шуданд!', 'info');
+    playNotify('game');
+  }
+  state.lastNumbersJSON = json;
+}
+
+/* ============ REALTIME SYNC (Firebase onValue, no polling needed) ============ */
+db.ref(K_NUMBERS).on('value', (snap)=>{
+  const numbers = snap.val() || [];
+  state.currentNumbers = numbers;
+  renderNumbers(true);
+});
+db.ref(K_GAME_NAME).on('value', (snap)=>{
+  state.currentGameName = snap.val() || '';
+  if(state.view === 'adminDash' || state.view === 'gameBoard'){
+    if(state.currentNumbers.length>0){
+      // re-run the frame render so the caption picks up the new name immediately
+      if(state.view === 'gameBoard') renderGameBalls();
+      const adminFrame = document.getElementById('adminBallsFrame');
+      if(adminFrame && state.view === 'adminDash'){
+        const adminHtml = buildBallsHTML(state.currentNumbers);
+        const gameNameCaption = state.currentGameName ? `<div class="game-name-caption">🎯 ${state.currentGameName}</div>` : '';
+        adminFrame.innerHTML = (adminHtml || '') + gameNameCaption;
+      }
+    }
+  }
+});
+
+/* init */
+renderNumbers();
+</script>
+</body>
+</html>
