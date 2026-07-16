@@ -579,7 +579,10 @@ function openCartModal(){
           statusHtml = `<div class="cart-status conflict">⚠️ Мутаассифона, ин рақамҳо аллакай фурӯхта шуданд</div>`;
           numColor = '#FF8F86';
         } else {
-          statusHtml = `<div class="cart-status pending">⏳ Интизори тасдиқи админ...</div>`;
+          statusHtml = `<div class="cart-status pending" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span>⏳ Интизори тасдиқи админ...</span>
+            <button class="btn btn-game-primary" style="width:auto;padding:8px 14px;font-size:12px;flex:0 0 auto;" onclick="contactAdminForReq('${rec.reqId||''}','${escapeAttr(rec.name)}','${escapeAttr(rec.phone)}','${(rec.numbers||[]).join(',')}')">💬 Мурочиат</button>
+          </div>`;
           numColor = '#F2C572';
         }
         return `
@@ -720,61 +723,20 @@ async function confirmPurchase(){
   renderGameBalls();
   updateCartBadge();
   playSuccess('game');
-  openConfirmSendModal(reqId, name, phone, numbers);
+  showToast('Дархости шумо фиристода шуд', 'success');
+  openCartModal();
 }
 
-/* ============ ROUTE TO ADMIN CHAT FOR CONFIRMATION ============ */
-function openConfirmSendModal(reqId, name, phone, numbers){
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.id = 'confirmSendOverlay';
-  overlay.innerHTML = `
-    <div class="modal-sheet theme-game">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Тасдиқи иштирок</div>
-      <p class="modal-sub">Барои иштирок дар бозӣ ба админ хабар фиристед, то ки ӯ ба шумо иҷозат диҳад.</p>
-      <div class="modal-actions">
-        <button class="btn btn-game-primary" onclick="sendToAdminChat('${reqId}','${escapeAttr(name)}','${escapeAttr(phone)}','${numbers.join(',')}')">💬 Рафтан ба чат</button>
-        <button class="btn btn-secondary" onclick="closeModal('confirmSendOverlay')">Пӯшидан</button>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('confirmSendOverlay'); });
-  showWaitingOverlay();
-}
+/* ============ ROUTE TO ADMIN CHAT FOR CONFIRMATION (from inside the cart) ============ */
 function escapeAttr(s){ return String(s).replace(/'/g, "\\'"); }
-function sendToAdminChat(reqId, name, phone, numbersStr){
+function contactAdminForReq(reqId, name, phone, numbersStr){
   playClick('game');
+  const msg = '✋Салом, ман барои тасдиқи билет ба шумо мурочиат дорам';
   const count = numbersStr.split(',').filter(Boolean).length;
   const sumSomoni = count * PRICE_SOMONI;
   const sumRuble = count * PRICE_RUBLE;
-  const msg = `Ассалому алейкум! Ман ${name}, рақами телефон: ${phone}. Мехоҳам иштирок кунам бо рақамҳои: ${numbersStr}. Лутфан иҷозат диҳед. (reqId: ${reqId})`;
   const url = CHAT_URL + '?autotext=' + encodeURIComponent(msg) + '&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone) + '&numbers=' + encodeURIComponent(numbersStr) + '&reqId=' + encodeURIComponent(reqId) + '&sumSomoni=' + sumSomoni + '&sumRuble=' + sumRuble;
   window.open(url, '_blank');
-  closeModal('confirmSendOverlay');
-}
-
-/* ============ WAITING OVERLAY (dims app while a request is pending) ============ */
-function showWaitingOverlay(){
-  if(document.getElementById('waitingOverlay')) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'waiting-overlay';
-  overlay.id = 'waitingOverlay';
-  overlay.innerHTML = `
-    <div class="waiting-card">
-      <div class="spin"></div>
-      <h3>Интизори тасдиқ</h3>
-      <p>Дархости шумо ба админ фиристода шуд. Ҳамин ки админ иҷозат диҳад, рақамҳои шумо дар бозӣ фаъол мешаванд.</p>
-      <button class="btn btn-secondary" onclick="closeModal('waitingOverlay')">Пинҳон кардан</button>
-    </div>`;
-  document.body.appendChild(overlay);
-}
-function hideWaitingOverlay(){ closeModal('waitingOverlay'); }
-function hasPendingCartItems(){
-  return state.cart.some(rec => (rec.status||'pending') === 'pending');
-}
-function refreshWaitingOverlayVisibility(){
-  if(hasPendingCartItems()){ showWaitingOverlay(); } else { hideWaitingOverlay(); }
 }
 
 /* ============ SOUND ENGINE ============ */
@@ -875,7 +837,6 @@ function logout(which){
     document.getElementById('gameLoginErr').textContent='';
     state.buyMode = false;
     state.selected = [];
-    hideWaitingOverlay();
     if(state.gamePhone){
       db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone)).off();
     }
@@ -1304,7 +1265,6 @@ async function gameLogin(){
   await renderNumbers();
   listenSoldNumbers();
   listenPlayerNode(phone);
-  refreshWaitingOverlayVisibility();
 }
 async function savePlayerCart(phone){
   const pKey = safeKey(phone);
@@ -1317,7 +1277,6 @@ function listenPlayerNode(phone){
     if(!snap.exists()){
       // this player's record was wiped from Firebase -> force them out
       if(state.view === 'gameBoard'){
-        hideWaitingOverlay();
         showToast('Маълумоти шумо пок карда шуд. Лутфан аз нав ворид шавед.', 'error');
         playError('game');
         logout('game');
@@ -1327,7 +1286,6 @@ function listenPlayerNode(phone){
     const data = snap.val();
     state.cart = data.cart || [];
     updateCartBadge();
-    refreshWaitingOverlayVisibility();
   });
   db.ref(K_PLAYERS + '/' + pKey + '/notifications').off();
   db.ref(K_PLAYERS + '/' + pKey + '/notifications').on('child_added', (snap)=>{
@@ -1341,16 +1299,12 @@ function handlePlayerNotification(n){
   if(n.type === 'approved'){
     showToast('Табрик! Рақамҳои шумо (' + (n.numbers||[]).join(', ') + ') дар бозӣ фаъол шуданд', 'success');
     playSuccess('game');
-    // pull the freshest cart straight from Firebase instead of trusting listener ordering,
-    // so the waiting overlay never gets stuck open after an approval
+    // pull the freshest cart straight from Firebase instead of trusting listener ordering
     if(state.gamePhone){
       db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone) + '/cart').get().then(snap=>{
         state.cart = snap.exists() ? snap.val() : state.cart;
         updateCartBadge();
-        refreshWaitingOverlayVisibility();
-      }).catch(()=>{ refreshWaitingOverlayVisibility(); });
-    } else {
-      refreshWaitingOverlayVisibility();
+      }).catch(()=>{});
     }
     maybeShowPayReminder(n.numbers||[]);
   } else if(n.type === 'conflict'){
@@ -1411,7 +1365,6 @@ function openSoldOutModal(numbers){
       </div>
     </div>`;
   document.body.appendChild(overlay);
-  refreshWaitingOverlayVisibility();
 }
 function reopenBuyMode(){
   if(state.view !== 'gameBoard') return;
