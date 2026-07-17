@@ -468,11 +468,11 @@
       <h2 class="auth-title">Воридшавӣ ба бозӣ</h2>
       <p class="auth-sub">Ном, рақами телефон ва рамзи худро ворид кунед</p>
       <div class="field-label">Ном</div>
-      <input class="field" id="gameName" placeholder="Номи шумо" autocomplete="off">
+      <input class="field" id="gameName" placeholder="Номи шумо" autocomplete="off" oninput="this.value=this.value.replace(/[0-9]/g,'')">
       <div class="field-label">Рақами телефон</div>
-      <input class="field" id="gamePhone" placeholder="+992 ..." inputmode="tel">
+      <input class="field" id="gamePhone" placeholder="+992 ..." inputmode="tel" oninput="this.value=this.value.replace(/[^0-9+\- ]/g,'')">
       <div class="field-label">Рамз</div>
-      <input class="field" id="gamePass" type="password" placeholder="••••" inputmode="numeric">
+      <input class="field" id="gamePass" type="password" placeholder="••••" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
       <div class="err-msg" id="gameLoginErr"></div>
       <button class="btn btn-game-primary" onclick="gameLogin()">Ворид шав</button>
     </div>
