@@ -59,20 +59,6 @@ input{font-family:inherit;}
 /* Вакте корбар тугмаеро пахш мекунад, ранги тексташ дигар мешавад */
 button:active{ color:var(--accent) !important; transition:color .12s ease; }
 
-/* Тугмаи нави баромадан */
-.exit-site-btn {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  z-index: 100;
-}
-
 /* Иконаи корбар (авaтар + ном), клик = баромадан аз ҳисоб */
 .user-badge{
   display:flex; align-items:center; gap:6px; background:var(--card);
@@ -102,25 +88,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 @media (min-width:461px){ .screen{ min-height:0; height:100%; } }
 
 /* ---------- auth screen ---------- */
-#screen-auth{ justify-content:center; align-items:center; padding:32px 26px; text-align:center; }
-.auth-eyebrow{
-  font-family:var(--font-body); letter-spacing:.18em; text-transform:uppercase;
-  font-size:11px; color:var(--teal); margin-bottom:10px; font-weight:600;
-}
-.auth-title{ font-family:var(--font-display); font-size:28px; margin:0 0 6px; }
-.auth-sub{ color:var(--text-dim); font-size:14px; margin:0 0 28px; max-width:280px; }
-.avatar-picker{
-  width:96px;height:96px;border-radius:50%;
-  background:var(--card); border:2px dashed var(--border); padding:0;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--text-faint); margin:0 auto 14px; cursor:pointer; overflow:hidden;
-}
-.avatar-inner{
-  width:100%; height:100%; border-radius:50%; background-size:cover; background-position:center;
-  display:flex; align-items:center; justify-content:center; font-size:28px;
-}
-.avatar-inner.has-image .avatar-glyph{ display:none; }
-.avatar-picker:has(.has-image){ border-style:solid; border-color:var(--accent); }
 .field{
   width:100%; max-width:300px; background:var(--card); border:1px solid var(--border);
   color:var(--text); border-radius:14px; padding:14px 16px; font-size:15px; margin-bottom:14px;
@@ -189,6 +156,9 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
   font-size:12px; font-weight:700; white-space:nowrap;
 }
 .subscribe-btn.subscribed{ background:var(--card); color:var(--teal); border:1px solid var(--teal); }
+.subscribe-btn.disabled, .subscribe-btn:disabled{ background:var(--card-2) !important; color:var(--text-faint) !important; border:1px solid var(--border) !important; opacity:.55; cursor:not-allowed; }
+.empty-state .subscribe-btn{ margin-top:10px; }
+.modal-overlay.modal-center{ align-items:center; }
 
 .pinned-bar{
   display:none; align-items:center; gap:8px;
@@ -337,24 +307,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 <body>
 <div class="app-shell">
 
-  <section id="screen-auth" class="screen active ikat-bg">
-    <button type="button" id="exit-site-btn" class="exit-site-btn">← Бозгашт</button>
-
-    <div class="auth-eyebrow">Хуш омадед</div>
-    <h1 class="auth-title">Бақайдгирӣ</h1>
-    <p class="auth-sub">Барои идома номи худро нависед ва як расм илова кунед</p>
-
-    <button type="button" id="auth-avatar-pick-btn" class="avatar-picker">
-      <div id="auth-avatar-preview" class="avatar-inner"><span class="avatar-glyph">📷</span></div>
-    </button>
-    <input type="file" id="auth-avatar-input" accept="image/*" hidden>
-    <div id="auth-status" class="status-line"></div>
-
-    <input type="text" id="auth-name" class="field" placeholder="Номи шумо" maxlength="40">
-    <button type="button" id="auth-continue-btn" class="btn-primary">Идома</button>
-  </section>
-
-  <section id="screen-main" class="screen">
+  <section id="screen-main" class="screen active">
     <div class="tab-header">
       <h2 class="tab-title">Чат</h2>
       <div class="header-actions">
@@ -370,6 +323,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
         <span class="emoji">💬</span>
         <b>Ҳанӯз гурӯҳе сохта нашудааст</b>
         <p>Ҳамин ки касе гурӯҳе созад, он дар ин ҷо намоён мешавад</p>
+        <button type="button" id="empty-subscribe-btn" class="subscribe-btn disabled" disabled>Обуна шудан</button>
       </div>
       <div id="chat-rooms-list"></div>
     </div>
@@ -419,6 +373,16 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
     </div>
   </div>
 
+  <div id="modal-nogroup" class="modal-overlay modal-center">
+    <div class="modal-panel">
+      <h3 class="modal-title">Огоҳӣ</h3>
+      <p id="nogroup-text">Ҳоло гурӯҳ сохта нашудааст. Ҳамин ки роҳбари барнома гурӯҳ созад, шумо метавонед обуна шавед.</p>
+      <div class="modal-actions">
+        <button type="button" id="nogroup-ok" class="btn-primary flex">Фаҳмидам</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-root"></div>
 </div>
 
@@ -459,6 +423,8 @@ let chatListFirstLoad = true;
 let knownMsgIds = new Set();
 let firstRenderForGroup = true;
 let dataEverSeen = false; // барои муайян кардани лаҳзае, ки маълумот аз Firebase пурра пок карда мешавад
+let autoJoinAttempted = false; // барои автоматан обуна+дохилшавӣ ба гурӯҳ ҳангоми даромадан ба барнома
+let noGroupModalShown = false; // барои нишон додани огоҳии "гурӯҳ сохта нашудааст" танҳо як бор
 
 /* ===================== Notification sound ===================== */
 function playNotifySound() {
@@ -789,6 +755,12 @@ function loadMe() {
   if (raw) {
     try { ME = JSON.parse(raw); } catch (e) { ME = null; }
   }
+  if (!ME) {
+    const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23232945'/%3E%3Ctext x='50' y='62' font-size='42' text-anchor='middle' fill='%23E7A93C' font-family='sans-serif'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+    ME = { uid: uid(), name: "Корбар " + Math.floor(1000 + Math.random() * 9000), avatar: defaultAvatar };
+    saveMe();
+    db.ref("users/" + ME.uid).set({ name: ME.name, avatar: ME.avatar, createdAt: TS });
+  }
 }
 function saveMe() {
   localStorage.setItem("lc_profile", JSON.stringify(ME));
@@ -816,37 +788,6 @@ function showConfirm(text, danger, onYes) {
     onYes();
   };
   yesBtn.addEventListener("click", handler, { once: true });
-}
-
-/* ===================== Auth screen ===================== */
-let authAvatarData = null;
-
-function initAuthScreen() {
-  $("#auth-avatar-pick-btn").addEventListener("click", () => $("#auth-avatar-input").click());
-  $("#auth-avatar-input").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { toast("Танҳо расм лозим аст"); return; }
-    $("#auth-status").textContent = "Расм фушурда мешавад...";
-    try {
-      authAvatarData = await compressImageFile(file);
-      $("#auth-avatar-preview").style.backgroundImage = `url(${authAvatarData})`;
-      $("#auth-avatar-preview").classList.add("has-image");
-      $("#auth-status").textContent = `Тайёр (${(byteSizeOfDataURL(authAvatarData) / 1024).toFixed(1)} КБ)`;
-    } catch (err) {
-      $("#auth-status").textContent = "Хатогӣ ҳангоми коркарди расм";
-    }
-  });
-
-  $("#auth-continue-btn").addEventListener("click", () => {
-    const name = $("#auth-name").value.trim();
-    if (!name) { toast("Лутфан номи худро нависед"); return; }
-    if (!authAvatarData) { toast("Лутфан расм илова кунед"); return; }
-    ME = { uid: uid(), name, avatar: authAvatarData };
-    saveMe();
-    db.ref("users/" + ME.uid).set({ name: ME.name, avatar: ME.avatar, createdAt: TS });
-    enterApp();
-  });
 }
 
 /* ===================== Chat list ===================== */
@@ -1216,9 +1157,29 @@ function enterApp() {
       lastKnownLastMsgTs[id] = g.lastMessage ? g.lastMessage.ts : 0;
     });
     const shouldPlayBell = ringingGroupIds.size > 0;
+    const isFirstLoad = chatListFirstLoad;
     chatListFirstLoad = false;
 
     allGroups = newGroups;
+
+    // Ҳангоми аввалин даромадан ба барнома: агар Rohbari_Barnoma_gurupa гурӯҳе сохта бошад,
+    // корбар сразу (беохтиёр) ба он обуна ва дохил карда мешавад — тугмаи "Обуна шудан" ва
+    // тугмаи "бозгашт" дар экрани гурӯҳ дар ҷои худ мемонанд, танҳо клик кардан лозим намемонад.
+    if (isFirstLoad && !autoJoinAttempted) {
+      autoJoinAttempted = true;
+      const groupEntries = Object.entries(newGroups).filter(([id, g]) => !g.blocked);
+      if (groupEntries.length > 0) {
+        groupEntries.sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+        const [gid, g] = groupEntries[0];
+        const alreadySubscribed = !!(g.subscribers && g.subscribers[ME.uid]);
+        if (!alreadySubscribed) {
+          groupsRef.child(gid).child("subscribers").child(ME.uid).set(true);
+        }
+        openGroup(gid);
+        return;
+      }
+    }
+
     renderChatList();
     if (shouldPlayBell) playBellSound();
     if (currentGroupId && allGroups[currentGroupId]) {
@@ -1231,6 +1192,29 @@ function forceLogoutAll() {
   localStorage.removeItem("lc_profile");
   ME = null;
   location.reload();
+}
+
+/* ===================== Санҷиши мавҷудияти гурӯҳ (аз тарафи Rohbari_Barnoma_gurupa) =====================
+   Ин функсия аз ҳамон лаҳзаи кушода шудани сомона (пеш аз бақайдгирӣ ҳам) кор мекунад:
+   агар ягон гурӯҳи фаъол вуҷуд надошта бошад — тугмаҳои "Обуна шудан" торик (ғайрифаъол) мешаванд
+   ва як огоҳӣ дар мобайни экран намоён мегардад. */
+function applyNoGroupUI(groups) {
+  const activeGroups = Object.entries(groups || {}).filter(([id, g]) => !g.blocked);
+  const hasGroup = activeGroups.length > 0;
+  [$("#auth-subscribe-btn"), $("#empty-subscribe-btn")].forEach((btn) => {
+    if (!btn) return;
+    btn.disabled = !hasGroup;
+    btn.classList.toggle("disabled", !hasGroup);
+  });
+  if (!hasGroup) {
+    if (!noGroupModalShown) {
+      noGroupModalShown = true;
+      openModal("modal-nogroup");
+    }
+  } else {
+    noGroupModalShown = false;
+    closeModal("modal-nogroup");
+  }
 }
 
 function logoutFully() {
@@ -1246,11 +1230,6 @@ function goToExternalSite() {
 }
 
 function init() {
-  initAuthScreen();
-
-  // Тугмаи бозгашт дар экрани бақайдгирӣ
-  $("#exit-site-btn").addEventListener("click", goToExternalSite);
-
   // Тугмаи "Бозгашт" дар экрани чат — танҳо ба сомонаи беруна мебарад
   $("#main-back-btn").addEventListener("click", goToExternalSite);
 
@@ -1261,12 +1240,16 @@ function init() {
   $("#group-back-btn").addEventListener("click", closeGroup);
   $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
+  $("#nogroup-ok").addEventListener("click", () => closeModal("modal-nogroup"));
   $$(".modal-overlay").forEach((ov) => {
     ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
   });
 
   loadMe();
-  if (ME) enterApp(); else showScreen("auth");
+  enterApp();
+
+  // Санҷиши мавҷудияти гурӯҳ ҳамеша фаъол аст — новобаста аз он ки корбар ворид шудааст ё не
+  groupsRef.on("value", (snap) => applyNoGroupUI(snap.val()));
 }
 
 document.addEventListener("DOMContentLoaded", init);
