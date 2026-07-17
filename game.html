@@ -391,6 +391,17 @@
     background:#0F3733;border:1px solid #1C5A52;border-radius:var(--r-lg);
     padding:26px 22px;max-width:360px;width:100%;text-align:center;
   }
+  .net-overlay{z-index:300;}
+  .net-card{
+    background:#0F3733;border:1px solid #1C5A52;border-radius:var(--r-lg);
+    padding:26px 22px;max-width:320px;width:100%;text-align:center;
+  }
+  .net-card .spin{
+    width:36px;height:36px;border-radius:50%;margin:0 auto 14px;
+    border:3px solid rgba(242,183,5,.25);border-top-color:#F2B705;
+    animation:spin .8s linear infinite;
+  }
+  .net-card p{color:#9FC4BD;font-size:13.5px;margin:0;line-height:1.5;font-weight:600;}
   .waiting-card .spin{
     width:38px;height:38px;border-radius:50%;margin:0 auto 16px;
     border:3px solid rgba(242,183,5,.25);border-top-color:#F2B705;
@@ -580,6 +591,12 @@ function openCartModal(){
         } else if(status === 'conflict'){
           statusHtml = `<div class="cart-status conflict">⚠️ Мутаассифона, ин рақамҳо аллакай фурӯхта шуданд</div>`;
           numColor = '#FF8F86';
+        } else if(status === 'rejected'){
+          statusHtml = `<div class="cart-status conflict" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span>❌ Дархости шумо рад карда шуд</span>
+            <div class="countdown-box" id="countdown-${rec.reqId||''}" style="width:34px;height:34px;border-radius:100px;background:rgba(226,87,76,.15);border:1px solid rgba(226,87,76,.4);color:#FF8F86;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:0 0 auto;">10</div>
+          </div>`;
+          numColor = '#FF8F86';
         } else {
           statusHtml = `<div class="cart-status pending" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span>⏳ Интизори тасдиқи админ...</span>
@@ -610,6 +627,42 @@ function openCartModal(){
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('cartModalOverlay'); });
+  startRejectedCountdowns();
+}
+function startRejectedCountdowns(){
+  state.cart.forEach(rec=>{
+    if((rec.status||'pending') !== 'rejected') return;
+    const reqId = rec.reqId || '';
+    const el = document.getElementById('countdown-' + reqId);
+    if(!el || el.dataset.running) return;
+    el.dataset.running = '1';
+    let n = 10;
+    el.textContent = n;
+    const timer = setInterval(()=>{
+      n--;
+      const liveEl = document.getElementById('countdown-' + reqId);
+      if(!liveEl){ clearInterval(timer); return; }
+      if(n <= 0){
+        clearInterval(timer);
+        removeRejectedFromCart(reqId);
+        return;
+      }
+      liveEl.textContent = n;
+    }, 1000);
+  });
+}
+async function removeRejectedFromCart(reqId){
+  state.cart = state.cart.filter(rec=>rec.reqId !== reqId);
+  updateCartBadge();
+  if(state.gamePhone){
+    try{
+      await db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone) + '/cart').set(state.cart);
+    }catch(e){}
+  }
+  if(document.getElementById('cartModalOverlay')){
+    closeModal('cartModalOverlay');
+    openCartModal();
+  }
 }
 
 /* ============ BUY / SELECT NUMBERS (game section) ============ */
@@ -693,7 +746,9 @@ function openPayModal(){
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal('payModalOverlay'); });
 }
+let isBuySubmitting = false;
 async function confirmPurchase(){
+  if(isBuySubmitting) return;
   const name = document.getElementById('payName').value.trim();
   const phone = document.getElementById('payPhone').value.trim();
   const errEl = document.getElementById('payErr');
@@ -702,31 +757,58 @@ async function confirmPurchase(){
     playError('game');
     return;
   }
-  const numbers = state.selected.slice();
-  const reqRef = db.ref(K_REQUESTS).push();
-  const reqId = reqRef.key;
-  const reqObj = { phone, name, numbers, status:'pending', createdAt: Date.now(), game: state.currentGameName||'' };
-  await reqRef.set(reqObj);
+  isBuySubmitting = true;
+  showNetworkOverlay();
+  try{
+    const numbers = state.selected.slice();
+    const reqRef = db.ref(K_REQUESTS).push();
+    const reqId = reqRef.key;
+    const reqObj = { phone, name, numbers, status:'pending', createdAt: Date.now(), game: state.currentGameName||'' };
+    await reqRef.set(reqObj);
 
-  const cartRec = {
-    date: formatDate(new Date()),
-    name, phone, numbers,
-    status:'pending',
-    reqId,
-    game: state.currentGameName||''
-  };
-  state.cart.push(cartRec);
-  await savePlayerCart(phone);
+    const cartRec = {
+      date: formatDate(new Date()),
+      name, phone, numbers,
+      status:'pending',
+      reqId,
+      game: state.currentGameName||''
+    };
+    state.cart.push(cartRec);
+    await savePlayerCart(phone);
 
-  state.selected = [];
-  state.buyMode = false;
-  closeModal('payModalOverlay');
-  renderBuyBar();
-  renderGameBalls();
-  updateCartBadge();
-  playSuccess('game');
-  showToast('Дархости шумо фиристода шуд', 'success');
-  openCartModal();
+    state.selected = [];
+    state.buyMode = false;
+    closeModal('payModalOverlay');
+    renderBuyBar();
+    renderGameBalls();
+    updateCartBadge();
+    playSuccess('game');
+    showToast('Дархости шумо фиристода шуд', 'success');
+    openCartModal();
+  }catch(err){
+    playError('game');
+    showToast('Хатогии пайваст. Лутфан бори дигар кӯшиш кунед.', 'error');
+  }finally{
+    isBuySubmitting = false;
+    hideNetworkOverlay();
+  }
+}
+/* ============ NETWORK OVERLAY (blocks double taps / shows during slow or lost connection) ============ */
+function showNetworkOverlay(){
+  if(document.getElementById('netOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'waiting-overlay net-overlay';
+  overlay.id = 'netOverlay';
+  overlay.innerHTML = `
+    <div class="net-card">
+      <div class="spin"></div>
+      <p>Лутфан то пайваст шудани интернет сабр кунед...</p>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function hideNetworkOverlay(){
+  const el = document.getElementById('netOverlay');
+  if(el) el.remove();
 }
 
 /* ============ ROUTE TO ADMIN CHAT FOR CONFIRMATION (from inside the cart) ============ */
@@ -1417,6 +1499,16 @@ function handlePlayerNotification(n){
   } else if(n.type === 'conflict'){
     playError('game');
     openSoldOutModal(n.numbers||[]);
+  } else if(n.type === 'rejected'){
+    playError('game');
+    showToast('Дархости шумо рад карда шуд', 'error');
+    if(state.gamePhone){
+      db.ref(K_PLAYERS + '/' + safeKey(state.gamePhone) + '/cart').get().then(snap=>{
+        state.cart = snap.exists() ? snap.val() : state.cart;
+        updateCartBadge();
+        if(document.getElementById('cartModalOverlay')) startRejectedCountdowns();
+      }).catch(()=>{});
+    }
   }
 }
 /* ============ ЁДРАСОНИИ ПАРДОХТ (агар бозингар дар чат нанавишта бошад) ============ */
