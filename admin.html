@@ -469,6 +469,21 @@ const K_REQUESTS = 'requests';
 const K_GAME_NAME = 'currentGame';
 const ADMIN_PASSWORD = '1995';
 const CHAT_URL = 'https://kholidtj1995.github.io/sayt-1/chat.html';
+const ADMIN_SESSION_KEY = 'lottery_admin_session';
+
+/* ============ ХОТИРАИ ВОРИДШАВИИ АДМИН (localStorage) ============ */
+function saveAdminSession(user){
+  try{ localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ user })); }catch(e){}
+}
+function clearAdminSession(){
+  try{ localStorage.removeItem(ADMIN_SESSION_KEY); }catch(e){}
+}
+function loadAdminSession(){
+  try{
+    const raw = localStorage.getItem(ADMIN_SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
 
 let state = {
   view:'adminLogin',
@@ -799,6 +814,7 @@ function adminLogin(){
   }
   errEl.textContent = '';
   state.adminName = user;
+  saveAdminSession(user);
   document.getElementById('adminGreet').textContent = 'Хуш омадед, ' + user;
   goTo('adminDash');
   playSuccess('admin');
@@ -811,6 +827,7 @@ function logout(which){
   if(which==='admin'){
     document.getElementById('adminPass').value='';
     document.getElementById('adminLoginErr').textContent='';
+    clearAdminSession();
     db.ref(K_REQUESTS).off();
     goTo('adminLogin');
   } else {
@@ -1432,6 +1449,16 @@ db.ref(K_GAME_NAME).on('value', (snap)=>{
 });
 
 /* init */
+(function initAutoLogin(){
+  const saved = loadAdminSession();
+  if(saved && saved.user){
+    state.adminName = saved.user;
+    document.getElementById('adminGreet').textContent = 'Хуш омадед, ' + saved.user;
+    goTo('adminDash');
+    listenSoldNumbers();
+    listenRequestsForAdmin();
+  }
+})();
 renderNumbers();
 </script>
 </body>
