@@ -325,13 +325,27 @@
   .player-frame .logoutBtn{padding:6px 12px;font-size:11.5px;flex:0 0 auto;}
 
   /* ---- middle rounded badge ---- */
+  .reg-col{
+    flex:0 1 auto;display:flex;flex-direction:column;align-items:center;min-width:0;
+  }
   .reg-frame{
     flex:0 0 auto;
-    border:1.5px solid rgba(242,183,5,.4);border-radius:100px;
-    padding:8px 14px;font-family:'Space Grotesk',sans-serif;font-weight:700;
-    font-size:12px;color:#F2C572;text-align:center;white-space:nowrap;
-    background:rgba(242,183,5,.06);
+    border:1.5px solid rgba(242,183,5,.4);border-radius:var(--r-sm);
+    padding:8px 14px;text-align:center;background:rgba(242,183,5,.06);
+    max-width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;
   }
+  .reg-frame-label{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:11px;color:#F2C572;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  }
+  .reg-homeBtn{
+    display:inline-flex;align-items:center;gap:4px;
+    color:#8B93A7;font-size:10.5px;font-weight:600;text-decoration:none;
+    white-space:nowrap;cursor:pointer;opacity:.9;
+    border:1.5px solid rgba(255,255,255,.18);border-radius:var(--r-sm);
+    padding:6px 10px;background:rgba(255,255,255,.05);
+  }
+  .reg-homeBtn:active{opacity:.5;}
 
   /* ---- home icon button (matches cartBtn/logoutBtn style) ---- */
   .homeIconBtn{
@@ -471,11 +485,15 @@
         <span class="p-name" id="gamePlayerName">Корбар</span>
         <button class="logoutBtn" onclick="confirmGameLogout()">Баромад</button>
       </div>
-      <div class="reg-frame">Бақайдгирӣ</div>
+      <div class="reg-col">
+        <div class="reg-frame">
+          <div class="reg-frame-label">Харидани рақам барои бозӣ</div>
+          <a href="https://behruztv.ru/" class="reg-homeBtn" onclick="playClick('game')">🏠 Бозгашт ба саҳифаи асосӣ</a>
+        </div>
+      </div>
       <div class="head-actions">
         <button class="bellBtn" id="gameGroupBtn" onclick="openGroupFromGame()" title="Хабарҳои нав"><img src="https://images.icon-icons.com/407/PNG/96/Group_40731.png" style="width:18px;height:18px;object-fit:contain;"><span class="bell-badge hidden" id="gameGroupBadge">0</span></button>
         <button class="bellBtn" id="gameChatBtn" onclick="openChatFromGame()" title="Чат бо админ"><img src="https://cdn-icons-png.flaticon.com/128/10308/10308218.png" style="width:18px;height:18px;object-fit:contain;"><span class="bell-badge hidden" id="gameChatBadge">0</span></button>
-        <a href="https://behruztv.ru/" class="homeIconBtn" onclick="playClick('game')" title="Бозгашт ба саҳифаи асосӣ">🏠</a>
         <button class="cartBtn" onclick="openCartModal()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
       </div>
     </div>
@@ -667,6 +685,11 @@ async function removeRejectedFromCart(reqId){
 
 /* ============ BUY / SELECT NUMBERS (game section) ============ */
 function toggleBuyMode(){
+  if(!state.currentNumbers || state.currentNumbers.length===0){
+    playError('game');
+    showToast('Ҳанӯз рақаме барои харид вуҷуд надорад', 'error');
+    return;
+  }
   playClick('game');
   state.buyMode = !state.buyMode;
   if(!state.buyMode){ state.selected = []; }
@@ -677,8 +700,11 @@ function toggleBuyMode(){
 function renderBuyBar(){
   const bar = document.getElementById('buyBar');
   if(!bar) return;
+  const hasNumbers = state.currentNumbers && state.currentNumbers.length>0;
   if(!state.buyMode){
-    bar.innerHTML = `<button class="btn btn-game-primary" onclick="toggleBuyMode()">🎟️ Харидани рақам</button>`;
+    bar.innerHTML = hasNumbers
+      ? `<button class="btn btn-game-primary" onclick="toggleBuyMode()">🎟️ Харидани рақам</button>`
+      : `<button class="btn btn-danger" onclick="toggleBuyMode()">🎟️ Харидани рақам</button>`;
   } else {
     let html = '<div class="buy-bar-row">';
     html += `<button class="btn btn-secondary" onclick="toggleBuyMode()">Бекор кардан</button>`;
@@ -912,9 +938,26 @@ function adminLogin(){
 }
 function confirmGameLogout(){
   playClick('game');
-  if(confirm('Шумо мутмаинед, ки мехоҳед аз ҳисоби худ бароед?')){
-    logout('game');
-  }
+  openLogoutConfirmModal();
+}
+function openLogoutConfirmModal(){
+  closeModal('logoutConfirmOverlay');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'logoutConfirmOverlay';
+  overlay.style.zIndex = '97';
+  overlay.innerHTML = `
+    <div class="modal-sheet theme-game">
+      <div class="modal-handle"></div>
+      <div class="modal-title">🚪 Баромад аз ҳисоб</div>
+      <p class="modal-sub">Шумо мутмаинед, ки мехоҳед аз ҳисоби худ бароед?</p>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="playSuccess('game'); closeModal('logoutConfirmOverlay'); logout('game');">Ҳа, баромадан</button>
+        <button class="btn btn-secondary" onclick="playError('game'); closeModal('logoutConfirmOverlay');">Не, мондан</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ playError('game'); closeModal('logoutConfirmOverlay'); } });
 }
 function logout(which){
   if(which!=='game') playClick(which);
