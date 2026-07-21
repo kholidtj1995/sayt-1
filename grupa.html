@@ -65,11 +65,11 @@ input{font-family:inherit;}
 /* Вакте корбар тугмаеро пахш мекунад, ранги тексташ дигар мешавад */
 button:active{ color:var(--accent) !important; transition:color .12s ease; }
 
-/* Иконаи корбар (авaтар + ном), клик = баромадан аз ҳисоб */
+/* Иконаи корбар (авaтар + ном) */
 .user-badge{
   display:flex; align-items:center; gap:6px; background:var(--card);
   border:1px solid var(--border); border-radius:20px; padding:4px 10px 4px 4px;
-  cursor:pointer; max-width:150px;
+  max-width:150px;
 }
 .user-badge-avatar{
   width:26px;height:26px;border-radius:50%;background-size:cover;background-position:center;
@@ -319,7 +319,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
       <h2 class="tab-title">Чат</h2>
       <div class="header-actions">
         <button type="button" id="main-back-btn" class="icon-btn" title="Бозгашт">↩</button>
-        <div id="main-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
+        <div id="main-user-badge" class="user-badge">
           <div id="main-user-avatar" class="user-badge-avatar"></div>
           <span id="main-user-name" class="user-badge-name"></span>
         </div>
@@ -341,7 +341,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
       <div class="group-welcome-row">
         <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
         <div class="header-actions" style="margin-left:auto;">
-          <div id="group-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
+          <div id="group-user-badge" class="user-badge">
             <div id="group-user-avatar" class="user-badge-avatar"></div>
             <span id="group-user-name" class="user-badge-name"></span>
           </div>
@@ -896,11 +896,8 @@ function renderGroupHeader(groupId, g) {
   subBtn.classList.toggle("subscribed", subscribed);
   subBtn.onclick = () => {
     if (subscribed) {
-      showConfirm("Пас аз бекор кардани обуна шумо аз ҳисоби худ мебароед. Мутмаин ҳастед?", true, () => {
+      showConfirm("Оё мутмаин ҳастед, ки мехоҳед обунаро бекор кунед?", true, () => {
         groupsRef.child(groupId).child("subscribers").child(ME.uid).set(null);
-        localStorage.removeItem("lc_profile");
-        ME = null;
-        location.reload();
       });
     } else {
       groupsRef.child(groupId).child("subscribers").child(ME.uid).set(true);
@@ -1232,14 +1229,6 @@ function applyNoGroupUI(groups) {
   }
 }
 
-function logoutFully() {
-  showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
-    localStorage.removeItem("lc_profile");
-    ME = null;
-    location.reload();
-  });
-}
-
 function goToExternalSite() {
   window.location.href = EXTERNAL_RETURN_URL;
 }
@@ -1247,10 +1236,6 @@ function goToExternalSite() {
 function init() {
   // Тугмаи "Бозгашт" дар экрани чат — танҳо ба сомонаи беруна мебарад
   $("#main-back-btn").addEventListener("click", goToExternalSite);
-
-  // Иконаи корбар (авaтар + ном) — клик = баромадан аз ҳисоби худ
-  $("#main-user-badge").addEventListener("click", logoutFully);
-  $("#group-user-badge").addEventListener("click", logoutFully);
 
   $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
