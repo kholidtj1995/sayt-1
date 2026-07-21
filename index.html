@@ -296,6 +296,15 @@
     color:var(--text-muted); font-size:0.85rem; gap:10px; flex-direction:column;
   }
 
+  /* Group modal — модали гурӯҳ (иборат аз ҳамон стил, вале id-и алоҳида) */
+  #groupModalOverlay{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center; padding:12px;
+    background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #groupModalOverlay.show{ opacity:1; pointer-events:auto; }
+
   /* Connection overlay */
   #connOverlay{
     position:fixed; inset:0; z-index:150;
@@ -443,6 +452,23 @@
         <span>Чат бор карда мешавад...</span>
       </div>
       <iframe id="chatFrame" title="Чат" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP MODAL -->
+<div id="groupModalOverlay">
+  <div class="chat-modal">
+    <div class="chat-modal-head">
+      <h3>Гурӯҳ</h3>
+      <button class="chat-modal-close" id="groupModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body">
+      <div class="chat-modal-loading" id="groupLoading">
+        <div class="splash-ring" style="width:32px;height:32px;"></div>
+        <span>Гурӯҳ бор карда мешавад...</span>
+      </div>
+      <iframe id="groupFrame" title="Гурӯҳ" src="about:blank"></iframe>
     </div>
   </div>
 </div>
@@ -737,8 +763,48 @@ function watchChatMessages(username){
   });
 }
 
-groupBtn.addEventListener("click", () => {
-  // TODO: кушодани гурӯҳ
+/* ---------------- Гурӯҳ: чун чат — пешакӣ бор мешавад, то тугма зуд кор кунад ---------------- */
+const groupModalOverlay = document.getElementById("groupModalOverlay");
+const groupModalClose = document.getElementById("groupModalClose");
+const groupFrame = document.getElementById("groupFrame");
+const groupLoading = document.getElementById("groupLoading");
+const GROUP_BASE_URL = "https://kholidtj1995.github.io/sayt-1/grupa.html";
+let groupLoaded = false;
+let groupFrameReady = false;
+
+function preloadGroupFrame(){
+  if(groupLoaded) return;
+  groupLoaded = true;
+  groupFrame.addEventListener("load", () => { groupFrameReady = true; }, { once:true });
+  groupFrame.src = GROUP_BASE_URL;
+}
+
+function openGroupModal(){
+  if(!groupLoaded){
+    preloadGroupFrame();
+  }
+  if(!groupFrameReady){
+    groupLoading.style.display = "flex";
+    groupFrame.addEventListener("load", () => { groupLoading.style.display = "none"; }, { once:true });
+  } else {
+    groupLoading.style.display = "none";
+  }
+  groupModalOverlay.classList.add("show");
+  sound.open();
+  document.body.style.overflow = "hidden";
+}
+function closeGroupModal(){
+  groupModalOverlay.classList.remove("show");
+  sound.close();
+  document.body.style.overflow = "";
+}
+groupBtn.addEventListener("click", openGroupModal);
+groupModalClose.addEventListener("click", closeGroupModal);
+groupModalOverlay.addEventListener("click", (e) => {
+  if(e.target === groupModalOverlay) closeGroupModal();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && groupModalOverlay.classList.contains("show")) closeGroupModal();
 });
 
 function fillUserBadge(user){
@@ -752,6 +818,8 @@ function showHome(){
   home.classList.remove("hidden");
   // Тугмаи чат зуд кор кунад — чатро аллакай ҳамин ҷо, дар паси парда, бор мекунем
   setTimeout(preloadChatFrame, 600);
+  // Тугмаи гурӯҳ низ зуд кор кунад — гурӯҳро низ пешакӣ дар паси парда бор мекунем
+  setTimeout(preloadGroupFrame, 800);
 }
 
 function showLogin(){
