@@ -650,6 +650,7 @@ const chatFrame = document.getElementById("chatFrame");
 const chatLoading = document.getElementById("chatLoading");
 const CHAT_BASE_URL = "https://kholidtj1995.github.io/sayt-1/chat.html";
 let chatLoaded = false;
+let chatFrameReady = false;
 
 function buildChatUrl(){
   try{
@@ -665,12 +666,23 @@ function buildChatUrl(){
   return CHAT_BASE_URL;
 }
 
+// Пешакӣ бор кардани чат дар паси парда (background), то тугмаи чат зуд кушода шавад бе интизорӣ
+function preloadChatFrame(){
+  if(chatLoaded) return;
+  chatLoaded = true;
+  chatFrame.addEventListener("load", () => { chatFrameReady = true; }, { once:true });
+  chatFrame.src = buildChatUrl();
+}
+
 function openChatModal(){
   if(!chatLoaded){
+    preloadChatFrame();
+  }
+  if(!chatFrameReady){
     chatLoading.style.display = "flex";
     chatFrame.addEventListener("load", () => { chatLoading.style.display = "none"; }, { once:true });
-    chatFrame.src = buildChatUrl();
-    chatLoaded = true;
+  } else {
+    chatLoading.style.display = "none";
   }
   chatModalOverlay.classList.add("show");
   sound.open();
@@ -738,6 +750,8 @@ function showHome(){
   loginScreen.classList.add("hidden");
   splash.classList.add("hidden");
   home.classList.remove("hidden");
+  // Тугмаи чат зуд кор кунад — чатро аллакай ҳамин ҷо, дар паси парда, бор мекунем
+  setTimeout(preloadChatFrame, 600);
 }
 
 function showLogin(){
