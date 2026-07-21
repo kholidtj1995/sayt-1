@@ -155,21 +155,31 @@
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
   }
-  .brand{ display:flex; align-items:center; gap:12px; }
-  .brand-mark.sm{ width:42px; height:42px; }
+  .brand{ display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; }
+  .brand-mark.sm{ width:42px; height:42px; flex-shrink:0; }
   .brand-mark.sm svg{ width:20px; height:20px; }
-  .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; }
-  .brand-text span{ font-size:0.72rem; color:var(--text-muted); }
-  .top-actions{ display:flex; align-items:center; gap:14px; }
+  .brand-text{ min-width:0; overflow:hidden; }
+  .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text span{ font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+  .top-actions{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
   .icon-btn{
     width:38px; height:38px; border-radius:var(--radius-sm);
     background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     transition:all .15s;
   }
-  .icon-btn:hover{ background:var(--surface); border-color:var(--gold); color:var(--gold-2); }
+  .icon-btn:hover{ background:var(--surface); }
   .icon-btn:active{ transform:scale(0.88); }
   .icon-btn svg{ width:17px; height:17px; }
+
+  .icon-group{
+    display:flex; align-items:center; gap:4px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    height:38px; padding:0 4px;
+  }
+  .icon-group .icon-btn{
+    width:30px; height:30px;
+  }
 
   .action-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
   .action-card{
@@ -328,13 +338,26 @@
 
   @media (max-width:640px){
     .action-row{ grid-template-columns:1fr; }
-    header.topbar{ flex-wrap:wrap; }
-    .brand-text span{ display:none; }
+    header.topbar{ flex-wrap:nowrap; padding:12px 14px; gap:8px; }
+    .brand{ gap:8px; }
+    .brand-text span{ font-size:0.62rem; }
+    .top-actions{ gap:6px; }
     .ball-grid{ --ball-size:32px; }
     #dashboard{ padding:14px 12px 50px; }
     .panel{ padding:16px 12px; }
     .prizes-box{ padding:10px 6px; }
     .prize-card{ flex:0 0 104px; padding:12px 8px; }
+  }
+
+  @media (max-width:380px){
+    .brand-mark.sm{ width:36px; height:36px; }
+    .brand-mark.sm svg{ width:17px; height:17px; }
+    .brand-text h1{ font-size:0.98rem; }
+    .brand-text span{ font-size:0.58rem; }
+    .icon-group{ height:34px; }
+    .icon-group .icon-btn{ width:26px; height:26px; }
+    .icon-btn{ width:34px; height:34px; }
+    .top-actions{ gap:4px; }
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -394,21 +417,28 @@
 <div id="dashboard" class="hidden">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark sm">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1b1206" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
-      </div>
       <div class="brand-text">
         <h1>ҚУРЪА</h1>
         <span>Утоқи идоракунӣ</span>
       </div>
     </div>
     <div class="top-actions">
-      <button class="icon-btn" id="usersBtn" title="Корбарон">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      </button>
-      <button class="icon-btn" id="notifBtn" title="Огоҳиномаҳо">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      </button>
+      <div class="icon-group">
+        <button class="icon-btn" id="chatBtn" title="Чат">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </button>
+        <button class="icon-btn" id="groupBtn" title="Гурӯҳ">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+      <div class="icon-group">
+        <button class="icon-btn" id="usersBtn" title="Корбарон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+        <button class="icon-btn" id="notifBtn" title="Огоҳиномаҳо">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </button>
+      </div>
       <button class="icon-btn" id="logoutBtn" title="Баромадан">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       </button>
@@ -756,6 +786,14 @@ document.getElementById("logoutConfirmBtn").addEventListener("click", () => {
   closeModal("logoutModal");
   localStorage.removeItem(LS_KEY);
   showLogin();
+});
+
+document.getElementById("chatBtn").addEventListener("click", () => {
+  showToast("Бахши чат ба зудӣ дастрас мешавад", "info");
+});
+
+document.getElementById("groupBtn").addEventListener("click", () => {
+  showToast("Бахши гурӯҳ ба зудӣ дастрас мешавад", "info");
 });
 
 document.getElementById("usersBtn").addEventListener("click", () => {
