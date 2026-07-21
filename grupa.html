@@ -339,7 +339,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
   <section id="screen-group" class="screen">
     <div class="group-topbar">
       <div class="group-welcome-row">
-        <button type="button" id="group-back-btn" class="back-btn">←</button>
         <div id="group-welcome-text" class="group-welcome-text">Хуш омадед</div>
         <div class="header-actions" style="margin-left:auto;">
           <div id="group-user-badge" class="user-badge" title="Баромадан аз ҳисоби худ">
@@ -415,6 +414,10 @@ const TS = firebase.database.ServerValue.TIMESTAMP;
 
 /* Ҷои бозгашт — ба ин суроға баргардем (на баромадан аз ҳисоб) */
 const EXTERNAL_RETURN_URL = "https://kholidtj1995.github.io/sayt-1/index.html";
+
+/* Номи корбар аз саҳифаи асосӣ (index.html), агар тавассути тугмаи гурӯҳ ворид шуда бошад */
+const urlParams = new URLSearchParams(window.location.search);
+const autoName = (urlParams.get("name") || "").trim();
 
 /* ===================== State ===================== */
 let ME = null;
@@ -764,9 +767,14 @@ function loadMe() {
   }
   if (!ME) {
     const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23232945'/%3E%3Ctext x='50' y='62' font-size='42' text-anchor='middle' fill='%23E7A93C' font-family='sans-serif'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
-    ME = { uid: uid(), name: "Корбар " + Math.floor(1000 + Math.random() * 9000), avatar: defaultAvatar };
+    ME = { uid: uid(), name: autoName || ("Корбар " + Math.floor(1000 + Math.random() * 9000)), avatar: defaultAvatar };
     saveMe();
     db.ref("users/" + ME.uid).set({ name: ME.name, avatar: ME.avatar, createdAt: TS });
+  } else if (autoName && ME.name !== autoName) {
+    // Корбар аз тугмаи гурӯҳ дар index.html омадааст — номи ӯро дар гурӯҳ низ мутобиқ мекунем
+    ME.name = autoName;
+    saveMe();
+    db.ref("users/" + ME.uid).update({ name: ME.name });
   }
 }
 function saveMe() {
@@ -1244,7 +1252,6 @@ function init() {
   $("#main-user-badge").addEventListener("click", logoutFully);
   $("#group-user-badge").addEventListener("click", logoutFully);
 
-  $("#group-back-btn").addEventListener("click", closeGroup);
   $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
   $("#nogroup-ok").addEventListener("click", () => closeModal("modal-nogroup"));
