@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="google" content="notranslate" />
+<meta name="robots" content="notranslate" />
+<meta name="color-scheme" content="dark light" />
+<title>ҚУРЪА</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f1c;
+    --bg-2:#0d1426;
+    --surface:#121b30;
+    --surface-2:#182241;
+    --border:rgba(255,255,255,0.08);
+    --gold:#e8b84b;
+    --gold-2:#f4d374;
+    --gold-dark:#a9781f;
+    --crimson:#e2536b;
+    --text:#f3efe7;
+    --text-muted:#8c93a8;
+    --text-dim:#5c6479;
+    --radius:20px;
+    --radius-sm:12px;
+    --shadow-lg:0 20px 60px rgba(0,0,0,0.45);
+    color-scheme: dark;
+    font-size:16px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{
+    height:100%; width:100%;
+    overflow:hidden; position:fixed; inset:0;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+    -webkit-user-select:none; -moz-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
+  input, textarea{
+    -webkit-user-select:text; -moz-user-select:text; user-select:text;
+  }
+  body{
+    margin:0; height:100%; width:100%;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,184,75,0.10), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(63,191,143,0.08), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(226,83,107,0.06), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Unbounded', sans-serif; letter-spacing:-0.01em; }
+  button{ font-family:inherit; }
+  .hidden{ display:none !important; }
+
+  /* Splash */
+  #splash{
+    position:fixed; inset:0; z-index:100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--bg); gap:18px;
+  }
+  .splash-ring{
+    width:56px; height:56px; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #splash p{ color:var(--text-muted); font-size:0.9rem; }
+
+  /* Login / Register */
+  #loginScreen{
+    height:100%; overflow-y:auto; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:400px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:40px 32px 32px; box-shadow:var(--shadow-lg); text-align:center;
+    animation:cardIn 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(16px) scale(0.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .brand-mark{
+    width:64px; height:64px; margin:0 auto 18px; border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(232,184,75,0.35), inset 0 -4px 8px rgba(0,0,0,0.25);
+  }
+  .brand-mark svg{ width:30px; height:30px; }
+  .login-card h1{ font-size:1.5rem; margin:0 0 6px; }
+  .login-card .sub{ color:var(--text-muted); font-size:0.88rem; margin:0 0 28px; line-height:1.5; }
+  .field{ text-align:left; margin-bottom:16px; }
+  .field label{ display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
+  .field input{
+    width:100%; padding:13px 14px; border-radius:var(--radius-sm);
+    background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    font-size:0.95rem; transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(232,184,75,0.15); outline:none; }
+  .btn{
+    border:none; cursor:pointer; border-radius:var(--radius-sm);
+    font-weight:700; font-size:0.95rem; padding:13px 20px;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206; box-shadow:0 8px 20px rgba(232,184,75,0.25); width:100%; }
+  .btn-primary:hover{ filter:brightness(1.06); box-shadow:0 10px 26px rgba(232,184,75,0.35); }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+  .login-error{ color:var(--crimson); font-size:0.82rem; margin-top:14px; min-height:18px; font-weight:600; }
+
+  /* Home screen */
+  #appRoot{ height:100%; }
+  #home{ height:100%; display:flex; flex-direction:column; }
+  #homeContent{ flex:1; overflow-y:auto; min-height:0; }
+  .tab-screen{ display:none; padding:24px 18px 32px; }
+  .tab-screen.active{ display:block; }
+  .placeholder-screen{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:10px; padding:60px 24px; color:var(--text-muted);
+  }
+  .placeholder-screen svg{ width:40px; height:40px; opacity:0.5; }
+  .placeholder-screen p{ font-size:0.9rem; margin:0; }
+
+  #bottomNav{
+    display:flex; align-items:center; justify-content:flex-start;
+    flex-shrink:0; gap:4px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border-top:1px solid var(--border);
+    border-radius:26px 26px 0 0;
+    padding:10px 8px calc(10px + env(safe-area-inset-bottom)) 18px;
+    position:relative; z-index:20;
+  }
+  .nav-item{
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    background:none; border:none; cursor:pointer; flex-shrink:0;
+  }
+  .nav-item .nav-circle{
+    display:flex; align-items:center; justify-content:center;
+    width:52px; height:52px; border-radius:50%;
+    background:#ffffff; border:1px solid var(--border); color:#ffffff;
+  }
+  .nav-item svg{ width:23px; height:23px; }
+  .nav-item span{ font-size:0.7rem; font-weight:600; color:#ffffff; }
+  .nav-item:active{ transform:scale(0.93); }
+  .nav-item.active .nav-circle{ color:#1b1206; background:var(--gold); border-color:transparent; }
+  .nav-item.active span{ color:var(--gold); }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:flex-start; gap:12px;
+    padding:16px 18px 22px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border-bottom:1px solid var(--border);
+    border-radius:0 0 26px 26px;
+    position:relative; z-index:20;
+  }
+  .icon-btn{
+    width:44px; height:44px; flex-shrink:0; border-radius:var(--radius-sm);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s; -webkit-tap-highlight-color:transparent;
+  }
+  .icon-btn:hover{ filter:brightness(1.15); }
+  .icon-btn:active{ transform:scale(0.93); }
+  .icon-btn svg{ width:20px; height:20px; }
+  #cartBtn{ margin-left:auto; }
+
+  .user-badge{
+    display:flex; align-items:center; gap:10px; justify-content:flex-start;
+    background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    height:44px; padding:0 10px 0 12px;
+  }
+  .badge-btn{
+    width:32px; height:32px; flex-shrink:0; border-radius:8px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s; -webkit-tap-highlight-color:transparent;
+    position:relative;
+  }
+  .badge-btn:hover{ filter:brightness(1.15); }
+  .badge-btn:active{ transform:scale(0.93); }
+  .badge-btn svg{ width:16px; height:16px; }
+  .chat-badge{
+    position:absolute; top:-5px; right:-5px; min-width:17px; height:17px; padding:0 4px;
+    border-radius:9px; background:var(--crimson); color:#fff; font-size:0.62rem; font-weight:800;
+    align-items:center; justify-content:center; line-height:1;
+    box-shadow:0 0 0 2px var(--surface);
+    display:none;
+    animation:badgePop .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .chat-badge.show{ display:flex; }
+  @keyframes badgePop{ from{ transform:scale(0.4); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .user-badge .avatar{
+    width:32px; height:32px; border-radius:8px; flex-shrink:0; position:relative;
+    background:radial-gradient(circle at 32% 28%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .user-badge .avatar svg{ width:18px; height:18px; color:#1b1206; }
+  .user-badge .avatar .status-dot{
+    position:absolute; bottom:-1px; right:-1px; width:11px; height:11px;
+    border-radius:50%; background:var(--emerald, #3fbf8f); border:2px solid var(--surface);
+    animation:blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(63,191,143,0.6);} 50%{ opacity:0.55; box-shadow:0 0 0 4px rgba(63,191,143,0);} }
+  .user-badge .info{ text-align:left; overflow:hidden; }
+  .user-badge .info .u-name{ font-size:0.85rem; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .user-badge .info .u-phone{ font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* Side menu */
+  #menuOverlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:29;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+  }
+  #menuOverlay.show{ opacity:1; pointer-events:auto; }
+  #sideMenu{
+    position:fixed; top:0; left:0; height:100%; width:260px; max-width:80vw;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border-right:1px solid var(--border);
+    box-shadow:var(--shadow-lg);
+    z-index:30; padding:24px 18px;
+    transform:translateX(-100%); transition:transform .28s cubic-bezier(.2,.8,.2,1);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  #sideMenu.open{ transform:translateX(0); }
+  #sideMenu h3{ font-size:1rem; margin:0 0 14px; color:var(--text); }
+  .menu-item{
+    display:flex; align-items:center; gap:12px; width:100%;
+    padding:12px 14px; border-radius:var(--radius-sm);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    font-size:0.9rem; font-weight:600; cursor:pointer; text-align:left;
+    transition:all .15s;
+  }
+  .menu-item:hover{ filter:brightness(1.15); }
+  .menu-item svg{ width:18px; height:18px; flex-shrink:0; }
+  .menu-item-danger{ margin-top:auto; color:var(--crimson); }
+  .menu-item-danger svg{ color:var(--crimson); }
+
+  /* Logout confirm overlay */
+  #logoutConfirmOverlay{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #logoutConfirmOverlay.show{ opacity:1; pointer-events:auto; }
+  .confirm-card{
+    width:100%; max-width:320px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 20px; box-shadow:var(--shadow-lg); text-align:center;
+    animation:cardIn 0.3s cubic-bezier(.2,.8,.2,1);
+  }
+  .confirm-card p{ color:var(--text); font-size:0.95rem; margin:0 0 20px; line-height:1.5; }
+  .confirm-actions{ display:flex; gap:10px; }
+  .confirm-actions .btn{ flex:1; padding:11px 16px; font-size:0.88rem; }
+  .btn-ghost{ background:var(--surface-2); color:var(--text); }
+  .btn-ghost:hover{ filter:brightness(1.15); }
+  .btn-danger{ background:linear-gradient(180deg,#ec6b7f,var(--crimson)); color:#fff; box-shadow:0 8px 20px rgba(226,83,107,0.25); }
+  .btn-danger:hover{ filter:brightness(1.08); }
+
+  /* Chat modal */
+  #chatModalOverlay{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center; padding:12px;
+    background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #chatModalOverlay.show{ opacity:1; pointer-events:auto; }
+  .chat-modal{
+    width:100%; max-width:900px; height:100%; max-height:820px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--shadow-lg); animation:cardIn 0.3s cubic-bezier(.2,.8,.2,1);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .chat-modal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; border-bottom:1px solid var(--border); flex-shrink:0;
+  }
+  .chat-modal-head h3{ font-size:1.05rem; margin:0; }
+  .chat-modal-close{
+    width:30px; height:30px; border-radius:8px; border:none;
+    background:var(--surface-2); color:var(--text-muted); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .chat-modal-close:hover{ background:var(--crimson); color:#fff; }
+  .chat-modal-close svg{ width:15px; height:15px; }
+  .chat-modal-body{ flex:1 1 auto; position:relative; background:var(--bg-2); }
+  .chat-modal-body iframe{ position:absolute; inset:0; width:100%; height:100%; border:none; }
+  .chat-modal-loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--text-muted); font-size:0.85rem; gap:10px; flex-direction:column;
+  }
+
+  /* Connection overlay */
+  #connOverlay{
+    position:fixed; inset:0; z-index:150;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+    background:rgba(8,12,22,0.62);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    text-align:center; padding:24px;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  #connOverlay.show{ opacity:1; pointer-events:auto; }
+  #connOverlay .conn-ring{
+    width:48px; height:48px; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  #connOverlay .conn-title{ font-family:'Unbounded', sans-serif; font-size:1rem; color:var(--text); margin:0; }
+  #connOverlay .conn-sub{ color:var(--text-muted); font-size:0.85rem; max-width:280px; margin:0; line-height:1.5; }
+  #appRoot.conn-blur{ filter:blur(6px); transition:filter .3s ease; pointer-events:none; }
+
+  /* Light theme */
+  body.light{
+    color-scheme: light;
+    --bg:#f4f1ea;
+    --bg-2:#ffffff;
+    --surface:#ffffff;
+    --surface-2:#eee9dc;
+    --border:rgba(20,15,5,0.10);
+    --text:#1c1b17;
+    --text-muted:#6b6558;
+    --text-dim:#95917f;
+    --shadow-lg:0 10px 26px rgba(20,15,5,0.10);
+  }
+</style>
+</head>
+<body>
+
+<div id="appRoot">
+<div id="splash">
+  <div class="splash-ring"></div>
+  <p>Пайваст шудан ба система...</p>
+</div>
+
+<!-- LOGIN / REGISTER SCREEN -->
+<div id="loginScreen" class="hidden">
+  <div class="login-card">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1b1206" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <h1>ҚУРЪА</h1>
+    <p class="sub">Барои ворид шудан ном ва рақами телефони худро нависед</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="nameInput">Ном</label>
+        <input type="text" id="nameInput" placeholder="Номи шумо" autocomplete="off" required />
+      </div>
+      <div class="field">
+        <label for="phoneInput">Рақами телефон</label>
+        <input type="tel" id="phoneInput" placeholder="+992 ХХ ХХХ ХХ ХХ" autocomplete="off" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="home" class="hidden">
+  <div class="topbar">
+    <button class="icon-btn" id="menuBtn" title="Меню">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="user-badge">
+      <div class="avatar" id="userAvatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="status-dot"></span>
+      </div>
+      <div class="info">
+        <div class="u-name" id="userName">—</div>
+        <div class="u-phone" id="userPhone">—</div>
+      </div>
+      <button class="badge-btn" id="chatBtn" title="Чат">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        <span class="chat-badge" id="chatBadge"></span>
+      </button>
+      <button class="badge-btn" id="groupBtn" title="Гурӯҳ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </button>
+    </div>
+    <button class="icon-btn" id="cartBtn" title="Корзина">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    </button>
+  </div>
+
+  <div id="homeContent">
+    <div class="tab-screen active" id="screen-main">
+      <!-- Мундариҷаи асосии барнома дар ин ҷо ҷойгир мешавад -->
+    </div>
+  </div>
+
+  <nav id="bottomNav">
+    <button class="nav-item active" data-tab="main" title="Асосӣ">
+      <span class="nav-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>
+      </span>
+      <span>Асосӣ</span>
+    </button>
+  </nav>
+</div>
+
+<div id="menuOverlay"></div>
+<div id="sideMenu">
+  <h3>Меню</h3>
+  <button class="menu-item" id="themeToggleBtn">
+    <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+    <span id="themeLabel">Ҳолати равшан</span>
+  </button>
+  <button class="menu-item menu-item-danger" id="logoutBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    <span>Баромадан аз барнома</span>
+  </button>
+</div>
+</div><!-- /appRoot -->
+
+<!-- LOGOUT CONFIRM OVERLAY -->
+<div id="logoutConfirmOverlay">
+  <div class="confirm-card">
+    <p>Оё мутмаин ҳастед, ки мехоҳед аз ҳисоби худ бароед?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="logoutCancelBtn">Не</button>
+      <button class="btn btn-danger" id="logoutConfirmBtn">Ҳа, баромадан</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div id="chatModalOverlay">
+  <div class="chat-modal">
+    <div class="chat-modal-head">
+      <h3>Чат</h3>
+      <button class="chat-modal-close" id="chatModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body">
+      <div class="chat-modal-loading" id="chatLoading">
+        <div class="splash-ring" style="width:32px;height:32px;"></div>
+        <span>Чат бор карда мешавад...</span>
+      </div>
+      <iframe id="chatFrame" title="Чат" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECTION STATUS OVERLAY -->
+<div id="connOverlay">
+  <div class="conn-ring"></div>
+  <p class="conn-title" id="connTitle">Пайваст шудан...</p>
+  <p class="conn-sub" id="connSub">Интернети шумо суст аст. Лутфан интизор шавед.</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getDatabase, ref, set, push, onValue
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+  authDomain: "live-chat-ea070.firebaseapp.com",
+  databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+  projectId: "live-chat-ea070",
+  storageBucket: "live-chat-ea070.firebasestorage.app",
+  messagingSenderId: "321161064947",
+  appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ---------------- Sound ---------------- */
+let actx = null;
+let pendingTones = [];
+function ensureAudio(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return;
+  if(!actx) actx = new AC();
+  if(actx.state === "suspended") actx.resume();
+  if(pendingTones.length){
+    const queued = pendingTones;
+    pendingTones = [];
+    queued.forEach(fn => fn());
+  }
+}
+document.addEventListener("pointerdown", ensureAudio, { once:true });
+
+function tone(freq, dur=0.09, type="sine", vol=0.045, delay=0){
+  if(!actx || actx.state === "suspended"){
+    if(pendingTones.length < 10) pendingTones.push(() => tone(freq, dur, type, vol, delay));
+    return;
+  }
+  const t0 = actx.currentTime + delay;
+  const osc = actx.createOscillator();
+  const gain = actx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain).connect(actx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+const sound = {
+  click: () => tone(520, 0.06, "sine", 0.035),
+  open:  () => tone(480, 0.07, "sine", 0.035),
+  close: () => tone(340, 0.06, "sine", 0.03),
+  success: () => { tone(660, 0.09, "sine", 0.05); tone(880, 0.14, "sine", 0.05, 0.09); },
+  error: () => tone(200, 0.22, "sawtooth", 0.05),
+  receive: () => { tone(700, 0.08, "sine", 0.05); tone(900, 0.1, "sine", 0.045, 0.07); },
+};
+document.addEventListener("click", (e) => {
+  if(e.target.closest(".btn, .icon-btn, .menu-item, .badge-btn, .nav-item")) sound.click();
+});
+
+/* ---------------- Internet connectivity check ---------------- */
+const connOverlay = document.getElementById("connOverlay");
+const connTitle = document.getElementById("connTitle");
+const connSub = document.getElementById("connSub");
+const appRoot = document.getElementById("appRoot");
+
+const SLOW_THRESHOLD_MS = 2000;
+const CHECK_INTERVAL_MS = 2500;
+const PING_URL = "https://www.gstatic.com/generate_204?t=";
+
+let connState = "online"; // online | slow | offline
+let checkInFlight = false;
+
+function setConnState(state){
+  if(connState === state) return;
+  connState = state;
+  if(state === "offline"){
+    connTitle.textContent = "Интернет қатъ шуд";
+    connSub.textContent = "Пайвастагӣ бо интернет қатъ шуд. Лутфан пайвастагии худро санҷед.";
+    connOverlay.classList.add("show");
+    appRoot.classList.add("conn-blur");
+  } else if(state === "slow"){
+    connTitle.textContent = "Интернети шумо суст аст";
+    connSub.textContent = "Лутфан интизор шавед, пайвастагӣ дар ҳоли барқарор шудан аст...";
+    connOverlay.classList.add("show");
+    appRoot.classList.add("conn-blur");
+  } else {
+    connOverlay.classList.remove("show");
+    appRoot.classList.remove("conn-blur");
+  }
+}
+
+async function checkConnection(){
+  if(checkInFlight) return;
+  checkInFlight = true;
+  if(!navigator.onLine){
+    setConnState("offline");
+    checkInFlight = false;
+    return;
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SLOW_THRESHOLD_MS);
+  const started = performance.now();
+  try{
+    await fetch(PING_URL + Date.now(), { mode:"no-cors", cache:"no-store", signal: controller.signal });
+    const elapsed = performance.now() - started;
+    clearTimeout(timeoutId);
+    setConnState(elapsed > SLOW_THRESHOLD_MS ? "slow" : "online");
+  } catch(err){
+    clearTimeout(timeoutId);
+    setConnState(navigator.onLine ? "slow" : "offline");
+  } finally {
+    checkInFlight = false;
+  }
+}
+
+window.addEventListener("online", checkConnection);
+window.addEventListener("offline", () => setConnState("offline"));
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") checkConnection(); });
+checkConnection();
+setInterval(checkConnection, CHECK_INTERVAL_MS);
+
+const LS_KEY = "qura_user";
+
+const splash = document.getElementById("splash");
+const loginScreen = document.getElementById("loginScreen");
+const home = document.getElementById("home");
+const loginForm = document.getElementById("loginForm");
+const nameInput = document.getElementById("nameInput");
+const phoneInput = document.getElementById("phoneInput");
+const loginError = document.getElementById("loginError");
+const loginBtn = document.getElementById("loginBtn");
+
+const menuBtn = document.getElementById("menuBtn");
+const menuOverlay = document.getElementById("menuOverlay");
+const sideMenu = document.getElementById("sideMenu");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const themeLabel = document.getElementById("themeLabel");
+const logoutBtn = document.getElementById("logoutBtn");
+const logoutConfirmOverlay = document.getElementById("logoutConfirmOverlay");
+const logoutCancelBtn = document.getElementById("logoutCancelBtn");
+const logoutConfirmBtn = document.getElementById("logoutConfirmBtn");
+const bottomNav = document.getElementById("bottomNav");
+const navItems = bottomNav.querySelectorAll(".nav-item");
+const cartBtn = document.getElementById("cartBtn");
+const chatBtn = document.getElementById("chatBtn");
+const groupBtn = document.getElementById("groupBtn");
+const userAvatar = document.getElementById("userAvatar");
+const userName = document.getElementById("userName");
+const userPhone = document.getElementById("userPhone");
+
+function openMenu(){
+  sideMenu.classList.add("open");
+  menuOverlay.classList.add("show");
+  sound.open();
+}
+function closeMenu(){
+  sideMenu.classList.remove("open");
+  menuOverlay.classList.remove("show");
+  sound.close();
+}
+menuBtn.addEventListener("click", openMenu);
+menuOverlay.addEventListener("click", closeMenu);
+
+const THEME_KEY = "qura_theme";
+function applyTheme(theme){
+  if(theme === "light"){
+    document.body.classList.add("light");
+    themeLabel.textContent = "Ҳолати торик";
+  } else {
+    document.body.classList.remove("light");
+    themeLabel.textContent = "Ҳолати равшан";
+  }
+  localStorage.setItem(THEME_KEY, theme);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+themeToggleBtn.addEventListener("click", () => {
+  const isLight = document.body.classList.contains("light");
+  applyTheme(isLight ? "dark" : "light");
+  closeMenu();
+});
+
+cartBtn.addEventListener("click", () => {
+  // TODO: кушодани корзина
+});
+
+const chatModalOverlay = document.getElementById("chatModalOverlay");
+const chatModalClose = document.getElementById("chatModalClose");
+const chatFrame = document.getElementById("chatFrame");
+const chatLoading = document.getElementById("chatLoading");
+const CHAT_BASE_URL = "https://kholidtj1995.github.io/sayt-1/chat.html";
+let chatLoaded = false;
+
+function buildChatUrl(){
+  try{
+    const saved = localStorage.getItem(LS_KEY);
+    if(saved){
+      const user = JSON.parse(saved);
+      if(user && user.name && user.phone){
+        const params = new URLSearchParams({ name: user.name, phone: user.phone });
+        return CHAT_BASE_URL + "?" + params.toString();
+      }
+    }
+  } catch(err){}
+  return CHAT_BASE_URL;
+}
+
+function openChatModal(){
+  if(!chatLoaded){
+    chatLoading.style.display = "flex";
+    chatFrame.addEventListener("load", () => { chatLoading.style.display = "none"; }, { once:true });
+    chatFrame.src = buildChatUrl();
+    chatLoaded = true;
+  }
+  chatModalOverlay.classList.add("show");
+  sound.open();
+  document.body.style.overflow = "hidden";
+}
+function closeChatModal(){
+  chatModalOverlay.classList.remove("show");
+  sound.close();
+  document.body.style.overflow = "";
+}
+chatBtn.addEventListener("click", openChatModal);
+chatModalClose.addEventListener("click", closeChatModal);
+chatModalOverlay.addEventListener("click", (e) => {
+  if(e.target === chatModalOverlay) closeChatModal();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && chatModalOverlay.classList.contains("show")) closeChatModal();
+});
+
+/* ---------------- Шумориши паёмҳои нахондаи чат + садо барои паёми нав ---------------- */
+const chatBadge = document.getElementById("chatBadge");
+let chatUnreadPrevKeys = null;
+let chatUnreadInitialLoadDone = false;
+
+function updateChatBadge(count){
+  if(!chatBadge) return;
+  if(count > 0){
+    chatBadge.textContent = count > 99 ? "99+" : String(count);
+    chatBadge.classList.add("show");
+  } else {
+    chatBadge.classList.remove("show");
+  }
+}
+
+function watchChatMessages(username){
+  if(!username) return;
+  chatUnreadPrevKeys = new Set();
+  chatUnreadInitialLoadDone = false;
+  onValue(ref(db, "sayt1_chats/" + username), (snap) => {
+    const data = snap.val() || {};
+    const unseenKeys = Object.keys(data).filter(k => data[k].user !== username && !data[k].seenByUser);
+    const unseenSet = new Set(unseenKeys);
+
+    if(chatUnreadInitialLoadDone){
+      const hasNew = unseenKeys.some(k => !chatUnreadPrevKeys.has(k));
+      if(hasNew && !chatModalOverlay.classList.contains("show")) sound.receive();
+    }
+
+    chatUnreadPrevKeys = unseenSet;
+    chatUnreadInitialLoadDone = true;
+    updateChatBadge(unseenKeys.length);
+  });
+}
+
+groupBtn.addEventListener("click", () => {
+  // TODO: кушодани гурӯҳ
+});
+
+function fillUserBadge(user){
+  userName.textContent = user.name || "—";
+  userPhone.textContent = user.phone || "—";
+}
+
+function showHome(){
+  loginScreen.classList.add("hidden");
+  splash.classList.add("hidden");
+  home.classList.remove("hidden");
+}
+
+function showLogin(){
+  splash.classList.add("hidden");
+  home.classList.add("hidden");
+  loginScreen.classList.remove("hidden");
+}
+
+function forceLogout(){
+  localStorage.removeItem(LS_KEY);
+  showLogin();
+}
+
+function openLogoutConfirm(){
+  logoutConfirmOverlay.classList.add("show");
+  sound.open();
+}
+function closeLogoutConfirm(){
+  logoutConfirmOverlay.classList.remove("show");
+  sound.close();
+}
+logoutBtn.addEventListener("click", () => {
+  closeMenu();
+  openLogoutConfirm();
+});
+logoutCancelBtn.addEventListener("click", closeLogoutConfirm);
+logoutConfirmOverlay.addEventListener("click", (e) => {
+  if(e.target === logoutConfirmOverlay) closeLogoutConfirm();
+});
+logoutConfirmBtn.addEventListener("click", () => {
+  closeLogoutConfirm();
+  sound.success();
+  forceLogout();
+});
+
+function switchTab(tab){
+  navItems.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+  document.querySelectorAll(".tab-screen").forEach(el => el.classList.remove("active"));
+  const target = document.getElementById("screen-" + tab);
+  if(target) target.classList.add("active");
+  document.getElementById("homeContent").scrollTop = 0;
+}
+navItems.forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+// Гӯш кардани сабти корбар дар Firebase — агар аз он ҷо пок шавад, худкор берун бароварда мешавад
+function watchUser(id){
+  onValue(ref(db, "users/" + id), (snap) => {
+    if(!snap.exists()){
+      forceLogout();
+    }
+  });
+}
+
+// Агар корбар қаблан дарояд, мустақим равзанаи холӣ нишон дода шавад
+const saved = localStorage.getItem(LS_KEY);
+if(saved){
+  try{
+    const user = JSON.parse(saved);
+    fillUserBadge(user);
+    showHome();
+    watchUser(user.id);
+    watchChatMessages(user.name);
+  } catch(err){
+    forceLogout();
+  }
+} else {
+  setTimeout(showLogin, 400);
+}
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  loginError.textContent = "";
+
+  if(!name || !phone){
+    loginError.textContent = "Лутфан ном ва рақами телефонро пур кунед.";
+    sound.error();
+    return;
+  }
+
+  loginBtn.disabled = true;
+  try{
+    const userRef = push(ref(db, "users"));
+    await set(userRef, {
+      name,
+      phone,
+      createdAt: Date.now()
+    });
+    const user = { id: userRef.key, name, phone };
+    localStorage.setItem(LS_KEY, JSON.stringify(user));
+    fillUserBadge(user);
+    showHome();
+    watchUser(userRef.key);
+    watchChatMessages(user.name);
+    sound.success();
+  } catch(err){
+    console.error(err);
+    loginError.textContent = "Хатои пайваст ба система. Аз нав кӯшиш кунед.";
+    sound.error();
+  } finally {
+    loginBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
