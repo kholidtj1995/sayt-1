@@ -790,11 +790,25 @@ const GROUP_BASE_URL = "https://kholidtj1995.github.io/sayt-1/grupa.html";
 let groupLoaded = false;
 let groupFrameReady = false;
 
+function buildGroupUrl(){
+  try{
+    const saved = localStorage.getItem(LS_KEY);
+    if(saved){
+      const user = JSON.parse(saved);
+      if(user && user.name){
+        const params = new URLSearchParams({ name: user.name });
+        return GROUP_BASE_URL + "?" + params.toString();
+      }
+    }
+  } catch(err){}
+  return GROUP_BASE_URL;
+}
+
 function preloadGroupFrame(){
   if(groupLoaded) return;
   groupLoaded = true;
   groupFrame.addEventListener("load", () => { groupFrameReady = true; }, { once:true });
-  groupFrame.src = GROUP_BASE_URL;
+  groupFrame.src = buildGroupUrl();
 }
 
 function openGroupModal(){
