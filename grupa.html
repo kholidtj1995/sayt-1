@@ -419,6 +419,19 @@ const EXTERNAL_RETURN_URL = "https://kholidtj1995.github.io/sayt-1/index.html";
 const urlParams = new URLSearchParams(window.location.search);
 const autoName = (urlParams.get("name") || "").trim();
 
+/* Ҳолати намоён будани гурӯҳ (фиристодашуда аз index.html тавассути postMessage) —
+   вақте ин саҳифа дар iframe-и пинҳонӣ пешакӣ бор мешавад, набояд паёмҳоро "хонда шуда"
+   (lastSeen) қайд кунад, то замоне ки корбар воқеан равзанаи гурӯҳро кушояд. */
+let groupVisible = false;
+window.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "group-visibility") {
+    groupVisible = !!e.data.visible;
+    if (groupVisible && currentGroupId) {
+      groupsRef.child(currentGroupId).child("lastSeen").child(ME.uid).set(TS);
+    }
+  }
+});
+
 /* ===================== State ===================== */
 let ME = null;
 let allGroups = {};
@@ -869,11 +882,12 @@ function openGroup(groupId) {
   if (messagesUnsub) messagesUnsub();
   const messagesListener = (snap) => {
     renderMessages(groupId, snap.val() || {});
+    if (groupVisible) groupsRef.child(groupId).child("lastSeen").child(ME.uid).set(TS);
   };
   groupsRef.child(groupId).child("messages").on("value", messagesListener);
   messagesUnsub = () => groupsRef.child(groupId).child("messages").off("value", messagesListener);
 
-  groupsRef.child(groupId).child("lastSeen").child(ME.uid).set(TS);
+  if (groupVisible) groupsRef.child(groupId).child("lastSeen").child(ME.uid).set(TS);
 }
 
 function closeGroup() {
@@ -1193,7 +1207,7 @@ function enterApp() {
     }
 
     renderChatList();
-    if (shouldPlayBell) playBellSound();
+    if (shouldPlayBell && groupVisible) playBellSound();
     if (currentGroupId && allGroups[currentGroupId]) {
       renderGroupHeader(currentGroupId, allGroups[currentGroupId]);
     }
