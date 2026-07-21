@@ -675,8 +675,17 @@ const chatModalClose = document.getElementById("chatModalClose");
 const chatFrame = document.getElementById("chatFrame");
 const chatLoading = document.getElementById("chatLoading");
 const CHAT_BASE_URL = "https://kholidtj1995.github.io/sayt-1/chat.html";
+const CHAT_ORIGIN = new URL(CHAT_BASE_URL).origin;
 let chatLoaded = false;
 let chatFrameReady = false;
+
+// Хабар додан ба chat.html, ки чат воқеан кушода аст ё дар паси парда пинҳон аст —
+// то он паёмҳоро танҳо вақте корбар онҳоро воқеан мебинад "хонда шуда" қайд кунад
+function sendChatVisibility(visible){
+  try{
+    if(chatFrame.contentWindow) chatFrame.contentWindow.postMessage({ type:"chat-visibility", visible }, CHAT_ORIGIN);
+  } catch(err){}
+}
 
 function buildChatUrl(){
   try{
@@ -696,7 +705,11 @@ function buildChatUrl(){
 function preloadChatFrame(){
   if(chatLoaded) return;
   chatLoaded = true;
-  chatFrame.addEventListener("load", () => { chatFrameReady = true; }, { once:true });
+  chatFrame.addEventListener("load", () => {
+    chatFrameReady = true;
+    // Ҳанӯз кушода нашудааст — ба таври возеҳ мегӯем, ки пинҳон аст
+    sendChatVisibility(chatModalOverlay.classList.contains("show"));
+  }, { once:true });
   chatFrame.src = buildChatUrl();
 }
 
@@ -706,9 +719,13 @@ function openChatModal(){
   }
   if(!chatFrameReady){
     chatLoading.style.display = "flex";
-    chatFrame.addEventListener("load", () => { chatLoading.style.display = "none"; }, { once:true });
+    chatFrame.addEventListener("load", () => {
+      chatLoading.style.display = "none";
+      sendChatVisibility(true);
+    }, { once:true });
   } else {
     chatLoading.style.display = "none";
+    sendChatVisibility(true);
   }
   chatModalOverlay.classList.add("show");
   sound.open();
@@ -716,6 +733,7 @@ function openChatModal(){
 }
 function closeChatModal(){
   chatModalOverlay.classList.remove("show");
+  sendChatVisibility(false);
   sound.close();
   document.body.style.overflow = "";
 }
