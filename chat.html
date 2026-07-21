@@ -217,6 +217,26 @@ let processedKeys = new Set();
 let adminWasOnline = false;
 let currentPlayingAudio = null;
 
+/* ---------- Ҳолати намоён будани чат (фиристодашуда аз index.html тавассути postMessage) ----------
+   Вақте ки ин чат дар iframe-и пинҳонӣ пешакӣ бор мешавад (барои тезтар кушода шудани тугмаи чат),
+   он НАБОЯД паёмҳоро "хонда шуда" (seenByUser) қайд кунад ё садои қабул диҳад — то замоне ки
+   корбар воқеан равзанаи чатро кушояд. */
+let chatVisible = false;
+window.addEventListener('message', (e)=>{
+  if(e.data && e.data.type === 'chat-visibility'){
+    chatVisible = !!e.data.visible;
+    if(chatVisible) markUnseenAsSeen();
+  }
+});
+function markUnseenAsSeen(){
+  Object.keys(allMessages||{}).forEach(key=>{
+    const m = allMessages[key];
+    if(m && m.user!==currentUsername && !m.seenByUser){
+      update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
+    }
+  });
+}
+
 /* ---------- Маълумот аз барномаи лотерея (URL параметрҳо) ---------- */
 const urlParams = new URLSearchParams(window.location.search);
 const autoName = urlParams.get('name') || '';
@@ -654,11 +674,11 @@ function listenMessages(){
         if(dStr !== lastDate){ display.innerHTML += `<div class="date-separator">${new Date(msg.timestamp).toLocaleDateString('tg-TJ',{day:'numeric',month:'long',year:'numeric'})}</div>`; lastDate = dStr; }
       }
       display.innerHTML += renderMsg(msg, key);
-      if(msg.user!==currentUsername && !msg.seenByUser) update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
+      if(msg.user!==currentUsername && !msg.seenByUser && chatVisible) update(ref(db, `sayt1_chats/${currentUsername}/${key}`), { seenByUser:true });
     });
 
     if(initialLoadDone){
-      newKeys.forEach(key=>{ if(data[key].user!==currentUsername) window.playReceive(); });
+      newKeys.forEach(key=>{ if(data[key].user!==currentUsername && chatVisible) window.playReceive(); });
     }
     processedKeys = new Set(keys);
     display.scrollTop = display.scrollHeight;
