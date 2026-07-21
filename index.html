@@ -391,6 +391,7 @@
       </button>
       <button class="badge-btn" id="groupBtn" title="Гурӯҳ">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span class="chat-badge" id="groupBadge"></span>
       </button>
     </div>
     <button class="icon-btn" id="cartBtn" title="Корзина">
@@ -787,8 +788,17 @@ const groupModalClose = document.getElementById("groupModalClose");
 const groupFrame = document.getElementById("groupFrame");
 const groupLoading = document.getElementById("groupLoading");
 const GROUP_BASE_URL = "https://kholidtj1995.github.io/sayt-1/grupa.html";
+const GROUP_ORIGIN = new URL(GROUP_BASE_URL).origin;
 let groupLoaded = false;
 let groupFrameReady = false;
+
+// Хабар додан ба grupa.html, ки гурӯҳ воқеан кушода аст ё дар паси парда пинҳон аст —
+// то он паёмҳоро танҳо вақте корбар онҳоро воқеан мебинад "хонда шуда" (lastSeen) қайд кунад
+function sendGroupVisibility(visible){
+  try{
+    if(groupFrame.contentWindow) groupFrame.contentWindow.postMessage({ type:"group-visibility", visible }, GROUP_ORIGIN);
+  } catch(err){}
+}
 
 function buildGroupUrl(){
   try{
@@ -807,7 +817,10 @@ function buildGroupUrl(){
 function preloadGroupFrame(){
   if(groupLoaded) return;
   groupLoaded = true;
-  groupFrame.addEventListener("load", () => { groupFrameReady = true; }, { once:true });
+  groupFrame.addEventListener("load", () => {
+    groupFrameReady = true;
+    sendGroupVisibility(groupModalOverlay.classList.contains("show"));
+  }, { once:true });
   groupFrame.src = buildGroupUrl();
 }
 
@@ -817,9 +830,13 @@ function openGroupModal(){
   }
   if(!groupFrameReady){
     groupLoading.style.display = "flex";
-    groupFrame.addEventListener("load", () => { groupLoading.style.display = "none"; }, { once:true });
+    groupFrame.addEventListener("load", () => {
+      groupLoading.style.display = "none";
+      sendGroupVisibility(true);
+    }, { once:true });
   } else {
     groupLoading.style.display = "none";
+    sendGroupVisibility(true);
   }
   groupModalOverlay.classList.add("show");
   sound.open();
@@ -827,6 +844,7 @@ function openGroupModal(){
 }
 function closeGroupModal(){
   groupModalOverlay.classList.remove("show");
+  sendGroupVisibility(false);
   sound.close();
   document.body.style.overflow = "";
 }
@@ -838,6 +856,62 @@ groupModalOverlay.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if(e.key === "Escape" && groupModalOverlay.classList.contains("show")) closeGroupModal();
 });
+
+/* ---------------- Шумориши паёмҳои нави гурӯҳ + садо барои паёми нав ---------------- */
+const groupBadge = document.getElementById("groupBadge");
+let groupUnreadPrevIds = null;
+let groupUnreadInitialLoadDone = false;
+let groupWatchStarted = false;
+
+function updateGroupBadge(count){
+  if(!groupBadge) return;
+  if(count > 0){
+    groupBadge.textContent = count > 99 ? "99+" : String(count);
+    groupBadge.classList.add("show");
+  } else {
+    groupBadge.classList.remove("show");
+  }
+}
+
+// Профили корбар дар гурӯҳ (lc_profile) — бо grupa.html ҳамон домен, пас localStorage якхела аст
+function getGroupProfile(){
+  try{
+    const raw = localStorage.getItem("lc_profile");
+    if(raw) return JSON.parse(raw);
+  } catch(err){}
+  return null;
+}
+
+function watchGroupMessages(){
+  if(groupWatchStarted) return;
+  groupWatchStarted = true;
+  onValue(ref(db, "groups"), (snap) => {
+    const groups = snap.val() || {};
+    const profile = getGroupProfile();
+    const uid = profile && profile.uid;
+    const unreadIds = new Set();
+
+    if(uid){
+      Object.entries(groups).forEach(([gid, g]) => {
+        if(!g || g.blocked) return;
+        const subscribed = !!(g.subscribers && g.subscribers[uid]);
+        if(!subscribed) return;
+        const lastTs = g.lastMessage ? g.lastMessage.ts : 0;
+        if(!lastTs) return;
+        const seenTs = (g.lastSeen && g.lastSeen[uid]) || 0;
+        if(lastTs > seenTs) unreadIds.add(gid);
+      });
+    }
+
+    if(groupUnreadInitialLoadDone){
+      const hasNew = [...unreadIds].some(id => !groupUnreadPrevIds.has(id));
+      if(hasNew && !groupModalOverlay.classList.contains("show")) sound.receive();
+    }
+    groupUnreadPrevIds = unreadIds;
+    groupUnreadInitialLoadDone = true;
+    updateGroupBadge(unreadIds.size);
+  });
+}
 
 function fillUserBadge(user){
   userName.textContent = user.name || "—";
@@ -852,6 +926,8 @@ function showHome(){
   setTimeout(preloadChatFrame, 600);
   // Тугмаи гурӯҳ низ зуд кор кунад — гурӯҳро низ пешакӣ дар паси парда бор мекунем
   setTimeout(preloadGroupFrame, 800);
+  // Назорати паёмҳои нави гурӯҳ барои бадҷ ва садо
+  watchGroupMessages();
 }
 
 function showLogin(){
