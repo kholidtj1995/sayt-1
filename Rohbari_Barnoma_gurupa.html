@@ -1186,13 +1186,13 @@ function readFileAsDataURL(file) {
 
 /* ===================== Identity ===================== */
 function loadMe() {
-  const raw = localStorage.getItem("lc_profile");
+  const raw = localStorage.getItem("lc_admin_profile");
   if (raw) {
     try { ME = JSON.parse(raw); } catch (e) { ME = null; }
   }
 }
 function saveMe() {
-  localStorage.setItem("lc_profile", JSON.stringify(ME));
+  localStorage.setItem("lc_admin_profile", JSON.stringify(ME));
 }
 
 /* ===================== Screens & Tabs ===================== */
@@ -1495,7 +1495,7 @@ function renderGroupHeader(groupId, g) {
       if (subscribed) {
         showConfirm("Пас аз бекор кардани обуна шумо аз ҳисоби худ мебароед. Мутмаин ҳастед?", true, () => {
           groupsRef.child(groupId).child("subscribers").child(ME.uid).set(null);
-          localStorage.removeItem("lc_profile");
+          localStorage.removeItem("lc_admin_profile");
           ME = null;
           location.reload();
         });
@@ -2401,7 +2401,7 @@ function enterApp() {
 }
 
 function forceLogoutAll() {
-  localStorage.removeItem("lc_profile");
+  localStorage.removeItem("lc_admin_profile");
   ME = null;
   location.reload();
 }
@@ -2432,14 +2432,14 @@ $("#nav-chat-btn").addEventListener("click", () => {
   $("#ext-window-close").addEventListener("click", closeExternalWindow);
   $("#chat-exit-btn").addEventListener("click", () => {
     showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
-      localStorage.removeItem("lc_profile");
+      localStorage.removeItem("lc_admin_profile");
       ME = null;
       location.reload();
     });
   });
   $("#admin-logout-btn").addEventListener("click", () => {
     showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
-      localStorage.removeItem("lc_profile");
+      localStorage.removeItem("lc_admin_profile");
       ME = null;
       location.reload();
     });
