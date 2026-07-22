@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="google" content="notranslate" />
+<meta name="robots" content="notranslate" />
+<title>ҚУРЪА — Идоракунии рақамҳо ва призҳо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f1c;
+    --bg-2:#0d1426;
+    --surface:#121b30;
+    --surface-2:#182241;
+    --border:rgba(255,255,255,0.08);
+    --border-soft:rgba(255,255,255,0.05);
+    --gold:#e8b84b;
+    --gold-2:#f4d374;
+    --gold-dark:#a9781f;
+    --crimson:#e2536b;
+    --crimson-dark:#7a1f2d;
+    --emerald:#3fbf8f;
+    --emerald-dark:#155a44;
+    --text:#f3efe7;
+    --text-muted:#8c93a8;
+    --text-dim:#5c6479;
+    --radius:20px;
+    --radius-sm:12px;
+    --shadow-lg:0 20px 60px rgba(0,0,0,0.45);
+    --shadow-md:0 10px 30px rgba(0,0,0,0.35);
+    font-size:16px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{
+    height:100%; width:100%;
+    overflow:hidden; position:fixed; inset:0;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+    -webkit-user-select:none; -moz-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
+  input, textarea{
+    -webkit-user-select:text; -moz-user-select:text; user-select:text;
+  }
+  body{
+    margin:0;
+    height:100%;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,184,75,0.10), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(63,191,143,0.08), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(226,83,107,0.06), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3, .display{ font-family:'Unbounded', sans-serif; letter-spacing:-0.01em; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--gold); color:#1b1206; }
+
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:var(--surface-2); border-radius:10px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--gold-dark); }
+
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+
+  .hidden{ display:none !important; }
+
+  /* ---------- Splash ---------- */
+  #splash{
+    position:fixed; inset:0; z-index:100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--bg); gap:18px;
+  }
+  .splash-ring{
+    width:56px; height:56px; border-radius:50%;
+    border:3px solid var(--border);
+    border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #splash p{ color:var(--text-muted); font-size:0.9rem; letter-spacing:0.02em; }
+
+  /* ---------- Login ---------- */
+  #loginScreen{
+    height:100%; overflow-y:auto; display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:400px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:40px 32px 32px;
+    box-shadow:var(--shadow-lg);
+    text-align:center;
+    animation:cardIn 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(16px) scale(0.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .brand-mark{
+    width:64px; height:64px; margin:0 auto 18px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(232,184,75,0.35), inset 0 -4px 8px rgba(0,0,0,0.25);
+  }
+  .brand-mark svg{ width:30px; height:30px; }
+  .login-card h1{ font-size:1.5rem; margin:0 0 6px; }
+  .login-card .sub{ color:var(--text-muted); font-size:0.88rem; margin:0 0 28px; line-height:1.5; }
+  .field{ text-align:left; margin-bottom:16px; }
+  .field label{ display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
+  .field input, .field textarea{
+    width:100%; padding:13px 14px; border-radius:var(--radius-sm);
+    background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    font-size:0.95rem; transition:border-color .15s, box-shadow .15s;
+  }
+  .field textarea{ resize:vertical; min-height:70px; font-family:inherit; }
+  .field input:focus, .field textarea:focus{
+    border-color:var(--gold); box-shadow:0 0 0 3px rgba(232,184,75,0.15); outline:none;
+  }
+  .btn{
+    border:none; cursor:pointer; border-radius:var(--radius-sm);
+    font-weight:700; font-size:0.95rem; padding:13px 20px;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn svg{ width:18px; height:18px; flex-shrink:0; }
+  .btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206; box-shadow:0 8px 20px rgba(232,184,75,0.25); width:100%; }
+  .btn-primary:hover{ filter:brightness(1.06); box-shadow:0 10px 26px rgba(232,184,75,0.35); }
+  .btn-success{ background:linear-gradient(180deg,#4fd4a3,var(--emerald)); color:#062e22; box-shadow:0 8px 20px rgba(63,191,143,0.25); }
+  .btn-success:hover{ filter:brightness(1.06); }
+  .btn-danger{ background:linear-gradient(180deg,#ea6f83,var(--crimson)); color:#2c0810; box-shadow:0 8px 20px rgba(226,83,107,0.2); }
+  .btn-danger:hover{ filter:brightness(1.06); }
+  .btn-ghost{ background:var(--surface-2); color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ background:#212c4d; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+  .login-error{
+    color:var(--crimson); font-size:0.82rem; margin-top:14px; min-height:18px; font-weight:600;
+  }
+  .login-hint{ color:var(--text-dim); font-size:0.74rem; margin-top:18px; line-height:1.5; }
+
+  /* ---------- Dashboard ---------- */
+  #dashboard{ height:100%; overflow-y:auto; padding:20px 20px 60px; max-width:1180px; margin:0 auto; }
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; padding:14px 20px; margin-bottom:14px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; }
+  .brand-mark.sm{ width:42px; height:42px; flex-shrink:0; }
+  .brand-mark.sm svg{ width:20px; height:20px; }
+  .brand-text{ min-width:0; overflow:hidden; }
+  .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text span{ font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+  .top-actions{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:var(--radius-sm);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s;
+  }
+  .icon-btn:hover{ background:var(--surface); }
+  .icon-btn:active{ transform:scale(0.88); }
+  .icon-btn svg{ width:17px; height:17px; }
+  #chatBtn{ background:#3b82f6; border-color:#3b82f6; color:#ffffff; position:relative; overflow:visible; }
+  #chatBtn:hover{ background:#2563eb; }
+  .chat-unread-badge{
+    position:absolute; top:-7px; right:-7px;
+    min-width:18px; height:18px; padding:0 4px;
+    border-radius:999px; background:var(--crimson); color:#fff;
+    font-size:10px; font-weight:800; font-family:'Inter',sans-serif;
+    line-height:18px; text-align:center;
+    box-shadow:0 0 0 2px var(--bg-2);
+    display:none; pointer-events:none;
+  }
+  #chatBtn.has-unread{ animation:chatBtnPulse 1.1s ease-in-out infinite; }
+  #chatBtn.has-unread .chat-unread-badge{ animation:chatBadgePop 1.1s ease-in-out infinite; }
+  @keyframes chatBtnPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(59,130,246,0.55); }
+    50%{ box-shadow:0 0 0 9px rgba(59,130,246,0); }
+  }
+  @keyframes chatBadgePop{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.18); }
+  }
+  #groupBtn{ background:#22c55e; border-color:#22c55e; color:#ffffff; }
+  #groupBtn:hover{ background:#16a34a; }
+  #usersBtn{ background:#ef4444; border-color:#ef4444; color:#ffffff; }
+  #usersBtn:hover{ background:#dc2626; }
+  #notifBtn{ background:#eab308; border-color:#eab308; color:#ffffff; }
+  #notifBtn:hover{ background:#ca8a04; }
+
+  .icon-group{
+    display:flex; align-items:center; gap:4px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    height:38px; padding:0 4px;
+  }
+  .icon-group .icon-btn{
+    width:30px; height:30px;
+  }
+
+  .action-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .action-card{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px 16px; cursor:pointer; text-align:left;
+    display:flex; align-items:center; gap:14px;
+    transition:transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .action-card:hover{ transform:translateY(-3px); border-color:rgba(232,184,75,0.4); box-shadow:var(--shadow-md); }
+  .action-card:active{ transform:translateY(0) scale(0.99); }
+  .action-icon{
+    width:52px; height:52px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .action-icon.gold{ background:rgba(232,184,75,0.14); color:var(--gold); }
+  .action-icon.emerald{ background:rgba(63,191,143,0.14); color:var(--emerald); }
+  .action-icon svg{ width:26px; height:26px; }
+  .action-card h3{ font-size:1rem; margin:0 0 4px; color:#ffffff; }
+  .action-card p{ font-size:0.8rem; color:var(--text-muted); margin:0; }
+
+  .panel{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px; margin-bottom:12px;
+  }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .panel-head h2{ font-size:1.02rem; margin:0; display:flex; align-items:center; gap:10px; }
+  .panel-head h2 svg{ width:19px; height:19px; color:var(--gold); }
+  .badge{
+    font-size:0.74rem; font-weight:700; color:var(--gold); background:rgba(232,184,75,0.12);
+    padding:5px 11px; border-radius:999px; border:1px solid rgba(232,184,75,0.25);
+    white-space:nowrap;
+  }
+  .badge-sm-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  .empty-state{ text-align:center; padding:40px 20px; color:var(--text-muted); }
+  .empty-state svg{ width:46px; height:46px; opacity:0.35; margin-bottom:12px; }
+  .empty-state p{ font-size:0.85rem; margin:0; }
+
+  .ball-grid{
+    --ball-size:38px;
+    display:grid; grid-template-rows:repeat(5, var(--ball-size));
+    grid-auto-flow:column; grid-auto-columns:var(--ball-size);
+    gap:8px;
+    overflow-x:auto; overflow-y:hidden;
+    padding:6px 4px 12px; width:100%;
+  }
+  .ball{
+    width:var(--ball-size); height:var(--ball-size); border-radius:50%;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:0.02em;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+    position:relative; transform:scale(0); opacity:0;
+    animation:rollIn 0.45s cubic-bezier(.2,.9,.3,1.3) forwards;
+  }
+  @keyframes rollIn{ from{ transform:scale(0) rotate(-70deg); opacity:0; } to{ transform:scale(1) rotate(0); opacity:1; } }
+
+  .prizes-box{
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--bg-2); padding:14px 10px;
+    position:relative;
+  }
+  .prizes-grid{
+    display:flex; flex-wrap:nowrap; gap:14px;
+    overflow-x:auto; overflow-y:hidden;
+    padding:2px 4px 8px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .prize-card{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid rgba(232,184,75,0.35); border-radius:var(--radius-sm);
+    padding:14px 10px 12px; position:relative;
+    transition:transform .15s, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    animation:cardIn 0.35s ease;
+    flex:0 0 128px; min-width:0;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    cursor:pointer;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .prize-card:hover{ border-color:var(--gold); transform:translateY(-2px); box-shadow:0 10px 22px rgba(232,184,75,0.15); }
+  }
+  .prize-card.active{
+    border-color:var(--gold);
+    background:linear-gradient(180deg, rgba(232,184,75,0.22), var(--bg-2));
+    box-shadow:0 0 0 2px rgba(232,184,75,0.4), 0 10px 22px rgba(232,184,75,0.2);
+  }
+  .prize-card.active h4{ color:var(--gold-2); }
+  .prize-card .trophy-circle{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center; margin:0 0 8px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+  }
+  .prize-card .trophy-circle svg{ width:18px; height:18px; color:#1b1206; }
+  .prize-card h4{
+    font-family:'Unbounded', sans-serif; font-weight:700; font-size:0.8rem;
+    margin:0 0 8px; padding-right:0; color:var(--text); word-break:break-word; line-height:1.25;
+    transition:color .25s ease;
+  }
+  .prize-card .qty-block{ display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .prize-card .qty-label{ font-size:0.58rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; font-weight:700; }
+  .prize-card .qty-num{ font-family:'Bebas Neue', sans-serif; font-size:1.35rem; color:var(--gold); line-height:1; }
+  .prize-del{
+    position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:7px;
+    background:transparent; border:none; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .15s;
+  }
+  .prize-del:hover{ background:var(--crimson-dark); color:#fff; }
+  .prize-del svg{ width:12px; height:12px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(6,9,17,0.72); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:50;
+    animation:fadeIn 0.18s ease;
+  }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  .modal{
+    width:100%; max-width:420px; background:linear-gradient(180deg,var(--surface),var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius); padding:26px;
+    box-shadow:var(--shadow-lg); animation:cardIn 0.25s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .modal-head h3{ font-size:1.05rem; margin:0; }
+  .modal-close{ width:30px; height:30px; border-radius:8px; border:none; background:var(--surface-2); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .modal-close:hover{ background:var(--crimson-dark); color:#fff; }
+  .modal-close svg{ width:15px; height:15px; }
+  .modal-foot{ display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; }
+  .modal-foot .btn{ flex:1; }
+  .danger-zone{ margin-top:22px; padding-top:18px; border-top:1px dashed var(--border); }
+  .danger-zone p{ font-size:0.74rem; color:var(--text-dim); margin:0 0 10px; }
+  .logout-modal-icon{
+    width:60px; height:60px; border-radius:50%; margin:4px auto 0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px rgba(232,184,75,0.3);
+  }
+  .logout-modal-icon svg{ width:26px; height:26px; color:#1b1206; }
+
+  /* ---------- Chat Modal ---------- */
+  .chat-modal-overlay{ padding:12px; }
+  .chat-modal{
+    width:100%; max-width:900px; height:100%; max-height:820px;
+    padding:0; display:flex; flex-direction:column; overflow:hidden;
+  }
+  .chat-modal .modal-head{ margin:0; padding:14px 18px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .chat-modal-body{ flex:1 1 auto; position:relative; background:var(--bg-2); }
+  .chat-modal-body iframe{ position:absolute; inset:0; width:100%; height:100%; border:none; }
+  .chat-modal-loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--text-muted); font-size:0.85rem; gap:10px; flex-direction:column;
+  }
+
+  /* ---------- Toasts ---------- */
+  #toastHost{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:10px; align-items:center; width:100%; max-width:420px; padding:0 16px; }
+  .toast{
+    display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--border);
+    padding:13px 16px; border-radius:var(--radius-sm); font-size:0.85rem; box-shadow:var(--shadow-md);
+    animation:toastIn 0.25s cubic-bezier(.2,.8,.2,1); width:100%;
+  }
+  @keyframes toastIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .toast.success{ border-color:rgba(63,191,143,0.4); }
+  .toast.error{ border-color:rgba(226,83,107,0.4); }
+  .toast svg{ width:18px; height:18px; flex-shrink:0; }
+  .toast.success svg{ color:var(--emerald); }
+  .toast.error svg{ color:var(--crimson); }
+  .toast.info svg{ color:var(--gold); }
+
+  @media (max-width:640px){
+    .action-row{ grid-template-columns:1fr; }
+    header.topbar{ flex-wrap:nowrap; padding:12px 14px; gap:8px; }
+    .brand{ gap:8px; }
+    .brand-text span{ font-size:0.62rem; }
+    .top-actions{ gap:6px; }
+    .ball-grid{ --ball-size:32px; }
+    #dashboard{ padding:14px 12px 50px; }
+    .panel{ padding:16px 12px; }
+    .prizes-box{ padding:10px 6px; }
+    .prize-card{ flex:0 0 104px; padding:12px 8px; }
+  }
+
+  @media (max-width:380px){
+    .brand-mark.sm{ width:36px; height:36px; }
+    .brand-mark.sm svg{ width:17px; height:17px; }
+    .brand-text h1{ font-size:0.98rem; }
+    .brand-text span{ font-size:0.58rem; }
+    .icon-group{ height:34px; }
+    .icon-group .icon-btn{ width:26px; height:26px; }
+    .icon-btn{ width:34px; height:34px; }
+    .top-actions{ gap:4px; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .ball{ animation:none !important; transform:none; opacity:1; }
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* Connection overlay */
+  #connOverlay{
+    position:fixed; inset:0; z-index:150;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+    background:rgba(8,12,22,0.62);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    text-align:center; padding:24px;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  #connOverlay.show{ opacity:1; pointer-events:auto; }
+  #connOverlay .conn-ring{
+    width:48px; height:48px; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  #connOverlay .conn-title{ font-family:'Unbounded', sans-serif; font-size:1rem; color:var(--text); margin:0; }
+  #connOverlay .conn-sub{ color:var(--text-muted); font-size:0.85rem; max-width:280px; margin:0; line-height:1.5; }
+  #appRoot.conn-blur{ filter:blur(6px); transition:filter .3s ease; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<div id="appRoot">
+<div id="splash">
+  <div class="splash-ring"></div>
+  <p>Пайваст шудан ба система...</p>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="hidden">
+  <div class="login-card">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1b1206" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <h1>Воридшавии Админ</h1>
+    <p class="sub">Барои идоракунии қуръакашӣ рамзи худро ворид кунед</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="codeInput">Рамзи админ</label>
+        <input type="password" id="codeInput" placeholder="•••••••" autocomplete="off" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+    <p class="login-hint" id="loginHint"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-text">
+        <h1>ҚУРЪА</h1>
+        <span>Утоқи идоракунӣ</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="icon-group">
+        <button class="icon-btn" id="chatBtn" title="Чат">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          <span class="chat-unread-badge" id="chatUnreadBadge">0</span>
+        </button>
+        <button class="icon-btn" id="groupBtn" title="Гурӯҳ">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+      <div class="icon-group">
+        <button class="icon-btn" id="usersBtn" title="Корбарон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <button class="icon-btn" id="notifBtn" title="Огоҳиномаҳо">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </button>
+      </div>
+      <button class="icon-btn" id="logoutBtn" title="Баромадан">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="action-row">
+    <button class="action-card" id="openNumbersModalBtn">
+      <div class="action-icon gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      </div>
+      <div>
+        <h3>Сохтани рақамҳо</h3>
+        <p>Даври нав ва рӯйхати рақамҳо созед</p>
+      </div>
+    </button>
+    <button class="action-card" id="openPrizesModalBtn">
+      <div class="action-icon emerald">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
+      </div>
+      <div>
+        <h3>Сохтани призҳо</h3>
+        <p>Мукофотҳоро номгузорӣ ва илова кунед</p>
+      </div>
+    </button>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        Рӯйхати рақамҳо
+      </h2>
+      <div class="badge-sm-row" id="roundBadgeRow"></div>
+    </div>
+    <div id="numbersEmpty" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="4"/><circle cx="16" cy="16" r="4"/><path d="M8 12v0M16 8v0"/></svg>
+      <p>Ҳанӯз ҳеҷ рақаме сохта нашудааст</p>
+    </div>
+    <div id="ballGrid" class="ball-grid hidden"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+        Призҳо
+      </h2>
+      <span class="badge" id="prizeCountBadge">0 приз</span>
+    </div>
+    <div class="prizes-box" id="prizesBox">
+      <div id="prizesEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+        <p>Ҳанӯз призе илова карда нашудааст</p>
+      </div>
+      <div id="prizesGrid" class="prizes-grid hidden"></div>
+    </div>
+  </section>
+</div>
+
+<!-- NUMBERS MODAL -->
+<div id="numbersModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Сохтани рақамҳои нав</h3>
+      <button class="modal-close" data-close="numbersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <form id="numbersForm">
+      <div class="field">
+        <label for="roundNameInput">Номи давр</label>
+        <input type="text" id="roundNameInput" placeholder="Мас: Даври 1" required />
+      </div>
+      <div class="field">
+        <label for="roundCountInput">Шумораи рақамҳо (аз 1 сар мешавад)</label>
+        <input type="number" id="roundCountInput" placeholder="Мас: 100" min="1" required />
+      </div>
+      <button type="submit" class="btn btn-success" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Сохтан
+      </button>
+    </form>
+    <div class="danger-zone">
+      <p>Пок кардани рӯйхати ҳозира ба рамзи махсус ниёз дорад.</p>
+      <button class="btn btn-danger" id="clearListBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+        Пок кардани рӯйхат
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIZES MODAL -->
+<div id="prizesModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Илова кардани приз</h3>
+      <button class="modal-close" data-close="prizesModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <form id="prizeForm">
+      <div class="field">
+        <label for="prizeNameInput">Номи приз</label>
+        <input type="text" id="prizeNameInput" placeholder="Мас: Телефони мобилӣ" required />
+      </div>
+      <div class="field">
+        <label for="prizeQtyInput">Миқдор</label>
+        <input type="number" id="prizeQtyInput" placeholder="Мас: 1" min="1" required />
+      </div>
+      <button type="submit" class="btn btn-success" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Илова кардан
+      </button>
+    </form>
+    <div class="danger-zone">
+      <p>Пок кардани ҳамаи призҳо ба рамзи тасдиқ ниёз дорад.</p>
+      <button class="btn btn-danger" id="clearPrizesBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+        Пок кардани призҳо
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM CODE MODAL -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h3>Тасдиқи амал</h3>
+      <button class="modal-close" data-close="confirmModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0">Барои пок кардани рӯйхати рақамҳо рамзи тасдиқро ворид кунед.</p>
+    <form id="confirmForm">
+      <div class="field">
+        <input type="password" id="confirmCodeInput" placeholder="Рамзи тасдиқ" required />
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="confirmModal">Бекор кардан</button>
+        <button type="submit" class="btn btn-danger">Тасдиқ ва пок кардан</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div id="chatModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal">
+    <div class="modal-head">
+      <h3>Чат</h3>
+      <button class="modal-close" data-close="chatModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body">
+      <div class="chat-modal-loading" id="chatLoading">
+        <div class="splash-ring" style="width:32px;height:32px;"></div>
+        <span>Чат бор карда мешавад...</span>
+      </div>
+      <iframe id="chatFrame" title="Чат" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT CONFIRM MODAL -->
+<div id="logoutModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:340px; text-align:center;">
+    <div class="logout-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    </div>
+    <h3 style="margin:16px 0 6px">Баромадан аз барнома</h3>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 22px">Оё шумо мутмаин ҳастед, ки мехоҳед аз барнома бароед?</p>
+    <div class="modal-foot" style="margin-top:0">
+      <button type="button" class="btn btn-ghost" data-close="logoutModal">Не</button>
+      <button type="button" class="btn btn-danger" id="logoutConfirmBtn">Ҳа</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastHost"></div>
+</div><!-- /appRoot -->
+
+<!-- CONNECTION STATUS OVERLAY -->
+<div id="connOverlay">
+  <div class="conn-ring"></div>
+  <p class="conn-title" id="connTitle">Пайваст шудан...</p>
+  <p class="conn-sub" id="connSub">Интернети шумо суст аст. Лутфан интизор шавед.</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getDatabase, ref, get, set, remove, onValue, push, off
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+  authDomain: "live-chat-ea070.firebaseapp.com",
+  databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+  projectId: "live-chat-ea070",
+  storageBucket: "live-chat-ea070.firebasestorage.app",
+  messagingSenderId: "321161064947",
+  appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const CLEAR_CODE = "1995";
+const LS_KEY = "qura_admin_code";
+
+/* ---------------- Sound ---------------- */
+let actx = null;
+function ensureAudio(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return;
+  if(!actx) actx = new AC();
+  if(actx.state === "suspended") actx.resume();
+}
+document.addEventListener("pointerdown", ensureAudio, { once:true });
+
+function tone(freq, dur=0.09, type="sine", vol=0.045, delay=0){
+  if(!actx) return;
+  const t0 = actx.currentTime + delay;
+  const osc = actx.createOscillator();
+  const gain = actx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain).connect(actx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+const sound = {
+  click: () => tone(520, 0.06, "sine", 0.035),
+  open:  () => tone(480, 0.07, "sine", 0.035),
+  close: () => tone(340, 0.06, "sine", 0.03),
+  success: () => { tone(660, 0.09, "sine", 0.05); tone(880, 0.14, "sine", 0.05, 0.09); },
+  error: () => tone(200, 0.22, "sawtooth", 0.05),
+  pop: (delay=0) => tone(360 + Math.random()*120, 0.05, "triangle", 0.025, delay),
+  newUser: () => { tone(660, 0.1, "sine", 0.055); tone(880, 0.12, "sine", 0.055, 0.11); tone(1046, 0.18, "sine", 0.06, 0.23); },
+  newMessage: () => { tone(880, 0.09, "sine", 0.05); tone(700, 0.12, "sine", 0.05, 0.1); },
+};
+document.addEventListener("click", (e) => {
+  if(e.target.closest(".btn, .icon-btn, .action-card")) sound.click();
+});
+
+/* ---------------- Toasts ---------------- */
+const toastHost = document.getElementById("toastHost");
+const icons = {
+  success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
+  error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v0"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v0M12 11v5"/></svg>'
+};
+function showToast(msg, type="info", duration=3200){
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.innerHTML = `${icons[type] || icons.info}<span>${msg}</span>`;
+  toastHost.appendChild(el);
+  if(type === "success") sound.success();
+  if(type === "error") sound.error();
+  setTimeout(() => { el.style.transition = "opacity .3s"; el.style.opacity = "0"; setTimeout(()=>el.remove(), 300); }, duration);
+}
+
+/* ---------------- Modal helpers ---------------- */
+function openModal(id){
+  document.getElementById(id).classList.remove("hidden");
+  sound.open();
+  document.body.style.overflow = "hidden";
+}
+function closeModal(id){
+  document.getElementById(id).classList.add("hidden");
+  sound.close();
+  document.body.style.overflow = "";
+}
+document.querySelectorAll("[data-close]").forEach(btn => {
+  btn.addEventListener("click", () => closeModal(btn.dataset.close));
+});
+document.querySelectorAll(".modal-overlay").forEach(overlay => {
+  overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(overlay.id); });
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape"){
+    document.querySelectorAll(".modal-overlay:not(.hidden)").forEach(m => closeModal(m.id));
+  }
+});
+
+/* ---------------- DOM refs ---------------- */
+const splash = document.getElementById("splash");
+const loginScreen = document.getElementById("loginScreen");
+const dashboard = document.getElementById("dashboard");
+const loginForm = document.getElementById("loginForm");
+const codeInput = document.getElementById("codeInput");
+const loginError = document.getElementById("loginError");
+const loginHint = document.getElementById("loginHint");
+const loginCard = document.querySelector(".login-card");
+
+let activeListeners = [];
+function clearListeners(){
+  activeListeners.forEach(({ path, cb }) => off(path, "value", cb));
+  activeListeners = [];
+}
+
+/* ---------------- Auth flow ---------------- */
+function showLogin(message){
+  clearListeners();
+  updateChatBadge(0);
+  dashboard.classList.add("hidden");
+  loginScreen.classList.remove("hidden");
+  splash.classList.add("hidden");
+  codeInput.value = "";
+  if(message){
+    loginError.textContent = message;
+  } else {
+    loginError.textContent = "";
+  }
+}
+
+function showDashboard(){
+  loginScreen.classList.add("hidden");
+  splash.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  attachLiveListeners();
+}
+
+function forceLogout(reason){
+  localStorage.removeItem(LS_KEY);
+  showLogin(reason || "Шумо аз система хориҷ шудед.");
+  showToast(reason || "Шумо аз система хориҷ шудед.", "error");
+}
+
+async function attemptLogin(code){
+  const submitBtn = document.getElementById("loginBtn");
+  submitBtn.disabled = true;
+  try{
+    const snap = await get(ref(db, "admin/code"));
+    if(!snap.exists()){
+      await set(ref(db, "admin/code"), code);
+      localStorage.setItem(LS_KEY, code);
+      showDashboard();
+      showToast("Рамзи нав ҳамчун рамзи админ сабт шуд ✅", "success");
+    } else if(snap.val() === code){
+      localStorage.setItem(LS_KEY, code);
+      showDashboard();
+      showToast("Хуш омадед!", "success");
+    } else {
+      showLogin("Рамз нодуруст. Аз нав кӯшиш кунед.");
+    }
+  } catch(err){
+    console.error(err);
+    showLogin("Хатои пайваст ба система. Танзимоти Firebase-ро санҷед.");
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const code = codeInput.value.trim();
+  if(!code) return;
+  attemptLogin(code);
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  openModal("logoutModal");
+});
+document.getElementById("logoutConfirmBtn").addEventListener("click", () => {
+  closeModal("logoutModal");
+  localStorage.removeItem(LS_KEY);
+  showLogin();
+});
+
+const chatFrame = document.getElementById("chatFrame");
+const chatLoading = document.getElementById("chatLoading");
+const chatBtnEl = document.getElementById("chatBtn");
+const chatUnreadBadge = document.getElementById("chatUnreadBadge");
+const CHAT_URL = "https://kholidtj1995.github.io/sayt-1/admini_chat.html";
+let chatLoaded = false;
+
+document.getElementById("chatBtn").addEventListener("click", () => {
+  if(!chatLoaded){
+    chatLoading.style.display = "flex";
+    chatFrame.addEventListener("load", () => { chatLoading.style.display = "none"; }, { once:true });
+    chatFrame.src = CHAT_URL;
+    chatLoaded = true;
+  }
+  openModal("chatModal");
+});
+
+/* ---------------- Chat notifications (нав корбар + паёмҳои нав) ---------------- */
+function updateChatBadge(count){
+  if(count > 0){
+    chatUnreadBadge.textContent = count > 99 ? "99+" : String(count);
+    chatUnreadBadge.style.display = "flex";
+    chatBtnEl.classList.add("has-unread");
+  } else {
+    chatUnreadBadge.style.display = "none";
+    chatBtnEl.classList.remove("has-unread");
+  }
+}
+
+document.getElementById("groupBtn").addEventListener("click", () => {
+  showToast("Бахши гурӯҳ ба зудӣ дастрас мешавад", "info");
+});
+
+document.getElementById("usersBtn").addEventListener("click", () => {
+  showToast("Бахши корбарон ба зудӣ дастрас мешавад", "info");
+});
+
+document.getElementById("notifBtn").addEventListener("click", () => {
+  showToast("Огоҳиномаҳо ба зудӣ дастрас мешаванд", "info");
+});
+
+/* ---------------- Live listeners (admin kill-switch + data) ---------------- */
+function attachLiveListeners(){
+  clearListeners();
+
+  const adminRef = ref(db, "admin/code");
+  const adminCb = (snap) => {
+    const saved = localStorage.getItem(LS_KEY);
+    if(!snap.exists()){
+      forceLogout("Рамзи админ аз система нест карда шуд.");
+    } else if(saved && snap.val() !== saved){
+      forceLogout("Рамзи админ иваз шуд. Лутфан аз нав ворид шавед.");
+    }
+  };
+  onValue(adminRef, adminCb);
+  activeListeners.push({ path: adminRef, cb: adminCb });
+
+  const roundRef = ref(db, "currentRound");
+  const roundCb = (snap) => renderRound(snap.exists() ? snap.val() : null);
+  onValue(roundRef, roundCb);
+  activeListeners.push({ path: roundRef, cb: roundCb });
+
+  const prizesRef = ref(db, "prizes");
+  const prizesCb = (snap) => renderPrizes(snap.exists() ? snap.val() : null);
+  onValue(prizesRef, prizesCb);
+  activeListeners.push({ path: prizesRef, cb: prizesCb });
+
+  // Огоҳии садоӣ барои корбари нав + бейджи паёмҳои нахонда дар тугмаи чат
+  let knownChatUserKeys = null; // null = ҳанӯз бор нашудааст (аввалин снапшот)
+  let prevTotalUnread = 0;
+  const activeUsersRef = ref(db, "sayt1_active_users");
+  const activeUsersCb = (snap) => {
+    const data = snap.val() || {};
+    const keys = Object.keys(data);
+    const keySet = new Set(keys);
+
+    if(knownChatUserKeys === null){
+      // Аввалин боркунӣ — фақат ҳолати кунуниро сабт мекунем, бе садо додан
+      knownChatUserKeys = keySet;
+    } else {
+      let hasNewUser = false;
+      keySet.forEach(username => { if(!knownChatUserKeys.has(username)) hasNewUser = true; });
+      if(hasNewUser){
+        sound.newUser();
+        showToast("Корбари нав ба чат ворид шуд 👋", "info");
+      }
+      knownChatUserKeys = keySet;
+    }
+
+    let totalUnread = 0;
+    keys.forEach(username => { totalUnread += (data[username].unreadCount || 0); });
+    if(totalUnread > prevTotalUnread) sound.newMessage();
+    prevTotalUnread = totalUnread;
+
+    updateChatBadge(totalUnread);
+  };
+  onValue(activeUsersRef, activeUsersCb);
+  activeListeners.push({ path: activeUsersRef, cb: activeUsersCb });
+}
+
+/* ---------------- Numbers / rounds ---------------- */
+const ballGrid = document.getElementById("ballGrid");
+const numbersEmpty = document.getElementById("numbersEmpty");
+const roundBadgeRow = document.getElementById("roundBadgeRow");
+
+function renderRound(data){
+  if(!data || !data.count){
+    ballGrid.classList.add("hidden");
+    numbersEmpty.classList.remove("hidden");
+    roundBadgeRow.innerHTML = "";
+    return;
+  }
+  numbersEmpty.classList.add("hidden");
+  ballGrid.classList.remove("hidden");
+  roundBadgeRow.innerHTML = `
+    <span class="badge">Давр: ${escapeHtml(data.name || "—")}</span>
+    <span class="badge">${data.count} рақам</span>
+  `;
+  const frag = document.createDocumentFragment();
+  const STAGGER_CAP = 80;
+  for(let i = 1; i <= data.count; i++){
+    const b = document.createElement("div");
+    b.className = "ball";
+    b.textContent = i;
+    const delay = (i-1) < STAGGER_CAP ? ((i-1) * 0.025) : (STAGGER_CAP * 0.025);
+    b.style.animationDelay = delay + "s";
+    frag.appendChild(b);
+  }
+  ballGrid.innerHTML = "";
+  ballGrid.appendChild(frag);
+}
+
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+document.getElementById("openNumbersModalBtn").addEventListener("click", () => openModal("numbersModal"));
+
+document.getElementById("numbersForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("roundNameInput").value.trim();
+  const count = parseInt(document.getElementById("roundCountInput").value, 10);
+  if(!name || !count || count < 1) return;
+  try{
+    await set(ref(db, "currentRound"), { name, count, createdAt: Date.now() });
+    closeModal("numbersModal");
+    document.getElementById("numbersForm").reset();
+    showToast(`Даври "${name}" бо ${count} рақам сохта шуд`, "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои сохтани рақамҳо. Танзимоти Firebase-ро санҷед.", "error");
+  }
+});
+
+let pendingClearTarget = "round";
+
+document.getElementById("clearListBtn").addEventListener("click", () => {
+  pendingClearTarget = "round";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+
+document.getElementById("clearPrizesBtn").addEventListener("click", () => {
+  pendingClearTarget = "prizes";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+
+document.getElementById("confirmForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const code = document.getElementById("confirmCodeInput").value.trim();
+  if(code !== CLEAR_CODE){
+    showToast("Рамзи тасдиқ нодуруст аст", "error");
+    return;
+  }
+  try{
+    if(pendingClearTarget === "prizes"){
+      await remove(ref(db, "prizes"));
+      closeModal("confirmModal");
+      closeModal("prizesModal");
+      showToast("Рӯйхати призҳо пок карда шуд 🗑️", "success");
+    } else {
+      await remove(ref(db, "currentRound"));
+      closeModal("confirmModal");
+      closeModal("numbersModal");
+      showToast("Рӯйхати рақамҳо пок карда шуд 🗑️", "success");
+    }
+  } catch(err){
+    console.error(err);
+    showToast("Хатои пок кардани рӯйхат.", "error");
+  }
+});
+
+/* ---------------- Prizes ---------------- */
+const prizesGrid = document.getElementById("prizesGrid");
+const prizesBox = document.getElementById("prizesBox");
+const prizesEmpty = document.getElementById("prizesEmpty");
+const prizeCountBadge = document.getElementById("prizeCountBadge");
+
+function renderPrizes(data){
+  const entries = data ? Object.entries(data) : [];
+  prizeCountBadge.textContent = `${entries.length} приз${entries.length===1?"":"ҳо"}`;
+  if(entries.length === 0){
+    prizesGrid.classList.add("hidden");
+    prizesEmpty.classList.remove("hidden");
+    prizesGrid.innerHTML = "";
+    return;
+  }
+  prizesEmpty.classList.add("hidden");
+  prizesGrid.classList.remove("hidden");
+  entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+
+  prizesGrid.innerHTML = entries.map(([id, p]) => `
+    <div class="prize-card" data-id="${id}">
+      <button class="prize-del" data-id="${id}" title="Нест кардан">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="trophy-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
+      </div>
+      <h4>${escapeHtml(p.name || "—")}</h4>
+      <div class="qty-block">
+        <span class="qty-label">Миқдор</span>
+        <span class="qty-num">${p.qty ?? 1}</span>
+      </div>
+    </div>
+  `).join("");
+
+  prizesGrid.querySelectorAll(".prize-del").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try{
+        await remove(ref(db, "prizes/" + btn.dataset.id));
+        showToast("Приз нест карда шуд", "success");
+      } catch(err){
+        console.error(err);
+        showToast("Хатои нест кардани приз.", "error");
+      }
+    });
+  });
+
+  let prizeRevertTimer = null;
+  prizesGrid.querySelectorAll(".prize-card").forEach(card => {
+    card.addEventListener("click", () => {
+      clearTimeout(prizeRevertTimer);
+      prizesGrid.querySelectorAll(".prize-card.active").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      prizeRevertTimer = setTimeout(() => {
+        card.classList.remove("active");
+      }, 2000);
+    });
+  });
+}
+
+document.getElementById("openPrizesModalBtn").addEventListener("click", () => openModal("prizesModal"));
+
+document.getElementById("prizeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("prizeNameInput").value.trim();
+  const qty = parseInt(document.getElementById("prizeQtyInput").value, 10);
+  if(!name || !qty) return;
+  try{
+    await push(ref(db, "prizes"), { name, qty, createdAt: Date.now() });
+    closeModal("prizesModal");
+    document.getElementById("prizeForm").reset();
+    showToast(`Приз "${name}" илова шуд`, "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои илова кардани приз. Танзимоти Firebase-ро санҷед.", "error");
+  }
+});
+
+/* ---------------- Boot ---------------- */
+(async function boot(){
+  try{
+    const saved = localStorage.getItem(LS_KEY);
+    const snap = await get(ref(db, "admin/code"));
+    if(saved && snap.exists() && snap.val() === saved){
+      showDashboard();
+    } else {
+      if(saved) localStorage.removeItem(LS_KEY);
+      if(!snap.exists()){
+        loginHint.textContent = "Ҳанӯз рамзи админ таъин нашудааст — рамзе, ки аввал ворид кунед, ҳамчун рамзи админ сабт мешавад.";
+      }
+      showLogin();
+    }
+  } catch(err){
+    console.error(err);
+    showLogin("Хатои пайваст ба Firebase. Танзимоти шабакаро санҷед.");
+  }
+})();
+
+/* ---------------- Internet connectivity check ---------------- */
+const connOverlay = document.getElementById("connOverlay");
+const connTitle = document.getElementById("connTitle");
+const connSub = document.getElementById("connSub");
+const appRoot = document.getElementById("appRoot");
+
+const SLOW_THRESHOLD_MS = 2000;
+const CHECK_INTERVAL_MS = 2500;
+const PING_URL = "https://www.gstatic.com/generate_204?t=";
+
+let connState = "online"; // online | slow | offline
+let checkInFlight = false;
+
+function setConnState(state){
+  if(connState === state) return;
+  connState = state;
+  if(state === "offline"){
+    connTitle.textContent = "Интернет қатъ шуд";
+    connSub.textContent = "Пайвастагӣ бо интернет қатъ шуд. Лутфан пайвастагии худро санҷед.";
+    connOverlay.classList.add("show");
+    appRoot.classList.add("conn-blur");
+  } else if(state === "slow"){
+    connTitle.textContent = "Интернети шумо суст аст";
+    connSub.textContent = "Лутфан интизор шавед, пайвастагӣ дар ҳоли барқарор шудан аст...";
+    connOverlay.classList.add("show");
+    appRoot.classList.add("conn-blur");
+  } else {
+    connOverlay.classList.remove("show");
+    appRoot.classList.remove("conn-blur");
+  }
+}
+
+async function checkConnection(){
+  if(checkInFlight) return;
+  checkInFlight = true;
+  if(!navigator.onLine){
+    setConnState("offline");
+    checkInFlight = false;
+    return;
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SLOW_THRESHOLD_MS);
+  const started = performance.now();
+  try{
+    await fetch(PING_URL + Date.now(), { mode:"no-cors", cache:"no-store", signal: controller.signal });
+    const elapsed = performance.now() - started;
+    clearTimeout(timeoutId);
+    setConnState(elapsed > SLOW_THRESHOLD_MS ? "slow" : "online");
+  } catch(err){
+    clearTimeout(timeoutId);
+    setConnState(navigator.onLine ? "slow" : "offline");
+  } finally {
+    checkInFlight = false;
+  }
+}
+
+window.addEventListener("online", checkConnection);
+window.addEventListener("offline", () => setConnState("offline"));
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") checkConnection(); });
+checkConnection();
+setInterval(checkConnection, CHECK_INTERVAL_MS);
+</script>
+</body>
+</html>
