@@ -318,7 +318,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
     <div class="tab-header">
       <h2 class="tab-title">Чат</h2>
       <div class="header-actions">
-        <button type="button" id="main-back-btn" class="icon-btn" title="Бозгашт">↩</button>
         <div id="main-user-badge" class="user-badge">
           <div id="main-user-avatar" class="user-badge-avatar"></div>
           <span id="main-user-name" class="user-badge-name"></span>
@@ -1248,8 +1247,6 @@ function goToExternalSite() {
 }
 
 function init() {
-  // Тугмаи "Бозгашт" дар экрани чат — танҳо ба сомонаи беруна мебарад
-  $("#main-back-btn").addEventListener("click", goToExternalSite);
 
   $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
