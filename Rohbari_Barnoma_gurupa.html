@@ -49,7 +49,12 @@ body{
 }
 @media (min-width:461px){
   body{ padding:24px 0; }
-  .app-shell{ min-height:calc(100dvh - 48px); border-radius:28px; }
+  .app-shell{
+    width:92vw;
+    max-width:min(820px, 92vw);
+    min-height:calc(100dvh - 48px);
+    border-radius:28px;
+  }
 }
 button{font-family:inherit;cursor:pointer;}
 input,textarea{font-family:inherit;}
@@ -84,14 +89,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .screen.active{ display:flex; }
 @media (min-width:461px){ .screen{ min-height:0; height:100%; } }
 
-/* ---------- auth screen ---------- */
-#screen-auth{ justify-content:center; align-items:center; padding:32px 26px; text-align:center; }
-.auth-eyebrow{
-  font-family:var(--font-body); letter-spacing:.18em; text-transform:uppercase;
-  font-size:11px; color:var(--teal); margin-bottom:10px; font-weight:600;
-}
-.auth-title{ font-family:var(--font-display); font-size:28px; margin:0 0 6px; }
-.auth-sub{ color:var(--text-dim); font-size:14px; margin:0 0 28px; max-width:280px; }
 .avatar-picker{
   width:96px;height:96px;border-radius:50%;
   background:var(--card); border:2px dashed var(--border); padding:0;
@@ -105,7 +102,6 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
 .avatar-inner.has-image .avatar-glyph{ display:none; }
 .avatar-picker:has(.has-image){ border-style:solid; border-color:var(--accent); }
 .avatar-picker.small{ width:64px;height:64px; }
-.link-btn{ background:none;border:none;color:var(--teal);font-size:13px;font-weight:600;margin-bottom:22px; }
 .field{
   width:100%; max-width:300px; background:var(--card); border:1px solid var(--border);
   color:var(--text); border-radius:14px; padding:14px 16px; font-size:15px; margin-bottom:14px;
@@ -161,31 +157,7 @@ button:active{ color:var(--accent) !important; transition:color .12s ease; }
   background:var(--teal); color:#08201F; border:none; border-radius:14px; padding:13px; font-weight:700;
   font-size:14px; margin-bottom:16px;
 }
-.admin-profile{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
-.admin-profile .room-avatar{ width:56px;height:56px; }
-.admin-profile-name{ font-weight:700; font-size:16px; }
-.admin-profile-label{ font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em; }
-.admin-logout-btn{
-  margin-left:auto; background:var(--card); border:1px solid var(--danger); color:var(--danger);
-  padding:9px 16px; border-radius:12px; font-size:13px; font-weight:700; white-space:nowrap; flex-shrink:0;
-}
-.admin-logout-btn:active{ background:var(--danger); color:#fff; }
 .section-label{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-faint); margin:0 0 10px 2px; }
-
-.bottom-nav{ display:flex; border-top:1px solid var(--border); background:var(--bg-elev); flex-shrink:0; }
-.nav-btn{
-  flex:1; background:none; border:none; color:var(--text-faint); padding:11px 0 9px;
-  display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; font-weight:600;
-}
-.nav-btn .nav-icon{ font-size:19px; }
-.nav-btn.active{ color:var(--accent); }
-.nav-icon-wrap{ position:relative; display:inline-flex; }
-.nav-badge{
-  position:absolute; top:-6px; right:-10px; min-width:16px; height:16px; padding:0 4px;
-  background:var(--danger); color:#fff; border-radius:10px; font-size:10px; font-weight:700;
-  line-height:16px; text-align:center; display:none; box-shadow:0 0 0 2px var(--bg-elev);
-}
-.nav-badge.show{ display:block; }
 
 /* ---------- group menu dropdown ---------- */
 .dropdown-menu{
@@ -455,91 +427,21 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
 
 @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; transition-duration:.001ms !important; } }
 
-/* ---------- external window overlay (chat / program buttons) ---------- */
-.ext-window-overlay{
-  position:fixed; inset:0; background:#000; display:none; flex-direction:column;
-  z-index:500;
-}
-.ext-window-overlay.open{ display:flex; }
-.ext-window-topbar{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:12px 14px; background:var(--bg-elev); border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-.ext-window-title{ font-family:var(--font-display); font-size:15px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.ext-window-close{
-  background:var(--card); border:1px solid var(--border); color:var(--text);
-  width:34px;height:34px;border-radius:10px; font-size:16px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-}
-.ext-window-frame{ flex:1; border:none; width:100%; height:100%; background:var(--bg); }
-
-/* chat-mode: no close(X) button, bottom nav stays reachable above the overlay */
-.ext-window-overlay.chat-mode .ext-window-close{ display:none; }
-.app-shell.ext-chat-mode .bottom-nav{ position:relative; z-index:600; }
-/* вакте ки дар дохили чати як корбари мушаххас ҳастем — тугмаҳои Чат/Админ пинҳон мешаванд */
-.app-shell.ext-chat-inner .bottom-nav{ display:none; }
-
-/* game-mode: на X, вале тугмаҳои поёнӣ дастрас мемонанд (мисли chat-mode) */
-.ext-window-overlay.game-mode .ext-window-close{ display:none; }
-.app-shell.ext-game-mode .bottom-nav{ position:relative; z-index:600; }
-
 </style>
 </head>
 <body>
 <div class="app-shell">
 
-  <!-- ===================== AUTH SCREEN ===================== -->
-  <section id="screen-auth" class="screen active ikat-bg">
-    <div class="auth-eyebrow">Хуш омадед</div>
-    <h1 class="auth-title">Бақайдгирӣ</h1>
-    <p class="auth-sub">Барои идома номи худро нависед ва як расм илова кунед</p>
-
-    <button type="button" id="auth-avatar-pick-btn" class="avatar-picker">
-      <div id="auth-avatar-preview" class="avatar-inner"><span class="avatar-glyph">📷</span></div>
-    </button>
-    <input type="file" id="auth-avatar-input" accept="image/*" hidden>
-    <div id="auth-status" class="status-line"></div>
-
-    <input type="text" id="auth-name" class="field" placeholder="Номи шумо" maxlength="40">
-    <button type="button" id="auth-continue-btn" class="btn-primary">Идома</button>
-  </section>
-
   <!-- ===================== MAIN SCREEN ===================== -->
-  <section id="screen-main" class="screen">
+  <section id="screen-main" class="screen active">
     <div class="tabs-wrap">
 
-      <!-- CHAT TAB -->
-      <div id="tab-chat" class="tab-panel active">
-        <div class="tab-header">
-          <h2 class="tab-title">Чат</h2>
-          <button type="button" id="chat-exit-btn" class="icon-btn" title="Баромадан">⎋</button>
-        </div>
-        <div class="scroll-area ikat-bg">
-          <div id="chat-empty" class="empty-state">
-            <span class="emoji">💬</span>
-            <b>Ҳанӯз гурӯҳе сохта нашудааст</b>
-            <p>Ҳамин ки касе гурӯҳе созад, он дар ин ҷо намоён мешавад</p>
-          </div>
-          <div id="chat-rooms-list"></div>
-        </div>
-      </div>
-
       <!-- ADMIN TAB -->
-      <div id="tab-admin" class="tab-panel">
+      <div id="tab-admin" class="tab-panel active">
         <div class="tab-header">
           <h2 class="tab-title">Идоракунӣ</h2>
         </div>
         <div class="scroll-area">
-          <div class="admin-profile">
-            <div id="admin-profile-avatar" class="room-avatar"></div>
-            <div>
-              <div class="admin-profile-label">Профили шумо</div>
-              <div id="admin-profile-name" class="admin-profile-name"></div>
-            </div>
-            <button type="button" id="admin-logout-btn" class="admin-logout-btn">Выход</button>
-          </div>
-
           <button type="button" id="admin-new-group-btn" class="new-group-btn">＋ Гурӯҳи нав</button>
 
           <div class="section-label">Гурӯҳҳои шумо</div>
@@ -552,18 +454,6 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
         </div>
       </div>
 
-    </div>
-
-    <div class="bottom-nav">
-      <button type="button" id="nav-chat-btn" class="nav-btn">
-        <span class="nav-icon-wrap"><span class="nav-icon">💬</span><span id="chat-nav-badge" class="nav-badge">0</span></span><span>Чат</span>
-      </button>
-      <button type="button" id="nav-game-btn" class="nav-btn">
-        <span class="nav-icon">🎮</span><span>Игра</span>
-      </button>
-      <button type="button" id="nav-admin-btn" class="nav-btn">
-        <span class="nav-icon">⚙️</span><span>Админ</span>
-      </button>
     </div>
   </section>
 
@@ -731,14 +621,6 @@ textarea.composer-textarea:focus{ border-color:var(--teal); }
   <div id="toast-root"></div>
 </div>
 
-<div id="ext-window-overlay" class="ext-window-overlay">
-  <div class="ext-window-topbar">
-    <span id="ext-window-title" class="ext-window-title"></span>
-    <button type="button" id="ext-window-close" class="ext-window-close">✕</button>
-  </div>
-  <iframe id="ext-window-frame" class="ext-window-frame" src="" allow="camera;microphone;clipboard-write"></iframe>
-</div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.15.0/firebase-database-compat.min.js"></script>
 <script>
@@ -820,76 +702,6 @@ function playNotifySound() {
     o.start();
     o.stop(ctx.currentTime + 0.32);
   } catch (e) {}
-}
-
-/* ===================== Бейджи паёмҳои нав (тугмаи "Чат") =====================
-   Ин глобалист — новобаста аз он ки корбар дар кадом ҷо аст (дохили гурӯҳ,
-   дар табки Админ ва ғ.), чун ба sayt1_active_users гӯш медиҳад, на ба
-   таби ҷорӣ. Ҳамчунин кӯшиш мекунад шумораро берун аз браузер (дар апки
-   Android, тавассути web2appPro) низ нишон диҳад — рӯи иконаи барнома
-   (Badging API) ва тавассути огоҳиномаи система (Notification API).
-================================================================== */
-const APP_TITLE_BASE = document.title;
-let chatUnreadTotal = 0;
-let chatUnreadPrevSeen = null; // барои фарқ кардани "боркунии аввал"-ро аз "паёми воқеан нав"
-
-function updateChatNavBadge(count) {
-  const el = document.getElementById("chat-nav-badge");
-  if (!el) return;
-  if (count > 0) {
-    el.textContent = count > 99 ? "99+" : String(count);
-    el.classList.add("show");
-  } else {
-    el.textContent = "0";
-    el.classList.remove("show");
-  }
-  document.title = count > 0 ? `(${count > 99 ? "99+" : count}) ${APP_TITLE_BASE}` : APP_TITLE_BASE;
-
-  // Иконаи барнома (Android/PWA badge) — агар браузер/апки WebView онро дастгирӣ кунад
-  try {
-    if (count > 0 && navigator.setAppBadge) navigator.setAppBadge(count);
-    else if (navigator.clearAppBadge) navigator.clearAppBadge();
-  } catch (e) {}
-}
-
-function requestNotifyPermissionOnce() {
-  try {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  } catch (e) {}
-}
-
-function fireSystemNotification(count) {
-  try {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    const n = new Notification("Паёми нав", {
-      body: `Шумо ${count} паёми хонданашуда доред`,
-      tag: "sayt1-chat-unread",
-      renotify: true,
-      silent: false,
-    });
-    n.onclick = () => { try { window.focus(); } catch (e) {} n.close(); };
-  } catch (e) {}
-}
-
-function listenChatUnreadBadge() {
-  requestNotifyPermissionOnce();
-  db.ref("sayt1_active_users").on("value", (snap) => {
-    const data = snap.val() || {};
-    let total = 0;
-    Object.values(data).forEach((u) => { total += Number(u && u.unreadCount) || 0; });
-
-    const increased = chatUnreadPrevSeen !== null && total > chatUnreadPrevSeen;
-    chatUnreadPrevSeen = total;
-    chatUnreadTotal = total;
-    updateChatNavBadge(total);
-
-    if (increased) {
-      playNotifySound();
-      fireSystemNotification(total);
-    }
-  });
 }
 
 /* ===================== UI sounds (тугмаҳо ва равзанаҳо) ===================== */
@@ -1190,6 +1002,11 @@ function loadMe() {
   if (raw) {
     try { ME = JSON.parse(raw); } catch (e) { ME = null; }
   }
+  if (!ME) {
+    ME = { uid: uid(), name: "Корбар", avatar: "" };
+    saveMe();
+    db.ref("users/" + ME.uid).set({ name: ME.name, avatar: ME.avatar, createdAt: TS });
+  }
 }
 function saveMe() {
   localStorage.setItem("lc_admin_profile", JSON.stringify(ME));
@@ -1203,11 +1020,8 @@ function showScreen(name) {
 }
 function showTab(name) {
   $$(".tab-panel").forEach((t) => t.classList.remove("active"));
-  $$(".nav-btn").forEach((b) => b.classList.remove("active"));
   $("#tab-" + name).classList.add("active");
-  $("#nav-" + name + "-btn").classList.add("active");
   if (name === "admin") renderAdminList();
-  if (name === "chat") renderChatList();
 }
 
 /* ===================== Modals ===================== */
@@ -1227,68 +1041,6 @@ function showConfirm(text, danger, onYes) {
   yesBtn.addEventListener("click", handler, { once: true });
 }
 
-/* ===================== Auth screen ===================== */
-let authAvatarData = null;
-
-function initAuthScreen() {
-  $("#auth-avatar-pick-btn").addEventListener("click", () => $("#auth-avatar-input").click());
-  $("#auth-avatar-input").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { toast("Танҳо расм лозим аст"); return; }
-    $("#auth-status").textContent = "Расм фушурда мешавад...";
-    try {
-      authAvatarData = await compressImageFile(file);
-      $("#auth-avatar-preview").style.backgroundImage = `url(${authAvatarData})`;
-      $("#auth-avatar-preview").classList.add("has-image");
-      $("#auth-status").textContent = `Тайёр (${(byteSizeOfDataURL(authAvatarData) / 1024).toFixed(1)} КБ)`;
-    } catch (err) {
-      $("#auth-status").textContent = "Хатогӣ ҳангоми коркарди расм";
-    }
-  });
-
-  $("#auth-continue-btn").addEventListener("click", () => {
-    const name = $("#auth-name").value.trim();
-    if (!name) { toast("Лутфан номи худро нависед"); return; }
-    if (!authAvatarData) { toast("Лутфан расм илова кунед"); return; }
-    ME = { uid: uid(), name, avatar: authAvatarData };
-    saveMe();
-    db.ref("users/" + ME.uid).set({ name: ME.name, avatar: ME.avatar, createdAt: TS });
-    enterApp();
-  });
-}
-
-/* ===================== Main / Chat tab ===================== */
-function renderChatList() {
-  const list = $("#chat-rooms-list");
-  const groups = Object.entries(allGroups || {}).filter(([id, g]) => !g.blocked);
-  if (groups.length === 0) {
-    $("#chat-empty").style.display = "flex";
-    list.innerHTML = "";
-    return;
-  }
-  $("#chat-empty").style.display = "none";
-  groups.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-  list.innerHTML = groups.map(([id, g]) => {
-    const subCount = Object.keys(g.subscribers || {}).length;
-    const msgCount = Object.keys(g.messages || {}).length;
-    const last = g.lastMessage;
-    const preview = last ? lastMessagePreview(last) : "Ҳанӯз паём нест";
-    const time = last ? formatTime(last.ts) : "";
-    return `
-      <div class="room-card" data-id="${id}">
-        <div class="room-avatar" style="background-image:url(${g.avatar})"></div>
-        <div class="room-info">
-          <div class="room-top"><span class="room-name">${escapeHtml(g.name)}</span><span class="room-msgcount">💬 ${msgCount}</span><span class="room-time">${time}</span></div>
-          <div class="room-bottom"><span class="room-preview">${preview}</span><span class="room-subs">👥 ${subCount}</span></div>
-        </div>
-      </div>`;
-  }).join("");
-  list.querySelectorAll(".room-card").forEach((el) => {
-    el.addEventListener("click", () => openGroup(el.dataset.id));
-  });
-}
-
 function lastMessagePreview(m) {
   if (m.type === "image") return "📷 Расм";
   if (m.type === "document") return "📄 Ҳуҷҷат";
@@ -1299,8 +1051,6 @@ function lastMessagePreview(m) {
 
 /* ===================== Admin tab ===================== */
 function renderAdminList() {
-  $("#admin-profile-avatar").style.backgroundImage = `url(${ME.avatar})`;
-  $("#admin-profile-name").textContent = ME.name;
   const mine = Object.entries(allGroups || {}).filter(([id, g]) => g.ownerId === ME.uid);
   $("#admin-new-group-btn").style.display = mine.length >= 1 ? "none" : "flex";
   const list = $("#admin-groups-list");
@@ -1411,15 +1161,24 @@ function initCreateGroupModal() {
     if (mine.length >= 1) { toast("Шумо танҳо як гурӯҳ метавонед созед"); closeModal("modal-create-group"); return; }
     const name = $("#cg-name-input").value.trim();
     if (!name) { toast("Номи гурӯҳро нависед"); return; }
-    if (!cgAvatarData) { toast("Расми гурӯҳро илова кунед"); return; }
+    const avatar = cgAvatarData || defaultAvatarFor(name);
     const ref = groupsRef.push();
     ref.set({
-      name, avatar: cgAvatarData, ownerId: ME.uid, ownerName: ME.name,
+      name, avatar, ownerId: ME.uid, ownerName: ME.name,
       createdAt: TS, blocked: false, subscribers: {}, pinnedMessageId: null
     });
     closeModal("modal-create-group");
     toast("Гурӯҳ сохта шуд");
   });
+}
+
+function defaultAvatarFor(name) {
+  const letter = (name || "?").trim().charAt(0).toUpperCase() || "?";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">
+    <rect width="120" height="120" fill="#3FA7A0"/>
+    <text x="50%" y="50%" dy=".35em" text-anchor="middle" font-family="sans-serif" font-size="56" fill="#08201F">${letter}</text>
+  </svg>`;
+  return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
 }
 
 /* ===================== Group detail screen ===================== */
@@ -1469,7 +1228,7 @@ function closeGroup() {
   cancelReply();
   closeMessageMenu();
   showScreen("main");
-  showTab($(".nav-btn.active") ? $(".nav-btn.active").id.replace("nav-", "").replace("-btn", "") : "chat");
+  showTab("admin");
 }
 
 function renderGroupHeader(groupId, g) {
@@ -2332,54 +2091,10 @@ function stopRecordingIfAny(cancel) {
   }
 }
 
-/* ===================== External window (iframe) ===================== */
-function openExternalWindow(url, title, mode) {
-  playOpenSound();
-  $("#ext-window-title").textContent = title || "";
-  $("#ext-window-frame").src = url;
-  const overlay = $("#ext-window-overlay");
-  const shell = $(".app-shell");
-  overlay.classList.add("open");
-  overlay.classList.remove("chat-mode", "game-mode");
-  shell.classList.remove("ext-chat-mode", "ext-game-mode");
-  if (mode === "chat") {
-    overlay.classList.add("chat-mode");
-    shell.classList.add("ext-chat-mode");
-  } else if (mode === "game") {
-    overlay.classList.add("game-mode");
-    shell.classList.add("ext-game-mode");
-  }
-}
-function closeExternalWindow() {
-  $("#ext-window-overlay").classList.remove("open");
-  $("#ext-window-overlay").classList.remove("chat-mode");
-  $("#ext-window-overlay").classList.remove("game-mode");
-  $(".app-shell").classList.remove("ext-chat-mode");
-  $(".app-shell").classList.remove("ext-game-mode");
-  $(".app-shell").classList.remove("ext-chat-inner");
-  $("#ext-window-frame").src = "";
-}
-
-/* Сомонаи берунӣ (admini_chat.html) ин пайғомҳоро мефиристад:
-   - Вакте ки чати мушаххаси корбар кушода мешавад: {type:"chat-conversation-open"}
-   - Вакте ки тугмаи "бозгашт ба руйхат" пахш мешавад: {type:"chat-conversation-closed"} */
-window.addEventListener("message", (e) => {
-  if (!e.data || typeof e.data !== "object") return;
-  const shell = $(".app-shell");
-  if (e.data.type === "chat-conversation-open") {
-    shell.classList.add("ext-chat-inner");
-  } else if (e.data.type === "chat-conversation-closed") {
-    shell.classList.remove("ext-chat-inner");
-  }
-});
-
 /* ===================== App bootstrap ===================== */
 function enterApp() {
   showScreen("main");
-  showTab("chat");
-  // Аввал ҳарду тугмаи поёнӣ сафед бошанд — ранг танҳо баъд аз клики корбар пайдо мешавад
-  $$(".nav-btn").forEach((b) => b.classList.remove("active"));
-  listenChatUnreadBadge();
+  showTab("admin");
   groupsRef.on("value", (snap) => {
     const newGroups = snap.val() || {};
     const hasData = Object.keys(newGroups).length > 0;
@@ -2391,9 +2106,7 @@ function enterApp() {
       return;
     }
     allGroups = newGroups;
-    const activeTab = $(".nav-btn.active");
-    if (activeTab && activeTab.id === "nav-chat-btn") renderChatList();
-    if (activeTab && activeTab.id === "nav-admin-btn") renderAdminList();
+    renderAdminList();
     if (currentGroupId && allGroups[currentGroupId]) {
       renderGroupHeader(currentGroupId, allGroups[currentGroupId]);
     }
@@ -2407,43 +2120,12 @@ function forceLogoutAll() {
 }
 
 function init() {
-  initAuthScreen();
   initCreateGroupModal();
   initGroupMenu();
   initComposer();
   initEditMessageModal();
   initMessageMenu();
 
-$("#nav-game-btn").addEventListener("click", () => {
-    $$(".nav-btn").forEach((b) => b.classList.remove("active"));
-    $("#nav-game-btn").classList.add("active");
-    openExternalWindow("https://kholidtj1995.github.io/sayt-1/admin.html", "Бозӣ", "game");
-});
-$("#nav-chat-btn").addEventListener("click", () => {
-    $$(".nav-btn").forEach((b) => b.classList.remove("active"));
-    $("#nav-chat-btn").classList.add("active");
-    // Инҷо истиноди нави шумо гузошта шуд
-    openExternalWindow("https://kholidtj1995.github.io/sayt-1/admini_chat.html", "Чат", "chat");
-});
-  $("#nav-admin-btn").addEventListener("click", () => {
-    closeExternalWindow();
-    showTab("admin");
-  });
-  $("#ext-window-close").addEventListener("click", closeExternalWindow);
-  $("#chat-exit-btn").addEventListener("click", () => {
-    showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
-      localStorage.removeItem("lc_admin_profile");
-      ME = null;
-      location.reload();
-    });
-  });
-  $("#admin-logout-btn").addEventListener("click", () => {
-    showConfirm("Аз ҳисоби худ баромадан мехоҳед?", false, () => {
-      localStorage.removeItem("lc_admin_profile");
-      ME = null;
-      location.reload();
-    });
-  });
   $("#group-messages").addEventListener("click", handleVideoCardClick);
   $("#group-back-btn").addEventListener("click", closeGroup);
   $("#confirm-no").addEventListener("click", () => closeModal("modal-confirm"));
@@ -2452,7 +2134,7 @@ $("#nav-chat-btn").addEventListener("click", () => {
   });
 
   loadMe();
-  if (ME) enterApp(); else showScreen("auth");
+  enterApp();
 }
 
 document.addEventListener("DOMContentLoaded", init);
