@@ -184,6 +184,8 @@
   .badge-btn:hover{ filter:brightness(1.15); }
   .badge-btn:active{ transform:scale(0.93); }
   .badge-btn svg{ width:16px; height:16px; }
+  #chatBtn{ background:#3b82f6; border-color:#3b82f6; color:#ffffff; }
+  #groupBtn{ background:#22c55e; border-color:#22c55e; color:#ffffff; }
   .chat-badge{
     position:absolute; top:-5px; right:-5px; min-width:17px; height:17px; padding:0 4px;
     border-radius:9px; background:var(--crimson); color:#fff; font-size:0.62rem; font-weight:800;
@@ -675,7 +677,7 @@ const chatModalOverlay = document.getElementById("chatModalOverlay");
 const chatModalClose = document.getElementById("chatModalClose");
 const chatFrame = document.getElementById("chatFrame");
 const chatLoading = document.getElementById("chatLoading");
-const CHAT_BASE_URL = "https://kholidtj1995.github.io/sayt-1/chat.html";
+const CHAT_BASE_URL = new URL("design/chat.html", window.location.href).href;
 const CHAT_ORIGIN = new URL(CHAT_BASE_URL).origin;
 let chatLoaded = false;
 let chatFrameReady = false;
@@ -787,7 +789,7 @@ const groupModalOverlay = document.getElementById("groupModalOverlay");
 const groupModalClose = document.getElementById("groupModalClose");
 const groupFrame = document.getElementById("groupFrame");
 const groupLoading = document.getElementById("groupLoading");
-const GROUP_BASE_URL = "https://kholidtj1995.github.io/sayt-1/grupa.html";
+const GROUP_BASE_URL = new URL("design/grupa.html", window.location.href).href;
 const GROUP_ORIGIN = new URL(GROUP_BASE_URL).origin;
 let groupLoaded = false;
 let groupFrameReady = false;
