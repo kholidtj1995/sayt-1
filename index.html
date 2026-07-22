@@ -859,7 +859,7 @@ document.addEventListener("keydown", (e) => {
 
 /* ---------------- Шумориши паёмҳои нави гурӯҳ + садо барои паёми нав ---------------- */
 const groupBadge = document.getElementById("groupBadge");
-let groupUnreadPrevIds = null;
+let groupNotifiedTs = {};
 let groupUnreadInitialLoadDone = false;
 let groupWatchStarted = false;
 
@@ -890,6 +890,8 @@ function watchGroupMessages(){
     const profile = getGroupProfile();
     const uid = profile && profile.uid;
     const unreadIds = new Set();
+    const newNotifiedTs = {};
+    let hasNew = false;
 
     if(uid){
       Object.entries(groups).forEach(([gid, g]) => {
@@ -899,15 +901,18 @@ function watchGroupMessages(){
         const lastTs = g.lastMessage ? g.lastMessage.ts : 0;
         if(!lastTs) return;
         const seenTs = (g.lastSeen && g.lastSeen[uid]) || 0;
-        if(lastTs > seenTs) unreadIds.add(gid);
+        if(lastTs > seenTs){
+          unreadIds.add(gid);
+          newNotifiedTs[gid] = lastTs;
+          // Ҳар паёми нав (ҳатто агар гурӯҳ аллакай "нахонда" буд) бояд садо занад —
+          // барои ин вақти (ts)-и паёми охиринро бо вақти пешина муқоиса мекунем, на танҳо ID-и гурӯҳро
+          if(groupUnreadInitialLoadDone && groupNotifiedTs[gid] !== lastTs) hasNew = true;
+        }
       });
     }
 
-    if(groupUnreadInitialLoadDone){
-      const hasNew = [...unreadIds].some(id => !groupUnreadPrevIds.has(id));
-      if(hasNew && !groupModalOverlay.classList.contains("show")) sound.receive();
-    }
-    groupUnreadPrevIds = unreadIds;
+    if(hasNew && !groupModalOverlay.classList.contains("show")) sound.receive();
+    groupNotifiedTs = newNotifiedTs;
     groupUnreadInitialLoadDone = true;
     updateGroupBadge(unreadIds.size);
   });
