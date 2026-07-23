@@ -986,6 +986,11 @@ function watchUser(id){
   onValue(ref(db, "users/" + id), (snap) => {
     if(!snap.exists()){
       forceLogout();
+      return;
+    }
+    const u = snap.val();
+    if(u && u.blocked){
+      forceLogout();
     }
   });
 }
