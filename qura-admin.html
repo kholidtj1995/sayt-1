@@ -640,6 +640,23 @@
   </div>
 </div>
 
+<!-- GROUP MODAL -->
+<div id="groupModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal">
+    <div class="modal-head">
+      <h3>Гурӯҳ</h3>
+      <button class="modal-close" data-close="groupModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body">
+      <div class="chat-modal-loading" id="groupLoading">
+        <div class="splash-ring" style="width:32px;height:32px;"></div>
+        <span>Бор карда мешавад...</span>
+      </div>
+      <iframe id="groupFrame" title="Гурӯҳ" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
 <!-- LOGOUT CONFIRM MODAL -->
 <div id="logoutModal" class="modal-overlay hidden">
   <div class="modal" style="max-width:340px; text-align:center;">
@@ -879,8 +896,19 @@ function updateChatBadge(count){
   }
 }
 
+const groupFrame = document.getElementById("groupFrame");
+const groupLoading = document.getElementById("groupLoading");
+const GROUP_URL = "https://kholidtj1995.github.io/sayt-1/Rohbari_Barnoma_gurupa.html";
+let groupLoaded = false;
+
 document.getElementById("groupBtn").addEventListener("click", () => {
-  showToast("Бахши гурӯҳ ба зудӣ дастрас мешавад", "info");
+  if(!groupLoaded){
+    groupLoading.style.display = "flex";
+    groupFrame.addEventListener("load", () => { groupLoading.style.display = "none"; }, { once:true });
+    groupFrame.src = GROUP_URL;
+    groupLoaded = true;
+  }
+  openModal("groupModal");
 });
 
 document.getElementById("usersBtn").addEventListener("click", () => {
