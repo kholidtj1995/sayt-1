@@ -1181,7 +1181,7 @@ nameInput.addEventListener("input", () => {
     nameInput.placeholder = originalFieldPlaceholders.nameInput;
   }
   const cursor = nameInput.selectionStart;
-  const cleaned = nameInput.value.replace(/[^\p{L}\s'-]/gu, "");
+  const cleaned = nameInput.value.replace(/[^A-Za-zА-Яа-яЁёӢӣӮӯҚқҒғҲҳҶҷ\s'-]/g, "");
   if(cleaned !== nameInput.value){
     nameInput.value = cleaned;
     if(cursor !== null) nameInput.setSelectionRange(cursor - 1, cursor - 1);
