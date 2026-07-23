@@ -721,7 +721,13 @@
   <div class="modal chat-modal" style="max-width:760px;">
     <div class="modal-head">
       <h3>Корбарони қайдшуда</h3>
-      <button class="modal-close" data-close="usersDataModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="btn btn-danger" id="openBlacklistBtn" style="padding:9px 14px; font-size:0.8rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
+          Рӯйхати сиёҳ
+        </button>
+        <button class="modal-close" data-close="usersDataModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
     </div>
     <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
       <div id="usersTableEmpty" class="empty-state">
@@ -734,6 +740,7 @@
             <th>№</th>
             <th>Ном</th>
             <th>Рақами телефон</th>
+            <th>Рамз</th>
             <th>Санаи қайд</th>
             <th></th>
           </tr>
@@ -749,6 +756,40 @@
   <button data-act="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Чат</button>
   <button data-act="block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg><span id="userCtxBlockLabel">Блок кардан</span></button>
   <button data-act="delete" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Нест кардан</button>
+</div>
+
+<!-- BLACKLIST MODAL -->
+<div id="blacklistModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal" style="max-width:760px;">
+    <div class="modal-head">
+      <h3>Рӯйхати сиёҳ</h3>
+      <button class="modal-close" data-close="blacklistModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div id="blacklistTableEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
+        <p>Рӯйхати сиёҳ холист</p>
+      </div>
+      <table id="blacklistTable" class="users-table hidden">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Ном</th>
+            <th>Рақами телефон</th>
+            <th>Санаи блок</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="blacklistTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- BLACKLIST ROW CONTEXT MENU -->
+<div id="blacklistCtxMenu" class="user-ctx-menu hidden">
+  <button data-act="unblock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>Баровардан аз рӯйхати сиёҳ</button>
+  <button data-act="purge" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Пурра нест кардан</button>
 </div>
 
 <!-- SERVER MANAGEMENT MODAL -->
@@ -1017,6 +1058,21 @@ document.getElementById("groupBtn").addEventListener("click", () => {
 document.getElementById("usersBtn").addEventListener("click", () => {
   openModal("usersDataModal");
 });
+document.getElementById("usersDataBtn").addEventListener("click", () => {
+  openModal("usersDataModal");
+});
+
+// Ба шакли ягона овардани рақами телефон — новобаста аз префикси "+992"/"992"/"00992"/"0"
+// ё фосила/тире дар байни рақамҳо. Бо ин, рӯйхати сиёҳ бо худи рақам кор мекунад,
+// на бо ID-и корбар, ки бо ҳар воридшавии нав тағйир меёбад.
+function normalizePhone(phone){
+  let digits = String(phone || "").replace(/\D/g, "");
+  if(digits.startsWith("00")) digits = digits.slice(2);
+  if(digits.startsWith("992") && digits.length > 9) digits = digits.slice(3);
+  if(digits.startsWith("0") && digits.length > 9) digits = digits.slice(1);
+  if(digits.length > 9) digits = digits.slice(-9);
+  return digits;
+}
 
 /* ---------------- Users data table ---------------- */
 const usersTable = document.getElementById("usersTable");
@@ -1052,6 +1108,7 @@ function renderUsersTable(data){
       <td class="u-idx">${i+1}</td>
       <td class="u-name">${escapeHtml(u.name || "—")}</td>
       <td>${escapeHtml(u.phone || "—")}</td>
+      <td>${escapeHtml(u.password || "—")}</td>
       <td class="u-date">${fmtDate(u.createdAt)}</td>
       <td style="text-align:right">
         <button class="u-dots-btn" data-id="${id}" title="Амалҳо">
@@ -1071,8 +1128,6 @@ function renderUsersTable(data){
 
 function openUserCtxMenu(id, anchorBtn){
   ctxTargetId = id;
-  const u = usersCache[id] || {};
-  userCtxBlockLabel.textContent = u.blocked ? "Рафъи блок" : "Блок кардан";
   const rect = anchorBtn.getBoundingClientRect();
   userCtxMenu.classList.remove("hidden");
   const menuW = 180;
@@ -1113,8 +1168,20 @@ userCtxMenu.addEventListener("click", async (e) => {
     openModal("chatModal");
   } else if(act === "block"){
     try{
-      await update(ref(db, "users/" + id), { blocked: !u.blocked });
-      showToast(!u.blocked ? "Корбар блок карда шуд" : "Корбар аз блок бароварда шуд", "success");
+      const normPhone = u.normPhone || normalizePhone(u.phone);
+      if(normPhone){
+        // Рақами телефон ба рӯйхати сиёҳ илова мешавад — то ин корбар ҳатто бо номи дигар
+        // ё бо тағйир додани префикси рақам натавонад аз нав сабти ном кунад.
+        await set(ref(db, "blockedPhones/" + normPhone), {
+          name: u.name || "",
+          phone: u.phone || "",
+          blockedAt: Date.now()
+        });
+      }
+      // Корбари блокшуда аз рӯйхати корбарони қайдшуда пурра нест мешавад.
+      await remove(ref(db, "users/" + id));
+      if(u.name) remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{});
+      showToast("Корбар блок карда шуд, аз рӯйхат нест шуд ва рақамаш ба рӯйхати сиёҳ гузашт", "success");
     } catch(err){
       console.error(err);
       showToast("Хатои блок кардани корбар.", "error");
@@ -1127,6 +1194,117 @@ userCtxMenu.addEventListener("click", async (e) => {
     } catch(err){
       console.error(err);
       showToast("Хатои нест кардани корбар.", "error");
+    }
+  }
+});
+
+/* ---------------- Blacklist (рӯйхати сиёҳ) ---------------- */
+const blacklistTable = document.getElementById("blacklistTable");
+const blacklistTableBody = document.getElementById("blacklistTableBody");
+const blacklistTableEmpty = document.getElementById("blacklistTableEmpty");
+const blacklistCtxMenu = document.getElementById("blacklistCtxMenu");
+let blacklistCache = {};
+let blCtxTargetPhone = null;
+
+function renderBlacklistTable(data){
+  blacklistCache = data || {};
+  const entries = Object.entries(blacklistCache);
+  if(entries.length === 0){
+    blacklistTable.classList.add("hidden");
+    blacklistTableEmpty.classList.remove("hidden");
+    blacklistTableBody.innerHTML = "";
+    return;
+  }
+  blacklistTableEmpty.classList.add("hidden");
+  blacklistTable.classList.remove("hidden");
+  entries.sort((a,b) => (b[1].blockedAt||0) - (a[1].blockedAt||0));
+
+  blacklistTableBody.innerHTML = entries.map(([normPhone, b], i) => `
+    <tr data-phone="${normPhone}">
+      <td class="u-idx">${i+1}</td>
+      <td class="u-name">${escapeHtml(b.name || "—")}</td>
+      <td>${escapeHtml(b.phone || "—")}</td>
+      <td class="u-date">${fmtDate(b.blockedAt)}</td>
+      <td style="text-align:right">
+        <button class="u-dots-btn" data-phone="${normPhone}" title="Амалҳо">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  blacklistTableBody.querySelectorAll(".u-dots-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openBlacklistCtxMenu(btn.dataset.phone, btn);
+    });
+  });
+}
+
+function openBlacklistCtxMenu(normPhone, anchorBtn){
+  blCtxTargetPhone = normPhone;
+  const rect = anchorBtn.getBoundingClientRect();
+  blacklistCtxMenu.classList.remove("hidden");
+  const menuW = 220;
+  let left = rect.right - menuW;
+  if(left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if(top + 100 > window.innerHeight) top = rect.top - 100;
+  blacklistCtxMenu.style.left = left + "px";
+  blacklistCtxMenu.style.top = top + "px";
+}
+function closeBlacklistCtxMenu(){
+  blacklistCtxMenu.classList.add("hidden");
+  blCtxTargetPhone = null;
+}
+document.addEventListener("click", (e) => {
+  if(!blacklistCtxMenu.classList.contains("hidden") && !blacklistCtxMenu.contains(e.target)){
+    closeBlacklistCtxMenu();
+  }
+});
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeBlacklistCtxMenu(); });
+
+document.getElementById("openBlacklistBtn").addEventListener("click", () => openModal("blacklistModal"));
+
+// Агар корбаре бо ин рақами телефон дар рӯйхати корбарон бошад, ID-и онро ёфтан
+function findUserIdByNormPhone(normPhone){
+  for(const [id, u] of Object.entries(usersCache)){
+    const p = u.normPhone || normalizePhone(u.phone);
+    if(p && p === normPhone) return id;
+  }
+  return null;
+}
+
+blacklistCtxMenu.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if(!btn || !blCtxTargetPhone) return;
+  const act = btn.dataset.act;
+  const normPhone = blCtxTargetPhone;
+  closeBlacklistCtxMenu();
+
+  if(act === "unblock"){
+    try{
+      await remove(ref(db, "blockedPhones/" + normPhone));
+      const uid = findUserIdByNormPhone(normPhone);
+      if(uid) await update(ref(db, "users/" + uid), { blocked: false });
+      showToast("Рақам аз рӯйхати сиёҳ бароварда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои баровардан аз рӯйхати сиёҳ.", "error");
+    }
+  } else if(act === "purge"){
+    try{
+      await remove(ref(db, "blockedPhones/" + normPhone));
+      const uid = findUserIdByNormPhone(normPhone);
+      if(uid){
+        const u = usersCache[uid] || {};
+        await remove(ref(db, "users/" + uid));
+        if(u.name) remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{});
+      }
+      showToast("Пурра нест карда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои нест кардани маълумот.", "error");
     }
   }
 });
@@ -1183,6 +1361,11 @@ function attachLiveListeners(){
   const usersCb = (snap) => renderUsersTable(snap.exists() ? snap.val() : null);
   onValue(usersRef, usersCb);
   activeListeners.push({ path: usersRef, cb: usersCb });
+
+  const blockedPhonesRef = ref(db, "blockedPhones");
+  const blockedPhonesCb = (snap) => renderBlacklistTable(snap.exists() ? snap.val() : null);
+  onValue(blockedPhonesRef, blockedPhonesCb);
+  activeListeners.push({ path: blockedPhonesRef, cb: blockedPhonesCb });
 
   // Огоҳии садоӣ барои корбари нав + бейджи паёмҳои нахонда дар тугмаи чат
   let knownChatUserKeys = null; // null = ҳанӯз бор нашудааст (аввалин снапшот)
