@@ -375,6 +375,10 @@
   .users-table td.u-name{ font-weight:700; color:var(--text); }
   .users-table td.u-date{ color:var(--text-muted); white-space:nowrap; }
   .users-table tr.is-blocked td.u-name{ color:var(--crimson); }
+  .status-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-dim); margin-right:6px; vertical-align:middle; }
+  .status-dot.online{ background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.22); }
+  .status-cell{ white-space:nowrap; }
+  .status-cell.is-online{ color:#22c55e; font-weight:700; }
   .u-dots-btn{
     width:30px; height:30px; border-radius:8px; border:none; background:transparent; color:var(--text-muted);
     cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -741,7 +745,9 @@
             <th>Ном</th>
             <th>Рақами телефон</th>
             <th>Рамз</th>
+            <th>Ҳолат</th>
             <th>Санаи қайд</th>
+            <th>Даромади охирин</th>
             <th></th>
           </tr>
         </thead>
@@ -1081,6 +1087,7 @@ const usersTableEmpty = document.getElementById("usersTableEmpty");
 const userCtxMenu = document.getElementById("userCtxMenu");
 const userCtxBlockLabel = document.getElementById("userCtxBlockLabel");
 let usersCache = {};
+let onlineUserIds = new Set();
 let ctxTargetId = null;
 
 function fmtDate(ts){
@@ -1109,7 +1116,11 @@ function renderUsersTable(data){
       <td class="u-name">${escapeHtml(u.name || "—")}</td>
       <td>${escapeHtml(u.phone || "—")}</td>
       <td>${escapeHtml(u.password || "—")}</td>
+      <td class="status-cell ${onlineUserIds.has(id) ? "is-online" : ""}">
+        <span class="status-dot ${onlineUserIds.has(id) ? "online" : ""}"></span>${onlineUserIds.has(id) ? "Онлайн" : "Офлайн"}
+      </td>
       <td class="u-date">${fmtDate(u.createdAt)}</td>
+      <td class="u-date">${fmtDate(u.lastLogin)}</td>
       <td style="text-align:right">
         <button class="u-dots-btn" data-id="${id}" title="Амалҳо">
           <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
@@ -1315,11 +1326,13 @@ document.getElementById("serverMgmtBtn").addEventListener("click", () => openMod
 document.getElementById("deleteAllUsersBtn").addEventListener("click", () => {
   pendingClearTarget = "allUsers";
   document.getElementById("confirmCodeInput").value = "";
+  closeModal("serverMgmtModal");
   openModal("confirmModal");
 });
 document.getElementById("deleteAllChatsBtn").addEventListener("click", () => {
   pendingClearTarget = "allChats";
   document.getElementById("confirmCodeInput").value = "";
+  closeModal("serverMgmtModal");
   openModal("confirmModal");
 });
 document.getElementById("restartFirebaseBtn").addEventListener("click", () => {
@@ -1361,6 +1374,18 @@ function attachLiveListeners(){
   const usersCb = (snap) => renderUsersTable(snap.exists() ? snap.val() : null);
   onValue(usersRef, usersCb);
   activeListeners.push({ path: usersRef, cb: usersCb });
+
+  // Ҳолати "онлайн будан"-и корбарон дар вақти воқеӣ (real-time) — index.html ҳангоми
+  // вуруд/боз кардани барнома дар "onlineUsers/{id}" сабт мекунад ва ҳангоми баромадан ё
+  // қатъ шудани пайваст (onDisconnect) худкор пок мекунад.
+  const onlineUsersRef = ref(db, "onlineUsers");
+  const onlineUsersCb = (snap) => {
+    const data = snap.val() || {};
+    onlineUserIds = new Set(Object.keys(data));
+    renderUsersTable(usersCache);
+  };
+  onValue(onlineUsersRef, onlineUsersCb);
+  activeListeners.push({ path: onlineUsersRef, cb: onlineUsersCb });
 
   const blockedPhonesRef = ref(db, "blockedPhones");
   const blockedPhonesCb = (snap) => renderBlacklistTable(snap.exists() ? snap.val() : null);
