@@ -100,6 +100,23 @@
     font-size:0.95rem; transition:border-color .15s, box-shadow .15s;
   }
   .field input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(232,184,75,0.15); outline:none; }
+  .field input.field-error{
+    border-color:var(--crimson) !important;
+    box-shadow:0 0 0 3px rgba(226,83,107,0.18) !important;
+    animation:fieldShake 0.4s ease;
+  }
+  .field input.field-error::placeholder{ color:var(--crimson); opacity:0.9; }
+  @keyframes fieldShake{
+    10%,90%{ transform:translateX(-1px); }
+    20%,80%{ transform:translateX(2px); }
+    30%,50%,70%{ transform:translateX(-4px); }
+    40%,60%{ transform:translateX(4px); }
+  }
+  .phone-country-hint{
+    margin-top:6px; font-size:0.78rem; color:var(--text-muted); min-height:16px;
+    display:flex; align-items:center; gap:6px; font-weight:600;
+  }
+  .phone-country-hint.detected{ color:var(--gold-2); }
   .btn{
     border:none; cursor:pointer; border-radius:var(--radius-sm);
     font-weight:700; font-size:0.95rem; padding:13px 20px;
@@ -364,7 +381,12 @@
       </div>
       <div class="field">
         <label for="phoneInput">Рақами телефон</label>
-        <input type="tel" id="phoneInput" placeholder="+992 ХХ ХХХ ХХ ХХ" autocomplete="off" required />
+        <input type="tel" id="phoneInput" placeholder="+992 ХХ ХХХ ХХ ХХ" autocomplete="off" required inputmode="tel" />
+        <div class="phone-country-hint" id="phoneCountryHint"></div>
+      </div>
+      <div class="field">
+        <label for="passwordInput">Рамз</label>
+        <input type="password" id="passwordInput" placeholder="Рамзи худ" autocomplete="off" required />
       </div>
       <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
       <div class="login-error" id="loginError"></div>
@@ -486,7 +508,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getDatabase, ref, set, push, onValue
+  getDatabase, ref, set, push, onValue, get
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -617,6 +639,8 @@ const home = document.getElementById("home");
 const loginForm = document.getElementById("loginForm");
 const nameInput = document.getElementById("nameInput");
 const phoneInput = document.getElementById("phoneInput");
+const passwordInput = document.getElementById("passwordInput");
+const phoneCountryHint = document.getElementById("phoneCountryHint");
 const loginError = document.getElementById("loginError");
 const loginBtn = document.getElementById("loginBtn");
 
@@ -981,8 +1005,20 @@ navItems.forEach(btn => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
+// Ба шакли ягона овардани рақами телефон — новобаста аз он, ки корбар "+992", "992", "00992"
+// ё "0"-ро дар аввали рақам гузоштааст ё не, ва новобаста аз фосила/тире дар байни рақамҳо.
+// Ин имкон намедиҳад, ки корбари блокшуда бо тағйир додани префикси рақам аз блок фирор кунад.
+function normalizePhone(phone){
+  let digits = String(phone || "").replace(/\D/g, "");
+  if(digits.startsWith("00")) digits = digits.slice(2);
+  if(digits.startsWith("992") && digits.length > 9) digits = digits.slice(3);
+  if(digits.startsWith("0") && digits.length > 9) digits = digits.slice(1);
+  if(digits.length > 9) digits = digits.slice(-9);
+  return digits;
+}
+
 // Гӯш кардани сабти корбар дар Firebase — агар аз он ҷо пок шавад, худкор берун бароварда мешавад
-function watchUser(id){
+function watchUser(id, phone){
   onValue(ref(db, "users/" + id), (snap) => {
     if(!snap.exists()){
       forceLogout();
@@ -993,6 +1029,14 @@ function watchUser(id){
       forceLogout();
     }
   });
+  // Агар рақами телефони корбар ба рӯйхати сиёҳ (blockedPhones) илова шавад, ҳатто дар вақти
+  // фаъол буданаш низ бояд фавран берун бароварда шавад.
+  const normPhone = normalizePhone(phone);
+  if(normPhone){
+    onValue(ref(db, "blockedPhones/" + normPhone), (snap) => {
+      if(snap.exists()) forceLogout();
+    });
+  }
 }
 
 // Агар корбар қаблан дарояд, мустақим равзанаи холӣ нишон дода шавад
@@ -1002,7 +1046,7 @@ if(saved){
     const user = JSON.parse(saved);
     fillUserBadge(user);
     showHome();
-    watchUser(user.id);
+    watchUser(user.id, user.phone);
     watchChatMessages(user.name);
   } catch(err){
     forceLogout();
@@ -1011,31 +1055,254 @@ if(saved){
   setTimeout(showLogin, 400);
 }
 
+// Рӯйхати кодҳои телефонии давлатҳо — барои муайян кардани давлат аз рӯи рақами
+// воридшуда. Тартиб аз рӯи дарозии код (аз калон ба хурд), то ки кодҳои дарозтар
+// (масалан 1242) пеш аз кодҳои кӯтоҳ (масалан 1) санҷида шаванд.
+const COUNTRY_CODES = [
+  {code:"992", name:"Тоҷикистон", flag:"🇹🇯"},
+  {code:"998", name:"Ӯзбекистон", flag:"🇺🇿"},
+  {code:"996", name:"Қирғизистон", flag:"🇰🇬"},
+  {code:"993", name:"Туркманистон", flag:"🇹🇲"},
+  {code:"994", name:"Озарбойҷон", flag:"🇦🇿"},
+  {code:"995", name:"Гурҷистон", flag:"🇬🇪"},
+  {code:"374", name:"Арманистон", flag:"🇦🇲"},
+  {code:"375", name:"Белорус", flag:"🇧🇾"},
+  {code:"380", name:"Украина", flag:"🇺🇦"},
+  {code:"370", name:"Литва", flag:"🇱🇹"},
+  {code:"371", name:"Латвия", flag:"🇱🇻"},
+  {code:"372", name:"Эстония", flag:"🇪🇪"},
+  {code:"976", name:"Муғулистон", flag:"🇲🇳"},
+  {code:"971", name:"Аморати Муттаҳидаи Араб", flag:"🇦🇪"},
+  {code:"966", name:"Арабистони Саудӣ", flag:"🇸🇦"},
+  {code:"968", name:"Уммон", flag:"🇴🇲"},
+  {code:"965", name:"Қувайт", flag:"🇰🇼"},
+  {code:"974", name:"Қатар", flag:"🇶🇦"},
+  {code:"973", name:"Баҳрайн", flag:"🇧🇭"},
+  {code:"962", name:"Урдун", flag:"🇯🇴"},
+  {code:"964", name:"Ироқ", flag:"🇮🇶"},
+  {code:"972", name:"Исроил", flag:"🇮🇱"},
+  {code:"90", name:"Туркия", flag:"🇹🇷"},
+  {code:"98", name:"Эрон", flag:"🇮🇷"},
+  {code:"92", name:"Покистон", flag:"🇵🇰"},
+  {code:"91", name:"Ҳиндустон", flag:"🇮🇳"},
+  {code:"93", name:"Афғонистон", flag:"🇦🇫"},
+  {code:"86", name:"Чин", flag:"🇨🇳"},
+  {code:"82", name:"Кореяи Ҷанубӣ", flag:"🇰🇷"},
+  {code:"81", name:"Ҷопон", flag:"🇯🇵"},
+  {code:"7", name:"Русия / Қазоқистон", flag:"🇷🇺"},
+  {code:"49", name:"Олмон", flag:"🇩🇪"},
+  {code:"44", name:"Британияи Кабир", flag:"🇬🇧"},
+  {code:"39", name:"Итолиё", flag:"🇮🇹"},
+  {code:"33", name:"Фаронса", flag:"🇫🇷"},
+  {code:"34", name:"Испания", flag:"🇪🇸"},
+  {code:"48", name:"Полша", flag:"🇵🇱"},
+  {code:"46", name:"Шветсия", flag:"🇸🇪"},
+  {code:"31", name:"Ҳолланд", flag:"🇳🇱"},
+  {code:"41", name:"Швейтсария", flag:"🇨🇭"},
+  {code:"43", name:"Австрия", flag:"🇦🇹"},
+  {code:"1", name:"ИМА / Канада", flag:"🇺🇸"},
+].sort((a, b) => b.code.length - a.code.length);
+
+// Дарозии рақами миллӣ (бе код)-и Тоҷикистон, ки бидуни "+" ё "992" ворид мешавад
+const TJ_LOCAL_LEN = 9;
+
+function detectCountryByDigits(digits){
+  for(const c of COUNTRY_CODES){
+    if(digits.startsWith(c.code)) return c;
+  }
+  return null;
+}
+
+function updatePhoneCountryHint(){
+  const raw = phoneInput.value;
+  const hasPlus = raw.trim().startsWith("+");
+  const digits = raw.replace(/\D/g, "");
+
+  if(!digits){
+    phoneCountryHint.textContent = "";
+    phoneCountryHint.classList.remove("detected");
+    setLoginBtnEnabled(true);
+    return;
+  }
+
+  if(hasPlus || digits.length > TJ_LOCAL_LEN){
+    const found = detectCountryByDigits(digits);
+    if(found){
+      phoneCountryHint.textContent = found.flag + " " + found.name + " (+" + found.code + ")";
+      phoneCountryHint.classList.add("detected");
+      setLoginBtnEnabled(true);
+      return;
+    }
+    phoneCountryHint.textContent = "Давлат муайян нашуд";
+    phoneCountryHint.classList.remove("detected");
+    // Агар давлат муайян нашавад, тугмаи "Ворид шудан" ғайрифаъол карда мешавад,
+    // то корбар натавонад бо рақами номаълум сабти ном шавад.
+    setLoginBtnEnabled(false);
+    return;
+  }
+
+  // Агар корбар "+" нагузошта бошад ва рақам ба формати миллии Тоҷикистон монанд бошад,
+  // тахмин мезанем, ки ин рақами Тоҷикистон аст.
+  const tj = COUNTRY_CODES.find(c => c.code === "992");
+  phoneCountryHint.textContent = tj.flag + " " + tj.name + " (+992 фарзӣ)";
+  phoneCountryHint.classList.add("detected");
+  setLoginBtnEnabled(true);
+}
+
+// Фаъол/ғайрифаъол кардани тугмаи вуруд бо назардошти ҳолати муайянкунии давлат
+let countryUnknown = false;
+function setLoginBtnEnabled(enabled){
+  countryUnknown = !enabled;
+  loginBtn.disabled = !enabled;
+}
+
+// Кутии "Ном" — танҳо ҳарф (ва фосила/тире) қабул мекунад, рақам ва аломатҳо иҷозат нест
+nameInput.addEventListener("input", () => {
+  if(nameInput.value.trim()){
+    clearTimeout(nameInput._flashTimer);
+    nameInput.classList.remove("field-error");
+    nameInput.placeholder = originalFieldPlaceholders.nameInput;
+  }
+  const cursor = nameInput.selectionStart;
+  const cleaned = nameInput.value.replace(/[^\p{L}\s'-]/gu, "");
+  if(cleaned !== nameInput.value){
+    nameInput.value = cleaned;
+    if(cursor !== null) nameInput.setSelectionRange(cursor - 1, cursor - 1);
+  }
+});
+
+// Кутии "Рақами телефон" — танҳо рақам ва аломати "+" (танҳо дар аввал) қабул мекунад,
+// ва пас аз ҳар вуруд давлати эҳтимолии рақамро худкор муайян мекунад.
+phoneInput.addEventListener("input", () => {
+  if(phoneInput.value.trim()){
+    clearTimeout(phoneInput._flashTimer);
+    phoneInput.classList.remove("field-error");
+    phoneInput.placeholder = originalFieldPlaceholders.phoneInput;
+  }
+  let val = phoneInput.value;
+  const startsWithPlus = val.trim().startsWith("+");
+  let digits = val.replace(/\D/g, "");
+  phoneInput.value = (startsWithPlus ? "+" : "") + digits;
+  updatePhoneCountryHint();
+});
+
+// Ҷои нигоҳдории placeholder-ҳои аслии кутиҳо, то баъд аз хатогӣ баргардонида шаванд
+const originalFieldPlaceholders = {
+  nameInput: nameInput.placeholder,
+  phoneInput: phoneInput.placeholder,
+  passwordInput: passwordInput.placeholder
+};
+
+// Агар кутӣ холӣ бошад: сурх мешавад, такон мехӯрад ва дар дохилаш "Лутфан инҷоро пур кунед"
+// пайдо мешавад; баъд аз чанд сония ба ҳолати аввала (ранг ва placeholder-и аслӣ) бармегардад.
+function flashEmptyField(input){
+  clearTimeout(input._flashTimer);
+  input.classList.remove("field-error");
+  void input.offsetWidth; // маҷбур кардани reflow, то аниматсия аз нав оғоз шавад
+  input.classList.add("field-error");
+  input.placeholder = "Лутфан инҷоро пур кунед";
+  input._flashTimer = setTimeout(() => {
+    input.classList.remove("field-error");
+    input.placeholder = originalFieldPlaceholders[input.id] || "";
+  }, 2200);
+}
+
+// Санҷиши кутиҳои холӣ — агар ягонто холӣ бошад, ҳамон кутӣ(ҳо) сурх/такон мехӯранд
+// ва true бармегардонад танҳо агар ҲАМАИ кутиҳо пур бошанд.
+function validateFieldsFilled(){
+  let allFilled = true;
+  [nameInput, phoneInput, passwordInput].forEach((input) => {
+    if(!input.value.trim()){
+      allFilled = false;
+      flashEmptyField(input);
+    }
+  });
+  return allFilled;
+}
+
+passwordInput.addEventListener("input", () => {
+  if(passwordInput.value.trim()){
+    clearTimeout(passwordInput._flashTimer);
+    passwordInput.classList.remove("field-error");
+    passwordInput.placeholder = originalFieldPlaceholders.passwordInput;
+  }
+});
+
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = nameInput.value.trim();
   const phone = phoneInput.value.trim();
+  const password = passwordInput.value;
   loginError.textContent = "";
 
-  if(!name || !phone){
-    loginError.textContent = "Лутфан ном ва рақами телефонро пур кунед.";
+  if(!validateFieldsFilled()){
+    sound.error();
+    return;
+  }
+
+  if(countryUnknown){
+    loginError.textContent = "Давлати рақами телефон муайян нашуд. Лутфан рақамро дуруст ворид кунед.";
     sound.error();
     return;
   }
 
   loginBtn.disabled = true;
   try{
-    const userRef = push(ref(db, "users"));
-    await set(userRef, {
-      name,
-      phone,
-      createdAt: Date.now()
-    });
-    const user = { id: userRef.key, name, phone };
+    const normPhone = normalizePhone(phone);
+    // Санҷиши рӯйхати сиёҳ — новобаста аз ном ё префикси рақам (+992/992/0 ва ғ.),
+    // агар ин рақами телефон қаблан блок шуда бошад, вуруд қатъиян манъ карда мешавад.
+    const blackSnap = await get(ref(db, "blockedPhones/" + normPhone));
+    if(blackSnap.exists()){
+      loginError.textContent = "Шумо дар рӯйхати сиёҳ қарор доред. Шумо иҷозати воридшавӣ надоред.";
+      sound.error();
+      loginBtn.disabled = false;
+      return;
+    }
+
+    // Ҷустуҷӯи корбари қаблан сабтшуда бо ҳамин рақами телефон.
+    // Қасдан аз усули оддии get() истифода мешавад (на query/orderByChild), то ин кор
+    // бе ниёз ба ".indexOn" дар қоидаҳои Firebase кор кунад ва хатои "пайваст"-ро надиҳад.
+    const allUsersSnap = await get(ref(db, "users"));
+    const allUsers = allUsersSnap.val() || {};
+    let existingId = null;
+    let existingUser = null;
+    for(const [id, u] of Object.entries(allUsers)){
+      if(u && u.normPhone === normPhone){
+        existingId = id;
+        existingUser = u;
+        break;
+      }
+    }
+    let user;
+
+    if(existingUser){
+      // Рақам аллакай сабт шудааст — ин кӯшиши ВОРИД ШУДАН (логин) аст.
+      // Ном ва рамз бояд бо маълумоти сабтшуда рост биёянд.
+      if(existingUser.name !== name || existingUser.password !== password){
+        loginError.textContent = "Ном, рақами телефон ё рамз хато аст.";
+        sound.error();
+        loginBtn.disabled = false;
+        return;
+      }
+
+      user = { id: existingId, name: existingUser.name, phone: existingUser.phone };
+    } else {
+      // Рақами нав — сабти номи нав (регистратсия)
+      const userRef = push(ref(db, "users"));
+      await set(userRef, {
+        name,
+        phone,
+        password,
+        normPhone,
+        createdAt: Date.now()
+      });
+      user = { id: userRef.key, name, phone };
+    }
+
     localStorage.setItem(LS_KEY, JSON.stringify(user));
     fillUserBadge(user);
     showHome();
-    watchUser(userRef.key);
+    watchUser(user.id, user.phone);
     watchChatMessages(user.name);
     sound.success();
   } catch(err){
