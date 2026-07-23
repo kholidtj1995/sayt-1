@@ -524,7 +524,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getDatabase, ref, set, push, onValue, get
+  getDatabase, ref, set, push, onValue, get, onDisconnect, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -985,6 +985,10 @@ function showLogin(){
 }
 
 function forceLogout(){
+  if(currentUserId){
+    set(ref(db, "onlineUsers/" + currentUserId), null);
+    currentUserId = null;
+  }
   localStorage.removeItem(LS_KEY);
   showLogin();
 }
@@ -1034,6 +1038,19 @@ function normalizePhone(phone){
   return digits;
 }
 
+// Нишон додани он, ки корбар ҳозир дар барнома "онлайн" аст — бо onDisconnect автоматикӣ
+// пок мешавад, вақте ки корбар барномаро мебандад ё пайвасташ қатъ мешавад.
+// Инчунин вақти охирини воридшавии корбарро сабт мекунад, то дар админ дида шавад.
+let currentUserId = null;
+function markUserOnline(userId){
+  if(!userId) return;
+  currentUserId = userId;
+  const onlineRef = ref(db, "onlineUsers/" + userId);
+  set(onlineRef, { since: serverTimestamp() });
+  onDisconnect(onlineRef).remove();
+  set(ref(db, "users/" + userId + "/lastLogin"), serverTimestamp());
+}
+
 // Гӯш кардани сабти корбар дар Firebase — агар аз он ҷо пок шавад, худкор берун бароварда мешавад
 function watchUser(id, phone){
   onValue(ref(db, "users/" + id), (snap) => {
@@ -1065,6 +1082,7 @@ if(saved){
     showHome();
     watchUser(user.id, user.phone);
     watchChatMessages(user.name);
+    markUserOnline(user.id);
   } catch(err){
     forceLogout();
   }
@@ -1328,6 +1346,7 @@ loginForm.addEventListener("submit", async (e) => {
     showHome();
     watchUser(user.id, user.phone);
     watchChatMessages(user.name);
+    markUserOnline(user.id);
     sound.success();
   } catch(err){
     console.error(err);
