@@ -362,6 +362,42 @@
     color:var(--text-muted); font-size:0.85rem; gap:10px; flex-direction:column;
   }
 
+  /* ---------- Users table ---------- */
+  .users-table{ width:100%; border-collapse:collapse; font-size:0.86rem; }
+  .users-table th{
+    text-align:left; color:var(--text-muted); font-weight:700; font-size:0.72rem;
+    text-transform:uppercase; letter-spacing:0.04em; padding:8px 10px; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .users-table td{ padding:10px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+  .users-table tbody tr:hover{ background:rgba(255,255,255,0.03); }
+  .users-table td.u-idx{ color:var(--text-dim); width:36px; }
+  .users-table td.u-name{ font-weight:700; color:var(--text); }
+  .users-table td.u-date{ color:var(--text-muted); white-space:nowrap; }
+  .users-table tr.is-blocked td.u-name{ color:var(--crimson); }
+  .u-dots-btn{
+    width:30px; height:30px; border-radius:8px; border:none; background:transparent; color:var(--text-muted);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .u-dots-btn:hover{ background:var(--surface-2); color:var(--text); }
+  .u-dots-btn svg{ width:18px; height:18px; }
+
+  .user-ctx-menu{
+    position:fixed; z-index:220; min-width:170px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-lg); padding:6px; display:flex; flex-direction:column; gap:2px;
+    animation:cardIn 0.15s ease;
+  }
+  .user-ctx-menu button{
+    display:flex; align-items:center; gap:10px; background:transparent; border:none; color:var(--text);
+    font-size:0.85rem; font-weight:600; padding:9px 10px; border-radius:8px; cursor:pointer; text-align:left; width:100%;
+  }
+  .user-ctx-menu button svg{ width:16px; height:16px; flex-shrink:0; color:var(--text-muted); }
+  .user-ctx-menu button:hover{ background:var(--surface-2); }
+  .user-ctx-menu button.danger{ color:var(--crimson); }
+  .user-ctx-menu button.danger svg{ color:var(--crimson); }
+
   /* ---------- Toasts ---------- */
   #toastHost{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:10px; align-items:center; width:100%; max-width:420px; padding:0 16px; }
   .toast{
@@ -464,6 +500,14 @@
       </div>
     </div>
     <div class="top-actions">
+      <div class="icon-group">
+        <button class="icon-btn" id="serverMgmtBtn" title="Идораи сервер">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+        <button class="icon-btn" id="usersDataBtn" title="Корбарони қайдшуда">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </button>
+      </div>
       <div class="icon-group">
         <button class="icon-btn" id="chatBtn" title="Чат">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
@@ -672,6 +716,65 @@
   </div>
 </div>
 
+<!-- USERS DATA MODAL -->
+<div id="usersDataModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal" style="max-width:760px;">
+    <div class="modal-head">
+      <h3>Корбарони қайдшуда</h3>
+      <button class="modal-close" data-close="usersDataModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div id="usersTableEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        <p>Ҳанӯз ҳеҷ корбаре сабти ном нашудааст</p>
+      </div>
+      <table id="usersTable" class="users-table hidden">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Ном</th>
+            <th>Рақами телефон</th>
+            <th>Санаи қайд</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- USER ROW CONTEXT MENU -->
+<div id="userCtxMenu" class="user-ctx-menu hidden">
+  <button data-act="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Чат</button>
+  <button data-act="block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg><span id="userCtxBlockLabel">Блок кардан</span></button>
+  <button data-act="delete" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Нест кардан</button>
+</div>
+
+<!-- SERVER MANAGEMENT MODAL -->
+<div id="serverMgmtModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <h3>Идораи сервер</h3>
+      <button class="modal-close" data-close="serverMgmtModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn btn-danger" id="deleteAllUsersBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        Нест кардани ҳамаи корбарон
+      </button>
+      <button class="btn btn-danger" id="deleteAllChatsBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        Нест кардани ҳамаи чатҳо
+      </button>
+      <button class="btn btn-ghost" id="restartFirebaseBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Бозоғозии Firebase
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toastHost"></div>
 </div><!-- /appRoot -->
 
@@ -685,7 +788,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getDatabase, ref, get, set, remove, onValue, push, off
+  getDatabase, ref, get, set, remove, update, onValue, push, off
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -912,7 +1015,138 @@ document.getElementById("groupBtn").addEventListener("click", () => {
 });
 
 document.getElementById("usersBtn").addEventListener("click", () => {
-  showToast("Бахши корбарон ба зудӣ дастрас мешавад", "info");
+  openModal("usersDataModal");
+});
+
+/* ---------------- Users data table ---------------- */
+const usersTable = document.getElementById("usersTable");
+const usersTableBody = document.getElementById("usersTableBody");
+const usersTableEmpty = document.getElementById("usersTableEmpty");
+const userCtxMenu = document.getElementById("userCtxMenu");
+const userCtxBlockLabel = document.getElementById("userCtxBlockLabel");
+let usersCache = {};
+let ctxTargetId = null;
+
+function fmtDate(ts){
+  if(!ts) return "—";
+  const d = new Date(ts);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderUsersTable(data){
+  usersCache = data || {};
+  const entries = Object.entries(usersCache);
+  if(entries.length === 0){
+    usersTable.classList.add("hidden");
+    usersTableEmpty.classList.remove("hidden");
+    usersTableBody.innerHTML = "";
+    return;
+  }
+  usersTableEmpty.classList.add("hidden");
+  usersTable.classList.remove("hidden");
+  entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+
+  usersTableBody.innerHTML = entries.map(([id, u], i) => `
+    <tr data-id="${id}" class="${u.blocked ? "is-blocked" : ""}">
+      <td class="u-idx">${i+1}</td>
+      <td class="u-name">${escapeHtml(u.name || "—")}</td>
+      <td>${escapeHtml(u.phone || "—")}</td>
+      <td class="u-date">${fmtDate(u.createdAt)}</td>
+      <td style="text-align:right">
+        <button class="u-dots-btn" data-id="${id}" title="Амалҳо">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  usersTableBody.querySelectorAll(".u-dots-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openUserCtxMenu(btn.dataset.id, btn);
+    });
+  });
+}
+
+function openUserCtxMenu(id, anchorBtn){
+  ctxTargetId = id;
+  const u = usersCache[id] || {};
+  userCtxBlockLabel.textContent = u.blocked ? "Рафъи блок" : "Блок кардан";
+  const rect = anchorBtn.getBoundingClientRect();
+  userCtxMenu.classList.remove("hidden");
+  const menuW = 180;
+  let left = rect.right - menuW;
+  if(left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if(top + 140 > window.innerHeight) top = rect.top - 140;
+  userCtxMenu.style.left = left + "px";
+  userCtxMenu.style.top = top + "px";
+}
+function closeUserCtxMenu(){
+  userCtxMenu.classList.add("hidden");
+  ctxTargetId = null;
+}
+document.addEventListener("click", (e) => {
+  if(!userCtxMenu.classList.contains("hidden") && !userCtxMenu.contains(e.target)){
+    closeUserCtxMenu();
+  }
+});
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeUserCtxMenu(); });
+
+userCtxMenu.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if(!btn || !ctxTargetId) return;
+  const act = btn.dataset.act;
+  const id = ctxTargetId;
+  const u = usersCache[id] || {};
+  closeUserCtxMenu();
+
+  if(act === "chat"){
+    if(!chatLoaded){
+      chatLoading.style.display = "flex";
+      chatFrame.addEventListener("load", () => { chatLoading.style.display = "none"; }, { once:true });
+      chatLoaded = true;
+    }
+    const params = new URLSearchParams({ name: u.name || "" });
+    chatFrame.src = CHAT_URL + "?" + params.toString();
+    openModal("chatModal");
+  } else if(act === "block"){
+    try{
+      await update(ref(db, "users/" + id), { blocked: !u.blocked });
+      showToast(!u.blocked ? "Корбар блок карда шуд" : "Корбар аз блок бароварда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои блок кардани корбар.", "error");
+    }
+  } else if(act === "delete"){
+    try{
+      await remove(ref(db, "users/" + id));
+      if(u.name) remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{});
+      showToast("Корбар нест карда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои нест кардани корбар.", "error");
+    }
+  }
+});
+
+/* ---------------- Server management ---------------- */
+document.getElementById("serverMgmtBtn").addEventListener("click", () => openModal("serverMgmtModal"));
+
+document.getElementById("deleteAllUsersBtn").addEventListener("click", () => {
+  pendingClearTarget = "allUsers";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+document.getElementById("deleteAllChatsBtn").addEventListener("click", () => {
+  pendingClearTarget = "allChats";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+document.getElementById("restartFirebaseBtn").addEventListener("click", () => {
+  showToast("Бозоғозии Firebase...", "info");
+  setTimeout(() => location.reload(), 400);
 });
 
 document.getElementById("notifBtn").addEventListener("click", () => {
@@ -944,6 +1178,11 @@ function attachLiveListeners(){
   const prizesCb = (snap) => renderPrizes(snap.exists() ? snap.val() : null);
   onValue(prizesRef, prizesCb);
   activeListeners.push({ path: prizesRef, cb: prizesCb });
+
+  const usersRef = ref(db, "users");
+  const usersCb = (snap) => renderUsersTable(snap.exists() ? snap.val() : null);
+  onValue(usersRef, usersCb);
+  activeListeners.push({ path: usersRef, cb: usersCb });
 
   // Огоҳии садоӣ барои корбари нав + бейджи паёмҳои нахонда дар тугмаи чат
   let knownChatUserKeys = null; // null = ҳанӯз бор нашудааст (аввалин снапшот)
@@ -1061,6 +1300,16 @@ document.getElementById("confirmForm").addEventListener("submit", async (e) => {
       closeModal("confirmModal");
       closeModal("prizesModal");
       showToast("Рӯйхати призҳо пок карда шуд 🗑️", "success");
+    } else if(pendingClearTarget === "allUsers"){
+      await remove(ref(db, "users"));
+      closeModal("confirmModal");
+      closeModal("serverMgmtModal");
+      showToast("Ҳамаи корбарон нест карда шуданд 🗑️", "success");
+    } else if(pendingClearTarget === "allChats"){
+      await remove(ref(db, "sayt1_chats"));
+      closeModal("confirmModal");
+      closeModal("serverMgmtModal");
+      showToast("Ҳамаи чатҳо нест карда шуданд 🗑️", "success");
     } else {
       await remove(ref(db, "currentRound"));
       closeModal("confirmModal");
