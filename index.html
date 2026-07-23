@@ -106,6 +106,16 @@
     animation:fieldShake 0.4s ease;
   }
   .field input.field-error::placeholder{ color:var(--crimson); opacity:0.9; }
+  .password-wrap{ position:relative; }
+  .password-wrap input{ padding-right:46px; }
+  .password-toggle{
+    position:absolute; top:0; right:0; height:100%; width:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:none; border:none; cursor:pointer; color:var(--text-muted);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .password-toggle:active{ transform:scale(0.92); }
+  .password-toggle svg{ width:20px; height:20px; }
   @keyframes fieldShake{
     10%,90%{ transform:translateX(-1px); }
     20%,80%{ transform:translateX(2px); }
@@ -386,7 +396,13 @@
       </div>
       <div class="field">
         <label for="passwordInput">Рамз</label>
-        <input type="password" id="passwordInput" placeholder="Рамзи худ" autocomplete="off" required />
+        <div class="password-wrap">
+          <input type="password" id="passwordInput" placeholder="Рамзи худ" autocomplete="off" required />
+          <button type="button" class="password-toggle" id="passwordToggleBtn" aria-label="Нишон додани рамз">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.6 18.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
       </div>
       <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
       <div class="login-error" id="loginError"></div>
@@ -640,6 +656,7 @@ const loginForm = document.getElementById("loginForm");
 const nameInput = document.getElementById("nameInput");
 const phoneInput = document.getElementById("phoneInput");
 const passwordInput = document.getElementById("passwordInput");
+const passwordToggleBtn = document.getElementById("passwordToggleBtn");
 const phoneCountryHint = document.getElementById("phoneCountryHint");
 const loginError = document.getElementById("loginError");
 const loginBtn = document.getElementById("loginBtn");
@@ -1219,6 +1236,13 @@ function validateFieldsFilled(){
   });
   return allFilled;
 }
+
+passwordToggleBtn.addEventListener("click", () => {
+  const showing = passwordInput.type === "text";
+  passwordInput.type = showing ? "password" : "text";
+  passwordToggleBtn.querySelector(".eye-open").classList.toggle("hidden", !showing);
+  passwordToggleBtn.querySelector(".eye-closed").classList.toggle("hidden", showing);
+});
 
 passwordInput.addEventListener("input", () => {
   if(passwordInput.value.trim()){
