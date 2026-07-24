@@ -192,6 +192,27 @@
     0%,100%{ transform:scale(1); }
     50%{ transform:scale(1.18); }
   }
+  #questionBtn{ position:relative; overflow:visible; }
+  .question-alert-badge{
+    position:absolute; top:-7px; right:-7px;
+    min-width:18px; height:18px; padding:0 4px;
+    border-radius:999px; background:var(--crimson); color:#fff;
+    font-size:11px; font-weight:800; font-family:'Inter',sans-serif;
+    line-height:18px; text-align:center;
+    box-shadow:0 0 0 2px var(--bg-2);
+    display:none; pointer-events:none;
+  }
+  #questionBtn.has-alert .question-alert-badge{ display:flex; align-items:center; justify-content:center; }
+  #questionBtn.has-alert{ animation:questionBtnShake 0.7s ease-in-out infinite; }
+  @keyframes questionBtnShake{
+    0%,100%{ transform:rotate(0); }
+    15%{ transform:rotate(-14deg); }
+    30%{ transform:rotate(11deg); }
+    45%{ transform:rotate(-8deg); }
+    60%{ transform:rotate(6deg); }
+    75%{ transform:rotate(-3deg); }
+    90%{ transform:rotate(2deg); }
+  }
   #groupBtn{ background:#22c55e; border-color:#22c55e; color:#ffffff; }
   #groupBtn:hover{ background:#16a34a; }
   #usersBtn{ background:#ef4444; border-color:#ef4444; color:#ffffff; }
@@ -507,6 +528,7 @@
       <div class="icon-group">
         <button class="icon-btn" id="questionBtn" title="Савол">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="question-alert-badge" id="questionAlertBadge">?</span>
         </button>
         <button class="icon-btn" id="serverMgmtBtn" title="Идораи сервер">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -971,6 +993,7 @@ function clearListeners(){
 function showLogin(message){
   clearListeners();
   updateChatBadge(0);
+  clearQuestionAlert();
   dashboard.classList.add("hidden");
   loginScreen.classList.remove("hidden");
   splash.classList.add("hidden");
@@ -1065,6 +1088,18 @@ function updateChatBadge(count){
   }
 }
 
+/* ---------------- Огоҳии садоӣ барои паёмҳои нав дар kumak_admin (тугмаи Савол) ---------------- */
+const questionBtnEl = document.getElementById("questionBtn");
+const questionAlertBadge = document.getElementById("questionAlertBadge");
+function showQuestionAlert(){
+  questionAlertBadge.style.display = "flex";
+  questionBtnEl.classList.add("has-alert");
+}
+function clearQuestionAlert(){
+  questionAlertBadge.style.display = "none";
+  questionBtnEl.classList.remove("has-alert");
+}
+
 const groupFrame = document.getElementById("groupFrame");
 const groupLoading = document.getElementById("groupLoading");
 const GROUP_URL = "https://kholidtj1995.github.io/sayt-1/Rohbari_Barnoma_gurupa.html";
@@ -1093,6 +1128,7 @@ document.getElementById("questionBtn").addEventListener("click", () => {
     questionLoaded = true;
   }
   openModal("questionModal");
+  clearQuestionAlert();
 });
 
 document.getElementById("usersBtn").addEventListener("click", () => {
@@ -1457,6 +1493,41 @@ function attachLiveListeners(){
   };
   onValue(activeUsersRef, activeUsersCb);
   activeListeners.push({ path: activeUsersRef, cb: activeUsersCb });
+
+  // Огоҳии тугмаи "Савол": ҳар паёми нав, ки корбар дар kumak_admin менависад,
+  // дар пойгоҳи "active_users" (бе префикс) сабт мешавад — онро пайгирӣ мекунем.
+  let knownQuestionMsgKeys = null; // null = ҳанӯз бор нашудааст (аввалин снапшот)
+  const questionActiveUsersRef = ref(db, "active_users");
+  const questionActiveUsersCb = (snap) => {
+    const data = snap.val() || {};
+    const stampMap = {};
+    Object.keys(data).forEach(username => {
+      const u = data[username] || {};
+      stampMap[username] = username + "|" + (u.lastActive || 0);
+    });
+
+    if(knownQuestionMsgKeys === null){
+      // Аввалин боркунӣ — фақат ҳолати кунуниро сабт мекунем, бе огоҳӣ
+      knownQuestionMsgKeys = stampMap;
+    } else {
+      let hasNewMsg = false;
+      Object.keys(stampMap).forEach(username => {
+        const u = data[username] || {};
+        const lastMsg = u.lastMessage || "";
+        const isFromAdmin = lastMsg.startsWith("Шумо:");
+        if(knownQuestionMsgKeys[username] !== stampMap[username] && !isFromAdmin){
+          hasNewMsg = true;
+        }
+      });
+      knownQuestionMsgKeys = stampMap;
+      if(hasNewMsg){
+        showQuestionAlert();
+        sound.newMessage();
+      }
+    }
+  };
+  onValue(questionActiveUsersRef, questionActiveUsersCb);
+  activeListeners.push({ path: questionActiveUsersRef, cb: questionActiveUsersCb });
 }
 
 /* ---------------- Numbers / rounds ---------------- */
