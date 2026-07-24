@@ -407,6 +407,14 @@
       <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
       <div class="login-error" id="loginError"></div>
     </form>
+    <button type="button" class="btn" id="helpBtn" style="width:100%;margin-top:10px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);">Кумак кардан</button>
+  </div>
+</div>
+
+<div id="helpModal" class="hidden" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div style="width:100%;max-width:480px;height:90vh;max-height:880px;background:var(--bg);border-radius:20px;overflow:hidden;position:relative;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;">
+    <button id="closeHelpBtn" style="position:absolute;top:10px;right:10px;z-index:10;width:36px;height:36px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:18px;">✕</button>
+    <iframe id="helpFrame" src="" style="border:none;width:100%;height:100%;flex:1;" title="Кумак"></iframe>
   </div>
 </div>
 
@@ -660,6 +668,19 @@ const passwordToggleBtn = document.getElementById("passwordToggleBtn");
 const phoneCountryHint = document.getElementById("phoneCountryHint");
 const loginError = document.getElementById("loginError");
 const loginBtn = document.getElementById("loginBtn");
+const helpBtn = document.getElementById("helpBtn");
+const helpModal = document.getElementById("helpModal");
+const helpFrame = document.getElementById("helpFrame");
+const closeHelpBtn = document.getElementById("closeHelpBtn");
+const HELP_BASE_URL = new URL("design/kumak.html", window.location.href).href;
+helpBtn.addEventListener("click", () => {
+  helpFrame.src = HELP_BASE_URL;
+  helpModal.classList.remove("hidden");
+});
+closeHelpBtn.addEventListener("click", () => {
+  helpModal.classList.add("hidden");
+  helpFrame.src = "";
+});
 
 const menuBtn = document.getElementById("menuBtn");
 const menuOverlay = document.getElementById("menuOverlay");
