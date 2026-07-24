@@ -502,6 +502,23 @@
   }
   .register-modal-close:hover{ background:var(--crimson); color:#fff; }
   .register-modal-close svg{ width:15px; height:15px; }
+  .register-modal-clear{
+    position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:8px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--crimson);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s; -webkit-tap-highlight-color:transparent;
+  }
+  .register-modal-clear:hover{ background:var(--crimson); color:#fff; }
+  .register-modal-clear svg{ width:15px; height:15px; }
+  .register-modal-clear:disabled{ color:var(--text); cursor:not-allowed; pointer-events:none; }
+  .register-modal-clear:disabled:hover{ background:var(--surface-2); color:var(--text); }
+  #clearCartConfirmOverlay{
+    position:fixed; inset:0; z-index:72;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #clearCartConfirmOverlay.show{ opacity:1; pointer-events:auto; }
   #registerPhoneInput{ opacity:0.7; cursor:not-allowed; }
   .btn-gold{
     background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206;
@@ -843,8 +860,20 @@
 <div id="cartModalOverlay">
   <div class="register-modal">
     <button class="register-modal-close" id="cartModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <button class="register-modal-clear" id="clearCartBtn" title="Пок кардани корзина"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
     <h3>Корзина</h3>
     <div class="cart-entries-box" id="cartEntriesBox"></div>
+  </div>
+</div>
+
+<!-- CLEAR CART CONFIRM OVERLAY -->
+<div id="clearCartConfirmOverlay">
+  <div class="confirm-card">
+    <p>Оё мутмаин ҳастед, ки мехоҳед корзинаро пок кунед?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="clearCartCancelBtn">Не</button>
+      <button class="btn btn-danger" id="clearCartConfirmBtn">Ҳа</button>
+    </div>
   </div>
 </div>
 
@@ -911,20 +940,35 @@ const db = getDatabase(app);
 /* ---------------- Sound ---------------- */
 let actx = null;
 let pendingTones = [];
-function ensureAudio(){
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if(!AC) return;
-  if(!actx) actx = new AC();
-  if(actx.state === "suspended") actx.resume();
+function flushPendingTones(){
   if(pendingTones.length){
     const queued = pendingTones;
     pendingTones = [];
     queued.forEach(fn => fn());
   }
 }
-document.addEventListener("pointerdown", ensureAudio, { once:true });
+function ensureAudio(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return;
+  if(!actx) actx = new AC();
+  if(actx.state === "suspended"){
+    actx.resume().then(flushPendingTones).catch(() => {});
+  } else {
+    flushPendingTones();
+  }
+}
+// Мутаваҷҷеҳ: набояд {once:true} гузошт — телефонҳо (алалхусус iOS)
+// AudioContext-ро бо қулф шудани экран, гузаштан ба барномаи дигар ё ҳатто
+// бидуни сабаби равшан боз "suspended" мекунанд. Агар гӯш кардан танҳо як бор
+// иҷро мешуд, пас аз он ҳамаи садоҳо хомӯшона дар навбат мемонданд ва
+// ҳеҷ гоҳ садо намебаромаданд — маҳз ҳамин сабаби "баъзе садоҳо мебарояд,
+// баъзеаш не" буд. Акнун дар ҳар ламс/клик аз нав "бедор" карда мешавад.
+["pointerdown","touchstart","mousedown","keydown"].forEach(evt =>
+  document.addEventListener(evt, ensureAudio, { passive:true })
+);
 
 function tone(freq, dur=0.09, type="sine", vol=0.045, delay=0){
+  ensureAudio();
   if(!actx || actx.state === "suspended"){
     if(pendingTones.length < 10) pendingTones.push(() => tone(freq, dur, type, vol, delay));
     return;
@@ -952,6 +996,9 @@ const sound = {
   activate: () => { tone(500, 0.07, "square", 0.03); tone(760, 0.09, "square", 0.03, 0.07); },
   confirm: () => { tone(760, 0.08, "sine", 0.05); tone(1020, 0.16, "sine", 0.05, 0.08); },
   register: () => { tone(600, 0.06, "sine", 0.04); tone(600, 0.06, "sine", 0.04, 0.12); },
+  select: () => tone(540 + Math.random()*260, 0.055, "sine", 0.04),
+  deselect: () => tone(320 + Math.random()*100, 0.05, "triangle", 0.03),
+  prize: () => { tone(760, 0.05, "sine", 0.045); tone(1080, 0.08, "sine", 0.04, 0.05); },
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .menu-item, .badge-btn, .nav-item")) sound.click();
@@ -996,6 +1043,7 @@ onValue(ref(db, "prizes"), (snap) => {
 
   homePrizesRow.querySelectorAll(".prize-chip").forEach(chip => {
     chip.addEventListener("click", () => {
+      sound.prize();
       clearTimeout(homePrizeRevertTimer);
       homePrizesRow.querySelectorAll(".prize-chip.active").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
@@ -1204,6 +1252,7 @@ homeNumbersRow.addEventListener("click", (e) => {
   if(!chip) return;
   if(chip.classList.contains("locked")) return;
   chip.classList.toggle("selected");
+  chip.classList.contains("selected") ? sound.select() : sound.deselect();
   updateRegisterBadge();
 });
 
@@ -1378,7 +1427,9 @@ const cartEntriesBox = document.getElementById("cartEntriesBox");
 function openCartModal(){
   if(!cartEntries.length){
     cartEntriesBox.innerHTML = '<div class="cart-empty">Корзина холӣ аст</div>';
+    clearCartBtn.disabled = true;
   } else {
+    clearCartBtn.disabled = false;
     cartEntriesBox.innerHTML = cartEntries.map(entry =>
       '<div class="cart-entry-card">' +
         '<div class="cart-entry-title">Рӯйхати рақамҳои харидашуда</div>' +
@@ -1413,6 +1464,34 @@ document.addEventListener("keydown", (e) => {
 });
 
 cartBtn.addEventListener("click", () => {
+  openCartModal();
+});
+
+const clearCartBtn = document.getElementById("clearCartBtn");
+const clearCartConfirmOverlay = document.getElementById("clearCartConfirmOverlay");
+const clearCartCancelBtn = document.getElementById("clearCartCancelBtn");
+const clearCartConfirmBtn = document.getElementById("clearCartConfirmBtn");
+
+clearCartBtn.addEventListener("click", () => {
+  clearCartConfirmOverlay.classList.add("show");
+});
+clearCartCancelBtn.addEventListener("click", () => {
+  clearCartConfirmOverlay.classList.remove("show");
+});
+clearCartConfirmOverlay.addEventListener("click", (e) => {
+  if(e.target === clearCartConfirmOverlay) clearCartConfirmOverlay.classList.remove("show");
+});
+clearCartConfirmBtn.addEventListener("click", () => {
+  const numbersToRestore = new Set();
+  cartEntries.forEach(entry => entry.numbers.forEach(n => numbersToRestore.add(n)));
+  homeNumbersRow.querySelectorAll(".number-chip.locked").forEach(chip => {
+    if(numbersToRestore.has(chip.textContent)) chip.classList.remove("locked");
+  });
+  cartEntries = [];
+  cartItemsCount = 0;
+  cartBadge.classList.remove("show");
+  cartBadge.textContent = "";
+  clearCartConfirmOverlay.classList.remove("show");
   openCartModal();
 });
 
