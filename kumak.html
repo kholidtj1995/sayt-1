@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Кумак — Чат</title>
+<style>
+:root{
+  --bg:#0F1320;
+  --bg-elev:#161B2B;
+  --card:#1C2136;
+  --card-2:#232945;
+  --border:#2B3151;
+  --accent:#E7A93C;
+  --accent-dark:#C68A22;
+  --accent-ink:#241703;
+  --teal:#3FA7A0;
+  --teal-dark:#2C7B76;
+  --text:#ECEAE3;
+  --text-dim:#949AB2;
+  --text-faint:#5C6386;
+  --danger:#E2543E;
+  --danger-dark:#B93F2D;
+  --font-display:Georgia,'Iowan Old Style','Noto Serif',serif;
+  --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; font-family:var(--font-body); -webkit-tap-highlight-color:transparent; }
+html{ height:100%; }
+body{
+  background:#070911; display:flex; justify-content:center; align-items:center;
+  height:100%; min-height:100vh; min-height:100dvh; overflow:hidden; position:fixed; width:100%;
+}
+.phone-container{
+  width:100%; max-width:480px; height:100%; height:100dvh; background:var(--bg);
+  display:flex; flex-direction:column; position:relative; box-shadow:0 0 60px rgba(0,0,0,.5);
+  overflow:hidden; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+}
+@media (min-width:640px){
+  body{ background:radial-gradient(circle at 30% 20%, #131a2e 0%, #070911 65%); padding:24px; }
+  .phone-container{
+    width:auto;
+    height:min(92vh, 900px);
+    aspect-ratio:9/19.5;
+    max-width:96vw;
+    border-radius:22px; border:1px solid rgba(255,255,255,.06); box-shadow:0 30px 70px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02);
+  }
+}
+@media (min-width:1000px){
+  .phone-container{ height:min(90vh, 960px); }
+}
+@media (min-width:640px) and (max-height:700px){
+  .phone-container{ height:min(94vh, 700px); }
+}
+
+/* ---------- Пайвастшавӣ ---------- */
+.offline-banner{ flex-shrink:0; max-height:0; overflow:hidden; background:var(--danger); color:#fff; text-align:center; font-size:12.5px; font-weight:700; padding:0 7px; transition:max-height .3s ease, padding .3s ease; }
+.offline-banner.show{ max-height:40px; padding:8px 7px; }
+.slow-banner{ flex-shrink:0; max-height:0; overflow:hidden; background:var(--accent-dark); color:#fff; text-align:center; font-size:12px; font-weight:700; padding:0 7px; transition:max-height .3s ease, padding .3s ease; }
+.slow-banner.show{ max-height:44px; padding:8px 7px; }
+
+/* ---------- Сарлавҳа ---------- */
+.chat-header{ position:sticky; top:0; z-index:100; background:var(--bg-elev); color:var(--text); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); flex-shrink:0; }
+.chat-header-left{ display:flex; align-items:center; gap:12px; }
+.header-avatar{ width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--teal),var(--teal-dark)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; color:#fff; flex-shrink:0; position:relative; }
+.header-avatar .dot{ position:absolute; right:-1px; bottom:-1px; width:11px; height:11px; border-radius:50%; background:var(--text-faint); border:2px solid var(--bg-elev); }
+.header-avatar .dot.online{ background:var(--teal); box-shadow:0 0 6px 1px rgba(63,167,160,.7); }
+.header-text{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.header-title{ font-family:var(--font-display); font-size:16.5px; font-weight:700; line-height:1.2; }
+.admin-subtitle{ font-size:12px; color:var(--text-dim); font-weight:600; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+.admin-subtitle.typing{ color:var(--teal); }
+.typing-dots{ display:inline-flex; align-items:center; gap:2px; }
+.typing-dots span{ width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.4; animation:typingBounce 1.1s infinite; }
+.typing-dots span:nth-child(2){ animation-delay:.15s; }
+.typing-dots span:nth-child(3){ animation-delay:.3s; }
+@keyframes typingBounce{ 0%,60%,100%{ transform:translateY(0); opacity:.4; } 30%{ transform:translateY(-3px); opacity:1; } }
+
+/* ---------- Воридшавӣ ---------- */
+.auth-zone{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:28px; background:var(--bg); }
+.auth-card{ width:100%; text-align:center; }
+.auth-icon{ width:64px; height:64px; border-radius:20px; background:linear-gradient(135deg,var(--accent),var(--accent-dark)); display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 18px; box-shadow:0 10px 25px rgba(231,169,60,.25); }
+.auth-zone h2{ margin-bottom:8px; color:var(--text); font-family:var(--font-display); font-size:23px; font-weight:700; }
+.auth-zone p{ color:var(--text-dim); font-size:14px; margin-bottom:26px; }
+#username{ text-align:center; border-radius:14px; padding:14px 16px; width:100%; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:15px; outline:none; }
+#username::placeholder{ color:var(--text-faint); }
+#username:focus{ border-color:var(--teal); }
+#joinBtn{ margin-top:14px; border-radius:14px; width:100%; height:48px; background:linear-gradient(135deg,var(--accent),var(--accent-dark)); color:var(--accent-ink); border:none; font-size:15px; font-weight:700; cursor:pointer; }
+#joinBtn:active{ filter:brightness(.95); }
+
+/* ---------- Паёмҳо ---------- */
+#chatDisplay{
+  flex:1; overflow-y:auto; padding:16px 14px 6px; display:flex; flex-direction:column; gap:2px; scrollbar-width:none;
+  background-color:var(--bg);
+  background-image:radial-gradient(circle at 20% 15%, rgba(231,169,60,.05) 0, transparent 40%);
+  position:relative;
+}
+#chatDisplay::-webkit-scrollbar{ display:none; }
+.date-separator{ align-self:center; background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; margin:10px 0; }
+.empty-state{ margin:auto; text-align:center; color:var(--text-faint); padding:30px; }
+.empty-state .e-icon{ font-size:34px; margin-bottom:10px; }
+.empty-state .e-title{ color:var(--text-dim); font-size:14px; font-weight:600; margin-bottom:4px; }
+.empty-state .e-sub{ font-size:12.5px; }
+
+.msg-row{ display:flex; flex-direction:column; max-width:80%; margin-bottom:8px; animation:msgIn .18s ease; }
+@keyframes msgIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+.msg-row.mine{ align-self:flex-end; align-items:flex-end; }
+.msg-row.theirs{ align-self:flex-start; align-items:flex-start; }
+.msg{ padding:9px 12px 7px; border-radius:16px; font-size:14.5px; line-height:1.42; word-break:break-word; white-space:pre-wrap; position:relative; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.msg-row.mine .msg{ background:var(--accent); color:var(--accent-ink); border-bottom-right-radius:4px; }
+.msg-row.theirs .msg{ background:var(--card-2); color:var(--text); border-bottom-left-radius:4px; }
+.msg a{ color:var(--teal-dark); text-decoration:underline; word-break:break-all; }
+.msg-row.mine .msg a{ color:var(--accent-ink); font-weight:600; }
+.msg-meta{ display:flex; align-items:center; gap:3px; font-size:10.5px; margin-top:3px; align-self:flex-end; opacity:.85; }
+.msg-row.mine .msg-meta{ color:rgba(36,23,3,.65); }
+.msg-row.theirs .msg-meta{ color:var(--text-faint); }
+.tick{ font-size:12px; opacity:.65; letter-spacing:-2px; }
+.tick.seen{ color:var(--teal-dark) !important; opacity:1; }
+
+.scroll-bottom-btn{ position:absolute; right:14px; bottom:14px; width:38px; height:38px; border-radius:50%; background:var(--card-2); border:1px solid var(--border); color:var(--text); font-size:15px; cursor:pointer; display:none; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(0,0,0,.35); z-index:50; }
+.scroll-bottom-btn.show{ display:flex; }
+.scroll-bottom-btn .badge{ position:absolute; top:-5px; right:-5px; background:var(--danger); color:#fff; font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 3px; }
+
+/* ---------- Майдони ирсол ---------- */
+.input-area{ padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:var(--bg-elev); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; border-top:1px solid var(--border); }
+textarea{ width:100%; padding:11px 14px; border:1px solid var(--border); border-radius:16px; font-size:15px; background:var(--card); color:var(--text); outline:none; resize:none; min-height:42px; max-height:110px; line-height:20px; overflow-y:auto; }
+textarea::placeholder{ color:var(--text-faint); }
+textarea:focus{ border-color:var(--teal); }
+.send-btn{ width:42px; height:42px; border-radius:50%; border:none; background:var(--accent); color:var(--accent-ink); font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .1s; }
+.send-btn:active{ transform:scale(.92); background:var(--accent-dark); }
+
+/* ---------- Огоҳинома (bottom sheet) ---------- */
+.custom-alert-overlay{ position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:flex-end; z-index:999999; opacity:0; pointer-events:none; transition:opacity .3s; }
+.custom-alert-overlay.show{ opacity:1; pointer-events:auto; }
+.custom-alert-box{ width:100%; background:var(--bg-elev); border:1px solid var(--border); border-top-left-radius:22px; border-top-right-radius:22px; padding:22px 22px 26px; text-align:center; }
+.custom-alert-text{ color:var(--text); font-size:15.5px; font-weight:600; margin-bottom:20px; }
+.custom-alert-btn{ width:100%; padding:13px; background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px; font-weight:700; cursor:pointer; }
+@media (min-width:461px){ .custom-alert-overlay{ align-items:center; } .custom-alert-box{ max-width:320px; border-radius:22px; } }
+
+/* ---------- Хирашавии экран ҳангоми қатъи интернет ---------- */
+.net-overlay{ position:absolute; inset:0; background:rgba(7,9,17,.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:9999999; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+.net-overlay.show{ opacity:1; pointer-events:auto; }
+.net-spinner{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.15); border-top-color:var(--accent); animation:netSpin .8s linear infinite; }
+@keyframes netSpin{ to{ transform:rotate(360deg); } }
+.net-text{ color:var(--text); font-size:14.5px; font-weight:700; text-align:center; padding:0 30px; }
+</style>
+</head>
+<body>
+<div class="phone-container">
+    <div class="offline-banner" id="offlineBanner">Пайваст ба сервер қатъ шуд... кӯшиши барқарорсозӣ</div>
+    <div class="slow-banner" id="slowBanner">⚠ Суръати интернети шумо суст аст, паёмҳо метавонанд дер расанд</div>
+
+    <div class="chat-header">
+        <div class="chat-header-left">
+            <div class="header-avatar" id="headerAvatar" style="display:none;">A<span class="dot" id="adminStatusDot"></span></div>
+            <div class="header-text">
+                <div class="header-title" id="headerTitle">Воридшавӣ</div>
+                <div class="admin-subtitle" id="adminSubtitle" style="display:none;">Админ пайваст нест</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="authBox" class="auth-zone">
+        <div class="auth-card">
+            <div class="auth-icon">💬</div>
+            <h2>Хуш омадед!</h2>
+            <p>Лутфан номи худро нависед, то бо мо чат кунед</p>
+            <input type="text" id="username" placeholder="Номи шумо...">
+            <button onclick="window.playClick();joinChat()" id="joinBtn">Ворид шудан</button>
+        </div>
+    </div>
+
+    <div id="chatBox" style="display:none; flex-direction:column; flex:1; overflow:hidden; position:relative;">
+        <div id="chatDisplay"></div>
+        <button class="scroll-bottom-btn" id="scrollBottomBtn" onclick="window.playClick();scrollToBottom(true)" title="Ба поён" aria-label="Ба паёми охирин гузаред">↓<span class="badge" id="scrollBadge" style="display:none;">0</span></button>
+        <div class="input-area">
+            <textarea id="message" placeholder="Паёмак..." rows="1"></textarea>
+            <button class="send-btn" onclick="window.playClick();sendMessage()" title="Ирсол" aria-label="Паёмро ирсол кунед">➤</button>
+        </div>
+    </div>
+
+    <div id="customAlert" class="custom-alert-overlay">
+        <div class="custom-alert-box">
+            <div class="custom-alert-text" id="alertText">Лутфан номи худро ворид кунед!</div>
+            <button class="custom-alert-btn" onclick="window.playClick();closeAlert()">Фаҳмо аст</button>
+        </div>
+    </div>
+
+    <div class="net-overlay" id="netOverlay">
+        <div class="net-spinner"></div>
+        <div class="net-text">Интернети шумо аз кор монд</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, set, get, update, query, limitToLast, onDisconnect } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+        authDomain: "live-chat-ea070.firebaseapp.com",
+        databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+        projectId: "live-chat-ea070",
+        storageBucket: "live-chat-ea070.firebasestorage.app",
+        messagingSenderId: "321161064947",
+        appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+    let currentUsername = "";
+    let allMessages = {};
+    let processedKeys = new Set();
+    let initialLoadDone = false;
+    let adminWasOnline = false;
+    let typingTimeout = null;
+    let isTypingFlag = false;
+    let unreadTitleCount = 0;
+    const originalTitle = document.title;
+
+    /* ---------- Овозҳо (Web Audio, бе файл) ---------- */
+    let audioCtx;
+    function ctx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); return audioCtx; }
+    function tone(f1,f2,dur,type,g){ try{ const c=ctx(); const o=c.createOscillator(); const gn=c.createGain(); o.type=type||'sine'; o.frequency.setValueAtTime(f1,c.currentTime); if(f2) o.frequency.exponentialRampToValueAtTime(f2,c.currentTime+dur); gn.gain.setValueAtTime(g||.05,c.currentTime); gn.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur); o.connect(gn).connect(c.destination); o.start(); o.stop(c.currentTime+dur); }catch(e){} }
+    window.playSend = ()=>tone(500,900,.12,'sine',.05);
+    window.playReceive = ()=>tone(700,500,.15,'sine',.06);
+    window.playConnect = ()=>tone(400,800,.25,'sine',.05);
+    window.playClick = ()=>tone(650,750,.05,'square',.02);
+    window.playAlert = ()=>tone(880,660,.18,'triangle',.06);
+    window.playWarning = ()=>tone(320,240,.28,'sawtooth',.04);
+    window.playDisconnect = ()=>tone(500,220,.35,'sine',.06);
+
+    /* ---------- Ёрирасон ---------- */
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function linkify(text){ return escapeHtml(text).replace(/((https?:\/\/|www\.)[^\s<]+)/g, m=>{ let u=m.startsWith('http')?m:'https://'+m; return `<a href="${u}" target="_blank" rel="noopener">${m}</a>`; }); }
+    function formatTime(ts){ const d=new Date(ts); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+    function isNearBottom(){ const d=document.getElementById('chatDisplay'); return (d.scrollHeight - d.scrollTop - d.clientHeight) < 120; }
+    window.scrollToBottom = (smooth)=>{ const d=document.getElementById('chatDisplay'); d.scrollTo({ top:d.scrollHeight, behavior: smooth?'smooth':'auto' }); document.getElementById('scrollBottomBtn').classList.remove('show'); document.getElementById('scrollBadge').style.display='none'; scrollBadgeCount=0; };
+    let scrollBadgeCount = 0;
+
+    window.showAlert = (msg)=>{ window.playAlert(); document.getElementById('alertText').innerText = msg || 'Лутфан номи худро ворид кунед!'; document.getElementById('customAlert').classList.add('show'); };
+    window.closeAlert = ()=>{ document.getElementById('customAlert').classList.remove('show'); setTimeout(()=>document.getElementById('username').focus(),300); };
+
+    /* ---------- Огоҳии браузерӣ ---------- */
+    function askNotificationPermission(){
+        if('Notification' in window && Notification.permission === 'default'){
+            Notification.requestPermission().catch(()=>{});
+        }
+    }
+    function notifyNewMessage(text){
+        if(!('Notification' in window) || Notification.permission !== 'granted') return;
+        if(document.visibilityState === 'visible' && document.hasFocus()) return;
+        try{
+            const n = new Notification('Админ', { body:text || 'Паёми нав', icon:'', tag:'kumak-chat' });
+            n.onclick = ()=>{ window.focus(); n.close(); };
+        }catch(e){}
+    }
+    function chatIsVisible(){ return document.visibilityState === 'visible' && document.hasFocus(); }
+    document.addEventListener('visibilitychange', ()=>{ if(chatIsVisible()) resetTitle(); });
+    window.addEventListener('focus', resetTitle);
+    function resetTitle(){ unreadTitleCount = 0; document.title = originalTitle; markUnseenAsSeen(); }
+    function bumpTitle(){
+        if(chatIsVisible()) return;
+        unreadTitleCount++;
+        document.title = `(${unreadTitleCount}) Паёми нав — ${originalTitle}`;
+    }
+
+    /* ---------- Автобаландшавии textarea ---------- */
+    const msgInput = document.getElementById('message');
+    function autoResize(){ msgInput.style.height='44px'; msgInput.style.height = (msgInput.scrollHeight < 110 ? msgInput.scrollHeight : 110) + 'px'; }
+    msgInput.addEventListener('input', ()=>{ autoResize(); handleTypingSignal(); });
+
+    /* ---------- Нишондиҳандаи чоп кардан (typing) ---------- */
+    function handleTypingSignal(){
+        if(!currentUsername) return;
+        if(!isTypingFlag){
+            isTypingFlag = true;
+            update(ref(db, `active_users/${currentUsername}`), { userTyping:true }).catch(()=>{});
+        }
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(()=>{
+            isTypingFlag = false;
+            update(ref(db, `active_users/${currentUsername}`), { userTyping:false }).catch(()=>{});
+        }, 1500);
+    }
+    function stopTyping(){
+        clearTimeout(typingTimeout);
+        if(isTypingFlag){ isTypingFlag = false; update(ref(db, `active_users/${currentUsername}`), { userTyping:false }).catch(()=>{}); }
+    }
+
+    /* ---------- Пайвастшавӣ ба сервер ---------- */
+    onValue(ref(db, '.info/connected'), (snap)=>{
+        document.getElementById('offlineBanner').classList.toggle('show', snap.val() === false);
+    });
+
+    /* ---------- Санҷиши интернет (сатҳи браузер) ---------- */
+    const netOverlay = document.getElementById('netOverlay');
+    let netWasDown = false;
+    function setNetOverlay(show){
+        netOverlay.classList.toggle('show', show);
+        if(show && !netWasDown){ window.playDisconnect(); netWasDown = true; }
+        if(!show && netWasDown){ window.playConnect(); netWasDown = false; }
+    }
+    window.addEventListener('offline', ()=> setNetOverlay(true));
+    window.addEventListener('online', ()=>{ setNetOverlay(false); checkConnectionQuality(); });
+    if(!navigator.onLine) setNetOverlay(true);
+
+    /* ---------- Санҷиши суръати интернет ---------- */
+    function checkConnectionQuality(){
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const slowBanner = document.getElementById('slowBanner');
+        if(!conn || !navigator.onLine){ slowBanner.classList.remove('show'); return; }
+        const isSlow = conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || (typeof conn.downlink === 'number' && conn.downlink > 0 && conn.downlink < 0.5);
+        const wasShown = slowBanner.classList.contains('show');
+        slowBanner.classList.toggle('show', !!isSlow);
+        if(isSlow && !wasShown) window.playWarning();
+    }
+    const netConn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if(netConn && netConn.addEventListener){ netConn.addEventListener('change', checkConnectionQuality); }
+    checkConnectionQuality();
+
+    /* ---------- Воридшавӣ ---------- */
+    window.joinChat = () => {
+        const user = document.getElementById('username').value.trim();
+        const forbidden = /[\/.#$\[\]"'<>&]/;
+        if(user === "" || user.length > 40 || forbidden.test(user)) {
+            window.showAlert('Лутфан номи дурусте ворид кунед (бе аломатҳои махсус)!');
+            return;
+        }
+        currentUsername = user;
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('chatBox').style.display = 'flex';
+        document.getElementById('headerTitle').innerText = "Чат бо Admin";
+        document.getElementById('headerAvatar').style.display = 'flex';
+        document.getElementById('adminSubtitle').style.display = 'flex';
+
+        askNotificationPermission();
+
+        const userRef = ref(db, `active_users/${currentUsername}`);
+        get(userRef).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(userRef, { lastActive: Date.now(), unreadCount: 0, online:true, userTyping:false });
+            } else {
+                update(userRef, { online:true, lastActive: Date.now() });
+            }
+        });
+        onDisconnect(userRef).update({ online:false, userTyping:false, lastActive: Date.now() });
+
+        listenAdminStatus();
+        listenMessages();
+        setTimeout(() => document.getElementById('message').focus(), 100);
+    };
+
+    window.sendMessage = () => {
+        const text = msgInput.value.trim();
+        if(text === "" || !currentUsername) return;
+
+        push(ref(db, `private_chats/${currentUsername}`), {
+            user: currentUsername,
+            text: text,
+            timestamp: Date.now(),
+            seenByAdmin: false,
+            seenByUser: true
+        });
+
+        const userRef = ref(db, `active_users/${currentUsername}`);
+        get(userRef).then((snapshot) => {
+            let currentCount = snapshot.val()?.unreadCount || 0;
+            update(userRef, {
+                lastActive: Date.now(),
+                lastMessage: text,
+                unreadCount: currentCount + 1
+            });
+        });
+
+        window.playSend();
+        stopTyping();
+        msgInput.value = '';
+        autoResize();
+    };
+
+    msgInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    document.getElementById('username').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (document.getElementById('customAlert').classList.contains('show')) closeAlert();
+            else joinChat();
+        }
+    });
+
+    /* ---------- Статуси Админ ---------- */
+    function listenAdminStatus() {
+        onValue(ref(db, 'admin_status/'), (snapshot) => {
+            const adminData = snapshot.val();
+            const subtitle = document.getElementById('adminSubtitle');
+            const dot = document.getElementById('adminStatusDot');
+
+            const isOnline = !!adminData && adminData.status === "online" && adminData.current_chat === currentUsername;
+            const isTyping = isOnline && !!adminData.typing;
+
+            if (isTyping) {
+                subtitle.innerHTML = 'Админ менависад<span class="typing-dots"><span></span><span></span><span></span></span>';
+                subtitle.classList.add('typing');
+                dot.classList.add('online');
+            } else if (isOnline) {
+                subtitle.textContent = "Админ пайваст шуд";
+                subtitle.classList.remove('typing');
+                dot.classList.add('online');
+                if(!adminWasOnline && initialLoadDone) window.playConnect();
+            } else {
+                subtitle.textContent = "Админ пайваст нест";
+                subtitle.classList.remove('typing');
+                dot.classList.remove('online');
+            }
+            adminWasOnline = isOnline;
+        });
+    }
+
+    /* ---------- Аломат гузоштани паёмҳо ҳамчун дидашуда ---------- */
+    function markUnseenAsSeen(){
+        if(!chatIsVisible()) return;
+        Object.keys(allMessages||{}).forEach(key=>{
+            const m = allMessages[key];
+            if(m && m.user !== currentUsername && !m.seenByUser){
+                update(ref(db, `private_chats/${currentUsername}/${key}`), { seenByUser:true });
+            }
+        });
+    }
+
+    /* ---------- Рендери паём ---------- */
+    function renderMsg(msg, id){
+        const isMine = msg.user === currentUsername;
+        const content = linkify(msg.text || '');
+        const ticks = isMine ? `<span class="tick ${msg.seenByAdmin ? 'seen' : ''}">✓✓</span>` : '';
+        return `<div class="msg-row ${isMine ? 'mine' : 'theirs'}">
+            <div class="msg">${content}
+                <div class="msg-meta"><span>${formatTime(msg.timestamp || Date.now())}</span>${ticks}</div>
+            </div>
+        </div>`;
+    }
+
+    function listenMessages() {
+        const messagesQuery = query(ref(db, `private_chats/${currentUsername}`), limitToLast(100));
+        onValue(messagesQuery, (snapshot) => {
+            const display = document.getElementById('chatDisplay');
+            const data = snapshot.val() || {};
+            allMessages = data;
+            const keys = Object.keys(data);
+            const newKeys = keys.filter(k => !processedKeys.has(k));
+            const wasNearBottom = isNearBottom();
+
+            if(keys.length === 0){
+                display.innerHTML = `<div class="empty-state"><div class="e-icon">👋</div><div class="e-title">Ҳанӯз паёме нест</div><div class="e-sub">Аввалин паёми худро фиристед, мо ба зудӣ ҷавоб медиҳем</div></div>`;
+            } else {
+                let html = '';
+                let lastDate = "";
+                keys.forEach(key => {
+                    const chat = data[key];
+                    if (chat.timestamp) {
+                        const dStr = new Date(chat.timestamp).toDateString();
+                        if (dStr !== lastDate) {
+                            const opt = { day: 'numeric', month: 'long', year: 'numeric' };
+                            html += `<div class="date-separator">${new Date(chat.timestamp).toLocaleDateString('tg-TJ', opt)}</div>`;
+                            lastDate = dStr;
+                        }
+                    }
+                    html += renderMsg(chat, key);
+                });
+                display.innerHTML = html;
+            }
+
+            if (initialLoadDone) {
+                newKeys.forEach(key => {
+                    const m = data[key];
+                    if (m.user !== currentUsername) {
+                        window.playReceive();
+                        notifyNewMessage(m.text);
+                        bumpTitle();
+                        if(!wasNearBottom){
+                            scrollBadgeCount++;
+                            const badge = document.getElementById('scrollBadge');
+                            badge.style.display = 'flex';
+                            badge.textContent = scrollBadgeCount;
+                        }
+                    }
+                });
+            }
+
+            processedKeys = new Set(keys);
+
+            if (wasNearBottom || !initialLoadDone) {
+                display.scrollTop = display.scrollHeight;
+            } else {
+                document.getElementById('scrollBottomBtn').classList.add('show');
+            }
+            markUnseenAsSeen();
+            initialLoadDone = true;
+        });
+    }
+
+    document.getElementById('chatDisplay')?.addEventListener('scroll', ()=>{
+        if(isNearBottom()){
+            document.getElementById('scrollBottomBtn').classList.remove('show');
+            document.getElementById('scrollBadge').style.display='none';
+            scrollBadgeCount = 0;
+            markUnseenAsSeen();
+        }
+    });
+
+    window.addEventListener('beforeunload', ()=>{
+        if(currentUsername) update(ref(db, `active_users/${currentUsername}`), { online:false });
+    });
+</script>
+</body>
+</html>
