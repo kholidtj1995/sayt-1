@@ -5,6 +5,11 @@
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Идоракунии Чат — Админ</title>
+<script>
+  if (window.self !== window.top) {
+    document.documentElement.classList.add('embedded');
+  }
+</script>
 <style>
 :root{
   --bg:#0F1320;
@@ -37,6 +42,22 @@ body{ background:#070911; display:flex; justify-content:center; align-items:cent
 @media (min-width:640px){
   body{ background:radial-gradient(circle at 30% 20%, #131a2e 0%, #070911 65%); padding:24px; }
   .app-shell{ max-width:1180px; height:92vh; max-height:900px; border-radius:22px; border:1px solid rgba(255,255,255,.06); box-shadow:0 30px 70px -20px rgba(0,0,0,.7); }
+}
+
+/* Вақте дохили iframe (масалан рамкаи "Савол" дар қура-админ) кушода шавад,
+   нақшаи "floating card"-и desktop хомӯш мешавад, то чат тамоми рамкаро пурра пур кунад */
+html.embedded body{
+  padding:0 !important;
+  background:#070911 !important;
+}
+html.embedded .app-shell{
+  max-width:none !important;
+  width:100% !important;
+  height:100% !important;
+  height:100dvh !important;
+  border-radius:0 !important;
+  border:none !important;
+  box-shadow:none !important;
 }
 
 /* ---------- Болои умумӣ (брендинг) ---------- */
