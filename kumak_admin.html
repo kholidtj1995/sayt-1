@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Идоракунии Чат — Админ</title>
+<style>
+:root{
+  --bg:#0F1320;
+  --bg-elev:#161B2B;
+  --card:#1C2136;
+  --card-2:#232945;
+  --border:#2B3151;
+  --accent:#E7A93C;
+  --accent-dark:#C68A22;
+  --accent-ink:#241703;
+  --teal:#3FA7A0;
+  --teal-dark:#2C7B76;
+  --text:#ECEAE3;
+  --text-dim:#949AB2;
+  --text-faint:#5C6386;
+  --danger:#E2543E;
+  --danger-dark:#B93F2D;
+  --font-display:Georgia,'Iowan Old Style','Noto Serif',serif;
+  --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; font-family:var(--font-body); -webkit-tap-highlight-color:transparent; }
+html{ height:100%; }
+body{ background:#070911; display:flex; justify-content:center; align-items:center; height:100%; min-height:100vh; min-height:100dvh; overflow:hidden; position:fixed; width:100%; }
+
+.app-shell{
+  width:100%; max-width:480px; height:100%; height:100dvh; background:var(--bg);
+  display:flex; flex-direction:column; position:relative; box-shadow:0 0 60px rgba(0,0,0,.5);
+  overflow:hidden; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+}
+@media (min-width:640px){
+  body{ background:radial-gradient(circle at 30% 20%, #131a2e 0%, #070911 65%); padding:24px; }
+  .app-shell{ max-width:480px; height:92vh; max-height:840px; border-radius:22px; border:1px solid rgba(255,255,255,.06); box-shadow:0 30px 70px -20px rgba(0,0,0,.7); }
+}
+@media (min-width:1000px){
+  .app-shell{ max-width:1180px; height:88vh; max-height:900px; }
+}
+
+/* ---------- Болои умумӣ (брендинг) ---------- */
+.topbar{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.topbar-left{ display:flex; align-items:center; gap:10px; }
+.topbar-logo{ width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,var(--teal),var(--teal-dark)); display:flex; align-items:center; justify-content:center; font-size:15px; }
+.topbar-title{ font-family:var(--font-display); font-weight:700; font-size:15.5px; color:var(--text); }
+.admin-online-pill{ display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--teal); background:rgba(63,167,160,.12); padding:5px 10px; border-radius:20px; }
+.admin-online-pill .dot{ width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 6px 1px rgba(63,167,160,.7); animation:pulseGlow 1.5s infinite; }
+@keyframes pulseGlow{ 0%{transform:scale(.9);opacity:.6;} 50%{transform:scale(1.15);opacity:1;} 100%{transform:scale(.9);opacity:.6;} }
+
+/* ---------- Тарҳбандӣ ---------- */
+.layout{ flex:1; display:flex; overflow:hidden; min-height:0; position:relative; }
+
+/* ---- Сутуни рӯйхат ---- */
+.sidebar{ display:flex; flex-direction:column; width:100%; height:100%; background:var(--bg); flex-shrink:0; }
+.sidebar-head{ padding:14px 16px 10px; flex-shrink:0; }
+.search-box{ position:relative; }
+.search-box input{ width:100%; padding:10px 14px 10px 34px; border-radius:12px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:13.5px; outline:none; }
+.search-box input::placeholder{ color:var(--text-faint); }
+.search-box input:focus{ border-color:var(--teal); }
+.search-box::before{ content:'⌕'; position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:15px; }
+.sidebar-stats{ display:flex; gap:8px; margin-top:10px; }
+.stat-chip{ font-size:11px; color:var(--text-dim); background:var(--card); padding:5px 10px; border-radius:20px; font-weight:600; }
+.stat-chip b{ color:var(--text); }
+
+.users-list-screen{ flex:1; overflow-y:auto; scrollbar-width:none; }
+.users-list-screen::-webkit-scrollbar{ display:none; }
+.user-row{ padding:12px 16px; display:flex; align-items:center; gap:11px; border-bottom:1px solid var(--border); cursor:pointer; position:relative; transition:background .15s; }
+.user-row:hover{ background:var(--card); }
+.user-row.active{ background:var(--card-2); }
+.user-row.active::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--teal); }
+.user-avatar{ width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:#fff; flex-shrink:0; position:relative; }
+.user-avatar .presence{ position:absolute; right:-1px; bottom:-1px; width:11px; height:11px; border-radius:50%; background:var(--text-faint); border:2px solid var(--bg); }
+.user-avatar .presence.online{ background:var(--teal); }
+.user-info{ display:flex; flex-direction:column; gap:2px; flex:1; overflow:hidden; }
+.user-name-wrapper{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.user-name{ font-size:14.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-time{ font-size:10.5px; color:var(--text-faint); flex-shrink:0; }
+.user-last-msg-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.user-last-msg{ font-size:12.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-last-msg.typing-preview{ color:var(--teal); font-weight:600; }
+.unread-badge{ background:var(--danger); color:#fff; font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:10px; min-width:18px; text-align:center; flex-shrink:0; }
+.menu-dots{ padding:6px; font-size:17px; color:var(--text-faint); cursor:pointer; font-weight:bold; border-radius:50%; width:28px; height:28px; display:flex; justify-content:center; align-items:center; flex-shrink:0; }
+.menu-dots:hover{ background:var(--border); color:var(--text); }
+.context-menu{ position:absolute; right:14px; top:52px; background:var(--card-2); box-shadow:0 10px 25px rgba(0,0,0,.4); border-radius:12px; width:170px; z-index:300; display:none; border:1px solid var(--border); overflow:hidden; }
+.context-menu-item{ padding:11px 14px; font-size:13px; font-weight:600; text-align:left; cursor:pointer; color:var(--text); transition:background .15s; }
+.context-menu-item:hover{ background:var(--border); }
+.context-menu-item.delete-user{ color:var(--danger); border-top:1px solid var(--border); }
+.empty-users{ padding:40px 20px; text-align:center; color:var(--text-faint); font-size:13.5px; }
+
+/* ---- Сутуни чат ---- */
+.chat-panel{ flex:1; display:flex; flex-direction:column; height:100%; background:var(--bg); min-width:0; }
+.chat-empty-state{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-faint); gap:8px; }
+.chat-empty-state .e-icon{ font-size:44px; margin-bottom:6px; opacity:.5; }
+.chat-empty-state .e-title{ font-size:15px; font-weight:700; color:var(--text-dim); }
+.chat-empty-state .e-sub{ font-size:12.5px; }
+
+.chat-screen{ display:none; flex-direction:column; flex:1; overflow:hidden; }
+.chat-screen-header{ background:var(--bg-elev); border-bottom:1px solid var(--border); padding:10px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.back-to-list{ background:var(--card); color:var(--text-dim); border:1px solid var(--border); width:34px; height:34px; border-radius:11px; cursor:pointer; font-size:16px; display:none; align-items:center; justify-content:center; flex-shrink:0; }
+.chat-user-info{ display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.chat-user-avatar{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff; flex-shrink:0; }
+.chat-user-text{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.chat-user-name{ font-size:14.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-user-status{ font-size:11.5px; color:var(--text-dim); display:flex; align-items:center; gap:4px; }
+.chat-user-status.typing{ color:var(--teal); }
+.typing-dots{ display:inline-flex; align-items:center; gap:2px; }
+.typing-dots span{ width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.4; animation:typingBounce 1.1s infinite; }
+.typing-dots span:nth-child(2){ animation-delay:.15s; }
+.typing-dots span:nth-child(3){ animation-delay:.3s; }
+@keyframes typingBounce{ 0%,60%,100%{ transform:translateY(0); opacity:.4; } 30%{ transform:translateY(-3px); opacity:1; } }
+.chat-header-actions{ display:flex; gap:4px; }
+.icon-btn{ background:none; border:none; color:var(--text-faint); font-size:17px; cursor:pointer; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+.icon-btn:hover{ background:var(--card); color:var(--text); }
+
+#chatDisplay{ flex:1; overflow-y:auto; padding:16px 16px 6px; display:flex; flex-direction:column; gap:2px; scrollbar-width:none; background-image:radial-gradient(circle at 80% 10%, rgba(63,167,160,.06) 0, transparent 40%); position:relative; }
+#chatDisplay::-webkit-scrollbar{ display:none; }
+.date-separator{ align-self:center; background:var(--card); color:var(--text-faint); font-size:11px; padding:5px 12px; border-radius:20px; margin:10px 0; }
+
+.msg-row{ display:flex; flex-direction:column; max-width:72%; margin-bottom:8px; animation:msgIn .18s ease; }
+@keyframes msgIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+.msg-row.mine{ align-self:flex-end; align-items:flex-end; }
+.msg-row.theirs{ align-self:flex-start; align-items:flex-start; }
+.msg{ padding:9px 12px 7px; border-radius:16px; font-size:14.5px; line-height:1.42; word-break:break-word; white-space:pre-wrap; position:relative; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.msg-row.mine .msg{ background:var(--teal); color:#08211f; border-bottom-right-radius:4px; }
+.msg-row.theirs .msg{ background:var(--card-2); color:var(--text); border-bottom-left-radius:4px; }
+.msg a{ color:var(--accent-dark); text-decoration:underline; word-break:break-all; }
+.msg-row.mine .msg a{ color:#08211f; font-weight:700; }
+.msg-meta{ display:flex; align-items:center; gap:3px; font-size:10.5px; margin-top:3px; align-self:flex-end; opacity:.85; }
+.msg-row.mine .msg-meta{ color:rgba(8,33,31,.65); }
+.msg-row.theirs .msg-meta{ color:var(--text-faint); }
+.tick{ font-size:12px; opacity:.65; letter-spacing:-2px; }
+.tick.seen{ color:var(--accent-dark) !important; opacity:1; }
+
+.scroll-bottom-btn{ position:absolute; right:14px; bottom:14px; width:38px; height:38px; border-radius:50%; background:var(--card-2); border:1px solid var(--border); color:var(--text); font-size:15px; cursor:pointer; display:none; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(0,0,0,.35); z-index:50; }
+.scroll-bottom-btn.show{ display:flex; }
+
+.input-zone{ padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:var(--bg-elev); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; border-top:1px solid var(--border); }
+textarea{ flex:1; padding:11px 14px; border:1px solid var(--border); border-radius:16px; font-size:15px; background:var(--card); color:var(--text); outline:none; resize:none; min-height:42px; max-height:110px; line-height:20px; overflow-y:auto; }
+textarea::placeholder{ color:var(--text-faint); }
+textarea:focus{ border-color:var(--teal); }
+.send-btn{ width:42px; height:42px; border-radius:50%; border:none; background:var(--teal); color:#08211f; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .1s; }
+.send-btn:active{ transform:scale(.92); background:var(--teal-dark); }
+
+/* ---------- Toast огоҳиномаҳо ---------- */
+.toast-container{ position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:8px; width:calc(100% - 28px); max-width:360px; pointer-events:none; }
+.toast{ background:var(--card-2); border:1px solid var(--border); color:var(--text); padding:11px 14px; border-radius:14px; font-size:13px; font-weight:600; box-shadow:0 10px 25px rgba(0,0,0,.4); display:flex; align-items:center; gap:8px; opacity:0; transform:translateY(-10px); transition:opacity .25s, transform .25s; cursor:pointer; pointer-events:auto; }
+.toast.show{ opacity:1; transform:translateY(0); }
+.toast .t-dot{ width:8px; height:8px; border-radius:50%; background:var(--teal); flex-shrink:0; }
+
+/* ---------- Пайвастшавӣ ---------- */
+.offline-banner{ flex-shrink:0; max-height:0; overflow:hidden; background:var(--danger); color:#fff; text-align:center; font-size:12.5px; font-weight:700; padding:0 7px; transition:max-height .3s ease, padding .3s ease; }
+.offline-banner.show{ max-height:40px; padding:8px 7px; }
+
+/* ---------- Равзанаи тасдиқ (Ҳа/Не) ---------- */
+.confirm-overlay{ position:absolute; inset:0; background:rgba(6,8,14,.65); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:center; z-index:999999; opacity:0; pointer-events:none; transition:opacity .25s ease; padding:20px; }
+.confirm-overlay.show{ opacity:1; pointer-events:auto; }
+.confirm-box{ width:100%; max-width:320px; background:var(--bg-elev); border:1px solid var(--border); border-radius:18px; padding:22px 20px 20px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.5); }
+.confirm-text{ color:var(--text); font-size:15px; font-weight:600; margin-bottom:20px; line-height:1.4; }
+.confirm-actions{ display:flex; gap:10px; }
+.confirm-btn{ flex:1; padding:12px; border:none; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer; }
+.confirm-btn.no{ background:var(--card); color:var(--text); border:1px solid var(--border); }
+.confirm-btn.no:active{ background:var(--card-2); }
+.confirm-btn.yes{ background:var(--danger); color:#fff; }
+.confirm-btn.yes:active{ background:var(--danger-dark); }
+
+/* ---------- Тарҳи мобилӣ / десктоп ---------- */
+@media (max-width:999px){
+  .layout{ position:relative; }
+  .sidebar, .chat-panel{ position:absolute; inset:0; transition:transform .25s ease; }
+  .chat-panel{ transform:translateX(100%); }
+  .chat-panel.active{ transform:translateX(0); }
+  .chat-empty-state{ display:none; }
+  .back-to-list{ display:flex; }
+}
+@media (min-width:1000px){
+  .sidebar{ width:340px; border-right:1px solid var(--border); flex-shrink:0; }
+  .chat-panel{ flex:1; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <div class="offline-banner" id="offlineBanner">Пайваст ба сервер қатъ шуд... кӯшиши барқарорсозӣ</div>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">💬</div>
+            <div class="topbar-title">Кумак — Идоракунӣ</div>
+        </div>
+        <div class="admin-online-pill"><span class="dot"></span>Онлайн</div>
+    </div>
+
+    <div class="layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-head">
+                <div class="search-box"><input type="text" id="searchUsers" placeholder="Ҷустуҷӯи корбар..." oninput="filterUsers(this.value)"></div>
+                <div class="sidebar-stats">
+                    <span class="stat-chip"><b id="statTotal">0</b> корбар</span>
+                    <span class="stat-chip"><b id="statUnread">0</b> нахонда</span>
+                </div>
+            </div>
+            <div id="usersListScreen" class="users-list-screen"></div>
+        </aside>
+
+        <section class="chat-panel" id="chatPanel">
+            <div class="chat-empty-state" id="chatEmptyState">
+                <div class="e-icon">💬</div>
+                <div class="e-title">Ягон чат интихоб нашудааст</div>
+                <div class="e-sub">Барои сар кардани сӯҳбат корбареро аз рӯйхат интихоб кунед</div>
+            </div>
+            <div id="chatScreen" class="chat-screen">
+                <div class="chat-screen-header">
+                    <button class="back-to-list" id="backBtn" onclick="closeChat()" title="Бозгашт ба рӯйхат" aria-label="Бозгашт ба рӯйхат">←</button>
+                    <div class="chat-user-info">
+                        <div class="chat-user-avatar" id="chatUserAvatar"></div>
+                        <div class="chat-user-text">
+                            <div class="chat-user-name" id="chatUserName"></div>
+                            <div class="chat-user-status" id="chatUserStatus">—</div>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="icon-btn" id="clearChatBtn" title="Пок кардани чат">🗑</button>
+                    </div>
+                </div>
+                <div id="chatDisplay"></div>
+                <button class="scroll-bottom-btn" id="scrollBottomBtn" onclick="scrollToBottom(true)" title="Ба поён" aria-label="Ба паёми охирин гузаред">↓</button>
+                <div class="input-zone">
+                    <textarea id="adminMsg" placeholder="Ҷавоб ба корбар..." rows="1"></textarea>
+                    <button class="send-btn" onclick="sendAdmin()" title="Ирсол" aria-label="Паёмро ирсол кунед">➤</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <div class="confirm-text" id="confirmText">Мутмаин ҳастед?</div>
+            <div class="confirm-actions">
+                <button class="confirm-btn no" id="confirmNoBtn">Не</button>
+                <button class="confirm-btn yes" id="confirmYesBtn">Ҳа</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, onDisconnect, remove, update, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+        authDomain: "live-chat-ea070.firebaseapp.com",
+        databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+        projectId: "live-chat-ea070",
+        storageBucket: "live-chat-ea070.firebasestorage.app",
+        messagingSenderId: "321161064947",
+        appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+
+    const adminStatusRef = ref(db, 'admin_status/');
+    set(adminStatusRef, { status: "online", current_chat: "", typing: false });
+    onDisconnect(adminStatusRef).set({ status: "offline", current_chat: "", typing: false });
+
+    let selectedUser = "";
+    let usersData = {};
+    let searchTerm = "";
+    let allMessages = {};
+    let processedKeys = new Set();
+    let initialLoadDone = false;
+    let typingTimeout = null;
+    let isTypingFlag = false;
+    let isDesktop = window.matchMedia('(min-width:1000px)').matches;
+    window.matchMedia('(min-width:1000px)').addEventListener('change', (e)=>{ isDesktop = e.matches; syncPanelVisibility(); });
+    let scrollBadgeCount = 0;
+    const lastNotifiedMsgPerUser = {};
+
+    /* ---------- Овозҳо ---------- */
+    let audioCtx;
+    function ctx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); return audioCtx; }
+    function tone(f1,f2,dur,type,g){ try{ const c=ctx(); const o=c.createOscillator(); const gn=c.createGain(); o.type=type||'sine'; o.frequency.setValueAtTime(f1,c.currentTime); if(f2) o.frequency.exponentialRampToValueAtTime(f2,c.currentTime+dur); gn.gain.setValueAtTime(g||.05,c.currentTime); gn.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur); o.connect(gn).connect(c.destination); o.start(); o.stop(c.currentTime+dur); }catch(e){} }
+    window.playSend = ()=>tone(500,900,.12,'sine',.05);
+    window.playReceive = ()=>tone(700,500,.15,'sine',.06);
+    window.playAlert = ()=>{ tone(880,880,.09,'triangle',.06); setTimeout(()=>tone(660,660,.12,'triangle',.06), 110); };
+    window.playClick = ()=>tone(650,750,.05,'square',.02);
+
+    /* ---------- Равзанаи тасдиқ (Ҳа/Не) ---------- */
+    let confirmResolve = null;
+    function showConfirm(message){
+        return new Promise((resolve)=>{
+            confirmResolve = resolve;
+            document.getElementById('confirmText').textContent = message;
+            document.getElementById('confirmOverlay').classList.add('show');
+            window.playAlert();
+        });
+    }
+    function hideConfirm(result){
+        document.getElementById('confirmOverlay').classList.remove('show');
+        if(confirmResolve){ const r = confirmResolve; confirmResolve = null; r(result); }
+    }
+    document.getElementById('confirmYesBtn').addEventListener('click', ()=>{ window.playClick(); hideConfirm(true); });
+    document.getElementById('confirmNoBtn').addEventListener('click', ()=>{ window.playClick(); hideConfirm(false); });
+
+    /* ---------- Ёрирасон ---------- */
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function linkify(text){ return escapeHtml(text).replace(/((https?:\/\/|www\.)[^\s<]+)/g, m=>{ let u=m.startsWith('http')?m:'https://'+m; return `<a href="${u}" target="_blank" rel="noopener">${m}</a>`; }); }
+    function formatTime(ts){ if(!ts) return ''; const d=new Date(ts); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+    function relativeTime(ts){
+        if(!ts) return '';
+        const diff = Date.now() - ts;
+        const min = Math.floor(diff/60000);
+        if(min < 1) return 'ҳозир';
+        if(min < 60) return min+' дақ';
+        const hr = Math.floor(min/60);
+        if(hr < 24) return hr+' соат';
+        return Math.floor(hr/24)+' рӯз';
+    }
+    function isNearBottom(){ const d=document.getElementById('chatDisplay'); if(!d) return true; return (d.scrollHeight - d.scrollTop - d.clientHeight) < 120; }
+    window.scrollToBottom = (smooth)=>{ const d=document.getElementById('chatDisplay'); d.scrollTo({ top:d.scrollHeight, behavior: smooth?'smooth':'auto' }); document.getElementById('scrollBottomBtn').classList.remove('show'); scrollBadgeCount=0; };
+    function initials(name){ return (name||'?').trim().slice(0,2).toUpperCase(); }
+    const avatarPalette = ['#E7A93C','#3FA7A0','#8B7CD6','#D6738B','#5AA9E6','#D68B4B'];
+    function avatarColor(name){ let h=0; for(let i=0;i<(name||'').length;i++) h = name.charCodeAt(i) + ((h<<5)-h); return avatarPalette[Math.abs(h) % avatarPalette.length]; }
+    function chatIsVisible(){ return document.visibilityState === 'visible' && document.hasFocus(); }
+
+    /* ---------- Toast ---------- */
+    function showToast(text, onClick){
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        el.className = 'toast';
+        el.innerHTML = `<span class="t-dot"></span><span>${escapeHtml(text)}</span>`;
+        if(onClick) el.onclick = onClick;
+        container.appendChild(el);
+        requestAnimationFrame(()=>el.classList.add('show'));
+        setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 300); }, 4000);
+    }
+
+    /* ---------- Пайвастшавӣ ба сервер ---------- */
+    onValue(ref(db, '.info/connected'), (snap)=>{
+        document.getElementById('offlineBanner').classList.toggle('show', snap.val() === false);
+    });
+
+    /* ---------- Автобаландшавии textarea ---------- */
+    const adminMsgInput = document.getElementById('adminMsg');
+    function autoResize(){ adminMsgInput.style.height='44px'; adminMsgInput.style.height = (adminMsgInput.scrollHeight < 110 ? adminMsgInput.scrollHeight : 110) + 'px'; }
+    adminMsgInput.addEventListener('input', ()=>{ autoResize(); handleTypingSignal(); });
+
+    function handleTypingSignal(){
+        if(!selectedUser) return;
+        if(!isTypingFlag){ isTypingFlag = true; update(adminStatusRef, { typing:true }).catch(()=>{}); }
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(()=>{ isTypingFlag = false; update(adminStatusRef, { typing:false }).catch(()=>{}); }, 1500);
+    }
+    function stopTyping(){
+        clearTimeout(typingTimeout);
+        if(isTypingFlag){ isTypingFlag = false; update(adminStatusRef, { typing:false }).catch(()=>{}); }
+    }
+
+    /* ---------- Рӯйхати корбарон ---------- */
+    onValue(ref(db, 'active_users/'), (snapshot) => {
+        usersData = snapshot.val() || {};
+        renderUsersList();
+        if(selectedUser && usersData[selectedUser]){
+            updateChatHeaderStatus();
+        }
+    });
+
+    window.filterUsers = (val)=>{ searchTerm = (val||'').toLowerCase(); renderUsersList(); };
+
+    function renderUsersList(){
+        const usersListEl = document.getElementById('usersListScreen');
+        const usernames = Object.keys(usersData);
+        document.getElementById('statTotal').textContent = usernames.length;
+        const unreadTotal = usernames.reduce((s,u)=> s + (usersData[u].unreadCount||0), 0);
+        document.getElementById('statUnread').textContent = unreadTotal;
+
+        if(usernames.length === 0){
+            usersListEl.innerHTML = '<div class="empty-users">Ҳеҷ корбаре нест</div>';
+            return;
+        }
+
+        const sorted = usernames
+            .filter(u => u.toLowerCase().includes(searchTerm))
+            .sort((a,b)=> (usersData[b].lastActive||0) - (usersData[a].lastActive||0));
+
+        if(sorted.length === 0){
+            usersListEl.innerHTML = '<div class="empty-users">Корбар ёфт нашуд</div>';
+            return;
+        }
+
+        usersListEl.innerHTML = sorted.map((username, idx)=>{
+            const u = usersData[username];
+            const lastMsg = u.userTyping ? 'дар ҳоли навиштан...' : (u.lastMessage || 'Паёме нест...');
+            const unread = u.unreadCount || 0;
+            const isOnline = !!u.online;
+            const isActive = username === selectedUser;
+            return `<div class="user-row ${isActive?'active':''}" data-username="${escapeHtml(username)}">
+                <div class="user-avatar" style="background:${avatarColor(username)}">${initials(username)}<span class="presence ${isOnline?'online':''}"></span></div>
+                <div class="user-info">
+                    <div class="user-name-wrapper">
+                        <span class="user-name">${escapeHtml(username)}</span>
+                        <span class="user-time">${relativeTime(u.lastActive)}</span>
+                    </div>
+                    <div class="user-last-msg-row">
+                        <span class="user-last-msg ${u.userTyping?'typing-preview':''}">${escapeHtml(lastMsg)}</span>
+                        ${unread>0 ? `<span class="unread-badge">${unread}</span>` : ''}
+                    </div>
+                </div>
+                <div class="menu-dots" data-menu-idx="${idx}">⋮</div>
+                <div id="menu-row-${idx}" class="context-menu">
+                    <div class="context-menu-item" data-action="clear" data-username="${escapeHtml(username)}">Пок кардани чат</div>
+                    <div class="context-menu-item delete-user" data-action="delete" data-username="${escapeHtml(username)}">Нест кардани корбар</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    document.getElementById('usersListScreen').addEventListener('click', (e)=>{
+        const menuDots = e.target.closest('.menu-dots');
+        if(menuDots){ e.stopPropagation(); toggleMenu(menuDots.dataset.menuIdx); return; }
+        const actionItem = e.target.closest('.context-menu-item');
+        if(actionItem){
+            e.stopPropagation();
+            const username = actionItem.dataset.username;
+            if(actionItem.dataset.action === 'clear') clearChat(username);
+            else if(actionItem.dataset.action === 'delete') deleteUser(username);
+            return;
+        }
+        const row = e.target.closest('.user-row');
+        if(row) openChat(row.dataset.username);
+    });
+
+    function toggleMenu(idx){
+        document.querySelectorAll('.context-menu').forEach(m => { if(m.id !== `menu-row-${idx}`) m.style.display = 'none'; });
+        const menu = document.getElementById(`menu-row-${idx}`);
+        if(menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+    document.addEventListener('click', () => { document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none'); });
+
+    /* ---------- Кушодан/пӯшидани чат ---------- */
+    function syncPanelVisibility(){
+        const chatPanel = document.getElementById('chatPanel');
+        const chatScreen = document.getElementById('chatScreen');
+        const emptyState = document.getElementById('chatEmptyState');
+        if(!selectedUser){
+            chatScreen.style.display = 'none';
+            chatPanel.classList.remove('active');
+            emptyState.style.display = isDesktop ? 'flex' : 'none';
+        } else {
+            emptyState.style.display = 'none';
+            chatScreen.style.display = 'flex';
+            chatPanel.classList.add('active');
+        }
+    }
+
+    window.openChat = (username) => {
+        selectedUser = username;
+        update(adminStatusRef, { current_chat: username, typing:false });
+        update(ref(db, `active_users/${username}`), { unreadCount: 0 });
+
+        document.getElementById('chatUserName').textContent = username;
+        document.getElementById('chatUserAvatar').textContent = initials(username);
+        document.getElementById('chatUserAvatar').style.background = avatarColor(username);
+        initialLoadDone = false;
+        processedKeys = new Set();
+
+        renderUsersList();
+        syncPanelVisibility();
+        loadMessages(username);
+        setTimeout(() => document.getElementById('adminMsg').focus(), 100);
+    };
+
+    window.closeChat = () => {
+        stopTyping();
+        selectedUser = "";
+        update(adminStatusRef, { current_chat: "", typing:false });
+        renderUsersList();
+        syncPanelVisibility();
+    };
+
+    function updateChatHeaderStatus(){
+        const statusEl = document.getElementById('chatUserStatus');
+        const u = usersData[selectedUser];
+        if(!u){ statusEl.textContent = '—'; return; }
+        if(u.userTyping){
+            statusEl.innerHTML = 'дар ҳоли навиштан<span class="typing-dots"><span></span><span></span><span></span></span>';
+            statusEl.classList.add('typing');
+        } else {
+            statusEl.classList.remove('typing');
+            statusEl.textContent = u.online ? 'Онлайн' : ('Дида шуд ' + relativeTime(u.lastActive) + ' пеш');
+        }
+    }
+
+    /* ---------- Паёмҳо ---------- */
+    function renderMsg(msg, id){
+        const isAdmin = msg.user === "Админ";
+        const content = linkify(msg.text || '');
+        const ticks = isAdmin ? `<span class="tick ${msg.seenByUser ? 'seen' : ''}">✓✓</span>` : '';
+        return `<div class="msg-row ${isAdmin ? 'mine' : 'theirs'}">
+            <div class="msg">${content}
+                <div class="msg-meta"><span>${formatTime(msg.timestamp)}</span>${ticks}</div>
+            </div>
+        </div>`;
+    }
+
+    function loadMessages(username) {
+        const messagesQuery = query(ref(db, `private_chats/${username}`), limitToLast(100));
+        onValue(messagesQuery, (snapshot) => {
+            if (selectedUser !== username) return;
+            const display = document.getElementById('chatDisplay');
+            const data = snapshot.val() || {};
+            allMessages = data;
+            const keys = Object.keys(data);
+            const newKeys = keys.filter(k => !processedKeys.has(k));
+            const wasNearBottom = isNearBottom();
+
+            let html = '';
+            let lastDate = '';
+            keys.forEach(key => {
+                const chat = data[key];
+                if (chat.timestamp) {
+                    const dStr = new Date(chat.timestamp).toDateString();
+                    if (dStr !== lastDate) {
+                        html += `<div class="date-separator">${new Date(chat.timestamp).toLocaleDateString('tg-TJ', {day:'numeric',month:'long',year:'numeric'})}</div>`;
+                        lastDate = dStr;
+                    }
+                }
+                html += renderMsg(chat, key);
+            });
+            display.innerHTML = html || '';
+
+            if (initialLoadDone) {
+                newKeys.forEach(key => {
+                    if (data[key].user !== "Админ") window.playReceive();
+                });
+            }
+            processedKeys = new Set(keys);
+
+            if (wasNearBottom || !initialLoadDone) display.scrollTop = display.scrollHeight;
+            else document.getElementById('scrollBottomBtn').classList.add('show');
+
+            if(chatIsVisible()){
+                keys.forEach(key => {
+                    const m = data[key];
+                    if (m.user !== "Админ" && !m.seenByAdmin) update(ref(db, `private_chats/${username}/${key}`), { seenByAdmin:true });
+                });
+            }
+            initialLoadDone = true;
+        });
+    }
+
+    document.getElementById('chatDisplay').addEventListener('scroll', ()=>{
+        if(isNearBottom()) document.getElementById('scrollBottomBtn').classList.remove('show');
+    });
+
+    window.sendAdmin = () => {
+        const text = adminMsgInput.value.trim();
+        if(text === "" || !selectedUser) return;
+
+        push(ref(db, `private_chats/${selectedUser}`), {
+            user: "Админ",
+            text: text,
+            timestamp: Date.now(),
+            seenByAdmin: true,
+            seenByUser: false
+        });
+        update(ref(db, `active_users/${selectedUser}`), { lastMessage: "Шумо: " + text, lastActive: Date.now() }).catch(()=>{});
+
+        window.playSend();
+        stopTyping();
+        adminMsgInput.value = '';
+        autoResize();
+    };
+
+    adminMsgInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAdmin(); }
+    });
+
+    document.getElementById('clearChatBtn').addEventListener('click', ()=>{ if(selectedUser) clearChat(selectedUser); });
+
+    function closeAllMenus(){ document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none'); }
+
+    async function clearChat(username){
+        const ok = await showConfirm(`Чати ${username}-ро пок мекунед?`);
+        if(ok){
+            remove(ref(db, `private_chats/${username}`));
+            update(ref(db, `active_users/${username}`), { lastMessage: "Чат пок карда шуд", unreadCount: 0 });
+        }
+        closeAllMenus();
+    }
+
+    async function deleteUser(username){
+        const ok = await showConfirm(`Корбар ${username}-ро комилан нест мекунед?`);
+        if(ok){
+            remove(ref(db, `private_chats/${username}`));
+            remove(ref(db, `active_users/${username}`));
+            if(selectedUser === username) closeChat();
+        }
+        closeAllMenus();
+    }
+
+    /* ---------- Огоҳии паёми нав барои чатҳои дигар (toast + садо) ---------- */
+    onValue(ref(db, 'active_users/'), (snapshot)=>{
+        const data = snapshot.val() || {};
+        Object.keys(data).forEach(username=>{
+            const u = data[username];
+            const lastMsg = u.lastMessage;
+            const stamp = u.lastActive || 0;
+            const key = username + '|' + stamp;
+            if(lastNotifiedMsgPerUser[username] === undefined){
+                lastNotifiedMsgPerUser[username] = key;
+                return;
+            }
+            if(lastNotifiedMsgPerUser[username] !== key){
+                lastNotifiedMsgPerUser[username] = key;
+                if(username !== selectedUser && lastMsg){
+                    window.playAlert();
+                    showToast(`${username}: ${lastMsg}`, ()=>openChat(username));
+                }
+            }
+        });
+    });
+
+    syncPanelVisibility();
+    window.addEventListener('beforeunload', ()=>{ update(adminStatusRef, { status:'offline', current_chat:'', typing:false }); });
+</script>
+</body>
+</html>
