@@ -71,6 +71,14 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   #splash p{ color:var(--text-muted); font-size:0.9rem; }
 
+  /* Рӯйпӯши интизорӣ ҳангоми сабти ном/воридшавӣ — то анҷоми пурраи раванд */
+  #loginWaitOverlay{
+    position:fixed; inset:0; z-index:110;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; background:var(--bg);
+  }
+  #loginWaitOverlay p{ color:var(--text-muted); font-size:0.9rem; margin:0; }
+
   /* Login / Register */
   #loginScreen{
     height:100%; overflow-y:auto; display:flex; align-items:center; justify-content:center; padding:24px;
@@ -452,27 +460,49 @@
 </head>
 <body>
 <script>
-  // Пешгирии кушода шудани худкори клавиатура ҳангоми боркунии сайт:
-  // агар браузер/платформаи мизбон (масалан ҳангоми барқарорсозии ҳолат) ба таври
-  // худкор ба яке аз кутиҳои вуруд фокус диҳад, ин скрипт онро дарҳол хомӯш мекунад.
+  // Пешгирии кушода шудани худкори клавиатура ҳангоми боркунии сайт.
+  // Диққат: ин муҳофизат МАҲДУД БА ВАҚТ НЕСТ (баъзе платформаҳои мизбон, масалан
+  // конструкторҳои сайт монанди Storeland, скриптҳои иловагии худро мебор мекунанд
+  // ва боркунии саҳифа метавонад дертар аз якчанд сония тӯл кашад — дар он ҳолат
+  // муҳофизати вобаста ба вақт (масалан 1.2 сония) кофӣ нест ва фокуси дерина
+  // метавонад аз он гузарад). Бинобар ин кутиҳои "Ном", "Рақами телефон" ва "Рамз"
+  // аз аввал readonly мебошанд ва ФАҚАТ баъди ламси/клики ВОҚЕИИ корбар кушода
+  // мешаванд — новобаста аз он ки саҳифа чӣ қадар вақт бор шавад ё чанд бор
+  // браузер/платформаи мизбон кӯшиши фокус кардани онҳоро кунад.
   (function(){
-    var guardUntil = Date.now() + 1200;
-    function killEarlyFocus(e){
-      if(Date.now() > guardUntil) return;
+    function armField(el){
+      if(!el) return;
+      el.setAttribute("readonly", "readonly");
+      function release(){
+        el.removeAttribute("readonly");
+      }
+      // pointerdown/touchstart то аз "click" ё "focus"-и худкор пештар кор кунад
+      el.addEventListener("pointerdown", release, { once:true });
+      el.addEventListener("touchstart", release, { once:true, passive:true });
+      el.addEventListener("mousedown", release, { once:true });
+    }
+    function init(){
+      ["nameInput","phoneInput","passwordInput"].forEach(function(id){
+        armField(document.getElementById(id));
+      });
+    }
+    // Дастрас мекунем ба скриптҳои дигар (масалан ҳангоми баргаштан ба
+    // экрани логин баъд аз хориҷ шудан аз система — logout), то кутиҳо
+    // боз аз нав "яроқнок" шаванд ва фақат бо ламси воқеии корбар кушода шаванд.
+    window.armLoginFields = init;
+    if(document.readyState === "loading"){
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+    // Ҳамчун сатҳи иловагии эҳтиёт: ҳар гуна фокуси нохостаи пеш аз ламси корбар
+    // дарҳол хомӯш карда мешавад (то абад фаъол, на танҳо якчанд сония).
+    document.addEventListener("focus", function(e){
       var el = e.target;
-      if(el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")){
+      if(el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA") && el.hasAttribute("readonly")){
         el.blur();
       }
-    }
-    document.addEventListener("focus", killEarlyFocus, true);
-    window.addEventListener("load", function(){
-      if(document.activeElement && document.activeElement !== document.body){
-        document.activeElement.blur();
-      }
-    });
-    setTimeout(function(){
-      document.removeEventListener("focus", killEarlyFocus, true);
-    }, 1300);
+    }, true);
   })();
 </script>
 
@@ -483,6 +513,11 @@
 </div>
 
 <!-- LOGIN / REGISTER SCREEN -->
+<div id="loginWaitOverlay" class="hidden">
+  <div class="splash-ring"></div>
+  <p>Лутфан интизор шавед...</p>
+</div>
+
 <div id="loginScreen" class="hidden">
   <div class="login-card">
     <div class="brand-mark">
@@ -490,7 +525,7 @@
     </div>
     <h1>ҚУРЪА</h1>
     <p class="sub">Барои ворид шудан ном ва рақами телефони худро нависед</p>
-    <form id="loginForm">
+    <div id="loginForm">
       <div class="field">
         <label for="nameInput">Ном</label>
         <input type="text" id="nameInput" placeholder="Номи шумо" autocomplete="off" required />
@@ -510,9 +545,9 @@
           </button>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
+      <button type="button" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
       <div class="login-error" id="loginError"></div>
-    </form>
+    </div>
     <button type="button" class="btn" id="helpBtn" style="width:100%;margin-top:10px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);">Кумак кардан</button>
   </div>
 </div>
@@ -895,6 +930,32 @@ const LS_KEY = "qura_user";
 
 const splash = document.getElementById("splash");
 const loginScreen = document.getElementById("loginScreen");
+const loginWaitOverlay = document.getElementById("loginWaitOverlay");
+
+// Дар баъзе браузерҳои Android (масалан Chrome), даъвати оддии blur() кофӣ нест
+// барои пӯшидани клавиатура — бинобар ин кутиро якбора readonly карда, баъд blur
+// мекунем, ки клавиатура ҳатман пӯшида шавад.
+function forceCloseKeyboard(keepReadonly){
+  const fields = [nameInput, phoneInput, passwordInput].filter(Boolean);
+  const active = document.activeElement;
+  fields.forEach(el => el.setAttribute("readonly", "readonly"));
+  if(active && typeof active.blur === "function") active.blur();
+  if(document.body && typeof document.body.focus === "function") document.body.focus();
+  // Агар keepReadonly=true бошад, кутиҳоро readonly НИГОҲ МЕДОРЕМ (барнома
+  // мунтазир аст, ки раванди дарозмуддат — масалан сабти ном дар Firebase —
+  // ба итмом расад). Дар акси ҳол, баъд аз 200мс кутиҳо боз қобили таҳрир
+  // мешаванд (барои ҳолатҳое ки корбар бояд хатогиро ислоҳ кунад).
+  if(!keepReadonly){
+    setTimeout(() => {
+      fields.forEach(el => el.removeAttribute("readonly"));
+    }, 200);
+  }
+}
+// Кутиҳоро аз ҳолати readonly-и доимӣ озод мекунад — фақат дар шохаҳои
+// хатогии submit истифода мешавад, то корбар тавонад маълумотро ислоҳ кунад.
+function releaseFieldsReadonly(){
+  [nameInput, phoneInput, passwordInput].filter(Boolean).forEach(el => el.removeAttribute("readonly"));
+}
 const home = document.getElementById("home");
 const loginForm = document.getElementById("loginForm");
 const nameInput = document.getElementById("nameInput");
@@ -1224,24 +1285,42 @@ function fillUserBadge(user){
 }
 
 function showHome(){
-  if(document.activeElement && typeof document.activeElement.blur === "function"){
-    document.activeElement.blur();
-  }
+  // keepReadonly=true: кутиҳои логинро ҳАМЕША readonly нигоҳ медорем ҳамин ки
+  // ба home мегузарем. Агар инҷо readonly хориҷ карда мешуд (ҳатто пас аз
+  // пинҳон шудани экрани логин), баъзе браузерҳои Android метавонанд ин
+  // тағйирро ҳамчун сабаби боз кушодани клавиатура қабул кунанд — маҳз ҳамин
+  // сабаби он буд, ки баъди сабти номи НАВ клавиатура худкор мебаромад, вале
+  // баъди воридшавии оддӣ (кутиҳо ҳаргиз ламс нашуда буданд) намебаромад.
+  forceCloseKeyboard(true);
+  loginWaitOverlay.classList.add("hidden");
   loginScreen.classList.add("hidden");
   splash.classList.add("hidden");
-  home.classList.remove("hidden");
-  // Тугмаи чат зуд кор кунад — чатро аллакай ҳамин ҷо, дар паси парда, бор мекунем
-  setTimeout(preloadChatFrame, 600);
-  // Тугмаи гурӯҳ низ зуд кор кунад — гурӯҳро низ пешакӣ дар паси парда бор мекунем
-  setTimeout(preloadGroupFrame, 800);
-  // Назорати паёмҳои нави гурӯҳ барои бадҷ ва садо
-  watchGroupMessages();
+  // Аввал мегузорем, ки равзанаи логин пурра пушида шавад (кадри навбатии рендер),
+  // танҳо баъд аз он экрани асосиро мекушоем — то клавиатура ва ҷойгиршавӣ такон нахӯрад.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      home.classList.remove("hidden");
+      // Кӯшиши иловагӣ баъд аз каме таъхир — агар Android дар кӯшиши аввал
+      // клавиатураро пурра напӯшонда бошад. keepReadonly=true — сабабашро дар боло бингар.
+      setTimeout(() => forceCloseKeyboard(true), 250);
+      // Тугмаи чат зуд кор кунад — чатро аллакай ҳамин ҷо, дар паси парда, бор мекунем
+      setTimeout(preloadChatFrame, 600);
+      // Тугмаи гурӯҳ низ зуд кор кунад — гурӯҳро низ пешакӣ дар паси парда бор мекунем
+      setTimeout(preloadGroupFrame, 800);
+      // Назорати паёмҳои нави гурӯҳ барои бадҷ ва садо
+      watchGroupMessages();
+    });
+  });
 }
 
 function showLogin(){
   splash.classList.add("hidden");
   home.classList.add("hidden");
   loginScreen.classList.remove("hidden");
+  // Кутиҳоро аз нав "яроқнок" мекунем (readonly + гӯшгирандаҳои нав барои
+  // ламси воқеӣ), зеро showHome() онҳоро ҳамеша readonly нигоҳ дошта буд.
+  // Бе ин, баъд аз logout корбар дигар наметавонист дар кутиҳо чизе нависад.
+  if(typeof window.armLoginFields === "function") window.armLoginFields();
 }
 
 function forceLogout(){
@@ -1530,11 +1609,14 @@ passwordInput.addEventListener("input", () => {
   }
 });
 
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if(document.activeElement && typeof document.activeElement.blur === "function"){
-    document.activeElement.blur();
-  }
+async function handleLoginSubmit(e){
+  if(e) e.preventDefault();
+  // keepReadonly=true: кутиҳо то анҷоми ПУРРАИ раванд (аз ҷумла амалҳои
+  // Firebase-и дарозмуддат ҳангоми сабти номи нав) readonly мемонанд. Ин
+  // муҳим аст, зеро баъд аз сабти номи нав Chrome/Android метавонад равзани
+  // худии «Рамзро нигоҳ доред?»-ро нишон диҳад, ки метавонад боиси кушода
+  // шудани клавиатура гардад агар кутиҳо аллакай қобили таҳрир бошанд.
+  forceCloseKeyboard(true);
   const name = nameInput.value.trim();
   const phone = phoneInput.value.trim();
   const password = passwordInput.value;
@@ -1542,16 +1624,19 @@ loginForm.addEventListener("submit", async (e) => {
 
   if(!validateFieldsFilled()){
     sound.error();
+    releaseFieldsReadonly();
     return;
   }
 
   if(countryUnknown){
     loginError.textContent = "Давлати рақами телефон муайян нашуд. Лутфан рақамро дуруст ворид кунед.";
     sound.error();
+    releaseFieldsReadonly();
     return;
   }
 
   loginBtn.disabled = true;
+  loginWaitOverlay.classList.remove("hidden");
   try{
     const normPhone = normalizePhone(phone);
     // Санҷиши рӯйхати сиёҳ — новобаста аз ном ё префикси рақам (+992/992/0 ва ғ.),
@@ -1561,6 +1646,8 @@ loginForm.addEventListener("submit", async (e) => {
       loginError.textContent = "Шумо дар рӯйхати сиёҳ қарор доред. Шумо иҷозати воридшавӣ надоред.";
       sound.error();
       loginBtn.disabled = false;
+      loginWaitOverlay.classList.add("hidden");
+      releaseFieldsReadonly();
       return;
     }
 
@@ -1587,6 +1674,8 @@ loginForm.addEventListener("submit", async (e) => {
         loginError.textContent = "Ном, рақами телефон ё рамз хато аст.";
         sound.error();
         loginBtn.disabled = false;
+        loginWaitOverlay.classList.add("hidden");
+        releaseFieldsReadonly();
         return;
       }
 
@@ -1601,23 +1690,49 @@ loginForm.addEventListener("submit", async (e) => {
         normPhone,
         createdAt: Date.now()
       });
+      // Тасдиқи иловагӣ: пас аз навиштан, маълумотро АЗ НАВ аз Firebase мехонем,
+      // то мутмаин шавем, ки сабти ном воқеан 100% анҷом ёфтааст (на танҳо дар
+      // ҳофизаи маҳаллии SDK), пеш аз он ки равзанаи асосии барномаро кушоем.
+      const confirmSnap = await get(ref(db, "users/" + userRef.key));
+      if(!confirmSnap.exists()){
+        loginError.textContent = "Сабти ном тасдиқ нашуд. Лутфан аз нав кӯшиш кунед.";
+        sound.error();
+        loginBtn.disabled = false;
+        loginWaitOverlay.classList.add("hidden");
+        releaseFieldsReadonly();
+        return;
+      }
       user = { id: userRef.key, name, phone };
     }
 
     localStorage.setItem(LS_KEY, JSON.stringify(user));
     fillUserBadge(user);
-    showHome();
     watchUser(user.id, user.phone);
     watchChatMessages(user.name);
     markUserOnline(user.id);
     sound.success();
+    // showHome() худ рӯйпӯши интизориро мепӯшонад ва баъд аз пурра пӯшидани
+    // равзанаи логин, экрани асосиро мекушояд.
+    showHome();
   } catch(err){
     console.error(err);
     loginError.textContent = "Хатои пайваст ба система. Аз нав кӯшиш кунед.";
     sound.error();
+    loginWaitOverlay.classList.add("hidden");
+    releaseFieldsReadonly();
   } finally {
     loginBtn.disabled = false;
   }
+}
+
+loginBtn.addEventListener("click", handleLoginSubmit);
+[nameInput, phoneInput, passwordInput].forEach((input) => {
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Enter"){
+      e.preventDefault();
+      handleLoginSubmit(e);
+    }
+  });
 });
 </script>
 </body>
