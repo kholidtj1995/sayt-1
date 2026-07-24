@@ -1352,6 +1352,7 @@ userCtxMenu.addEventListener("click", async (e) => {
     }
     const params = new URLSearchParams({ name: u.name || "" });
     chatFrame.src = CHAT_URL + "?" + params.toString();
+    closeModal("usersDataModal");
     openModal("chatModal");
   } else if(act === "block"){
     try{
