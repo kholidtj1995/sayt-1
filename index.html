@@ -9,7 +9,7 @@
 <title>ҚУРЪА</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0a0f1c;
@@ -144,7 +144,7 @@
   #appRoot{ height:100%; }
   #home{ height:100%; display:flex; flex-direction:column; }
   #homeContent{ flex:1; overflow-y:auto; min-height:0; }
-  .tab-screen{ display:none; padding:24px 18px 32px; }
+  .tab-screen{ display:none; padding:14px 18px 32px; }
   .tab-screen.active{ display:block; }
   .placeholder-screen{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -152,6 +152,88 @@
   }
   .placeholder-screen svg{ width:40px; height:40px; opacity:0.5; }
   .placeholder-screen p{ font-size:0.9rem; margin:0; }
+
+  /* Рамкаи "Старти бозии нав" ва рамкаҳои призҳо/рақамҳо */
+  .new-game-box{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:12px 18px; text-align:center; margin-bottom:10px;
+    box-shadow:var(--shadow-lg); cursor:pointer;
+    transition:transform .12s ease, filter .12s ease;
+  }
+  .new-game-box:active{ transform:scale(0.97); }
+  .new-game-box:hover{ filter:brightness(1.08); }
+  .new-game-box p{
+    margin:0; font-family:'Unbounded', sans-serif; font-weight:700;
+    font-size:1.05rem; color:var(--gold-2); letter-spacing:-0.01em;
+  }
+
+  .info-box{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px; margin-bottom:10px;
+  }
+  .info-box-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .info-box-head h3{ font-size:1.02rem; margin:0; display:flex; align-items:center; gap:10px; }
+  .info-box-head h3 svg{ width:19px; height:19px; color:var(--gold); }
+  .info-badge{
+    font-size:0.74rem; font-weight:700; color:var(--gold); background:rgba(232,184,75,0.12);
+    padding:5px 11px; border-radius:999px; border:1px solid rgba(232,184,75,0.25);
+    white-space:nowrap;
+  }
+  .info-badge-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .box-empty{ text-align:center; padding:30px 16px; color:var(--text-muted); }
+  .box-empty svg{ width:36px; height:36px; opacity:0.35; margin-bottom:10px; }
+  .box-empty p{ font-size:0.85rem; margin:0; }
+
+  /* Рамкаи призҳо (мисли qura-admin.html) */
+  .prizes-box{
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--bg-2); padding:10px 10px 6px;
+  }
+  .prizes-row{ display:flex; flex-wrap:nowrap; gap:14px; overflow-x:auto; padding:2px 4px 2px; -webkit-overflow-scrolling:touch; }
+  .prize-chip{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid rgba(232,184,75,0.35); border-radius:var(--radius-sm);
+    padding:10px 10px 2px; flex:0 0 112px; min-width:0;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    cursor:pointer; transition:transform .15s, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .prize-chip.active{
+    border-color:var(--gold);
+    background:linear-gradient(180deg, rgba(232,184,75,0.22), var(--bg-2));
+    box-shadow:0 0 0 2px rgba(232,184,75,0.4), 0 10px 22px rgba(232,184,75,0.2);
+  }
+  .prize-chip.active .p-name{ color:var(--gold-2); }
+  .prize-chip .trophy-circle{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center; margin:0 0 8px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+  }
+  .prize-chip .trophy-circle svg{ width:17px; height:17px; color:#1b1206; }
+  .prize-chip .p-name{
+    font-family:'Unbounded', sans-serif; font-weight:700; font-size:0.78rem;
+    margin:0 0 8px; color:var(--text); word-break:break-word; line-height:1.25;
+  }
+  .prize-chip .qty-label{ font-size:0.58rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; font-weight:700; }
+  .prize-chip .p-qty{ font-family:'Bebas Neue', sans-serif; font-size:1.05rem; color:var(--gold); line-height:1; }
+
+  /* Рамкаи рақамҳо — 4 сатр, мисли топҳои тилоии qura-admin.html */
+  .numbers-row{
+    --ball-size:36px;
+    display:grid; grid-template-rows:repeat(4, var(--ball-size));
+    grid-auto-flow:column; grid-auto-columns:var(--ball-size);
+    gap:8px; overflow-x:auto; overflow-y:hidden;
+    padding:6px 4px 10px; width:100%;
+  }
+  .number-chip{
+    width:var(--ball-size); height:var(--ball-size); border-radius:50%;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:0.02em;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+  }
 
   #bottomNav{
     display:flex; align-items:center; justify-content:flex-start;
@@ -450,6 +532,42 @@
   <div id="homeContent">
     <div class="tab-screen active" id="screen-main">
       <!-- Мундариҷаи асосии барнома дар ин ҷо ҷойгир мешавад -->
+
+      <div class="new-game-box" id="newGameBox">
+        <p>Старти бозии нав</p>
+      </div>
+
+      <div class="info-box" id="prizesBoxHome">
+        <div class="info-box-head">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+            Призҳо
+          </h3>
+          <span class="info-badge" id="homePrizeCountBadge">0 приз</span>
+        </div>
+        <div class="prizes-box">
+          <div class="box-empty" id="homePrizesEmpty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+            <p>Ҳанӯз призе илова карда нашудааст</p>
+          </div>
+          <div class="prizes-row hidden" id="homePrizesRow"></div>
+        </div>
+      </div>
+
+      <div class="info-box" id="numbersBoxHome">
+        <div class="info-box-head">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+            Рӯйхати рақамҳо
+          </h3>
+          <div class="info-badge-row" id="homeRoundBadgeRow"></div>
+        </div>
+        <div class="box-empty" id="homeNumbersEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="4"/><circle cx="16" cy="16" r="4"/><path d="M8 12v0M16 8v0"/></svg>
+          <p>Ҳанӯз ҳеҷ рақаме сохта нашудааст</p>
+        </div>
+        <div class="numbers-row hidden" id="homeNumbersRow"></div>
+      </div>
     </div>
   </div>
 
@@ -591,6 +709,101 @@ const sound = {
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .menu-item, .badge-btn, .nav-item")) sound.click();
+});
+
+/* ---------------- Home: рамкаи призҳо ва рақамҳо ---------------- */
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str == null ? "" : String(str);
+  return d.innerHTML;
+}
+
+const homePrizesEmpty = document.getElementById("homePrizesEmpty");
+const homePrizesRow = document.getElementById("homePrizesRow");
+const homePrizeCountBadge = document.getElementById("homePrizeCountBadge");
+onValue(ref(db, "prizes"), (snap) => {
+  const data = snap.exists() ? snap.val() : null;
+  const entries = data ? Object.entries(data) : [];
+  const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
+  homePrizeCountBadge.textContent = `${totalQty} приз${totalQty===1?"":"ҳо"}`;
+  if(entries.length === 0){
+    homePrizesRow.classList.add("hidden");
+    homePrizesEmpty.classList.remove("hidden");
+    homePrizesRow.innerHTML = "";
+    return;
+  }
+  entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+  homePrizesEmpty.classList.add("hidden");
+  homePrizesRow.classList.remove("hidden");
+  homePrizesRow.innerHTML = entries.map(([id, p]) => `
+    <div class="prize-chip" data-id="${id}">
+      <div class="trophy-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
+      </div>
+      <div class="p-name">${escapeHtml(p.name || "—")}</div>
+      <span class="qty-label">Миқдор</span>
+      <span class="p-qty">${p.qty ?? 1}</span>
+    </div>
+  `).join("");
+
+  homePrizesRow.querySelectorAll(".prize-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      clearTimeout(homePrizeRevertTimer);
+      homePrizesRow.querySelectorAll(".prize-chip.active").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      homePrizeAutoScrollPaused = true;
+      homePrizeRevertTimer = setTimeout(() => {
+        chip.classList.remove("active");
+        homePrizeAutoScrollPaused = false;
+      }, 2000);
+    });
+  });
+});
+
+/* Auto-slide оҳиста аз рост ба чап барои рамкаи призҳо */
+let homePrizeRevertTimer = null;
+let homePrizeAutoScrollPaused = false;
+(function homePrizeAutoScroll(){
+  let lastTs = null;
+  const speedPxPerSec = 22;
+  function step(ts){
+    if(lastTs === null) lastTs = ts;
+    const dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+    if(!homePrizeAutoScrollPaused && homePrizesRow && homePrizesRow.scrollWidth > homePrizesRow.clientWidth){
+      const max = homePrizesRow.scrollWidth - homePrizesRow.clientWidth;
+      let next = homePrizesRow.scrollLeft + speedPxPerSec * dt;
+      if(next >= max) next = 0;
+      homePrizesRow.scrollLeft = next;
+    }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
+
+const homeNumbersEmpty = document.getElementById("homeNumbersEmpty");
+const homeNumbersRow = document.getElementById("homeNumbersRow");
+const homeRoundBadgeRow = document.getElementById("homeRoundBadgeRow");
+onValue(ref(db, "currentRound"), (snap) => {
+  const data = snap.exists() ? snap.val() : null;
+  if(!data || !data.count){
+    homeNumbersRow.classList.add("hidden");
+    homeNumbersEmpty.classList.remove("hidden");
+    homeNumbersRow.innerHTML = "";
+    homeRoundBadgeRow.innerHTML = "";
+    return;
+  }
+  homeNumbersEmpty.classList.add("hidden");
+  homeNumbersRow.classList.remove("hidden");
+  homeRoundBadgeRow.innerHTML = `
+    <span class="info-badge">Давр: ${escapeHtml(data.name || "—")}</span>
+    <span class="info-badge">${data.count} рақам</span>
+  `;
+  let html = "";
+  for(let i = 1; i <= data.count; i++){
+    html += `<div class="number-chip">${i}</div>`;
+  }
+  homeNumbersRow.innerHTML = html;
 });
 
 /* ---------------- Internet connectivity check ---------------- */
