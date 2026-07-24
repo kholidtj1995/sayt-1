@@ -224,8 +224,17 @@ let currentPlayingAudio = null;
 let chatVisible = false;
 window.addEventListener('message', (e)=>{
   if(e.data && e.data.type === 'chat-visibility'){
+    const becameVisible = !chatVisible && !!e.data.visible;
     chatVisible = !!e.data.visible;
-    if(chatVisible) markUnseenAsSeen();
+    if(chatVisible){
+      markUnseenAsSeen();
+      // Агар чат аз паси парда пешакӣ бор шуда буд (бинобар ин startChatUI()
+      // фокусро дар боло гузашт), ҳоло ки корбар воқеан онро мекушояд, кутии
+      // паём фокус карда мешавад.
+      if(becameVisible){
+        setTimeout(()=>{ const el=document.getElementById('message'); if(el) el.focus(); }, 100);
+      }
+    }
   }
 });
 function markUnseenAsSeen(){
@@ -325,7 +334,13 @@ function startChatUI(user, phone, isNewJoin){
   listenBlockStatus();
   listenAccountDeleted();
   trySendOrderSummary();
-  setTimeout(()=>document.getElementById('message').focus(),100);
+  // Клавиатураро ФАҚАТ вақте худкор кушоем, ки чат ВОҚЕАН намоён аст.
+  // Ин функсия инчунин ҳангоми пешакӣ-бор-кардани пинҳонии чат (аз index.html,
+  // пеш аз он ки корбар тугмаи чатро занад) даъват мешавад — дар он ҳолат
+  // chatVisible ҳанӯз false аст, бинобар ин фокус НАМЕШАВАД. Вақте корбар
+  // воқеан чатро мекушояд, гӯшгирандаи паёми "chat-visibility" дар поён
+  // фокусро иҷро мекунад.
+  if(chatVisible) setTimeout(()=>document.getElementById('message').focus(),100);
 }
 
 /* ---------- Фиристодани хулосаи харид ба чат (аз барномаи лотерея) ---------- */
