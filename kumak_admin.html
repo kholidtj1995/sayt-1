@@ -36,10 +36,7 @@ body{ background:#070911; display:flex; justify-content:center; align-items:cent
 }
 @media (min-width:640px){
   body{ background:radial-gradient(circle at 30% 20%, #131a2e 0%, #070911 65%); padding:24px; }
-  .app-shell{ max-width:480px; height:92vh; max-height:840px; border-radius:22px; border:1px solid rgba(255,255,255,.06); box-shadow:0 30px 70px -20px rgba(0,0,0,.7); }
-}
-@media (min-width:1000px){
-  .app-shell{ max-width:1180px; height:88vh; max-height:900px; }
+  .app-shell{ max-width:1180px; height:92vh; max-height:900px; border-radius:22px; border:1px solid rgba(255,255,255,.06); box-shadow:0 30px 70px -20px rgba(0,0,0,.7); }
 }
 
 /* ---------- Болои умумӣ (брендинг) ---------- */
@@ -168,7 +165,7 @@ textarea:focus{ border-color:var(--teal); }
 .confirm-btn.yes:active{ background:var(--danger-dark); }
 
 /* ---------- Тарҳи мобилӣ / десктоп ---------- */
-@media (max-width:999px){
+@media (max-width:639px){
   .layout{ position:relative; }
   .sidebar, .chat-panel{ position:absolute; inset:0; transition:transform .25s ease; }
   .chat-panel{ transform:translateX(100%); }
@@ -176,7 +173,7 @@ textarea:focus{ border-color:var(--teal); }
   .chat-empty-state{ display:none; }
   .back-to-list{ display:flex; }
 }
-@media (min-width:1000px){
+@media (min-width:640px){
   .sidebar{ width:340px; border-right:1px solid var(--border); flex-shrink:0; }
   .chat-panel{ flex:1; }
 }
@@ -278,8 +275,8 @@ textarea:focus{ border-color:var(--teal); }
     let initialLoadDone = false;
     let typingTimeout = null;
     let isTypingFlag = false;
-    let isDesktop = window.matchMedia('(min-width:1000px)').matches;
-    window.matchMedia('(min-width:1000px)').addEventListener('change', (e)=>{ isDesktop = e.matches; syncPanelVisibility(); });
+    let isDesktop = window.matchMedia('(min-width:640px)').matches;
+    window.matchMedia('(min-width:640px)').addEventListener('change', (e)=>{ isDesktop = e.matches; syncPanelVisibility(); });
     let scrollBadgeCount = 0;
     const lastNotifiedMsgPerUser = {};
 
