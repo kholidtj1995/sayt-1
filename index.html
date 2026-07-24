@@ -451,6 +451,30 @@
 </style>
 </head>
 <body>
+<script>
+  // Пешгирии кушода шудани худкори клавиатура ҳангоми боркунии сайт:
+  // агар браузер/платформаи мизбон (масалан ҳангоми барқарорсозии ҳолат) ба таври
+  // худкор ба яке аз кутиҳои вуруд фокус диҳад, ин скрипт онро дарҳол хомӯш мекунад.
+  (function(){
+    var guardUntil = Date.now() + 1200;
+    function killEarlyFocus(e){
+      if(Date.now() > guardUntil) return;
+      var el = e.target;
+      if(el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")){
+        el.blur();
+      }
+    }
+    document.addEventListener("focus", killEarlyFocus, true);
+    window.addEventListener("load", function(){
+      if(document.activeElement && document.activeElement !== document.body){
+        document.activeElement.blur();
+      }
+    });
+    setTimeout(function(){
+      document.removeEventListener("focus", killEarlyFocus, true);
+    }, 1300);
+  })();
+</script>
 
 <div id="appRoot">
 <div id="splash">
@@ -1200,6 +1224,9 @@ function fillUserBadge(user){
 }
 
 function showHome(){
+  if(document.activeElement && typeof document.activeElement.blur === "function"){
+    document.activeElement.blur();
+  }
   loginScreen.classList.add("hidden");
   splash.classList.add("hidden");
   home.classList.remove("hidden");
@@ -1505,6 +1532,9 @@ passwordInput.addEventListener("input", () => {
 
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  if(document.activeElement && typeof document.activeElement.blur === "function"){
+    document.activeElement.blur();
+  }
   const name = nameInput.value.trim();
   const phone = phoneInput.value.trim();
   const password = passwordInput.value;
