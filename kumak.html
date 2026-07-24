@@ -390,6 +390,9 @@ textarea:focus{ border-color:var(--teal); }
             else joinChat();
         }
     });
+    document.getElementById('username').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^\p{L}\s]/gu, '');
+    });
 
     /* ---------- Статуси Админ ---------- */
     function listenAdminStatus() {
