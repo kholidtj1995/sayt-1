@@ -6,6 +6,12 @@
 <meta name="google" content="notranslate" />
 <meta name="robots" content="notranslate" />
 <title>ҚУРЪА — Идоракунии рақамҳо ва призҳо</title>
+<script>
+  try{
+    const savedTheme = localStorage.getItem("qura_theme");
+    if(savedTheme === "light") document.documentElement.classList.add("light-theme");
+  }catch(e){}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -33,6 +39,29 @@
     --shadow-md:0 10px 30px rgba(0,0,0,0.35);
     font-size:16px;
   }
+
+  :root.light-theme{
+    --bg:#f2efe6;
+    --bg-2:#e9e4d6;
+    --surface:#ffffff;
+    --surface-2:#f4f1e9;
+    --border:rgba(20,20,10,0.10);
+    --border-soft:rgba(20,20,10,0.06);
+    --text:#20180a;
+    --text-muted:#5f5947;
+    --text-dim:#8f8770;
+    --shadow-lg:0 20px 60px rgba(20,15,5,0.12);
+    --shadow-md:0 10px 30px rgba(20,15,5,0.10);
+  }
+  :root.light-theme body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,184,75,0.14), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(63,191,143,0.10), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(226,83,107,0.08), transparent 45%),
+      var(--bg);
+  }
+  :root.light-theme ::-webkit-scrollbar-thumb{ background:var(--surface-2); border:2px solid var(--bg); }
+  :root.light-theme .users-table tbody tr:hover{ background:rgba(20,20,10,0.035); }
 
   *,*::before,*::after{ box-sizing:border-box; }
   html,body{
@@ -193,6 +222,10 @@
     50%{ transform:scale(1.18); }
   }
   #questionBtn{ position:relative; overflow:visible; }
+  #themeToggleBtn .icon-moon{ display:block; }
+  #themeToggleBtn .icon-sun{ display:none; }
+  :root.light-theme #themeToggleBtn .icon-moon{ display:none; }
+  :root.light-theme #themeToggleBtn .icon-sun{ display:block; }
   .question-alert-badge{
     position:absolute; top:-7px; right:-7px;
     min-width:18px; height:18px; padding:0 4px;
@@ -213,10 +246,8 @@
     75%{ transform:rotate(-3deg); }
     90%{ transform:rotate(2deg); }
   }
-  #groupBtn{ background:#22c55e; border-color:#22c55e; color:#ffffff; }
-  #groupBtn:hover{ background:#16a34a; }
-  #usersBtn{ background:#ef4444; border-color:#ef4444; color:#ffffff; }
-  #usersBtn:hover{ background:#dc2626; }
+  #usersBtn{ background:#22c55e; border-color:#22c55e; color:#ffffff; }
+  #usersBtn:hover{ background:#16a34a; }
   #notifBtn{ background:#eab308; border-color:#eab308; color:#ffffff; }
   #notifBtn:hover{ background:#ca8a04; }
 
@@ -246,7 +277,7 @@
   .action-icon.gold{ background:rgba(232,184,75,0.14); color:var(--gold); }
   .action-icon.emerald{ background:rgba(63,191,143,0.14); color:var(--emerald); }
   .action-icon svg{ width:26px; height:26px; }
-  .action-card h3{ font-size:1rem; margin:0 0 4px; color:#ffffff; }
+  .action-card h3{ font-size:1rem; margin:0 0 4px; color:var(--text); }
   .action-card p{ font-size:0.8rem; color:var(--text-muted); margin:0; }
 
   .panel{
@@ -396,6 +427,25 @@
   .users-table td.u-name{ font-weight:700; color:var(--text); }
   .users-table td.u-date{ color:var(--text-muted); white-space:nowrap; }
   .users-table tr.is-blocked td.u-name{ color:var(--crimson); }
+  .users-search{ position:relative; margin-bottom:14px; }
+  .users-search input{
+    width:100%; padding:11px 14px 11px 38px; border-radius:var(--radius-sm);
+    background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    font-size:0.88rem; outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  .users-search input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(232,184,75,0.15); }
+  .users-search input::placeholder{ color:var(--text-dim); }
+  .users-search svg{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px; color:var(--text-dim); pointer-events:none;
+  }
+  .users-search .users-search-clear{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    width:22px; height:22px; border-radius:7px; border:none; background:transparent;
+    color:var(--text-dim); cursor:pointer; display:none; align-items:center; justify-content:center;
+  }
+  .users-search .users-search-clear:hover{ background:var(--surface-2); color:var(--text); }
+  .users-search.has-value .users-search-clear{ display:flex; }
   .status-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-dim); margin-right:6px; vertical-align:middle; }
   .status-dot.online{ background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.22); }
   .status-cell{ white-space:nowrap; }
@@ -526,6 +576,10 @@
     </div>
     <div class="top-actions">
       <div class="icon-group">
+        <button class="icon-btn" id="themeToggleBtn" title="Торик/Равшан">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
         <button class="icon-btn" id="questionBtn" title="Савол">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span class="question-alert-badge" id="questionAlertBadge">?</span>
@@ -538,22 +592,23 @@
         </button>
       </div>
       <div class="icon-group">
-        <button class="icon-btn" id="chatBtn" title="Чат">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-          <span class="chat-unread-badge" id="chatUnreadBadge">0</span>
-        </button>
         <button class="icon-btn" id="groupBtn" title="Гурӯҳ">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </button>
       </div>
       <div class="icon-group">
-        <button class="icon-btn" id="usersBtn" title="Корбарон">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        </button>
-        <button class="icon-btn" id="notifBtn" title="Огоҳиномаҳо">
+        <button class="icon-btn" id="notifBtn" title="Зангула">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         </button>
+        <button class="icon-btn" id="chatBtn" title="Чат">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          <span class="chat-unread-badge" id="chatUnreadBadge">0</span>
+        </button>
+        <button class="icon-btn" id="usersBtn" title="Рӯйхати бозингарон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
       </div>
+
       <button class="icon-btn" id="logoutBtn" title="Баромадан">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       </button>
@@ -775,9 +830,16 @@
       </div>
     </div>
     <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div class="users-search" id="usersSearchWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="usersSearchInput" placeholder="Кофтуков аз рӯи ном, телефон, рамз, ҳолат, сана..." autocomplete="off">
+        <button type="button" class="users-search-clear" id="usersSearchClear" title="Пок кардан">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
       <div id="usersTableEmpty" class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
-        <p>Ҳанӯз ҳеҷ корбаре сабти ном нашудааст</p>
+        <p id="usersTableEmptyText">Ҳанӯз ҳеҷ корбаре сабти ном нашудааст</p>
       </div>
       <table id="usersTable" class="users-table hidden">
         <thead>
@@ -931,6 +993,12 @@ const sound = {
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .action-card")) sound.click();
+});
+
+/* ---------------- Мавзӯи торик/равшан ---------------- */
+document.getElementById("themeToggleBtn").addEventListener("click", () => {
+  const isLight = document.documentElement.classList.toggle("light-theme");
+  try{ localStorage.setItem("qura_theme", isLight ? "light" : "dark"); }catch(e){}
 });
 
 /* ---------------- Toasts ---------------- */
@@ -1131,9 +1199,6 @@ document.getElementById("questionBtn").addEventListener("click", () => {
   clearQuestionAlert();
 });
 
-document.getElementById("usersBtn").addEventListener("click", () => {
-  openModal("usersDataModal");
-});
 document.getElementById("usersDataBtn").addEventListener("click", () => {
   openModal("usersDataModal");
 });
@@ -1159,6 +1224,7 @@ const userCtxBlockLabel = document.getElementById("userCtxBlockLabel");
 let usersCache = {};
 let onlineUserIds = new Set();
 let ctxTargetId = null;
+let usersSearchQuery = "";
 
 function fmtDate(ts){
   if(!ts) return "—";
@@ -1168,14 +1234,38 @@ function fmtDate(ts){
 }
 
 function renderUsersTable(data){
-  usersCache = data || {};
-  const entries = Object.entries(usersCache);
-  if(entries.length === 0){
+  if(data !== undefined) usersCache = data || {};
+  const allEntries = Object.entries(usersCache);
+  const usersTableEmptyText = document.getElementById("usersTableEmptyText");
+
+  if(allEntries.length === 0){
     usersTable.classList.add("hidden");
     usersTableEmpty.classList.remove("hidden");
+    usersTableEmptyText.textContent = "Ҳанӯз ҳеҷ корбаре сабти ном нашудааст";
     usersTableBody.innerHTML = "";
     return;
   }
+
+  const q = usersSearchQuery.trim().toLowerCase();
+  const entries = !q ? allEntries : allEntries.filter(([id, u]) => {
+    const isOnline = onlineUserIds.has(id);
+    const haystack = [
+      u.name, u.phone, u.password,
+      isOnline ? "онлайн" : "офлайн",
+      fmtDate(u.createdAt), fmtDate(u.lastLogin),
+      u.blocked ? "блок" : ""
+    ].join(" ").toLowerCase();
+    return haystack.includes(q);
+  });
+
+  if(entries.length === 0){
+    usersTable.classList.add("hidden");
+    usersTableEmpty.classList.remove("hidden");
+    usersTableEmptyText.textContent = "Ҳеҷ корбаре мувофиқи кофтуков ёфт нашуд";
+    usersTableBody.innerHTML = "";
+    return;
+  }
+
   usersTableEmpty.classList.add("hidden");
   usersTable.classList.remove("hidden");
   entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
@@ -1206,6 +1296,22 @@ function renderUsersTable(data){
     });
   });
 }
+
+const usersSearchInput = document.getElementById("usersSearchInput");
+const usersSearchWrap = document.getElementById("usersSearchWrap");
+const usersSearchClear = document.getElementById("usersSearchClear");
+usersSearchInput.addEventListener("input", () => {
+  usersSearchQuery = usersSearchInput.value;
+  usersSearchWrap.classList.toggle("has-value", usersSearchQuery.trim() !== "");
+  renderUsersTable();
+});
+usersSearchClear.addEventListener("click", () => {
+  usersSearchInput.value = "";
+  usersSearchQuery = "";
+  usersSearchWrap.classList.remove("has-value");
+  renderUsersTable();
+  usersSearchInput.focus();
+});
 
 function openUserCtxMenu(id, anchorBtn){
   ctxTargetId = id;
@@ -1408,10 +1514,6 @@ document.getElementById("deleteAllChatsBtn").addEventListener("click", () => {
 document.getElementById("restartFirebaseBtn").addEventListener("click", () => {
   showToast("Бозоғозии Firebase...", "info");
   setTimeout(() => location.reload(), 400);
-});
-
-document.getElementById("notifBtn").addEventListener("click", () => {
-  showToast("Огоҳиномаҳо ба зудӣ дастрас мешаванд", "info");
 });
 
 /* ---------------- Live listeners (admin kill-switch + data) ---------------- */
