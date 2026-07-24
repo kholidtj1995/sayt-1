@@ -180,6 +180,11 @@
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
     padding:18px; margin-bottom:10px;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .info-box.active{
+    border-color:var(--crimson);
+    background:linear-gradient(180deg, rgba(226,83,107,0.18), var(--bg-2));
   }
   .info-box-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
   .info-box-head h3{ font-size:1.02rem; margin:0; display:flex; align-items:center; gap:10px; }
@@ -242,6 +247,48 @@
     font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:0.02em;
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
   }
+  .numbers-row.selectable .number-chip{ cursor:pointer; }
+  .numbers-row.selectable .number-chip:active{ transform:scale(0.88); }
+  .number-chip.selected{ box-shadow:0 0 0 3px var(--crimson), 0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35); }
+  .number-chip.locked{
+    background:var(--crimson); color:#fff; cursor:not-allowed !important;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.2);
+  }
+  .numbers-row.selectable .number-chip.locked{ cursor:not-allowed; }
+
+  .actions-row{ display:flex; gap:8px; margin-top:2px; }
+  .action-btn{
+    flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    border-radius:var(--radius-sm); padding:12px 4px; cursor:pointer;
+    transition:all .15s ease; -webkit-tap-highlight-color:transparent;
+  }
+  .action-btn:hover{ filter:brightness(1.15); }
+  .action-btn:active{ transform:scale(0.94); }
+  .action-btn svg{ width:20px; height:20px; flex-shrink:0; }
+  .action-btn span{ font-size:0.7rem; font-weight:600; text-align:center; line-height:1.2; }
+  .action-btn.active{
+    background:linear-gradient(180deg, rgba(226,83,107,0.28), var(--surface-2));
+    border-color:var(--crimson); color:var(--crimson);
+  }
+  .action-btn.active-green{
+    background:linear-gradient(180deg, rgba(63,191,143,0.28), var(--surface-2));
+    border-color:#3fbf8f; color:#3fbf8f;
+  }
+  #registerNumbersBtn{ position:relative; }
+  .selection-badge{
+    position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 5px;
+    border-radius:10px; font-size:0.68rem; font-weight:800; line-height:1;
+    align-items:center; justify-content:center;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; box-shadow:0 0 0 2px var(--crimson);
+    display:none;
+    animation:badgePop .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .selection-badge.show{ display:flex; }
+  .selection-badge.confirmed{
+    background:#3fbf8f; color:#fff; box-shadow:0 0 0 2px #ffffff;
+  }
 
   #bottomNav{
     display:flex; align-items:center; justify-content:flex-start;
@@ -284,7 +331,7 @@
   .icon-btn:hover{ filter:brightness(1.15); }
   .icon-btn:active{ transform:scale(0.93); }
   .icon-btn svg{ width:20px; height:20px; }
-  #cartBtn{ margin-left:auto; }
+  #cartBtn{ margin-left:auto; position:relative; }
 
   .user-badge{
     display:flex; align-items:center; gap:10px; justify-content:flex-start;
@@ -381,9 +428,90 @@
   .btn-danger{ background:linear-gradient(180deg,#ec6b7f,var(--crimson)); color:#fff; box-shadow:0 8px 20px rgba(226,83,107,0.25); }
   .btn-danger:hover{ filter:brightness(1.08); }
 
+  /* Register numbers modal */
+  #registerModalOverlay, #cartModalOverlay{
+    position:fixed; inset:0; z-index:65;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #registerModalOverlay.show, #cartModalOverlay.show{ opacity:1; pointer-events:auto; }
+  .register-modal{
+    position:relative; width:100%; max-width:360px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:48px 20px 24px; box-shadow:var(--shadow-lg);
+    animation:cardIn 0.3s cubic-bezier(.2,.8,.2,1);
+  }
+  .register-modal h3{ font-size:1.05rem; margin:0 0 18px; text-align:center; }
+  .total-amount-box{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:linear-gradient(180deg, rgba(232,184,75,0.14), var(--bg-2));
+    border:1px solid rgba(232,184,75,0.3); border-radius:var(--radius-sm);
+    padding:12px 14px; margin-bottom:16px;
+  }
+  .total-amount-label{ font-size:0.82rem; color:var(--text-muted); font-weight:600; }
+  .total-amount-value{ font-size:0.95rem; color:var(--gold-2); font-weight:800; }
+  .selected-numbers-box{
+    background:linear-gradient(180deg, rgba(232,184,75,0.14), var(--bg-2));
+    border:1px solid rgba(232,184,75,0.3); border-radius:var(--radius-sm);
+    padding:12px 14px; margin-bottom:12px;
+  }
+  .selected-numbers-list{
+    display:flex; flex-wrap:nowrap; gap:6px; margin-top:10px; overflow-x:auto; overflow-y:hidden;
+    padding-bottom:2px; scrollbar-width:thin;
+  }
+  .selected-number-circle{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    background:var(--crimson); color:#fff; font-size:0.7rem; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:inset 0 -2px 4px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.2);
+  }
+
+  /* Cart modal */
+  .cart-entries-box{ max-height:60vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+  .cart-entry-card{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px;
+  }
+  .cart-entry-title{
+    font-size:0.86rem; font-weight:700; color:var(--gold-2); margin-bottom:10px;
+    padding-bottom:8px; border-bottom:1px solid var(--border);
+  }
+  .cart-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:5px 0; }
+  .cart-row-label{ font-size:0.78rem; color:var(--text-muted); font-weight:600; flex-shrink:0; }
+  .cart-row-value{ font-size:0.84rem; color:var(--text); font-weight:700; text-align:right; }
+  .cart-row-numbers{ align-items:flex-start; }
+  .cart-entry-numbers{ display:flex; flex-wrap:nowrap; gap:6px; overflow-x:auto; padding-bottom:2px; max-width:65%; }
+  .cart-entry-total{
+    text-align:center; margin-top:10px; padding-top:10px; border-top:1px solid var(--border);
+    font-size:0.9rem; font-weight:800; color:var(--gold-2);
+  }
+  .cart-empty{ text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.88rem; }
+  .pay-btn{
+    width:100%; margin-top:10px; padding:11px 16px; font-size:0.88rem;
+    background:#3b82f6; color:#fff; box-shadow:0 8px 20px rgba(59,130,246,0.3);
+  }
+  .pay-btn:hover{ filter:brightness(1.08); }
+  .register-modal-close{
+    position:absolute; top:14px; left:14px; width:30px; height:30px; border-radius:8px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s; -webkit-tap-highlight-color:transparent;
+  }
+  .register-modal-close:hover{ background:var(--crimson); color:#fff; }
+  .register-modal-close svg{ width:15px; height:15px; }
+  #registerPhoneInput{ opacity:0.7; cursor:not-allowed; }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206;
+    width:100%; box-shadow:0 8px 20px rgba(232,184,75,0.25); margin-top:6px;
+  }
+  .btn-gold:hover{ filter:brightness(1.06); }
+
   /* Chat modal */
   #chatModalOverlay{
-    position:fixed; inset:0; z-index:60;
+    position:fixed; inset:0; z-index:70;
     display:flex; align-items:center; justify-content:center; padding:12px;
     background:rgba(0,0,0,0.55);
     opacity:0; pointer-events:none; transition:opacity .22s;
@@ -585,6 +713,7 @@
     </div>
     <button class="icon-btn" id="cartBtn" title="Корзина">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+      <span class="chat-badge" id="cartBadge"></span>
     </button>
   </div>
 
@@ -627,6 +756,22 @@
         </div>
         <div class="numbers-row hidden" id="homeNumbersRow"></div>
       </div>
+
+      <div class="actions-row">
+        <button class="action-btn" id="resetNumbersBtn" title="Бозгашт">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span>Бозгашт</span>
+        </button>
+        <button class="action-btn" id="buyNumberBtn" title="Харидани рақам">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          <span id="buyNumberBtnLabel">Харидани рақам</span>
+        </button>
+        <button class="action-btn" id="registerNumbersBtn" title="Ба қайд гирифтани рақамҳо">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <span>Ба қайд гирифтан</span>
+          <span class="selection-badge" id="registerCountBadge"></span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -662,6 +807,44 @@
       <button class="btn btn-ghost" id="logoutCancelBtn">Не</button>
       <button class="btn btn-danger" id="logoutConfirmBtn">Ҳа, баромадан</button>
     </div>
+  </div>
+</div>
+
+<!-- REGISTER NUMBERS MODAL -->
+<div id="registerModalOverlay">
+  <div class="register-modal">
+    <button class="register-modal-close" id="registerModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h3>Сабти рақамҳо</h3>
+    <div class="selected-numbers-box" id="selectedNumbersBox">
+      <span class="total-amount-label">Рақамҳои интихобшуда</span>
+      <div class="selected-numbers-list" id="selectedNumbersList"></div>
+    </div>
+    <div class="total-amount-box" id="numbersCountBox">
+      <span class="total-amount-label">Шумораи рақамҳо</span>
+      <span class="total-amount-value" id="numbersCountValue">0</span>
+    </div>
+    <div class="total-amount-box" id="totalAmountBox">
+      <span class="total-amount-label">Маблағи умумӣ</span>
+      <span class="total-amount-value" id="totalAmountValue">0 сомон / 0 рубл</span>
+    </div>
+    <div class="field">
+      <label>Ном</label>
+      <input type="text" id="registerNameInput" />
+    </div>
+    <div class="field">
+      <label>Рақами телефон</label>
+      <input type="text" id="registerPhoneInput" readonly />
+    </div>
+    <button class="btn btn-gold" id="addToCartBtn">Илова ба сабад</button>
+  </div>
+</div>
+
+<!-- CART MODAL -->
+<div id="cartModalOverlay">
+  <div class="register-modal">
+    <button class="register-modal-close" id="cartModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h3>Корзина</h3>
+    <div class="cart-entries-box" id="cartEntriesBox"></div>
   </div>
 </div>
 
@@ -765,6 +948,10 @@ const sound = {
   success: () => { tone(660, 0.09, "sine", 0.05); tone(880, 0.14, "sine", 0.05, 0.09); },
   error: () => tone(200, 0.22, "sawtooth", 0.05),
   receive: () => { tone(700, 0.08, "sine", 0.05); tone(900, 0.1, "sine", 0.045, 0.07); },
+  reset: () => { tone(420, 0.07, "triangle", 0.04); tone(300, 0.09, "triangle", 0.035, 0.06); },
+  activate: () => { tone(500, 0.07, "square", 0.03); tone(760, 0.09, "square", 0.03, 0.07); },
+  confirm: () => { tone(760, 0.08, "sine", 0.05); tone(1020, 0.16, "sine", 0.05, 0.08); },
+  register: () => { tone(600, 0.06, "sine", 0.04); tone(600, 0.06, "sine", 0.04, 0.12); },
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .menu-item, .badge-btn, .nav-item")) sound.click();
@@ -794,7 +981,7 @@ onValue(ref(db, "prizes"), (snap) => {
   entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
   homePrizesEmpty.classList.add("hidden");
   homePrizesRow.classList.remove("hidden");
-  homePrizesRow.innerHTML = entries.map(([id, p]) =>
+  const prizeChipsHtml = entries.map(([id, p]) =>
     '<div class="prize-chip" data-id="' + id + '">' +
       '<div class="trophy-circle">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>' +
@@ -804,6 +991,8 @@ onValue(ref(db, "prizes"), (snap) => {
       '<span class="p-qty">' + (p.qty ?? 1) + '</span>' +
     '</div>'
   ).join("");
+  // Такрори рӯйхат як маротиба, то ки скроли беохир бе дарзу канор (seamless) намоён шавад
+  homePrizesRow.innerHTML = prizeChipsHtml + prizeChipsHtml;
 
   homePrizesRow.querySelectorAll(".prize-chip").forEach(chip => {
     chip.addEventListener("click", () => {
@@ -819,7 +1008,7 @@ onValue(ref(db, "prizes"), (snap) => {
   });
 });
 
-/* Auto-slide оҳиста аз рост ба чап барои рамкаи призҳо */
+/* Auto-slide бефосила ва бе охир аз рост ба чап барои рамкаи призҳо (loop-и seamless) */
 let homePrizeRevertTimer = null;
 let homePrizeAutoScrollPaused = false;
 (function homePrizeAutoScroll(){
@@ -830,9 +1019,9 @@ let homePrizeAutoScrollPaused = false;
     const dt = (ts - lastTs) / 1000;
     lastTs = ts;
     if(!homePrizeAutoScrollPaused && homePrizesRow && homePrizesRow.scrollWidth > homePrizesRow.clientWidth){
-      const max = homePrizesRow.scrollWidth - homePrizesRow.clientWidth;
+      const half = homePrizesRow.scrollWidth / 2;
       let next = homePrizesRow.scrollLeft + speedPxPerSec * dt;
-      if(next >= max) next = 0;
+      if(next >= half) next -= half;
       homePrizesRow.scrollLeft = next;
     }
     requestAnimationFrame(step);
@@ -843,15 +1032,21 @@ let homePrizeAutoScrollPaused = false;
 const homeNumbersEmpty = document.getElementById("homeNumbersEmpty");
 const homeNumbersRow = document.getElementById("homeNumbersRow");
 const homeRoundBadgeRow = document.getElementById("homeRoundBadgeRow");
+let hasActiveNumbers = false;
+let currentRoundName = "—";
 onValue(ref(db, "currentRound"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   if(!data || !data.count){
+    hasActiveNumbers = false;
+    currentRoundName = "—";
     homeNumbersRow.classList.add("hidden");
     homeNumbersEmpty.classList.remove("hidden");
     homeNumbersRow.innerHTML = "";
     homeRoundBadgeRow.innerHTML = "";
     return;
   }
+  hasActiveNumbers = true;
+  currentRoundName = data.name || "—";
   homeNumbersEmpty.classList.add("hidden");
   homeNumbersRow.classList.remove("hidden");
   homeRoundBadgeRow.innerHTML =
@@ -862,6 +1057,154 @@ onValue(ref(db, "currentRound"), (snap) => {
     html += '<div class="number-chip">' + i + '</div>';
   }
   homeNumbersRow.innerHTML = html;
+  if(numbersPurchaseEnabled) homeNumbersRow.classList.add("selectable");
+});
+
+/* Се тугмаи амал: Бозгашт / Харидани рақам (2 клик) / Ба қайд гирифтани рақамҳо — ҳар кадом бо садои худ */
+const resetNumbersBtn = document.getElementById("resetNumbersBtn");
+const buyNumberBtn = document.getElementById("buyNumberBtn");
+const buyNumberBtnLabel = document.getElementById("buyNumberBtnLabel");
+const registerNumbersBtn = document.getElementById("registerNumbersBtn");
+const registerCountBadge = document.getElementById("registerCountBadge");
+const numbersBoxHome = document.getElementById("numbersBoxHome");
+let numbersPurchaseEnabled = false;
+
+function updateRegisterBadge(){
+  const count = homeNumbersRow.querySelectorAll(".number-chip.selected").length;
+  if(count > 0){
+    registerCountBadge.textContent = count;
+    registerCountBadge.classList.add("show");
+  } else {
+    registerCountBadge.classList.remove("show");
+  }
+}
+
+function clearNumberSelection(){
+  homeNumbersRow.querySelectorAll(".number-chip.selected").forEach(chip => chip.classList.remove("selected"));
+  updateRegisterBadge();
+}
+
+resetNumbersBtn.addEventListener("click", () => {
+  sound.reset();
+  clearNumberSelection();
+  registerNumbersBtn.classList.remove("active-green");
+  registerCountBadge.classList.remove("confirmed");
+});
+
+buyNumberBtn.addEventListener("click", () => {
+  if(!numbersPurchaseEnabled && !hasActiveNumbers){
+    // Ҳанӯз ҳеҷ рақаме сохта нашудааст — клик ҳеҷ таъсире намерасонад
+    return;
+  }
+  if(!numbersPurchaseEnabled){
+    // Клики 1: рӯйхати рақамҳо барои интихоб кушода мешавад, тугма ва рамкааш сурх мешаванд
+    numbersPurchaseEnabled = true;
+    homeNumbersRow.classList.add("selectable");
+    buyNumberBtn.classList.add("active");
+    numbersBoxHome.classList.add("active");
+    buyNumberBtnLabel.textContent = "Анҷом додани харид";
+    registerNumbersBtn.classList.remove("active-green");
+    registerCountBadge.classList.remove("confirmed");
+    updateRegisterBadge();
+    sound.activate();
+  } else {
+    // Клики 2: харидан анҷом меёбад, интихоби минбаъда манъ мешавад, тугма ва рамка ба ранги аввала бармегарданд
+    const hasSelection = !!homeNumbersRow.querySelector(".number-chip.selected");
+    numbersPurchaseEnabled = false;
+    homeNumbersRow.classList.remove("selectable");
+    buyNumberBtn.classList.remove("active");
+    numbersBoxHome.classList.remove("active");
+    buyNumberBtnLabel.textContent = "Харидани рақам";
+    if(hasSelection){
+      registerNumbersBtn.classList.add("active-green");
+      registerCountBadge.classList.add("confirmed");
+    }
+    sound.confirm();
+  }
+});
+
+const registerModalOverlay = document.getElementById("registerModalOverlay");
+const registerModalClose = document.getElementById("registerModalClose");
+const registerNameInput = document.getElementById("registerNameInput");
+const registerPhoneInput = document.getElementById("registerPhoneInput");
+const totalAmountValue = document.getElementById("totalAmountValue");
+const numbersCountValue = document.getElementById("numbersCountValue");
+const selectedNumbersList = document.getElementById("selectedNumbersList");
+const PRICE_PER_NUMBER_SOMON = 10;
+const PRICE_PER_NUMBER_RUBLE = 100;
+
+function openRegisterModal(){
+  registerNameInput.value = userName.textContent && userName.textContent !== "—" ? userName.textContent : "";
+  registerPhoneInput.value = userPhone.textContent && userPhone.textContent !== "—" ? userPhone.textContent : "";
+  const selectedChips = homeNumbersRow.querySelectorAll(".number-chip.selected");
+  const count = selectedChips.length;
+  selectedNumbersList.innerHTML = Array.from(selectedChips)
+    .map(chip => '<div class="selected-number-circle">' + escapeHtml(chip.textContent) + '</div>')
+    .join("");
+  numbersCountValue.textContent = count + " дона";
+  totalAmountValue.textContent = (count * PRICE_PER_NUMBER_SOMON) + " сомон / " + (count * PRICE_PER_NUMBER_RUBLE) + " рубл";
+  registerModalOverlay.classList.add("show");
+}
+function closeRegisterModal(){
+  registerModalOverlay.classList.remove("show");
+}
+registerModalClose.addEventListener("click", closeRegisterModal);
+registerModalOverlay.addEventListener("click", (e) => {
+  if(e.target === registerModalOverlay) closeRegisterModal();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && registerModalOverlay.classList.contains("show")) closeRegisterModal();
+});
+
+registerNumbersBtn.addEventListener("click", () => {
+  sound.register();
+  if(registerNumbersBtn.classList.contains("active-green")){
+    openRegisterModal();
+  }
+});
+
+const addToCartBtn = document.getElementById("addToCartBtn");
+const cartBadge = document.getElementById("cartBadge");
+let cartItemsCount = 0;
+let cartEntries = [];
+
+addToCartBtn.addEventListener("click", () => {
+  const selectedChips = homeNumbersRow.querySelectorAll(".number-chip.selected");
+  const numbers = Array.from(selectedChips).map(chip => chip.textContent);
+  selectedChips.forEach(chip => {
+    chip.classList.remove("selected");
+    chip.classList.add("locked");
+  });
+  cartItemsCount += selectedChips.length;
+  if(numbers.length){
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("tg-TJ");
+    const timeStr = now.toLocaleTimeString("tg-TJ", { hour: "2-digit", minute: "2-digit" });
+    cartEntries.push({
+      numbers,
+      name: registerNameInput.value.trim(),
+      phone: registerPhoneInput.value.trim(),
+      somon: numbers.length * PRICE_PER_NUMBER_SOMON,
+      ruble: numbers.length * PRICE_PER_NUMBER_RUBLE,
+      roundName: currentRoundName,
+      dateTime: dateStr + " " + timeStr
+    });
+  }
+  if(cartItemsCount > 0){
+    cartBadge.textContent = cartItemsCount;
+    cartBadge.classList.add("show");
+  }
+  registerNumbersBtn.classList.remove("active-green");
+  registerCountBadge.classList.remove("show");
+});
+
+homeNumbersRow.addEventListener("click", (e) => {
+  if(!numbersPurchaseEnabled) return;
+  const chip = e.target.closest(".number-chip");
+  if(!chip) return;
+  if(chip.classList.contains("locked")) return;
+  chip.classList.toggle("selected");
+  updateRegisterBadge();
 });
 
 /* ---------------- Internet connectivity check ---------------- */
@@ -1028,8 +1371,49 @@ themeToggleBtn.addEventListener("click", () => {
   closeMenu();
 });
 
+const cartModalOverlay = document.getElementById("cartModalOverlay");
+const cartModalClose = document.getElementById("cartModalClose");
+const cartEntriesBox = document.getElementById("cartEntriesBox");
+
+function openCartModal(){
+  if(!cartEntries.length){
+    cartEntriesBox.innerHTML = '<div class="cart-empty">Корзина холӣ аст</div>';
+  } else {
+    cartEntriesBox.innerHTML = cartEntries.map(entry =>
+      '<div class="cart-entry-card">' +
+        '<div class="cart-entry-title">Рӯйхати рақамҳои харидашуда</div>' +
+        '<div class="cart-row"><span class="cart-row-label">Давр</span><span class="cart-row-value">' + escapeHtml(entry.roundName || "—") + ' · ' + escapeHtml(entry.dateTime || "—") + '</span></div>' +
+        '<div class="cart-row"><span class="cart-row-label">Ном</span><span class="cart-row-value">' + escapeHtml(entry.name || "—") + '</span></div>' +
+        '<div class="cart-row"><span class="cart-row-label">Рақами телефон</span><span class="cart-row-value">' + escapeHtml(entry.phone || "—") + '</span></div>' +
+        '<div class="cart-row"><span class="cart-row-label">Шумораи рақамҳо</span><span class="cart-row-value">' + entry.numbers.length + ' дона</span></div>' +
+        '<div class="cart-row"><span class="cart-row-label">Нархи умумӣ</span><span class="cart-row-value">' + entry.somon + ' сомон / ' + entry.ruble + ' рубл</span></div>' +
+        '<div class="cart-row cart-row-numbers">' +
+          '<span class="cart-row-label">Рақамҳо</span>' +
+          '<div class="cart-entry-numbers">' +
+            entry.numbers.map(n => '<div class="selected-number-circle">' + escapeHtml(n) + '</div>').join("") +
+          '</div>' +
+        '</div>' +
+        '<div class="cart-row"><span class="cart-row-label">Статус</span><span class="cart-row-value">В процессе</span></div>' +
+        '<button class="btn pay-btn">Пардохти маблағ</button>' +
+      '</div>'
+    ).join("");
+  }
+  cartModalOverlay.classList.add("show");
+}
+function closeCartModal(){
+  cartModalOverlay.classList.remove("show");
+}
+cartModalClose.addEventListener("click", closeCartModal);
+cartModalOverlay.addEventListener("click", (e) => {
+  if(e.target === cartModalOverlay) closeCartModal();
+  if(e.target.closest(".pay-btn")) openChatModal();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && cartModalOverlay.classList.contains("show")) closeCartModal();
+});
+
 cartBtn.addEventListener("click", () => {
-  // TODO: кушодани корзина
+  openCartModal();
 });
 
 const chatModalOverlay = document.getElementById("chatModalOverlay");
