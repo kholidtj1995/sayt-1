@@ -725,7 +725,7 @@ onValue(ref(db, "prizes"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   const entries = data ? Object.entries(data) : [];
   const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
-  homePrizeCountBadge.textContent = `${totalQty} приз${totalQty===1?"":"ҳо"}`;
+  homePrizeCountBadge.textContent = totalQty + " приз" + (totalQty === 1 ? "" : "ҳо");
   if(entries.length === 0){
     homePrizesRow.classList.add("hidden");
     homePrizesEmpty.classList.remove("hidden");
@@ -735,16 +735,16 @@ onValue(ref(db, "prizes"), (snap) => {
   entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
   homePrizesEmpty.classList.add("hidden");
   homePrizesRow.classList.remove("hidden");
-  homePrizesRow.innerHTML = entries.map(([id, p]) => `
-    <div class="prize-chip" data-id="${id}">
-      <div class="trophy-circle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
-      </div>
-      <div class="p-name">${escapeHtml(p.name || "—")}</div>
-      <span class="qty-label">Миқдор</span>
-      <span class="p-qty">${p.qty ?? 1}</span>
-    </div>
-  `).join("");
+  homePrizesRow.innerHTML = entries.map(([id, p]) =>
+    '<div class="prize-chip" data-id="' + id + '">' +
+      '<div class="trophy-circle">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>' +
+      '</div>' +
+      '<div class="p-name">' + escapeHtml(p.name || "—") + '</div>' +
+      '<span class="qty-label">Миқдор</span>' +
+      '<span class="p-qty">' + (p.qty ?? 1) + '</span>' +
+    '</div>'
+  ).join("");
 
   homePrizesRow.querySelectorAll(".prize-chip").forEach(chip => {
     chip.addEventListener("click", () => {
@@ -795,13 +795,12 @@ onValue(ref(db, "currentRound"), (snap) => {
   }
   homeNumbersEmpty.classList.add("hidden");
   homeNumbersRow.classList.remove("hidden");
-  homeRoundBadgeRow.innerHTML = `
-    <span class="info-badge">Давр: ${escapeHtml(data.name || "—")}</span>
-    <span class="info-badge">${data.count} рақам</span>
-  `;
+  homeRoundBadgeRow.innerHTML =
+    '<span class="info-badge">Давр: ' + escapeHtml(data.name || "—") + '</span>' +
+    '<span class="info-badge">' + data.count + ' рақам</span>';
   let html = "";
   for(let i = 1; i <= data.count; i++){
-    html += `<div class="number-chip">${i}</div>`;
+    html += '<div class="number-chip">' + i + '</div>';
   }
   homeNumbersRow.innerHTML = html;
 });
