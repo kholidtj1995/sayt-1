@@ -505,6 +505,9 @@
     </div>
     <div class="top-actions">
       <div class="icon-group">
+        <button class="icon-btn" id="questionBtn" title="Савол">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </button>
         <button class="icon-btn" id="serverMgmtBtn" title="Идораи сервер">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </button>
@@ -706,6 +709,22 @@
 </div>
 
 <!-- LOGOUT CONFIRM MODAL -->
+<div id="questionModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal">
+    <div class="modal-head">
+      <h3>Савол</h3>
+      <button class="modal-close" data-close="questionModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body">
+      <div class="chat-modal-loading" id="questionLoading">
+        <div class="splash-ring" style="width:32px;height:32px;"></div>
+        <span>Бор карда мешавад...</span>
+      </div>
+      <iframe id="questionFrame" title="Савол" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
 <div id="logoutModal" class="modal-overlay hidden">
   <div class="modal" style="max-width:340px; text-align:center;">
     <div class="logout-modal-icon">
@@ -1059,6 +1078,21 @@ document.getElementById("groupBtn").addEventListener("click", () => {
     groupLoaded = true;
   }
   openModal("groupModal");
+});
+
+const questionFrame = document.getElementById("questionFrame");
+const questionLoading = document.getElementById("questionLoading");
+const QUESTION_URL = new URL("kumak_admin.html", window.location.href).href;
+let questionLoaded = false;
+
+document.getElementById("questionBtn").addEventListener("click", () => {
+  if(!questionLoaded){
+    questionLoading.style.display = "flex";
+    questionFrame.addEventListener("load", () => { questionLoading.style.display = "none"; }, { once:true });
+    questionFrame.src = QUESTION_URL;
+    questionLoaded = true;
+  }
+  openModal("questionModal");
 });
 
 document.getElementById("usersBtn").addEventListener("click", () => {
