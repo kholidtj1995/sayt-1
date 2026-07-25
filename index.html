@@ -2461,17 +2461,34 @@ async function handleLoginSubmit(e){
     }
 
     // Ҷустуҷӯи корбари қаблан сабтшуда бо ҳамин рақами телефон.
-    // Қасдан аз усули оддии get() истифода мешавад (на query/orderByChild), то ин кор
-    // бе ниёз ба ".indexOn" дар қоидаҳои Firebase кор кунад ва хатои "пайваст"-ро надиҳад.
-    const allUsersSnap = await get(ref(db, "users"));
-    const allUsers = allUsersSnap.val() || {};
+    // ПЕШТАР ин ҷо тамоми рӯйхати "users" (ҳамаи корбарон) аз сервер зеркашӣ
+    // мешуд — дар компютер бо интернети тез ин ~10 сония мегирифт, вале дар
+    // телефон бо интернети мобилии сустар ҳамон ҳаҷми маълумот метавонист то
+    // якчанд дақиқа тӯл кашад (ва ҳарчи корбарон зиёд шаванд, боз ҳам сустар
+    // мешуд). Ҳоло ба ҷои он аз индекси "phoneIndex" истифода мешавад — як
+    // хониши хурд ва фаврӣ, новобаста аз шумораи умумии корбарон ё суръати
+    // интернет. Барои корбарони кӯҳна (ки ҳанӯз дар индекс нестанд) як
+    // маротибаи охирин ба усули кӯҳна мегузарем ва ҳамзамон индексашонро
+    // месозем, то дафъаи оянда фавран кор кунад.
     let existingId = null;
     let existingUser = null;
-    for(const [id, u] of Object.entries(allUsers)){
-      if(u && u.normPhone === normPhone){
-        existingId = id;
-        existingUser = u;
-        break;
+    const idxSnap = await get(ref(db, "phoneIndex/" + normPhone));
+    if(idxSnap.exists()){
+      existingId = idxSnap.val();
+      const uSnap = await get(ref(db, "users/" + existingId));
+      existingUser = uSnap.val();
+    } else {
+      const allUsersSnap = await get(ref(db, "users"));
+      const allUsers = allUsersSnap.val() || {};
+      for(const [id, u] of Object.entries(allUsers)){
+        if(u && u.normPhone === normPhone){
+          existingId = id;
+          existingUser = u;
+          break;
+        }
+      }
+      if(existingId){
+        set(ref(db, "phoneIndex/" + normPhone), existingId).catch(() => {});
       }
     }
     let user;
@@ -2499,6 +2516,7 @@ async function handleLoginSubmit(e){
         normPhone,
         createdAt: Date.now()
       });
+      await set(ref(db, "phoneIndex/" + normPhone), userRef.key);
       // Тасдиқи иловагӣ: пас аз навиштан, маълумотро АЗ НАВ аз Firebase мехонем,
       // то мутмаин шавем, ки сабти ном воқеан 100% анҷом ёфтааст (на танҳо дар
       // ҳофизаи маҳаллии SDK), пеш аз он ки равзанаи асосии барномаро кушоем.
