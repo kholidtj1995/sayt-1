@@ -29,10 +29,11 @@
     --shadow-lg:0 20px 60px rgba(0,0,0,0.45);
     color-scheme: dark;
     font-size:16px;
+    --app-height:100%;
   }
   *,*::before,*::after{ box-sizing:border-box; }
   html,body{
-    height:100%; width:100%;
+    height:var(--app-height); width:100%;
     overflow:hidden; position:fixed; inset:0;
     overscroll-behavior:none;
     touch-action:manipulation;
@@ -621,6 +622,38 @@
   }
   #groupModalOverlay.show{ opacity:1; pointer-events:auto; }
 
+  /* Add-to-cart success animation — тасдиқи иловашавӣ ба сабад */
+  #addToCartSuccessOverlay{
+    position:fixed; inset:0; z-index:600;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(6,10,20,0.55);
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  #addToCartSuccessOverlay.show{ opacity:1; pointer-events:auto; }
+  .cart-success-frame{
+    width:132px; height:132px; border-radius:22px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 18px 46px rgba(0,0,0,0.45);
+    transform:scale(0.72); opacity:0;
+    transition:transform .32s cubic-bezier(.34,1.56,.64,1), opacity .28s ease;
+  }
+  #addToCartSuccessOverlay.show .cart-success-frame{ transform:scale(1); opacity:1; }
+  .cart-success-frame svg{ width:72px; height:72px; overflow:visible; }
+  .cart-success-circle{
+    stroke:#3fbf8f; stroke-width:3; fill:none;
+    stroke-dasharray:152; stroke-dashoffset:152;
+  }
+  .cart-success-check{
+    stroke:#3fbf8f; stroke-width:4.5; fill:none; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:38; stroke-dashoffset:38;
+  }
+  #addToCartSuccessOverlay.show .cart-success-circle{ animation:cartSuccessCircle .45s ease forwards; }
+  #addToCartSuccessOverlay.show .cart-success-check{ animation:cartSuccessCheck .3s ease forwards .4s; }
+  @keyframes cartSuccessCircle{ to{ stroke-dashoffset:0; } }
+  @keyframes cartSuccessCheck{ to{ stroke-dashoffset:0; } }
+
   /* Connection overlay */
   #connOverlay{
     position:fixed; inset:0; z-index:150;
@@ -639,6 +672,42 @@
   #connOverlay .conn-title{ font-family:'Unbounded', sans-serif; font-size:1rem; color:var(--text); margin:0; }
   #connOverlay .conn-sub{ color:var(--text-muted); font-size:0.85rem; max-width:280px; margin:0; line-height:1.5; }
   #appRoot.conn-blur{ filter:blur(6px); transition:filter .3s ease; pointer-events:none; }
+  #appRoot.notice-blur{ filter:blur(6px); transition:filter .3s ease; pointer-events:none; }
+
+  /* Important push notice */
+  #pushNoticeOverlay{
+    position:fixed; inset:0; z-index:700;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    background:rgba(6,10,20,0.68);
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  #pushNoticeOverlay.show{ opacity:1; pointer-events:auto; }
+  .push-notice-box{
+    position:relative; width:100%; max-width:360px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:20px;
+    padding:26px 22px 22px; text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);
+    transform:scale(0.82); opacity:0;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+  }
+  #pushNoticeOverlay.show .push-notice-box{ transform:scale(1); opacity:1; }
+  .push-notice-icon{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 14px;
+    background:rgba(232,184,75,0.14); color:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .push-notice-icon svg{ width:28px; height:28px; }
+  .push-notice-box h3{ margin:0 0 12px; font-size:1.15rem; color:var(--gold-2); font-family:'Unbounded', sans-serif; }
+  .push-notice-body{ font-size:0.92rem; line-height:1.65; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+  .push-notice-close{
+    position:absolute; top:12px; right:12px;
+    width:30px; height:30px; border-radius:50%;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .push-notice-close:hover{ background:var(--crimson); color:#fff; }
+  .push-notice-close svg{ width:15px; height:15px; }
 
   /* Light theme */
   body.light{
@@ -656,6 +725,32 @@
 </style>
 </head>
 <body>
+<script>
+  // Дар баъзе телефонҳо (махсусан моделҳои нав бо экрани каме калонтар ё бо
+  // навори (address bar) браузери худкор пинҳоншаванда) арзиши "100%"/"100vh"-и
+  // баландии экран дуруст ҳисоб намешавад — барнома аз баландии ҳақиқии кушода
+  // калонтар сохта мешавад ва тугмаҳои поёни экран (Бозгашт / Харидани рақам /
+  // Ба қайд гирифтан) берун аз майдони намоён мемонанд, то даме ки корбар
+  // варақро ҳаракат намедиҳад (ки боиси пинҳон шудани навори браузер мегардад).
+  // Ин скрипт баландии ҳақиқии намоёнро (window.visualViewport ё innerHeight)
+  // мегирад ва онро ба тағйирёбандаи CSS --app-height менависад, то тарҳбандӣ
+  // ҳамеша ба андозаи воқеии экран мутобиқ бошад.
+  (function(){
+    function setAppHeight(){
+      var h = (window.visualViewport && window.visualViewport.height)
+        ? window.visualViewport.height
+        : window.innerHeight;
+      document.documentElement.style.setProperty('--app-height', h + 'px');
+    }
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', setAppHeight);
+      window.visualViewport.addEventListener('scroll', setAppHeight);
+    }
+  })();
+</script>
 <script>
   // Пешгирии кушода шудани худкори клавиатура ҳангоми боркунии сайт.
   // Диққат: ин муҳофизат МАҲДУД БА ВАҚТ НЕСТ (баъзе платформаҳои мизбон, масалан
@@ -851,7 +946,7 @@
         <span>Асосӣ</span>
       </button>
       <button class="nav-item" id="navWinnersItem" title="Ғолибон">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.5 13.5L7 22l5-3 5 3-1.5-8.5"/></svg>
         <span>Ғолибон</span>
       </button>
     </nav>
@@ -874,6 +969,20 @@
   </button>
 </div>
 </div><!-- /appRoot -->
+
+<!-- IMPORTANT PUSH NOTICE MODAL -->
+<div id="pushNoticeOverlay">
+  <div class="push-notice-box">
+    <button class="push-notice-close" id="pushNoticeCloseBtn" title="Пӯшидан">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="push-notice-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    </div>
+    <h3>Хабари муҳим!</h3>
+    <div class="push-notice-body" id="pushNoticeText"></div>
+  </div>
+</div>
 
 <!-- LOGOUT CONFIRM OVERLAY -->
 <div id="logoutConfirmOverlay">
@@ -912,6 +1021,16 @@
       <input type="text" id="registerPhoneInput" readonly />
     </div>
     <button class="btn btn-gold" id="addToCartBtn">Илова ба сабад</button>
+  </div>
+</div>
+
+<!-- ADD TO CART SUCCESS ANIMATION -->
+<div id="addToCartSuccessOverlay">
+  <div class="cart-success-frame">
+    <svg viewBox="0 0 52 52">
+      <circle class="cart-success-circle" cx="26" cy="26" r="23"/>
+      <path class="cart-success-check" d="M14 27l7 7 16-16"/>
+    </svg>
   </div>
 </div>
 
@@ -1062,6 +1181,12 @@ const sound = {
   prize: () => { tone(760, 0.05, "sine", 0.045); tone(1080, 0.08, "sine", 0.04, 0.05); },
   numbersAppear: () => { tone(480, 0.07, "sine", 0.03); tone(680, 0.08, "sine", 0.03, 0.06); tone(920, 0.1, "sine", 0.028, 0.12); },
   prizesAppear: () => { tone(700, 0.06, "sine", 0.035); tone(940, 0.09, "sine", 0.032, 0.06); },
+  pushNotice: () => {
+    tone(784, 0.16, "sine", 0.09);
+    tone(988, 0.18, "sine", 0.085, 0.1);
+    tone(1175, 0.24, "sine", 0.08, 0.22);
+    tone(1568, 0.32, "sine", 0.075, 0.36);
+  },
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .menu-item, .badge-btn, .nav-item, .nav-fab")) sound.click();
@@ -1361,7 +1486,29 @@ addToCartBtn.addEventListener("click", () => {
   refreshCartBadge();
   registerNumbersBtn.classList.remove("active-green");
   registerCountBadge.classList.remove("show");
+  closeRegisterModal();
+  showAddToCartSuccess();
 });
+
+/* Аниматсияи галочкаи сабз: тасдиқи иловашавӣ ба сабад (химоя аз клики такрорӣ) */
+const addToCartSuccessOverlay = document.getElementById("addToCartSuccessOverlay");
+const cartSuccessCircleEl = addToCartSuccessOverlay.querySelector(".cart-success-circle");
+const cartSuccessCheckEl = addToCartSuccessOverlay.querySelector(".cart-success-check");
+let cartSuccessTimeout = null;
+function showAddToCartSuccess(){
+  clearTimeout(cartSuccessTimeout);
+  addToCartSuccessOverlay.classList.remove("show");
+  // маҷбурӣ рестарт кардани аниматсия, агар пеш аз 3 сония дубора илова шавад
+  cartSuccessCircleEl.style.animation = "none";
+  cartSuccessCheckEl.style.animation = "none";
+  void addToCartSuccessOverlay.offsetWidth;
+  cartSuccessCircleEl.style.animation = "";
+  cartSuccessCheckEl.style.animation = "";
+  addToCartSuccessOverlay.classList.add("show");
+  cartSuccessTimeout = setTimeout(() => {
+    addToCartSuccessOverlay.classList.remove("show");
+  }, 3000);
+}
 
 homeNumbersRow.addEventListener("click", (e) => {
   if(!numbersPurchaseEnabled) return;
@@ -1434,6 +1581,48 @@ window.addEventListener("offline", () => setConnState("offline"));
 document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") checkConnection(); });
 checkConnection();
 setInterval(checkConnection, CHECK_INTERVAL_MS);
+
+/* ---------------- Хабари муҳим (push огоҳинома аз утоқи админ) ---------------- */
+const pushNoticeOverlay = document.getElementById("pushNoticeOverlay");
+const pushNoticeText = document.getElementById("pushNoticeText");
+const pushNoticeCloseBtn = document.getElementById("pushNoticeCloseBtn");
+const PUSH_NOTICE_SEEN_KEY = "qura_push_notice_seen";
+
+function closePushNotice(){
+  pushNoticeOverlay.classList.remove("show");
+  appRoot.classList.remove("notice-blur");
+}
+pushNoticeCloseBtn.addEventListener("click", () => {
+  sound.close();
+  closePushNotice();
+});
+pushNoticeOverlay.addEventListener("click", (e) => {
+  if(e.target === pushNoticeOverlay){
+    sound.close();
+    closePushNotice();
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && pushNoticeOverlay.classList.contains("show")){
+    sound.close();
+    closePushNotice();
+  }
+});
+
+onValue(ref(db, "pushNotice"), (snap) => {
+  const data = snap.val();
+  if(!data || !data.text){
+    closePushNotice();
+    return;
+  }
+  const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
+  if(String(data.updatedAt) === seenStamp) return;
+  pushNoticeText.textContent = data.text;
+  appRoot.classList.add("notice-blur");
+  pushNoticeOverlay.classList.add("show");
+  sound.pushNotice();
+  localStorage.setItem(PUSH_NOTICE_SEEN_KEY, String(data.updatedAt));
+});
 
 const LS_KEY = "qura_user";
 
