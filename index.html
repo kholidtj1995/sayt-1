@@ -211,7 +211,10 @@
     padding:10px 10px 2px; flex:0 0 112px; min-width:0;
     display:flex; flex-direction:column; align-items:center; text-align:center;
     cursor:pointer; transition:transform .15s, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    opacity:0; transform:translateY(16px) scale(0.85);
+    animation:prizePopIn 0.5s cubic-bezier(.2,.9,.3,1.25) forwards;
   }
+  @keyframes prizePopIn{ from{ opacity:0; transform:translateY(16px) scale(0.85); } to{ opacity:1; transform:translateY(0) scale(1); } }
   .prize-chip.active{
     border-color:var(--gold);
     background:linear-gradient(180deg, rgba(232,184,75,0.22), var(--bg-2));
@@ -246,7 +249,10 @@
     color:#1b1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;
     font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:0.02em;
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+    position:relative; transform:scale(0); opacity:0;
+    animation:chipRollIn 0.45s cubic-bezier(.2,.9,.3,1.3) forwards;
   }
+  @keyframes chipRollIn{ from{ transform:scale(0) rotate(-70deg); opacity:0; } to{ transform:scale(1) rotate(0); opacity:1; } }
   .numbers-row.selectable .number-chip{ cursor:pointer; }
   .numbers-row.selectable .number-chip:active{ transform:scale(0.88); }
   .number-chip.selected{ box-shadow:0 0 0 3px var(--crimson), 0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35); }
@@ -299,9 +305,15 @@
     border-top:1px solid var(--border);
     padding:12px 30px calc(12px + env(safe-area-inset-bottom)) 30px;
     position:relative; z-index:20;
-    -webkit-mask-image:radial-gradient(circle 48px at 50% 0px, transparent 47px, black 48px);
-    mask-image:radial-gradient(circle 48px at 50% 0px, transparent 47px, black 48px);
+    -webkit-mask-image:radial-gradient(circle 38px at 50% 0px, transparent 34px, black 44px);
+    mask-image:radial-gradient(circle 38px at 50% 0px, transparent 34px, black 44px);
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+    -webkit-mask-size:100% 100%; mask-size:100% 100%;
     border-radius:26px 26px 0 0;
+    transform:translateZ(0);
+    -webkit-transform:translateZ(0);
+    will-change:transform;
+    isolation:isolate;
   }
   .nav-item{
     display:flex; flex-direction:column; align-items:center; gap:5px;
@@ -314,17 +326,17 @@
   .nav-item.active{ color:var(--gold); }
   .nav-item.active span{ color:var(--gold); }
   .nav-fab{
-    position:absolute; top:-42px; left:50%; transform:translateX(-50%);
-    width:84px; height:84px; border-radius:50%;
+    position:absolute; top:-26px; left:50%; transform:translateX(-50%);
+    width:56px; height:56px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     background:radial-gradient(circle at 32% 28%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
     border:none;
-    box-shadow:0 10px 22px rgba(232,184,75,0.45), 0 2px 8px rgba(0,0,0,0.4);
+    box-shadow:0 4px 10px rgba(0,0,0,0.35);
     cursor:pointer; z-index:25; -webkit-tap-highlight-color:transparent;
     transition:transform .12s ease;
   }
   .nav-fab:active{ transform:translateX(-50%) scale(0.92); }
-  .nav-fab svg{ width:36px; height:36px; color:#1b1206; }
+  .nav-fab svg{ width:24px; height:24px; color:#1b1206; }
 
   .topbar{
     display:flex; align-items:center; justify-content:flex-start; gap:12px;
@@ -1047,8 +1059,8 @@ onValue(ref(db, "prizes"), (snap) => {
   entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
   homePrizesEmpty.classList.add("hidden");
   homePrizesRow.classList.remove("hidden");
-  const prizeChipsHtml = entries.map(([id, p]) =>
-    '<div class="prize-chip" data-id="' + id + '">' +
+  const prizeChipsHtml = entries.map(([id, p], idx) =>
+    '<div class="prize-chip" data-id="' + id + '" style="animation-delay:' + (idx * 0.07) + 's">' +
       '<div class="trophy-circle">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>' +
       '</div>' +
@@ -1120,8 +1132,10 @@ onValue(ref(db, "currentRound"), (snap) => {
     '<span class="info-badge">Давр: ' + escapeHtml(data.name || "—") + '</span>' +
     '<span class="info-badge">' + data.count + ' рақам</span>';
   let html = "";
+  const STAGGER_CAP = 80;
   for(let i = 1; i <= data.count; i++){
-    html += '<div class="number-chip">' + i + '</div>';
+    const delay = (i-1) < STAGGER_CAP ? ((i-1) * 0.025) : (STAGGER_CAP * 0.025);
+    html += '<div class="number-chip" style="animation-delay:' + delay + 's">' + i + '</div>';
   }
   homeNumbersRow.innerHTML = html;
   if(numbersPurchaseEnabled) homeNumbersRow.classList.add("selectable");
