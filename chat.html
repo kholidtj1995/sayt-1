@@ -15,6 +15,7 @@
   --accent:#E7A93C;
   --accent-dark:#C68A22;
   --accent-ink:#241703;
+  --msg-border:#8B5CF6;
   --teal:#3FA7A0;
   --teal-dark:#2C7B76;
   --text:#ECEAE3;
@@ -61,18 +62,15 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .msg-row { display:flex; flex-direction:column; max-width:78%; margin-bottom:6px; }
 .msg-row.mine { align-self:flex-end; align-items:flex-end; }
 .msg-row.theirs { align-self:flex-start; align-items:flex-start; }
-.msg { padding:9px 12px 7px; border-radius:16px; font-size:14.5px; line-height:1.42; word-break:break-word; white-space:pre-wrap; position:relative; }
-.msg-row.mine .msg { background:var(--accent); color:var(--accent-ink); border-bottom-right-radius:4px; }
-.msg-row.theirs .msg { background:var(--card-2); color:var(--text); border-bottom-left-radius:4px; }
+.msg { padding:9px 12px 7px; border-radius:16px; font-size:14.5px; line-height:1.42; word-break:break-word; white-space:pre-wrap; position:relative; background:transparent; color:var(--text); border:1.5px solid var(--msg-border); }
+.msg-row.mine .msg { border-bottom-right-radius:4px; }
+.msg-row.theirs .msg { border-bottom-left-radius:4px; }
 .msg a { color:var(--teal-dark); text-decoration:underline; word-break:break-all; }
-.msg-row.mine .msg a { color:var(--accent-ink); }
-.reply-quote { border-left:3px solid var(--teal); background:rgba(63,167,160,.10); padding:4px 8px; border-radius:6px; margin-bottom:5px; font-size:12px; opacity:.95; }
-.msg-row.mine .reply-quote { border-left-color:var(--accent-ink); background:rgba(36,23,3,.12); }
+.reply-quote { border-left:3px solid var(--teal); background:rgba(63,167,160,.10); padding:4px 8px; border-radius:6px; margin-bottom:5px; font-size:12px; opacity:.95; cursor:pointer; }
 .reply-quote b { display:block; font-size:11px; color:var(--teal); }
-.msg-row.mine .reply-quote b { color:var(--accent-ink); }
-.msg-meta { display:flex; align-items:center; gap:3px; font-size:10.5px; margin-top:3px; align-self:flex-end; opacity:.85; }
-.msg-row.mine .msg-meta { color:rgba(36,23,3,.65); }
-.msg-row.theirs .msg-meta { color:var(--text-faint); }
+@keyframes msgFlash { 0%,100%{ border-color:var(--msg-border); box-shadow:none; } 50%{ border-color:#FFD34D; box-shadow:0 0 0 3px rgba(255,211,77,.35); } }
+.msg-flash { animation:msgFlash .4s ease 5; }
+.msg-meta { display:flex; align-items:center; gap:3px; font-size:10.5px; margin-top:3px; align-self:flex-end; opacity:.85; color:var(--text-faint); }
 .tick { font-size:12px; opacity:.6; }
 .tick.seen { color:var(--teal-dark) !important; opacity:1; }
 .msg-actions { display:flex; gap:10px; margin-top:2px; padding:0 2px; }
@@ -81,19 +79,15 @@ body { background:#070911; display:flex; justify-content:center; align-items:cen
 .reaction-badge { background:rgba(255,255,255,.06); border-radius:20px; padding:2px 7px; font-size:11.5px; color:var(--text); }
 .chat-image { max-width:220px; max-height:280px; border-radius:10px; cursor:pointer; display:block; margin:2px 0; }
 .doc-msg { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text); background:rgba(255,255,255,.04); padding:8px; border-radius:10px; min-width:170px; }
-.msg-row.mine .doc-msg { background:rgba(36,23,3,.14); color:var(--accent-ink); }
 .doc-icon { font-size:26px; }
 .doc-info { display:flex; flex-direction:column; overflow:hidden; }
 .doc-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; }
 .doc-size { font-size:11px; opacity:.7; }
 .voice-msg { display:flex; align-items:center; gap:8px; min-width:190px; }
-.voice-play-btn { width:32px; height:32px; border-radius:50%; border:none; background:var(--accent); color:var(--accent-ink); font-size:13px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.msg-row.theirs .voice-play-btn { background:var(--accent); color:var(--accent-ink); }
+.voice-play-btn { width:32px; height:32px; border-radius:50%; border:none; background:var(--card-2); color:var(--text); font-size:13px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
 .voice-progress { flex:1; accent-color:var(--teal); height:4px; }
-.msg-row.mine .voice-progress { accent-color:var(--accent-ink); }
 .voice-time { font-size:10.5px; white-space:nowrap; opacity:.8; }
 .voice-speed-btn { border:none; background:rgba(255,255,255,.12); color:inherit; border-radius:20px; font-size:10.5px; padding:2px 7px; cursor:pointer; flex-shrink:0; }
-.msg-row.mine .voice-speed-btn { background:rgba(36,23,3,.16); }
 
 .blocked-banner { display:none; align-items:center; justify-content:center; gap:8px; background:rgba(226,84,62,.14); color:var(--danger); font-size:13px; font-weight:600; padding:14px 16px; border-top:1px solid var(--border); text-align:center; flex-shrink:0; }
 
@@ -657,12 +651,12 @@ function renderMsg(msg, id){
   if(msg.type==='image'){ content = `<img class="chat-image" src="${msg.fileURL||msg.fileData}" onclick="openLightbox('${id}')">`; }
   else if(msg.type==='document'){ const kb=Math.round((msg.fileSize||0)/1024); content = `<a class="doc-msg" href="${msg.fileURL||msg.fileData}" download="${escapeHtml(msg.fileName||'file')}"><span class="doc-icon">📄</span><span class="doc-info"><span class="doc-name">${escapeHtml(msg.fileName||'Файл')}</span><span class="doc-size">${kb} KB</span></span></a>`; }
   else if(msg.type==='voice'){ content = `<div class="voice-msg"><button class="voice-play-btn" onclick="toggleVoicePlay('${id}', this)">▶</button><input type="range" class="voice-progress" min="0" max="100" value="0" data-id="${id}"><span class="voice-time" id="voice-time-${id}">${formatDur(msg.duration)}</span><button class="voice-speed-btn" onclick="cycleSpeed('${id}', this)">1x</button><audio id="audio-${id}" src="${msg.fileURL||msg.fileData}" preload="none"></audio></div>`; }
-  else { content = linkify(msg.text||''); }
+  else { content = linkify((msg.text||'').replace(/\s+$/,'')); }
 
-  const replyHtml = msg.replyTo ? `<div class="reply-quote"><b>${escapeHtml(msg.replyTo.user)}</b>${escapeHtml(msg.replyTo.text)}</div>` : '';
+  const replyHtml = msg.replyTo ? `<div class="reply-quote" onclick="scrollToMsg('${msg.replyTo.key}', event)"><b>${escapeHtml(msg.replyTo.user)}</b>${escapeHtml(msg.replyTo.text)}</div>` : '';
   const ticks = isMine ? `<span class="tick ${msg.seenByAdmin?'seen':''}">✓✓</span>` : '';
 
-  return `<div class="msg-row ${isMine?'mine':'theirs'}">
+  return `<div class="msg-row ${isMine?'mine':'theirs'}" data-msg-id="${id}">
     <div class="msg">${replyHtml}${content}
       <div class="msg-meta"><span>${formatTime(msg.timestamp||Date.now())}</span>${ticks}</div>
     </div>
@@ -670,6 +664,18 @@ function renderMsg(msg, id){
     <div class="msg-actions"><button onclick="setReply('${id}')">↩ Ҷавоб</button><button onclick="openReactionPicker('${id}')">🙂 Реаксия</button></div>
   </div>`;
 }
+
+window.scrollToMsg = (id, e) => {
+  if(e) e.stopPropagation();
+  const row = document.querySelector(`[data-msg-id="${id}"]`);
+  if(!row) return;
+  row.scrollIntoView({ behavior:'smooth', block:'center' });
+  const bubble = row.querySelector('.msg');
+  bubble.classList.remove('msg-flash');
+  void bubble.offsetWidth;
+  bubble.classList.add('msg-flash');
+  setTimeout(()=>bubble.classList.remove('msg-flash'), 2000);
+};
 
 function listenMessages(){
   const messagesQuery = query(ref(db, `sayt1_chats/${currentUsername}`), limitToLast(50));
