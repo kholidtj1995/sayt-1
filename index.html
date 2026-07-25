@@ -261,6 +261,12 @@
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.2);
   }
   .numbers-row.selectable .number-chip.locked{ cursor:not-allowed; }
+  /* Рақамҳое, ки админ харидашударо тасдиқ кардааст — сабз ва абадан баста мешаванд */
+  .number-chip.sold{
+    background:#3fbf8f !important; color:#fff; cursor:not-allowed !important;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.2);
+  }
+  .numbers-row.selectable .number-chip.sold{ cursor:not-allowed; }
 
   .actions-row{ display:flex; gap:8px; margin-top:2px; }
   .action-btn{
@@ -491,6 +497,7 @@
     display:flex; align-items:center; justify-content:center;
     box-shadow:inset 0 -2px 4px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.2);
   }
+  .selected-number-circle.approved{ background:#3fbf8f; }
 
   /* Cart modal */
   .cart-entries-box{ max-height:60vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
@@ -502,7 +509,16 @@
   .cart-entry-title{
     font-size:0.86rem; font-weight:700; color:var(--gold-2); margin-bottom:10px;
     padding-bottom:8px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
   }
+  .cart-entry-delete-btn{
+    flex-shrink:0; width:26px; height:26px; border-radius:7px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--crimson);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s; -webkit-tap-highlight-color:transparent;
+  }
+  .cart-entry-delete-btn:hover{ background:var(--crimson); color:#fff; }
+  .cart-entry-delete-btn svg{ width:14px; height:14px; }
   .cart-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:5px 0; }
   .cart-row-label{ font-size:0.78rem; color:var(--text-muted); font-weight:600; flex-shrink:0; }
   .cart-row-value{ font-size:0.84rem; color:var(--text); font-weight:700; text-align:right; }
@@ -513,6 +529,18 @@
     font-size:0.9rem; font-weight:800; color:var(--gold-2);
   }
   .cart-empty{ text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.88rem; }
+  .cart-status-pending{ color:var(--text-muted); }
+  .cart-status-success{ color:#3fbf8f; }
+  .cart-status-fail{ color:var(--crimson); }
+  .cart-row-countdown{ justify-content:flex-start; padding-top:0; }
+  .cart-reject-countdown{ font-size:0.76rem; color:var(--crimson); opacity:0.9; text-align:left; }
+  .cart-reject-x{
+    display:flex; align-items:center; justify-content:center;
+    width:44px; height:44px; margin:4px auto 10px; border-radius:50%;
+    background:rgba(226,83,107,0.14); color:var(--crimson);
+    animation:badgePop .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .cart-reject-x svg{ width:26px; height:26px; }
   .pay-btn{
     width:100%; margin-top:10px; padding:11px 16px; font-size:0.88rem;
     background:#3b82f6; color:#fff; box-shadow:0 8px 20px rgba(59,130,246,0.3);
@@ -891,7 +919,6 @@
 <div id="cartModalOverlay">
   <div class="register-modal">
     <button class="register-modal-close" id="cartModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-    <button class="register-modal-clear" id="clearCartBtn" title="Пок кардани корзина"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
     <h3>Корзина</h3>
     <div class="cart-entries-box" id="cartEntriesBox"></div>
   </div>
@@ -900,7 +927,10 @@
 <!-- CLEAR CART CONFIRM OVERLAY -->
 <div id="clearCartConfirmOverlay">
   <div class="confirm-card">
-    <p>Оё мутмаин ҳастед, ки мехоҳед корзинаро пок кунед?</p>
+    <p>Барои нест кардани ин фармоиш рамзи худро ворид кунед</p>
+    <div class="field">
+      <input type="password" id="clearCartPasswordInput" placeholder="Рамзи худ" autocomplete="off" />
+    </div>
     <div class="confirm-actions">
       <button class="btn btn-ghost" id="clearCartCancelBtn">Не</button>
       <button class="btn btn-danger" id="clearCartConfirmBtn">Ҳа</button>
@@ -952,7 +982,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getDatabase, ref, set, push, onValue, get, onDisconnect, serverTimestamp
+  getDatabase, ref, set, push, onValue, get, onDisconnect, serverTimestamp, remove
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -1030,6 +1060,8 @@ const sound = {
   select: () => tone(540 + Math.random()*260, 0.055, "sine", 0.04),
   deselect: () => tone(320 + Math.random()*100, 0.05, "triangle", 0.03),
   prize: () => { tone(760, 0.05, "sine", 0.045); tone(1080, 0.08, "sine", 0.04, 0.05); },
+  numbersAppear: () => { tone(480, 0.07, "sine", 0.03); tone(680, 0.08, "sine", 0.03, 0.06); tone(920, 0.1, "sine", 0.028, 0.12); },
+  prizesAppear: () => { tone(700, 0.06, "sine", 0.035); tone(940, 0.09, "sine", 0.032, 0.06); },
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .menu-item, .badge-btn, .nav-item, .nav-fab")) sound.click();
@@ -1045,12 +1077,14 @@ function escapeHtml(str){
 const homePrizesEmpty = document.getElementById("homePrizesEmpty");
 const homePrizesRow = document.getElementById("homePrizesRow");
 const homePrizeCountBadge = document.getElementById("homePrizeCountBadge");
+let prizesWerePresent = false;
 onValue(ref(db, "prizes"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   const entries = data ? Object.entries(data) : [];
   const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
   homePrizeCountBadge.textContent = totalQty + " приз" + (totalQty === 1 ? "" : "ҳо");
   if(entries.length === 0){
+    prizesWerePresent = false;
     homePrizesRow.classList.add("hidden");
     homePrizesEmpty.classList.remove("hidden");
     homePrizesRow.innerHTML = "";
@@ -1059,6 +1093,10 @@ onValue(ref(db, "prizes"), (snap) => {
   entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
   homePrizesEmpty.classList.add("hidden");
   homePrizesRow.classList.remove("hidden");
+  // Садо танҳо ҳангоми пайдо шудани призҳо аз ҳолати холӣ мебарояд, на ҳар бор,
+  // ки маълумот бо тағйироти хурд (масалан миқдор) нав мешавад.
+  if(!prizesWerePresent) sound.prizesAppear();
+  prizesWerePresent = true;
   const prizeChipsHtml = entries.map(([id, p], idx) =>
     '<div class="prize-chip" data-id="' + id + '" style="animation-delay:' + (idx * 0.07) + 's">' +
       '<div class="trophy-circle">' +
@@ -1069,21 +1107,32 @@ onValue(ref(db, "prizes"), (snap) => {
       '<span class="p-qty">' + (p.qty ?? 1) + '</span>' +
     '</div>'
   ).join("");
-  // Такрори рӯйхат як маротиба, то ки скроли беохир бе дарзу канор (seamless) намоён шавад
-  homePrizesRow.innerHTML = prizeChipsHtml + prizeChipsHtml;
-
-  homePrizesRow.querySelectorAll(".prize-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      sound.prize();
-      clearTimeout(homePrizeRevertTimer);
-      homePrizesRow.querySelectorAll(".prize-chip.active").forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
-      homePrizeAutoScrollPaused = true;
-      homePrizeRevertTimer = setTimeout(() => {
-        chip.classList.remove("active");
-        homePrizeAutoScrollPaused = false;
-      }, 2000);
+  function bindPrizeChipClicks(){
+    homePrizesRow.querySelectorAll(".prize-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        sound.prize();
+        clearTimeout(homePrizeRevertTimer);
+        homePrizesRow.querySelectorAll(".prize-chip.active").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        homePrizeAutoScrollPaused = true;
+        homePrizeRevertTimer = setTimeout(() => {
+          chip.classList.remove("active");
+          homePrizeAutoScrollPaused = false;
+        }, 2000);
+      });
     });
+  }
+  // Аввал як нусха нишон медиҳем (на такрор), вагарна 1 приз ҳамчун 2 намоён мешуд.
+  homePrizesRow.innerHTML = prizeChipsHtml;
+  bindPrizeChipClicks();
+  // Танҳо агар рӯйхат воқеан аз паҳнои қуттӣ калонтар шавад (яъне ба скроли
+  // беохир ниёз дорад), рӯйхатро як бор такрор мекунем, то ҳаракат бе дарзу
+  // канор (seamless) намоён шавад. Дар акси ҳол (масалан як приз) такрор намекунем.
+  requestAnimationFrame(() => {
+    if(homePrizesRow.scrollWidth > homePrizesRow.clientWidth){
+      homePrizesRow.innerHTML = prizeChipsHtml + prizeChipsHtml;
+      bindPrizeChipClicks();
+    }
   });
 });
 
@@ -1112,11 +1161,13 @@ const homeNumbersEmpty = document.getElementById("homeNumbersEmpty");
 const homeNumbersRow = document.getElementById("homeNumbersRow");
 const homeRoundBadgeRow = document.getElementById("homeRoundBadgeRow");
 let hasActiveNumbers = false;
+let numbersWerePresent = false;
 let currentRoundName = "—";
 onValue(ref(db, "currentRound"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   if(!data || !data.count){
     hasActiveNumbers = false;
+    numbersWerePresent = false;
     currentRoundName = "—";
     homeNumbersRow.classList.add("hidden");
     homeNumbersEmpty.classList.remove("hidden");
@@ -1138,7 +1189,11 @@ onValue(ref(db, "currentRound"), (snap) => {
     html += '<div class="number-chip" style="animation-delay:' + delay + 's">' + i + '</div>';
   }
   homeNumbersRow.innerHTML = html;
+  // Садо танҳо ҳангоми пайдо шудани рӯйхати рақамҳо аз ҳолати холӣ мебарояд.
+  if(!numbersWerePresent) sound.numbersAppear();
+  numbersWerePresent = true;
   if(numbersPurchaseEnabled) homeNumbersRow.classList.add("selectable");
+  applySoldNumbers();
 });
 
 /* Се тугмаи амал: Бозгашт / Харидани рақам (2 клик) / Ба қайд гирифтани рақамҳо — ҳар кадом бо садои худ */
@@ -1248,6 +1303,15 @@ const addToCartBtn = document.getElementById("addToCartBtn");
 const cartBadge = document.getElementById("cartBadge");
 let cartItemsCount = 0;
 let cartEntries = [];
+function refreshCartBadge(){
+  if(cartItemsCount > 0){
+    cartBadge.textContent = cartItemsCount;
+    cartBadge.classList.add("show");
+  } else {
+    cartBadge.classList.remove("show");
+    cartBadge.textContent = "";
+  }
+}
 
 addToCartBtn.addEventListener("click", () => {
   const selectedChips = homeNumbersRow.querySelectorAll(".number-chip.selected");
@@ -1261,20 +1325,40 @@ addToCartBtn.addEventListener("click", () => {
     const now = new Date();
     const dateStr = now.toLocaleDateString("tg-TJ");
     const timeStr = now.toLocaleTimeString("tg-TJ", { hour: "2-digit", minute: "2-digit" });
-    cartEntries.push({
+    const entry = {
       numbers,
       name: registerNameInput.value.trim(),
       phone: registerPhoneInput.value.trim(),
       somon: numbers.length * PRICE_PER_NUMBER_SOMON,
       ruble: numbers.length * PRICE_PER_NUMBER_RUBLE,
       roundName: currentRoundName,
-      dateTime: dateStr + " " + timeStr
-    });
+      dateTime: dateStr + " " + timeStr,
+      status: "pending",
+      orderId: null
+    };
+    cartEntries.push(entry);
+    // Фиристодани фармоиш ба Firebase, то дар утоқи админ (қура-admin) намоён шавад
+    // ва админ тавонад ичозат диҳад ё рад кунад.
+    try{
+      const orderRef = push(ref(db, "orders"));
+      entry.orderId = orderRef.key;
+      set(orderRef, {
+        userId: currentUserId,
+        name: entry.name,
+        phone: entry.phone,
+        numbers: entry.numbers,
+        somon: entry.somon,
+        ruble: entry.ruble,
+        roundName: entry.roundName,
+        dateTime: entry.dateTime,
+        status: "pending",
+        createdAt: Date.now()
+      }).catch(err => console.error(err));
+    } catch(err){
+      console.error(err);
+    }
   }
-  if(cartItemsCount > 0){
-    cartBadge.textContent = cartItemsCount;
-    cartBadge.classList.add("show");
-  }
+  refreshCartBadge();
   registerNumbersBtn.classList.remove("active-green");
   registerCountBadge.classList.remove("show");
 });
@@ -1462,40 +1546,233 @@ const cartModalOverlay = document.getElementById("cartModalOverlay");
 const cartModalClose = document.getElementById("cartModalClose");
 const cartEntriesBox = document.getElementById("cartEntriesBox");
 
+/* ---------------- Фармоишҳо (orders) — синхронизатсия бо утоқи админ ---------------- */
+// Ҳамаи фармоишҳоро аз Firebase мехонем (усули оддии onValue, бе query), баъд
+// дар JS барои корбари ҷорӣ ва даври ҷорӣ филтр мекунем.
+let allOrders = {};
+
+function applySoldNumbers(){
+  if(!homeNumbersRow) return;
+  const soldSet = new Set();
+  Object.values(allOrders).forEach(o => {
+    if(o && o.status === "approved" && o.roundName === currentRoundName && Array.isArray(o.numbers)){
+      o.numbers.forEach(n => soldSet.add(String(n)));
+    }
+  });
+  homeNumbersRow.querySelectorAll(".number-chip").forEach(chip => {
+    if(soldSet.has(chip.textContent)){
+      chip.classList.add("locked", "sold");
+    } else if(chip.classList.contains("sold")){
+      // Рақаме, ки қаблан фурӯхта шуда буд, вале акнун дар Firebase нест
+      // (масалан, тавассути тугмаи "Ресет" дар утоқи админ) — бояд ба
+      // ҳолати аввала (кушода) баргардад.
+      chip.classList.remove("locked", "sold");
+    }
+  });
+}
+
+const REJECTED_TTL_MS = 10 * 60 * 1000; // 10 дақиқа
+function cleanupRejectedOrders(){
+  const now = Date.now();
+  Object.entries(allOrders || {}).forEach(([id, o]) => {
+    if(o && o.status === "rejected"){
+      const rejectedAt = o.rejectedAt || o.createdAt || 0;
+      if(now - rejectedAt >= REJECTED_TTL_MS){
+        remove(ref(db, "orders/" + id)).catch(() => {});
+      }
+    }
+  });
+}
+onValue(ref(db, "orders"), (snap) => {
+  allOrders = snap.exists() ? snap.val() : {};
+  // Статуси ҳар як элементи сабади корбари ҷориро аз Firebase нав мекунем
+  let changed = false;
+  const stillTracked = [];
+  cartEntries.forEach(entry => {
+    if(entry.orderId && !allOrders[entry.orderId]){
+      // Фармоиш аз Firebase пок карда шудааст (масалан, тавассути "Ресет" дар
+      // утоқи админ, ё нест шудани фармоиши радшуда пас аз 10 дақиқа) — рақамҳои
+      // ин фармоиш бояд ба ҳолати аввала (кушода) баргарданд ва аз бадҷи корзина
+      // низ хориҷ карда шаванд.
+      const restoredNums = new Set(entry.numbers);
+      homeNumbersRow.querySelectorAll(".number-chip.locked").forEach(chip => {
+        if(restoredNums.has(chip.textContent) && !chip.classList.contains("sold")){
+          chip.classList.remove("locked");
+        }
+      });
+      cartItemsCount = Math.max(0, cartItemsCount - entry.numbers.length);
+      changed = true;
+      return;
+    }
+    if(entry.orderId && allOrders[entry.orderId]){
+      const newStatus = allOrders[entry.orderId].status || "pending";
+      if(entry.status !== newStatus){
+        if(newStatus === "rejected"){
+          // Агар фармоиш рад карда шуда бошад — рақамҳои интихобкардаи корбар
+          // дар рӯйхати рақамҳо ба ҳолати аввала (кушода, бе қулф) бармегарданд.
+          const rejectedNums = new Set(entry.numbers);
+          homeNumbersRow.querySelectorAll(".number-chip.locked").forEach(chip => {
+            if(rejectedNums.has(chip.textContent) && !chip.classList.contains("sold")){
+              chip.classList.remove("locked");
+            }
+          });
+          // Вақти рад шуданро сабт мекунем, то дар корзина ҳисоби чакрайро
+          // (10 → 1 сония) нишон диҳем ва баъд аз он ин элементро аз рӯйхат хориҷ кунем.
+          entry.rejectedAt = (allOrders[entry.orderId] && allOrders[entry.orderId].rejectedAt) || Date.now();
+        }
+        entry.status = newStatus;
+        changed = true;
+      }
+    }
+    stillTracked.push(entry);
+  });
+  cartEntries = stillTracked;
+
+  // Баъд аз баромадан ва дубора даромадани корбар (ё баъд аз reload) cartEntries
+  // холӣ мешавад (танҳо дар хотираи браузер буд). Барои он ки рақамҳои
+  // харидашуда ва "Успешно"-и корбар гум нашаванд, фармоишҳои ӯро аз Firebase
+  // (allOrders) дубора ба cartEntries бармегардонем.
+  if(currentUserId){
+    const trackedIds = new Set(cartEntries.map(e => e.orderId));
+    Object.entries(allOrders).forEach(([id, o]) => {
+      if(!o || o.userId !== currentUserId || trackedIds.has(id)) return;
+      if(o.status === "rejected"){
+        const rejectedAt = o.rejectedAt || o.createdAt || 0;
+        if(Date.now() - rejectedAt >= 10000) return; // аллакай мӯҳлаташ гузаштааст
+      }
+      cartEntries.push({
+        numbers: o.numbers || [],
+        name: o.name,
+        phone: o.phone,
+        somon: o.somon,
+        ruble: o.ruble,
+        roundName: o.roundName,
+        dateTime: o.dateTime,
+        status: o.status || "pending",
+        orderId: id,
+        rejectedAt: o.rejectedAt || null,
+        createdAt: o.createdAt || 0
+      });
+      cartItemsCount += (o.numbers || []).length;
+      changed = true;
+    });
+    cartEntries.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+    // Рақамҳои фармоишҳои дар интизор/тасдиқшудаи ҳамин корбарро дар рӯйхати
+    // рақамҳо низ қулф мекунем, то баъд аз reload онҳо боз интихобшаванда нашаванд.
+    if(homeNumbersRow){
+      const ownLockedNums = new Set();
+      cartEntries.forEach(e => {
+        if(e.status === "pending" || e.status === "approved"){
+          e.numbers.forEach(n => ownLockedNums.add(String(n)));
+        }
+      });
+      homeNumbersRow.querySelectorAll(".number-chip").forEach(chip => {
+        if(ownLockedNums.has(chip.textContent)) chip.classList.add("locked");
+      });
+    }
+  }
+  refreshCartBadge();
+  applySoldNumbers();
+  cleanupRejectedOrders();
+  if(changed && cartModalOverlay.classList.contains("show")) openCartModal();
+});
+setInterval(cleanupRejectedOrders, 30000);
+
 function openCartModal(){
   if(!cartEntries.length){
     cartEntriesBox.innerHTML = '<div class="cart-empty">Корзина холӣ аст</div>';
-    clearCartBtn.disabled = true;
   } else {
-    clearCartBtn.disabled = false;
-    cartEntriesBox.innerHTML = cartEntries.map(entry =>
-      '<div class="cart-entry-card">' +
-        '<div class="cart-entry-title">Рӯйхати рақамҳои харидашуда</div>' +
-        '<div class="cart-row"><span class="cart-row-label">Давр</span><span class="cart-row-value">' + escapeHtml(entry.roundName || "—") + ' · ' + escapeHtml(entry.dateTime || "—") + '</span></div>' +
-        '<div class="cart-row"><span class="cart-row-label">Ном</span><span class="cart-row-value">' + escapeHtml(entry.name || "—") + '</span></div>' +
-        '<div class="cart-row"><span class="cart-row-label">Рақами телефон</span><span class="cart-row-value">' + escapeHtml(entry.phone || "—") + '</span></div>' +
-        '<div class="cart-row"><span class="cart-row-label">Шумораи рақамҳо</span><span class="cart-row-value">' + entry.numbers.length + ' дона</span></div>' +
-        '<div class="cart-row"><span class="cart-row-label">Нархи умумӣ</span><span class="cart-row-value">' + entry.somon + ' сомон / ' + entry.ruble + ' рубл</span></div>' +
-        '<div class="cart-row cart-row-numbers">' +
-          '<span class="cart-row-label">Рақамҳо</span>' +
-          '<div class="cart-entry-numbers">' +
-            entry.numbers.map(n => '<div class="selected-number-circle">' + escapeHtml(n) + '</div>').join("") +
+    cartEntriesBox.innerHTML = cartEntries.map((entry, idx) => {
+      const status = entry.status || "pending";
+      let statusHtml, rejectXHtml = "", payBtnHtml = "", deleteBtnHtml = "", rejectCountdownRowHtml = "";
+      if(status === "approved"){
+        statusHtml = '<span class="cart-row-value cart-status-success">Успешно</span>';
+      } else if(status === "rejected"){
+        statusHtml = '<span class="cart-row-value cart-status-fail">Не успешно</span>';
+        rejectXHtml = '<div class="cart-reject-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg></div>';
+        deleteBtnHtml = '<button class="cart-entry-delete-btn" data-idx="' + idx + '" title="Нест кардани ин фармоиш"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>';
+        const elapsedSec = Math.floor((Date.now() - (entry.rejectedAt || Date.now())) / 1000);
+        const remainingSec = Math.max(0, 10 - elapsedSec);
+        rejectCountdownRowHtml = '<div class="cart-row cart-row-countdown"><span class="cart-reject-countdown" data-reject-countdown="' + idx + '">Нест мешавад пас аз ' + remainingSec + ' сония</span></div>';
+      } else {
+        statusHtml = '<span class="cart-row-value cart-status-pending">В процессе</span>';
+        payBtnHtml = '<button class="btn pay-btn">Пардохти маблағ</button>';
+        deleteBtnHtml = '<button class="cart-entry-delete-btn" data-idx="' + idx + '" title="Нест кардани ин фармоиш"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>';
+      }
+      return (
+        '<div class="cart-entry-card">' +
+          '<div class="cart-entry-title"><span>Рӯйхати рақамҳои харидашуда</span>' +
+            deleteBtnHtml +
           '</div>' +
-        '</div>' +
-        '<div class="cart-row"><span class="cart-row-label">Статус</span><span class="cart-row-value">В процессе</span></div>' +
-        '<button class="btn pay-btn">Пардохти маблағ</button>' +
-      '</div>'
-    ).join("");
+          '<div class="cart-row"><span class="cart-row-label">Давр</span><span class="cart-row-value">' + escapeHtml(entry.roundName || "—") + ' · ' + escapeHtml(entry.dateTime || "—") + '</span></div>' +
+          '<div class="cart-row"><span class="cart-row-label">Ном</span><span class="cart-row-value">' + escapeHtml(entry.name || "—") + '</span></div>' +
+          '<div class="cart-row"><span class="cart-row-label">Рақами телефон</span><span class="cart-row-value">' + escapeHtml(entry.phone || "—") + '</span></div>' +
+          '<div class="cart-row"><span class="cart-row-label">Шумораи рақамҳо</span><span class="cart-row-value">' + entry.numbers.length + ' дона</span></div>' +
+          '<div class="cart-row"><span class="cart-row-label">Нархи умумӣ</span><span class="cart-row-value">' + entry.somon + ' сомон / ' + entry.ruble + ' рубл</span></div>' +
+          rejectXHtml +
+          '<div class="cart-row cart-row-numbers">' +
+            '<span class="cart-row-label">Рақамҳо</span>' +
+            '<div class="cart-entry-numbers">' +
+              entry.numbers.map(n => '<div class="selected-number-circle' + (status === "approved" ? " approved" : "") + '">' + escapeHtml(n) + '</div>').join("") +
+            '</div>' +
+          '</div>' +
+          '<div class="cart-row"><span class="cart-row-label">Статус</span>' + statusHtml + '</div>' +
+          rejectCountdownRowHtml +
+          payBtnHtml +
+        '</div>'
+      );
+    }).join("");
   }
   cartModalOverlay.classList.add("show");
 }
 function closeCartModal(){
   cartModalOverlay.classList.remove("show");
 }
+
+// Ҳар сония тафтиш мекунем: фармоишҳои радшуда 10 сония пас аз рад шудан
+// аз рӯйхати корзина (клиент-сайд) хориҷ карда мешаванд, ва ҳисоби чакрак
+// (10 → 1) дар зери статус нав карда мешавад.
+setInterval(() => {
+  const now = Date.now();
+  let removed = false;
+  cartEntries = cartEntries.filter(entry => {
+    if(entry.status === "rejected" && entry.rejectedAt){
+      const elapsedSec = Math.floor((now - entry.rejectedAt) / 1000);
+      if(elapsedSec >= 10){
+        cartItemsCount = Math.max(0, cartItemsCount - entry.numbers.length);
+        removed = true;
+        return false;
+      }
+    }
+    return true;
+  });
+  if(removed){
+    refreshCartBadge();
+    if(cartModalOverlay.classList.contains("show")) openCartModal();
+    return;
+  }
+  if(cartModalOverlay.classList.contains("show")){
+    cartEntriesBox.querySelectorAll("[data-reject-countdown]").forEach(el => {
+      const idx = parseInt(el.dataset.rejectCountdown, 10);
+      const entry = cartEntries[idx];
+      if(entry && entry.status === "rejected" && entry.rejectedAt){
+        const remainingSec = Math.max(0, 10 - Math.floor((now - entry.rejectedAt) / 1000));
+        el.textContent = "Нест мешавад пас аз " + remainingSec + " сония";
+      }
+    });
+  }
+}, 1000);
 cartModalClose.addEventListener("click", closeCartModal);
 cartModalOverlay.addEventListener("click", (e) => {
   if(e.target === cartModalOverlay) closeCartModal();
   if(e.target.closest(".pay-btn")) openChatModal();
+  const delBtn = e.target.closest(".cart-entry-delete-btn");
+  if(delBtn){
+    pendingDeleteIdx = parseInt(delBtn.dataset.idx, 10);
+    clearCartPasswordInput.value = "";
+    clearCartPasswordInput.classList.remove("field-error");
+    clearCartConfirmOverlay.classList.add("show");
+  }
 });
 document.addEventListener("keydown", (e) => {
   if(e.key === "Escape" && cartModalOverlay.classList.contains("show")) closeCartModal();
@@ -1505,30 +1782,61 @@ cartBtn.addEventListener("click", () => {
   openCartModal();
 });
 
-const clearCartBtn = document.getElementById("clearCartBtn");
 const clearCartConfirmOverlay = document.getElementById("clearCartConfirmOverlay");
 const clearCartCancelBtn = document.getElementById("clearCartCancelBtn");
 const clearCartConfirmBtn = document.getElementById("clearCartConfirmBtn");
+const clearCartPasswordInput = document.getElementById("clearCartPasswordInput");
+let pendingDeleteIdx = null;
 
-clearCartBtn.addEventListener("click", () => {
-  clearCartConfirmOverlay.classList.add("show");
-});
 clearCartCancelBtn.addEventListener("click", () => {
   clearCartConfirmOverlay.classList.remove("show");
+  pendingDeleteIdx = null;
+});
+clearCartPasswordInput.addEventListener("input", () => {
+  clearCartPasswordInput.classList.remove("field-error");
 });
 clearCartConfirmOverlay.addEventListener("click", (e) => {
-  if(e.target === clearCartConfirmOverlay) clearCartConfirmOverlay.classList.remove("show");
+  if(e.target === clearCartConfirmOverlay){
+    clearCartConfirmOverlay.classList.remove("show");
+    pendingDeleteIdx = null;
+  }
 });
-clearCartConfirmBtn.addEventListener("click", () => {
-  const numbersToRestore = new Set();
-  cartEntries.forEach(entry => entry.numbers.forEach(n => numbersToRestore.add(n)));
-  homeNumbersRow.querySelectorAll(".number-chip.locked").forEach(chip => {
-    if(numbersToRestore.has(chip.textContent)) chip.classList.remove("locked");
-  });
-  cartEntries = [];
-  cartItemsCount = 0;
-  cartBadge.classList.remove("show");
-  cartBadge.textContent = "";
+clearCartConfirmBtn.addEventListener("click", async () => {
+  const enteredPassword = clearCartPasswordInput.value;
+  if(pendingDeleteIdx === null || !enteredPassword || !currentUserId){
+    clearCartPasswordInput.classList.add("field-error");
+    sound.error();
+    return;
+  }
+  try{
+    const userSnap = await get(ref(db, "users/" + currentUserId));
+    const u = userSnap.val();
+    if(!u || u.password !== enteredPassword){
+      clearCartPasswordInput.classList.add("field-error");
+      sound.error();
+      return;
+    }
+  } catch(err){
+    console.error(err);
+    clearCartPasswordInput.classList.add("field-error");
+    sound.error();
+    return;
+  }
+  const entry = cartEntries[pendingDeleteIdx];
+  if(entry){
+    homeNumbersRow.querySelectorAll(".number-chip.locked").forEach(chip => {
+      if(entry.numbers.includes(chip.textContent) && !chip.classList.contains("sold")){
+        chip.classList.remove("locked");
+      }
+    });
+    cartEntries.splice(pendingDeleteIdx, 1);
+    cartItemsCount = Math.max(0, cartItemsCount - entry.numbers.length);
+    refreshCartBadge();
+    if(entry.orderId){
+      remove(ref(db, "orders/" + entry.orderId)).catch(err => console.error(err));
+    }
+  }
+  pendingDeleteIdx = null;
   clearCartConfirmOverlay.classList.remove("show");
   openCartModal();
 });
