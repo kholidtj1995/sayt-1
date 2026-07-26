@@ -268,6 +268,14 @@
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.2);
   }
   .numbers-row.selectable .number-chip.sold{ cursor:not-allowed; }
+  /* Рақамҳое, ки аллакай аз тарафи ягон корбар дархост шудаанд ва дар назди
+     админ дар ҳолати интизорӣ мемонанд — норинҷӣ, то аз "locked"-и худи шумо
+     ва "sold"-и сабз фарқ кунад */
+  .number-chip.pending-taken{
+    background:linear-gradient(180deg,#f0a24b,#d67f2a) !important; color:#fff; cursor:not-allowed !important;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.2);
+  }
+  .numbers-row.selectable .number-chip.pending-taken{ cursor:not-allowed; }
 
   .actions-row{ display:flex; gap:8px; margin-top:2px; }
   .action-btn{
@@ -654,6 +662,34 @@
   @keyframes cartSuccessCircle{ to{ stroke-dashoffset:0; } }
   @keyframes cartSuccessCheck{ to{ stroke-dashoffset:0; } }
 
+  /* Огоҳиномаи "рақам аллакай гирифта шудааст" — ҳамон стил, вале сурх */
+  #numberTakenOverlay{
+    position:fixed; inset:0; z-index:610;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(6,10,20,0.55);
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  #numberTakenOverlay.show{ opacity:1; pointer-events:auto; }
+  .number-taken-frame{
+    width:auto; min-width:132px; max-width:280px; height:auto;
+    flex-direction:column; gap:10px; padding:22px 20px;
+  }
+  .number-taken-frame svg{ width:56px; height:56px; overflow:visible; flex-shrink:0; }
+  .cart-taken-circle{
+    stroke:var(--crimson); stroke-width:3; fill:none;
+    stroke-dasharray:152; stroke-dashoffset:152;
+  }
+  .cart-taken-x{
+    stroke:var(--crimson); stroke-width:4.5; fill:none; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:52; stroke-dashoffset:52;
+  }
+  #numberTakenOverlay.show .cart-taken-circle{ animation:cartSuccessCircle .45s ease forwards; }
+  #numberTakenOverlay.show .cart-taken-x{ animation:cartSuccessCheck .3s ease forwards .4s; }
+  .number-taken-text{
+    margin:0; text-align:center; font-size:0.84rem; font-weight:600;
+    color:var(--text); line-height:1.4;
+  }
+
   /* Connection overlay */
   #connOverlay{
     position:fixed; inset:0; z-index:150;
@@ -710,6 +746,7 @@
   }
   .push-notice-close:hover{ background:var(--crimson); color:#fff; }
   .push-notice-close svg{ width:15px; height:15px; }
+  .push-notice-cta{ width:100%; margin-top:16px; text-decoration:none; }
 
   /* Light theme */
   body.light{
@@ -983,6 +1020,7 @@
     </div>
     <h3>Хабари муҳим!</h3>
     <div class="push-notice-body" id="pushNoticeText"></div>
+    <a class="btn btn-gold push-notice-cta hidden" id="pushNoticeCtaBtn" href="#" target="_blank" rel="noopener noreferrer"></a>
   </div>
 </div>
 
@@ -1033,6 +1071,17 @@
       <circle class="cart-success-circle" cx="26" cy="26" r="23"/>
       <path class="cart-success-check" d="M14 27l7 7 16-16"/>
     </svg>
+  </div>
+</div>
+
+<!-- WARNING: рақами интихобшуда аллакай аз тарафи каси дигар гирифта шудааст -->
+<div id="numberTakenOverlay">
+  <div class="cart-success-frame number-taken-frame">
+    <svg viewBox="0 0 52 52">
+      <circle class="cart-taken-circle" cx="26" cy="26" r="23"/>
+      <path class="cart-taken-x" d="M17 17l18 18M35 17L17 35"/>
+    </svg>
+    <p class="number-taken-text" id="numberTakenText"></p>
   </div>
 </div>
 
@@ -1440,14 +1489,55 @@ function refreshCartBadge(){
   }
 }
 
-addToCartBtn.addEventListener("click", () => {
-  const selectedChips = homeNumbersRow.querySelectorAll(".number-chip.selected");
-  const numbers = Array.from(selectedChips).map(chip => chip.textContent);
+addToCartBtn.addEventListener("click", async () => {
+  const selectedChips = Array.from(homeNumbersRow.querySelectorAll(".number-chip.selected"));
+  if(!selectedChips.length) return;
+
+  addToCartBtn.disabled = true;
+
+  // Санҷиши охирин, бевосита аз базаи умумии Firebase (на аз кэши маҳаллии
+  // allOrders), то ҳатто агар ду корбар айнан дар як лаҳза (race condition)
+  // ҳамон рақамро дархост кунанд, боз ҳам рақами аллакай гирифташуда ба
+  // сабади корбари дуюм дохил нашавад.
+  let freshOrders = allOrders;
+  try{
+    const freshSnap = await get(ref(db, "orders"));
+    freshOrders = freshSnap.exists() ? freshSnap.val() : {};
+  } catch(err){
+    console.error(err);
+    // Агар хониши тоза ноком шавад, бо маълумоти маҳаллии охирин идома медиҳем.
+  }
+
+  const takenNow = new Set();
+  Object.values(freshOrders || {}).forEach(o => {
+    if(o && (o.status === "pending" || o.status === "approved") && o.roundName === currentRoundName && Array.isArray(o.numbers)){
+      o.numbers.forEach(n => takenNow.add(String(n)));
+    }
+  });
+
+  const conflictNums = [];
+  const okChips = [];
   selectedChips.forEach(chip => {
+    if(takenNow.has(chip.textContent)){
+      conflictNums.push(chip.textContent);
+      chip.classList.remove("selected");
+      chip.classList.add("locked", "pending-taken");
+    } else {
+      okChips.push(chip);
+    }
+  });
+
+  if(conflictNums.length){
+    sound.error();
+    showNumberTakenWarning(conflictNums);
+  }
+
+  const numbers = okChips.map(chip => chip.textContent);
+  okChips.forEach(chip => {
     chip.classList.remove("selected");
     chip.classList.add("locked");
   });
-  cartItemsCount += selectedChips.length;
+  cartItemsCount += okChips.length;
   if(numbers.length){
     const now = new Date();
     const dateStr = now.toLocaleDateString("tg-TJ");
@@ -1489,7 +1579,8 @@ addToCartBtn.addEventListener("click", () => {
   registerNumbersBtn.classList.remove("active-green");
   registerCountBadge.classList.remove("show");
   closeRegisterModal();
-  showAddToCartSuccess();
+  if(numbers.length) showAddToCartSuccess();
+  addToCartBtn.disabled = false;
 });
 
 /* Аниматсияи галочкаи сабз: тасдиқи иловашавӣ ба сабад (химоя аз клики такрорӣ) */
@@ -1511,6 +1602,33 @@ function showAddToCartSuccess(){
     addToCartSuccessOverlay.classList.remove("show");
   }, 3000);
 }
+
+/* Огоҳӣ: як ё якчанд рақами интихобшуда аллакай аз тарафи каси дигар гирифта шудааст */
+const numberTakenOverlay = document.getElementById("numberTakenOverlay");
+const numberTakenText = document.getElementById("numberTakenText");
+let numberTakenTimeout = null;
+function showNumberTakenWarning(nums){
+  const list = nums.join(", ");
+  const word = nums.length === 1 ? "рақами" : "рақамҳои";
+  numberTakenText.textContent = "Мутаассифона, " + word + " " + list + " дар ин лаҳза аз тарафи корбари дигар дархост шудааст. Лутфан рақами дигар интихоб кунед.";
+  clearTimeout(numberTakenTimeout);
+  numberTakenOverlay.classList.remove("show");
+  const circleEl = numberTakenOverlay.querySelector(".cart-taken-circle");
+  const xEl = numberTakenOverlay.querySelector(".cart-taken-x");
+  circleEl.style.animation = "none";
+  xEl.style.animation = "none";
+  void numberTakenOverlay.offsetWidth;
+  circleEl.style.animation = "";
+  xEl.style.animation = "";
+  numberTakenOverlay.classList.add("show");
+  numberTakenTimeout = setTimeout(() => {
+    numberTakenOverlay.classList.remove("show");
+  }, 3800);
+}
+numberTakenOverlay.addEventListener("click", () => {
+  clearTimeout(numberTakenTimeout);
+  numberTakenOverlay.classList.remove("show");
+});
 
 homeNumbersRow.addEventListener("click", (e) => {
   if(!numbersPurchaseEnabled) return;
@@ -1588,6 +1706,7 @@ setInterval(checkConnection, CHECK_INTERVAL_MS);
 const pushNoticeOverlay = document.getElementById("pushNoticeOverlay");
 const pushNoticeText = document.getElementById("pushNoticeText");
 const pushNoticeCloseBtn = document.getElementById("pushNoticeCloseBtn");
+const pushNoticeCtaBtn = document.getElementById("pushNoticeCtaBtn");
 const PUSH_NOTICE_SEEN_KEY = "qura_push_notice_seen";
 // updatedAt-и огоҳиномаи ҳозир кушодашуда — то ҳангоми пахши Х донем кадом
 // огоҳиномаро корбар дидааст ва барои он "дидашуд" сабт кунем.
@@ -1706,6 +1825,18 @@ pushNoticeText.addEventListener("click", (e) => {
     window.location.href = href;
   }
 });
+pushNoticeCtaBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const href = pushNoticeCtaBtn.getAttribute("href");
+  markPushNoticeViewed();
+  if(!href) return;
+  let opened = null;
+  try{ opened = window.open(href, "_blank", "noopener,noreferrer"); }catch(err){ opened = null; }
+  if(!opened){
+    window.location.href = href;
+  }
+});
 document.addEventListener("keydown", (e) => {
   if(e.key === "Escape" && pushNoticeOverlay.classList.contains("show")){
     sound.close();
@@ -1716,6 +1847,16 @@ document.addEventListener("keydown", (e) => {
 // Огоҳиномаро воқеан кушода ва нишон медиҳад (танҳо агар корбар дар home бошад).
 function displayPushNotice(data){
   pushNoticeText.innerHTML = linkifyPushText(data.text);
+  // Агар админ тугмаи "Даромадан" (ё номи дигар) бо сылка гузошта бошад,
+  // онро дар поёни матн нишон медиҳем — клики корбар ӯро ба ҳамон сылка мебарад.
+  if(data.btnLink){
+    pushNoticeCtaBtn.textContent = data.btnLabel || "Даромадан";
+    pushNoticeCtaBtn.href = data.btnLink;
+    pushNoticeCtaBtn.classList.remove("hidden");
+  } else {
+    pushNoticeCtaBtn.classList.add("hidden");
+    pushNoticeCtaBtn.removeAttribute("href");
+  }
   currentPushNoticeUpdatedAt = data.updatedAt;
   appRoot.classList.add("notice-blur");
   pushNoticeOverlay.classList.add("show");
@@ -1872,19 +2013,33 @@ let allOrders = {};
 function applySoldNumbers(){
   if(!homeNumbersRow) return;
   const soldSet = new Set();
+  // pendingSet: рақамҳое, ки АЛЛАКАЙ аз тарафи ягон корбар (новобаста аз кӣ)
+  // дархост шудаанд ва ҳанӯз дар назди админ дар ҳолати интизорӣ мемонанд.
+  // То даме ки админ тасдиқ ё рад накунад, ин рақамҳо бояд барои ҲАМАИ дигар
+  // корбарон қулф бошанд, то якчанд корбар натавонанд як рақами дархостшударо
+  // якбора интихоб ва ба сабади худ илова кунанд.
+  const pendingSet = new Set();
   Object.values(allOrders).forEach(o => {
-    if(o && o.status === "approved" && o.roundName === currentRoundName && Array.isArray(o.numbers)){
+    if(!o || o.roundName !== currentRoundName || !Array.isArray(o.numbers)) return;
+    if(o.status === "approved"){
       o.numbers.forEach(n => soldSet.add(String(n)));
+    } else if(o.status === "pending"){
+      o.numbers.forEach(n => pendingSet.add(String(n)));
     }
   });
   homeNumbersRow.querySelectorAll(".number-chip").forEach(chip => {
-    if(soldSet.has(chip.textContent)){
+    const num = chip.textContent;
+    if(soldSet.has(num)){
       chip.classList.add("locked", "sold");
-    } else if(chip.classList.contains("sold")){
-      // Рақаме, ки қаблан фурӯхта шуда буд, вале акнун дар Firebase нест
-      // (масалан, тавассути тугмаи "Ресет" дар утоқи админ) — бояд ба
-      // ҳолати аввала (кушода) баргардад.
-      chip.classList.remove("locked", "sold");
+      chip.classList.remove("pending-taken");
+    } else if(pendingSet.has(num)){
+      chip.classList.add("locked", "pending-taken");
+      chip.classList.remove("sold");
+    } else if(chip.classList.contains("sold") || chip.classList.contains("pending-taken")){
+      // Рақаме, ки қаблан фурӯхта шуда буд ё дар интизор буд, вале акнун дар
+      // Firebase нест (масалан, тавассути тугмаи "Ресет" дар утоқи админ, ё
+      // рад/тасдиқи фармоиш) — бояд ба ҳолати аввала (кушода) баргардад.
+      chip.classList.remove("locked", "sold", "pending-taken");
     }
   });
 }
