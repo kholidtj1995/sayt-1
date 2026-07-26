@@ -200,6 +200,14 @@
   .icon-btn:hover{ background:var(--surface); }
   .icon-btn:active{ transform:scale(0.88); }
   .icon-btn svg{ width:17px; height:17px; }
+  #liveSetBtn.live-active{
+    background:#ef4444; border-color:#ef4444; color:#ffffff;
+    animation:liveSetBlink 1.1s ease-in-out infinite;
+  }
+  @keyframes liveSetBlink{
+    0%, 100%{ opacity:1; box-shadow:0 0 0 0 rgba(239,68,68,0.55); }
+    50%{ opacity:0.72; box-shadow:0 0 0 6px rgba(239,68,68,0); }
+  }
   #chatBtn{ background:#3b82f6; border-color:#3b82f6; color:#ffffff; position:relative; overflow:visible; }
   #chatBtn:hover{ background:#2563eb; }
   .chat-unread-badge{
@@ -663,6 +671,9 @@
     </div>
     <div class="top-actions">
       <div class="icon-group">
+        <button class="icon-btn" id="liveSetBtn" title="Эфир мон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M8.5 8.5a5 5 0 000 7"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M5.5 5.5a9.5 9.5 0 000 13"/><path d="M18.5 5.5a9.5 9.5 0 010 13"/></svg>
+        </button>
         <button class="icon-btn" id="pushNotifBtn" title="Огоҳии пуш">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>
         </button>
@@ -1023,6 +1034,58 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-gold" id="pushNotifSendBtn" style="width:100%;">Ирсол кардан</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE BROADCAST (ЭФИР) SET MODAL -->
+<div id="liveSetModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <h3>Эфир мон</h3>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn" id="liveAnalyticsBtn" title="Аналитика">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        </button>
+        <button class="modal-close" data-close="liveSetModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Сылкаи эфир</label>
+      <input type="text" id="liveSetLinkInput" placeholder="https://youtube.com/watch?v=... ё https://youtu.be/..." />
+      <p style="margin:6px 0 0;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">Танҳо сылкаи МУШАХХАСИ видео/эфир гузоред (масалан аз тугмаи "Share" зери видео дар YouTube). Сылкаи танҳои канал (масалан youtube.com/@ном/live) аз тарафи YouTube дар барнома кушода намешавад.</p>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" id="liveSetDeleteBtn" style="flex:1;color:#ef4444;">Нест кардан</button>
+      <button type="button" class="btn btn-ghost" id="liveSetSaveBtn" style="flex:1;">Сабт</button>
+      <button type="button" class="btn btn-gold" id="liveSetSendBtn" style="flex:1;">Ирсол кардан</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE ANALYTICS (кӣ ба тугмаи эфир клик кард) MODAL -->
+<div id="liveAnalyticsModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h3>Аналитикаи эфир <span id="liveAnalyticsCount" style="color:var(--text-muted);font-weight:600;font-size:0.85rem;"></span></h3>
+      <button class="modal-close" data-close="liveAnalyticsModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div id="liveAnalyticsEmpty" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      <p>Ҳанӯз ҳеҷ кас ба тугмаи эфир клик накардааст</p>
+    </div>
+    <div style="max-height:60vh;overflow-y:auto;">
+      <table id="liveAnalyticsTable" class="users-table hidden">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Ном</th>
+            <th>Рақами телефон</th>
+            <th>Вақти клик</th>
+          </tr>
+        </thead>
+        <tbody id="liveAnalyticsTableBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -2221,6 +2284,117 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
         }
       }
     );
+  }
+});
+
+/* ---------------- Эфир (пахши зинда — тугма дар индекс) ---------------- */
+const liveSetBtn = document.getElementById("liveSetBtn");
+const liveSetLinkInput = document.getElementById("liveSetLinkInput");
+const liveSetSaveBtn = document.getElementById("liveSetSaveBtn");
+const liveSetSendBtn = document.getElementById("liveSetSendBtn");
+const liveSetDeleteBtn = document.getElementById("liveSetDeleteBtn");
+
+let savedLiveLink = "";
+
+onValue(ref(db, "liveBroadcast"), (snap) => {
+  const data = snap.val();
+  savedLiveLink = (data && data.link) ? data.link : "";
+  liveSetBtn.classList.toggle("live-active", !!(data && data.active));
+}, (err) => {
+  console.error("Хатои хондани liveBroadcast аз Firebase:", err);
+});
+
+liveSetBtn.addEventListener("click", () => {
+  liveSetLinkInput.value = savedLiveLink;
+  openModal("liveSetModal");
+});
+
+liveSetSaveBtn.addEventListener("click", async () => {
+  const link = liveSetLinkInput.value.trim();
+  if(!link){
+    showToast("Сылкаро нависед.", "error");
+    return;
+  }
+  try{
+    await update(ref(db, "liveBroadcast"), { link, updatedAt: Date.now() });
+    savedLiveLink = link;
+    showToast("Сылка сабт шуд ✅", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои сабти сылка.", "error");
+  }
+});
+
+liveSetSendBtn.addEventListener("click", async () => {
+  const link = liveSetLinkInput.value.trim() || savedLiveLink;
+  if(!link){
+    showToast("Сылкаро нависед.", "error");
+    return;
+  }
+  try{
+    await set(ref(db, "liveBroadcast"), { link, active: true, updatedAt: Date.now() });
+    savedLiveLink = link;
+    showToast("Эфир фиристода шуд ✅", "success");
+    closeModal("liveSetModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои ирсоли эфир.", "error");
+  }
+});
+
+// Эфирро нест мекунад — тугмаи сурхи мигаткунанда дар индекс дарҳол пинҳон мешавад.
+liveSetDeleteBtn.addEventListener("click", async () => {
+  try{
+    await remove(ref(db, "liveBroadcast"));
+    savedLiveLink = "";
+    liveSetLinkInput.value = "";
+    showToast("Эфир нест карда шуд ✅", "success");
+    closeModal("liveSetModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои нест кардани эфир.", "error");
+  }
+});
+
+/* ---------------- Аналитикаи эфир (кӣ ба тугмаи эфир дар индекс клик кард) ---------------- */
+const liveAnalyticsBtn = document.getElementById("liveAnalyticsBtn");
+const liveAnalyticsEmpty = document.getElementById("liveAnalyticsEmpty");
+const liveAnalyticsTable = document.getElementById("liveAnalyticsTable");
+const liveAnalyticsTableBody = document.getElementById("liveAnalyticsTableBody");
+let liveClicksLoaded = false;
+
+function renderLiveAnalyticsTable(data){
+  const entries = Object.entries(data || {});
+  const countEl = document.getElementById("liveAnalyticsCount");
+  countEl.textContent = entries.length ? `(${entries.length} нафар клик кардаанд)` : "";
+  if(entries.length === 0){
+    liveAnalyticsTable.classList.add("hidden");
+    liveAnalyticsEmpty.classList.remove("hidden");
+    liveAnalyticsTableBody.innerHTML = "";
+    return;
+  }
+  entries.sort((a,b) => (b[1].clickedAt||0) - (a[1].clickedAt||0));
+  liveAnalyticsEmpty.classList.add("hidden");
+  liveAnalyticsTable.classList.remove("hidden");
+  liveAnalyticsTableBody.innerHTML = entries.map(([id, c], i) => `
+    <tr>
+      <td class="u-idx">${i+1}</td>
+      <td class="u-name">${escapeHtml(c.name || "—")}</td>
+      <td>${escapeHtml(c.phone || "—")}</td>
+      <td class="u-date">${fmtDate(c.clickedAt)}</td>
+    </tr>
+  `).join("");
+}
+
+liveAnalyticsBtn.addEventListener("click", () => {
+  openModal("liveAnalyticsModal");
+  if(!liveClicksLoaded){
+    liveClicksLoaded = true;
+    onValue(ref(db, "liveClicks"), (snap) => {
+      renderLiveAnalyticsTable(snap.val());
+    }, (err) => {
+      console.error("Хатои хондани liveClicks аз Firebase:", err);
+    });
   }
 });
 
