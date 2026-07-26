@@ -996,6 +996,14 @@
       <label>Матни огоҳинома</label>
       <textarea id="pushNotifText" rows="4" placeholder="Матни хабарро барои ҳамаи корбарон нависед..."></textarea>
     </div>
+    <div class="field">
+      <label>Номи тугма (масалан: Даромадан)</label>
+      <input type="text" id="pushNotifBtnLabel" placeholder="Даромадан" />
+    </div>
+    <div class="field">
+      <label>Сылкаи тугма (баъд аз клик корбар ба ин ҷо равона мешавад)</label>
+      <input type="text" id="pushNotifBtnLink" placeholder="https://..." />
+    </div>
     <div class="push-notif-preview-wrap">
       <div class="push-preview-head">
         <span class="total-amount-label">Пешнамоиш — корбар чунин мебинад</span>
@@ -1010,6 +1018,7 @@
         </div>
         <div class="push-notif-preview-title">Хабари муҳим!</div>
         <div class="push-notif-preview-text" id="pushNotifPreviewText">Матни хабар дар ин ҷо намоён мешавад...</div>
+        <button class="btn btn-gold push-notif-preview-btn hidden" id="pushNotifPreviewBtn" type="button" style="width:100%;margin-top:10px;">Даромадан</button>
       </div>
     </div>
     <div class="modal-foot">
@@ -1666,7 +1675,7 @@ const orderCtxMenu = document.getElementById("orderCtxMenu");
 const playersTable = document.getElementById("playersTable");
 const playersTableEmpty = document.getElementById("playersTableEmpty");
 const playersTableBody = document.getElementById("playersTableBody");
-let ctxOrderId = null;
+let ctxOrderIds = [];
 let notifShakeTimer = null;
 let notifSearchQuery = "";
 let playersSearchQuery = "";
@@ -1738,23 +1747,51 @@ function renderNotifList(data){
   }
   notifEmpty.classList.add("hidden");
   notifListEl.classList.remove("hidden");
-  entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
-  notifListEl.innerHTML = entries.map(([id, o]) => `
-    <div class="notif-item" data-id="${id}">
+  // Гурӯҳбандӣ бар асоси рақами телефон — агар як корбар якчанд фармоиш
+  // (сабад) фиристода бошад, номаш дар рӯйхат якчанд бор такрор намеёбад;
+  // ҳамаи фармоишҳои ӯ дар як корти ягона ҷамъ мешаванд ва тугмаи "..."
+  // амали тасдиқ/рад-ро ба ҳамаи онҳо якбора татбиқ мекунад.
+  const groupsMap = new Map();
+  entries.forEach(([id, o]) => {
+    const key = o.phone || ("__noPhone__:" + (o.name || id));
+    let g = groupsMap.get(key);
+    if(!g){
+      g = { ids: [], name: o.name, phone: o.phone, numbersCount: 0, latestCreatedAt: 0, roundName: o.roundName, dateTime: o.dateTime };
+      groupsMap.set(key, g);
+    }
+    g.ids.push(id);
+    g.numbersCount += (o.numbers || []).length;
+    const createdAt = o.createdAt || 0;
+    if(createdAt >= g.latestCreatedAt){
+      g.latestCreatedAt = createdAt;
+      g.name = o.name || g.name;
+      g.roundName = o.roundName;
+      g.dateTime = o.dateTime;
+    }
+  });
+  const groups = Array.from(groupsMap.values());
+  groups.sort((a,b) => b.latestCreatedAt - a.latestCreatedAt);
+  notifListEl.innerHTML = groups.map(g => {
+    const idsAttr = g.ids.join(",");
+    const reqPrefix = g.ids.length > 1 ? (g.ids.length + " фармоиш · ") : "";
+    return `
+    <div class="notif-item" data-ids="${idsAttr}">
       <div>
-        <div class="notif-item-name">${escapeHtml(o.name || "—")}</div>
-        <div class="notif-item-phone">${escapeHtml(o.phone || "—")}</div>
-        <div class="notif-item-meta">${(o.numbers || []).length} рақам · ${escapeHtml(o.roundName || "—")} · ${escapeHtml(o.dateTime || "—")}</div>
+        <div class="notif-item-name">${escapeHtml(g.name || "—")}</div>
+        <div class="notif-item-phone">${escapeHtml(g.phone || "—")}</div>
+        <div class="notif-item-meta">${reqPrefix}${g.numbersCount} рақам · ${escapeHtml(g.roundName || "—")} · ${escapeHtml(g.dateTime || "—")}</div>
       </div>
-      <button class="u-dots-btn" data-id="${id}" title="Амалҳо">
+      <button class="u-dots-btn" data-ids="${idsAttr}" title="Амалҳо">
         <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
       </button>
     </div>
-  `).join("");
+  `;
+  }).join("");
   notifListEl.querySelectorAll(".u-dots-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      openOrderCtxMenu(btn.dataset.id, btn);
+      const ids = btn.dataset.ids.split(",").filter(Boolean);
+      openOrderCtxMenu(ids, btn);
     });
   });
 }
@@ -1866,8 +1903,8 @@ setInterval(() => {
   }
 }, 1000);
 
-function openOrderCtxMenu(id, anchorBtn){
-  ctxOrderId = id;
+function openOrderCtxMenu(ids, anchorBtn){
+  ctxOrderIds = Array.isArray(ids) ? ids : [ids];
   const rect = anchorBtn.getBoundingClientRect();
   orderCtxMenu.classList.remove("hidden");
   const menuW = 200;
@@ -1880,7 +1917,7 @@ function openOrderCtxMenu(id, anchorBtn){
 }
 function closeOrderCtxMenu(){
   orderCtxMenu.classList.add("hidden");
-  ctxOrderId = null;
+  ctxOrderIds = [];
 }
 document.addEventListener("click", (e) => {
   if(!orderCtxMenu.classList.contains("hidden") && !orderCtxMenu.contains(e.target)){
@@ -1891,10 +1928,16 @@ document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeOrderC
 
 orderCtxMenu.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-act]");
-  if(!btn || !ctxOrderId) return;
+  if(!btn || !ctxOrderIds.length) return;
   const act = btn.dataset.act;
-  const id = ctxOrderId;
-  const o = ordersCache[id] || {};
+  const ids = ctxOrderIds;
+  // Барои амалҳои viewCart/message маълумоти намояндагӣ (ном/телефон)-ро аз
+  // фармоиши охирин (аз рӯи вақти сохта шудан) мегирем.
+  let o = ordersCache[ids[0]] || {};
+  ids.forEach(oid => {
+    const cand = ordersCache[oid];
+    if(cand && (cand.createdAt || 0) >= (o.createdAt || 0)) o = cand;
+  });
   closeOrderCtxMenu();
 
   if(act === "viewCart"){
@@ -1911,16 +1954,17 @@ orderCtxMenu.addEventListener("click", async (e) => {
     openModal("chatModal");
   } else if(act === "approve"){
     try{
-      await update(ref(db, "orders/" + id), { status: "approved" });
-      showToast("Фармоиш тасдиқ карда шуд — рақамҳо сабз шуданд", "success");
+      await Promise.all(ids.map(oid => update(ref(db, "orders/" + oid), { status: "approved" })));
+      showToast(ids.length > 1 ? "Ҳамаи фармоишҳо тасдиқ карда шуданд — рақамҳо сабз шуданд" : "Фармоиш тасдиқ карда шуд — рақамҳо сабз шуданд", "success");
     } catch(err){
       console.error(err);
       showToast("Хатои тасдиқ кардани фармоиш.", "error");
     }
   } else if(act === "reject"){
     try{
-      await update(ref(db, "orders/" + id), { status: "rejected", rejectedAt: Date.now() });
-      showToast("Фармоиш рад карда шуд", "error");
+      const now = Date.now();
+      await Promise.all(ids.map(oid => update(ref(db, "orders/" + oid), { status: "rejected", rejectedAt: now })));
+      showToast(ids.length > 1 ? "Ҳамаи фармоишҳо рад карда шуданд" : "Фармоиш рад карда шуд", "error");
     } catch(err){
       console.error(err);
       showToast("Хатои рад кардани фармоиш.", "error");
@@ -1940,7 +1984,10 @@ document.getElementById("usersBtn").addEventListener("click", () => {
 /* ---------------- Push огоҳинома (уведомление ба ҳамаи корбарон) ---------------- */
 const pushNotifBtn = document.getElementById("pushNotifBtn");
 const pushNotifText = document.getElementById("pushNotifText");
+const pushNotifBtnLabel = document.getElementById("pushNotifBtnLabel");
+const pushNotifBtnLink = document.getElementById("pushNotifBtnLink");
 const pushNotifPreviewText = document.getElementById("pushNotifPreviewText");
+const pushNotifPreviewBtn = document.getElementById("pushNotifPreviewBtn");
 const pushNotifSendBtn = document.getElementById("pushNotifSendBtn");
 const pushNotifCtxBtn = document.getElementById("pushNotifCtxBtn");
 const pushNotifCtxMenu = document.getElementById("pushNotifCtxMenu");
@@ -1992,6 +2039,8 @@ pushNotifBtn.addEventListener("click", () => {
 // гирад ва чашм шумораи биноандагонро нишон диҳад.
 let activePushNoticeText = "";
 let activePushNoticeViews = 0;
+let activePushNoticeBtnLabel = "";
+let activePushNoticeBtnLink = "";
 
 function updatePushNotifPreview(){
   const draft = pushNotifText.value.trim();
@@ -2000,8 +2049,20 @@ function updatePushNotifPreview(){
   const count = activePushNoticeText ? activePushNoticeViews : 0;
   pushNotifViewsCount.textContent = count;
   pushNotifViewsWrap.classList.toggle("has-views", count > 0);
+  // Тугмаи "Даромадан" (ё номи дигаре, ки админ навиштааст) — танҳо агар
+  // сылка пур шуда бошад дар пешнамоиш нишон дода мешавад.
+  const label = pushNotifBtnLabel.value.trim() || activePushNoticeBtnLabel;
+  const link = pushNotifBtnLink.value.trim() || activePushNoticeBtnLink;
+  if(link){
+    pushNotifPreviewBtn.textContent = label || "Даромадан";
+    pushNotifPreviewBtn.classList.remove("hidden");
+  } else {
+    pushNotifPreviewBtn.classList.add("hidden");
+  }
 }
 pushNotifText.addEventListener("input", updatePushNotifPreview);
+pushNotifBtnLabel.addEventListener("input", updatePushNotifPreview);
+pushNotifBtnLink.addEventListener("input", updatePushNotifPreview);
 
 let pushNoticeViewsWerePresent = 0;
 onValue(ref(db, "pushNotice"), (snap) => {
@@ -2009,6 +2070,8 @@ onValue(ref(db, "pushNotice"), (snap) => {
     const data = snap.val();
     activePushNoticeText = (data && data.text) ? data.text : "";
     activePushNoticeViews = (data && data.views) ? Object.keys(data.views).length : 0;
+    activePushNoticeBtnLabel = (data && data.btnLabel) ? data.btnLabel : "";
+    activePushNoticeBtnLink = (data && data.btnLink) ? data.btnLink : "";
     if(activePushNoticeViews > pushNoticeViewsWerePresent) sound.pushViewsPing();
     pushNoticeViewsWerePresent = activePushNoticeViews;
   } catch(err){
@@ -2025,15 +2088,26 @@ pushNotifSendBtn.addEventListener("click", async () => {
     showToast("Матни огоҳиномаро нависед.", "error");
     return;
   }
+  const btnLabel = pushNotifBtnLabel.value.trim();
+  const btnLink = pushNotifBtnLink.value.trim();
   try{
-    await set(ref(db, "pushNotice"), { text, updatedAt: Date.now() });
+    const payload = { text, updatedAt: Date.now() };
+    if(btnLink){
+      payload.btnLabel = btnLabel || "Даромадан";
+      payload.btnLink = btnLink;
+    }
+    await set(ref(db, "pushNotice"), payload);
     showToast("Огоҳинома ба ҳамаи корбарон ирсол шуд ✅", "success");
     // Матн аз қуттии огоҳинома нест мешавад, вале дар қуттии пешнамоиш
     // (чунин корбар мебинад) боқӣ мемонад — activePushNoticeText аллакай
     // аз Firebase шунида мешавад, бинобар ин фавран low-latency нишон медиҳем.
     activePushNoticeText = text;
     activePushNoticeViews = 0;
+    activePushNoticeBtnLabel = payload.btnLabel || "";
+    activePushNoticeBtnLink = payload.btnLink || "";
     pushNotifText.value = "";
+    pushNotifBtnLabel.value = "";
+    pushNotifBtnLink.value = "";
     updatePushNotifPreview();
     closeModal("pushNotifModal");
   } catch(err){
@@ -2093,6 +2167,8 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
   if(act === "edit"){
     if(activePushNoticeText){
       pushNotifText.value = activePushNoticeText;
+      pushNotifBtnLabel.value = activePushNoticeBtnLabel;
+      pushNotifBtnLink.value = activePushNoticeBtnLink;
       updatePushNotifPreview();
       sound.pushEdit();
       showToast("Матн аз пешнамоиш барои таҳрир бор карда шуд", "info");
@@ -2107,8 +2183,12 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
         try{
           await remove(ref(db, "pushNotice"));
           pushNotifText.value = "";
+          pushNotifBtnLabel.value = "";
+          pushNotifBtnLink.value = "";
           activePushNoticeText = "";
           activePushNoticeViews = 0;
+          activePushNoticeBtnLabel = "";
+          activePushNoticeBtnLink = "";
           updatePushNotifPreview();
           sound.pushClear();
           showToast("Матн аз ҳарду қуттӣ пок карда шуд", "info");
@@ -2126,8 +2206,12 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
         try{
           await remove(ref(db, "pushNotice"));
           pushNotifText.value = "";
+          pushNotifBtnLabel.value = "";
+          pushNotifBtnLink.value = "";
           activePushNoticeText = "";
           activePushNoticeViews = 0;
+          activePushNoticeBtnLabel = "";
+          activePushNoticeBtnLink = "";
           updatePushNotifPreview();
           sound.pushDelete();
           showToast("Огоҳинома нест карда шуд", "success");
