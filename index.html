@@ -1627,19 +1627,30 @@ function escapePushHtml(str){
   return str.replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function linkifyPushText(text){
-  const escaped = escapePushHtml(text);
-  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi;
-  return escaped.replace(urlRegex, (match) => {
-    let trail = "";
-    const trailMatch = match.match(/[.,!?)\]]+$/);
-    let core = match;
-    if(trailMatch){
-      trail = trailMatch[0];
-      core = match.slice(0, -trail.length);
-    }
-    const href = /^https?:\/\//i.test(core) ? core : "https://" + core;
-    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${core}</a>${trail}`;
-  });
+  try{
+    // Ҳам http(s)://ва www., ҳам доменҳои холис (масалан "behruztv.ru" бе
+    // ҳеҷ пешоянд) ба силкаи кликшаванда табдил меёбанд, то новобаста аз он,
+    // ки админ силкаро чӣ тавр навиштааст, вай ҳамеша дуруст намоиш ёбад.
+    const escaped = escapePushHtml(text);
+    const urlRegex = /((https?:\/\/|www\.)[^\s<]+|\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}(?:\/[^\s<]*)?)/gi;
+    return escaped.replace(urlRegex, (match) => {
+      let trail = "";
+      const trailMatch = match.match(/[.,!?)\]]+$/);
+      let core = match;
+      if(trailMatch){
+        trail = trailMatch[0];
+        core = match.slice(0, -trail.length);
+      }
+      if(!core) return match;
+      const href = /^https?:\/\//i.test(core) ? core : "https://" + core;
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer">${core}</a>${trail}`;
+    });
+  } catch(err){
+    // Дар ҳар ҳолати хато — матни аслии огоҳиномаро (бехатар escape-шуда)
+    // нишон медиҳем, на ки чизи вайроншуда ё аломати аҷиб.
+    console.error("Хатои linkifyPushText:", err);
+    return escapePushHtml(text);
+  }
 }
 
 function closePushNotice(){
