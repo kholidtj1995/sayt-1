@@ -1954,19 +1954,29 @@ const pushNotifConfirmYesBtn = document.getElementById("pushNotifConfirmYesBtn")
 // Матни аллакай escape-шударо мегирад ва сылкаҳоро (http/https/www.) ба
 // теги <a> кликшаванда табдил медиҳад — дар пешнамоиши огоҳии пуш низ кор кунад.
 function linkifyAdmin(escapedText){
-  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi;
-  return escapedText.replace(urlRegex, (match) => {
-    let trail = "";
-    const trailMatch = match.match(/[).,!?:;]+$/);
-    let core = match;
-    if(trailMatch){
-      trail = trailMatch[0];
-      core = match.slice(0, match.length - trail.length);
-    }
-    let href = core;
-    if(!/^https?:\/\//i.test(href)) href = "https://" + href;
-    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${core}</a>${trail}`;
-  });
+  try{
+    // Ҳам http(s)://ва www., ҳам доменҳои холис (масалан "behruztv.ru" бе
+    // ҳеҷ пешоянд) ба силкаи кликшаванда табдил меёбанд, то новобаста аз он,
+    // ки силка чӣ тавр навишта шудааст, вай ҳамеша дуруст намоиш ёбад.
+    const urlRegex = /((https?:\/\/|www\.)[^\s<]+|\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}(?:\/[^\s<]*)?)/gi;
+    return escapedText.replace(urlRegex, (match) => {
+      let trail = "";
+      const trailMatch = match.match(/[).,!?:;]+$/);
+      let core = match;
+      if(trailMatch){
+        trail = trailMatch[0];
+        core = match.slice(0, match.length - trail.length);
+      }
+      if(!core) return match;
+      let href = core;
+      if(!/^https?:\/\//i.test(href)) href = "https://" + href;
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer">${core}</a>${trail}`;
+    });
+  } catch(err){
+    // Дар ҳар ҳолати хато — матни аслиро бармегардонем, на чизи вайроншуда.
+    console.error("Хатои linkifyAdmin:", err);
+    return escapedText;
+  }
 }
 
 pushNotifBtn.addEventListener("click", () => {
