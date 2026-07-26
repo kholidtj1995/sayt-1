@@ -2346,6 +2346,7 @@ liveSetSendBtn.addEventListener("click", async () => {
 liveSetDeleteBtn.addEventListener("click", async () => {
   try{
     await remove(ref(db, "liveBroadcast"));
+    await remove(ref(db, "liveClicks"));
     savedLiveLink = "";
     liveSetLinkInput.value = "";
     showToast("Эфир нест карда шуд ✅", "success");
