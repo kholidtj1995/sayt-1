@@ -700,6 +700,8 @@
   .push-notice-icon svg{ width:28px; height:28px; }
   .push-notice-box h3{ margin:0 0 12px; font-size:1.15rem; color:var(--gold-2); font-family:'Unbounded', sans-serif; }
   .push-notice-body{ font-size:0.92rem; line-height:1.65; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+  .push-notice-body a{ color:var(--gold-2); text-decoration:underline; word-break:break-all; }
+  .push-notice-body a:active{ opacity:0.7; }
   .push-notice-close{
     position:absolute; top:12px; right:12px;
     width:30px; height:30px; border-radius:50%;
@@ -1587,10 +1589,63 @@ const pushNoticeOverlay = document.getElementById("pushNoticeOverlay");
 const pushNoticeText = document.getElementById("pushNoticeText");
 const pushNoticeCloseBtn = document.getElementById("pushNoticeCloseBtn");
 const PUSH_NOTICE_SEEN_KEY = "qura_push_notice_seen";
+// updatedAt-и огоҳиномаи ҳозир кушодашуда — то ҳангоми пахши Х донем кадом
+// огоҳиномаро корбар дидааст ва барои он "дидашуд" сабт кунем.
+let currentPushNoticeUpdatedAt = null;
+
+// Ҳар дастгоҳ (ҳатто агар корбар ҳанӯз вориди система нашуда бошад — масалан
+// дар экрани логин) як рамзи беному доимӣ мегирад, то фаъолияти дидани
+// огоҳинома ҳамеша сабт шавад. Агар корбар вориди система шуда бошад,
+// currentUserId бартарӣ дорад (то дар оянда бо номи корбар мутобиқ шавад).
+const PUSH_DEVICE_ID_KEY = "qura_device_id";
+function getPushDeviceId(){
+  let id = localStorage.getItem(PUSH_DEVICE_ID_KEY);
+  if(!id){
+    id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(PUSH_DEVICE_ID_KEY, id);
+  }
+  return id;
+}
+
+// Ба Firebase сабт мекунад, ки ин корбар/дастгоҳ огоҳиномаро дидааст (тугмаи
+// Х-ро пахш кард ё берун аз он клик кард), то дар қуттии админ (чашм/шумораи
+// биноандагон) дуруст ҳисоб шавад. Хатогиҳо акнун дар консол намоён мешаванд,
+// то дар сурати мушкили иҷозат/пайваст фавран дида шавад.
+function markPushNoticeViewed(){
+  if(!currentPushNoticeUpdatedAt) return;
+  const viewerId = currentUserId || getPushDeviceId();
+  const noticeStamp = currentPushNoticeUpdatedAt;
+  currentPushNoticeUpdatedAt = null;
+  set(ref(db, "pushNotice/views/" + viewerId), true)
+    .catch((err) => console.error("Хатои сабти дидани огоҳинома (pushNotice/views):", err, "noticeStamp:", noticeStamp));
+}
+
+// Матни хабари муҳимро бехатар ба HTML табдил медиҳад ва ҳар силкаи (URL)
+// дохили он-ро ба тугмаи <a> воқеан клик-шаванда мегардонад (танҳо textContent
+// буд, аз ин рӯ силка танҳо ҳамчун матни оддӣ намоиш меёфт ва клик кор намекард).
+function escapePushHtml(str){
+  return str.replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function linkifyPushText(text){
+  const escaped = escapePushHtml(text);
+  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi;
+  return escaped.replace(urlRegex, (match) => {
+    let trail = "";
+    const trailMatch = match.match(/[.,!?)\]]+$/);
+    let core = match;
+    if(trailMatch){
+      trail = trailMatch[0];
+      core = match.slice(0, -trail.length);
+    }
+    const href = /^https?:\/\//i.test(core) ? core : "https://" + core;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${core}</a>${trail}`;
+  });
+}
 
 function closePushNotice(){
   pushNoticeOverlay.classList.remove("show");
   appRoot.classList.remove("notice-blur");
+  markPushNoticeViewed();
 }
 pushNoticeCloseBtn.addEventListener("click", () => {
   sound.close();
@@ -1617,7 +1672,8 @@ onValue(ref(db, "pushNotice"), (snap) => {
   }
   const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
   if(String(data.updatedAt) === seenStamp) return;
-  pushNoticeText.textContent = data.text;
+  pushNoticeText.innerHTML = linkifyPushText(data.text);
+  currentPushNoticeUpdatedAt = data.updatedAt;
   appRoot.classList.add("notice-blur");
   pushNoticeOverlay.classList.add("show");
   sound.pushNotice();
