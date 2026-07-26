@@ -1592,6 +1592,12 @@ const PUSH_NOTICE_SEEN_KEY = "qura_push_notice_seen";
 // updatedAt-и огоҳиномаи ҳозир кушодашуда — то ҳангоми пахши Х донем кадом
 // огоҳиномаро корбар дидааст ва барои он "дидашуд" сабт кунем.
 let currentPushNoticeUpdatedAt = null;
+// Огоҳинома набояд дар равзанаи "воридшавӣ/бақайдгирӣ" пайдо шавад — танҳо
+// баъд аз он ки корбар (аллакай сабтшуда) ба саҳифаи асосӣ (home) ворид шуд.
+// pendingPushNoticeData маълумоти охирини аз Firebase омадаро нигоҳ медорад,
+// то ҳамин ки корбар ба home гузарад, дарҳол санҷида ва (агар лозим) нишон дода шавад.
+let appIsHome = false;
+let pendingPushNoticeData = null;
 
 // Ҳар дастгоҳ (ҳатто агар корбар ҳанӯз вориди система нашуда бошад — масалан
 // дар экрани логин) як рамзи беному доимӣ мегирад, то фаъолияти дидани
@@ -1628,20 +1634,35 @@ function escapePushHtml(str){
 }
 function linkifyPushText(text){
   try{
-    // Ҳам http(s)://ва www., ҳам доменҳои холис (масалан "behruztv.ru" бе
-    // ҳеҷ пешоянд) ба силкаи кликшаванда табдил меёбанд, то новобаста аз он,
-    // ки админ силкаро чӣ тавр навиштааст, вай ҳамеша дуруст намоиш ёбад.
+    // Ҳар силка алоҳида ва танҳо як маротиба мувофиқат карда мешавад: аввал
+    // http(s)://..., баъд www...., ва танҳо дар охир домени холис (масалан
+    // "behruztv.ru" ё "t.me/behruz" бе ҳеҷ пешоянд). Барои домени холис ба
+    // ҷои "\b" аз lookbehind/lookahead истифода мешавад, чунки "\b" бо ҳарфи
+    // кириллии пеш аз домен нодуруст кор мекунад ва домен метавонад ба
+    // калимаи пешина ё пасина нодуруст пайваст шавад ё бо силкаи дигар
+    // (агар якчанд силка/домен дар як матн бошанд) омехта гардад. Инчунин
+    // дарозии лейбли домен маҳдуд карда шудааст (то 63 аломат), то аз
+    // коркарди суст/хатогии регекс пешгирӣ шавад.
     const escaped = escapePushHtml(text);
-    const urlRegex = /((https?:\/\/|www\.)[^\s<]+|\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}(?:\/[^\s<]*)?)/gi;
+    const urlRegex = /(https?:\/\/[^\s<]+|www\.[^\s<]+|(?<![\w@.-])[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+(?:\/[^\s<]*)?(?![\w-]))/gi;
     return escaped.replace(urlRegex, (match) => {
+      // Аломатҳои холии охир (нуқта, вергул, қавс ва ғ.) ҷудо карда мешаванд,
+      // то онҳо дохили силка нашаванд (масалан "behruztv.ru." дар охири ҷумла).
       let trail = "";
-      const trailMatch = match.match(/[.,!?)\]]+$/);
+      const trailMatch = match.match(/[.,!?:;)\]}$"'*]+$/);
       let core = match;
       if(trailMatch){
         trail = trailMatch[0];
-        core = match.slice(0, -trail.length);
+        core = match.slice(0, match.length - trail.length);
       }
       if(!core) return match;
+      // Агар пас аз ҷудо кардани trail дигар TLD-и воқеӣ дар hostname намонад
+      // (масалан як пораи нотамоми домен), онро силка намекунем — танҳо
+      // қисми hostname (то аввалин "/") месанҷем, на тамоми роҳ (path).
+      if(!/^https?:\/\//i.test(core) && !/^www\./i.test(core)){
+        const host = core.split("/")[0];
+        if(!/\.[a-z]{2,}$/i.test(host)) return match;
+      }
       const href = /^https?:\/\//i.test(core) ? core : "https://" + core;
       return `<a href="${href}" target="_blank" rel="noopener noreferrer">${core}</a>${trail}`;
     });
@@ -1668,6 +1689,23 @@ pushNoticeOverlay.addEventListener("click", (e) => {
     closePushNotice();
   }
 });
+// Дар баъзе барномаҳои мобилӣ/WebView, силкаи <a target="_blank"> баъзан
+// "хомӯш" кор намекунад (window.open садди худ мехӯрад ва ҳеҷ чиз кушода
+// намешавад). Аз ин рӯ, клики худи силкаро дастӣ идора мекунем: аввал кӯшиши
+// кушодани равзанаи нав, агар нашуд — ҳамон саҳифаро мустақим ба он сылка
+// мебарем, то дар ҳар шароит силка воқеан кор кунад.
+pushNoticeText.addEventListener("click", (e) => {
+  const link = e.target.closest("a[href]");
+  if(!link) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const href = link.getAttribute("href");
+  let opened = null;
+  try{ opened = window.open(href, "_blank", "noopener,noreferrer"); }catch(err){ opened = null; }
+  if(!opened){
+    window.location.href = href;
+  }
+});
 document.addEventListener("keydown", (e) => {
   if(e.key === "Escape" && pushNoticeOverlay.classList.contains("show")){
     sound.close();
@@ -1675,20 +1713,44 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-onValue(ref(db, "pushNotice"), (snap) => {
-  const data = snap.val();
-  if(!data || !data.text){
-    closePushNotice();
-    return;
-  }
-  const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
-  if(String(data.updatedAt) === seenStamp) return;
+// Огоҳиномаро воқеан кушода ва нишон медиҳад (танҳо агар корбар дар home бошад).
+function displayPushNotice(data){
   pushNoticeText.innerHTML = linkifyPushText(data.text);
   currentPushNoticeUpdatedAt = data.updatedAt;
   appRoot.classList.add("notice-blur");
   pushNoticeOverlay.classList.add("show");
   sound.pushNotice();
   localStorage.setItem(PUSH_NOTICE_SEEN_KEY, String(data.updatedAt));
+}
+
+// Ҳамин ки корбар ба home ворид шуд, огоҳиномаи дар навбат истодаро (агар
+// бошад ва ҳанӯз дида нашуда бошад) фавран нишон медиҳад.
+function maybeShowPendingPushNotice(){
+  if(!appIsHome || !pendingPushNoticeData) return;
+  const data = pendingPushNoticeData;
+  pendingPushNoticeData = null;
+  const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
+  if(String(data.updatedAt) === seenStamp) return;
+  displayPushNotice(data);
+}
+
+onValue(ref(db, "pushNotice"), (snap) => {
+  const data = snap.val();
+  if(!data || !data.text){
+    pendingPushNoticeData = null;
+    closePushNotice();
+    return;
+  }
+  const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
+  if(String(data.updatedAt) === seenStamp) return;
+  // Агар корбар ҳоло дар равзанаи воридшавӣ/бақайдгирӣ бошад (яъне ҳанӯз
+  // ба home нарасидааст), огоҳиномаро дар навбат мегузорем — фавран нишон
+  // намедиҳем, то дар экрани логин пайдо нашавад.
+  if(!appIsHome){
+    pendingPushNoticeData = data;
+    return;
+  }
+  displayPushNotice(data);
 });
 
 const LS_KEY = "qura_user";
@@ -2374,11 +2436,16 @@ function showHome(){
       setTimeout(preloadGroupFrame, 800);
       // Назорати паёмҳои нави гурӯҳ барои бадҷ ва садо
       watchGroupMessages();
+      // Ҳозир корбар воқеан дар home аст (аллакай сабтшуда/воридшуда) —
+      // агар дар навбат огоҳиномае бошад, ҳоло нишон дода мешавад.
+      appIsHome = true;
+      maybeShowPendingPushNotice();
     });
   });
 }
 
 function showLogin(){
+  appIsHome = false;
   splash.classList.add("hidden");
   home.classList.add("hidden");
   loginScreen.classList.remove("hidden");
