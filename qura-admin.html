@@ -182,10 +182,10 @@
   .login-hint{ color:var(--text-dim); font-size:0.74rem; margin-top:18px; line-height:1.5; }
 
   /* ---------- Dashboard ---------- */
-  #dashboard{ height:100%; overflow-y:auto; padding:20px 20px 60px; max-width:1180px; margin:0 auto; }
+  #dashboard{ height:100%; overflow-y:auto; padding:14px 20px 60px; max-width:1180px; margin:0 auto; }
   header.topbar{
     display:flex; align-items:center; justify-content:space-between;
-    gap:16px; padding:14px 20px; margin-bottom:14px;
+    gap:16px; padding:12px 18px; margin-bottom:6px;
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
   }
@@ -195,7 +195,16 @@
   .brand-text{ min-width:0; overflow:hidden; }
   .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .brand-text span{ font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
-  .top-actions{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .top-actions{
+    display:flex; align-items:center; gap:8px; flex-shrink:1; min-width:0;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:5px 8px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap; scrollbar-width:thin;
+  }
+  .top-actions::-webkit-scrollbar{ height:5px; }
+  .top-actions::-webkit-scrollbar-thumb{ background:var(--border); border-radius:999px; }
+  .top-actions .icon-btn{ flex-shrink:0; }
+  .icon-group-sep{ width:1px; height:22px; background:var(--border); flex-shrink:0; }
   .icon-btn{
     width:38px; height:38px; border-radius:var(--radius-sm);
     background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);
@@ -333,14 +342,12 @@
 
   .icon-group{
     display:flex; align-items:center; gap:4px;
-    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
-    height:38px; padding:0 4px;
   }
   .icon-group .icon-btn{
     width:30px; height:30px;
   }
 
-  .action-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .action-row{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px; }
   .action-card{
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
@@ -363,7 +370,7 @@
   .panel{
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px; margin-bottom:12px;
+    padding:14px; margin-bottom:5px;
   }
   .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
   .panel-head h2{ font-size:1.02rem; margin:0; display:flex; align-items:center; gap:10px; }
@@ -635,9 +642,9 @@
   @media (max-width:640px){
     .action-row{ grid-template-columns:1fr; }
     header.topbar{ flex-wrap:nowrap; padding:12px 14px; gap:8px; }
-    .brand{ gap:8px; }
+    .brand{ gap:8px; flex-shrink:0; }
     .brand-text span{ font-size:0.62rem; }
-    .top-actions{ gap:6px; }
+    .top-actions{ gap:5px; padding:4px 6px; }
     .ball-grid{ --ball-size:32px; }
     #dashboard{ padding:14px 12px 50px; }
     .panel{ padding:16px 12px; }
@@ -734,6 +741,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>
         </button>
       </div>
+      <div class="icon-group-sep"></div>
       <div class="icon-group">
         <button class="icon-btn" id="resetAllBtn" title="Ресет">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
@@ -753,11 +761,13 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
         </button>
       </div>
+      <div class="icon-group-sep"></div>
       <div class="icon-group">
         <button class="icon-btn" id="groupBtn" title="Гурӯҳ">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </button>
       </div>
+      <div class="icon-group-sep"></div>
       <div class="icon-group">
         <button class="icon-btn" id="notifBtn" title="Зангула">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -771,7 +781,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
       </div>
-
+      <div class="icon-group-sep"></div>
       <button class="icon-btn" id="logoutBtn" title="Баромадан">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       </button>
