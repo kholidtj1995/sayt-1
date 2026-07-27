@@ -153,7 +153,7 @@
   #appRoot{ height:100%; }
   #home{ height:100%; display:flex; flex-direction:column; }
   #homeContent{ flex:1; overflow-y:auto; min-height:0; }
-  .tab-screen{ display:none; padding:14px 18px 32px; }
+  .tab-screen{ display:none; padding:10px 18px 24px; }
   .tab-screen.active{ display:block; }
   .placeholder-screen{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -164,30 +164,62 @@
 
   /* Рамкаи "Старти бозии нав" ва рамкаҳои призҳо/рақамҳо */
   .new-game-box{
+    display:flex; align-items:center; gap:12px;
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
-    padding:12px 18px; text-align:center; margin-bottom:10px;
-    box-shadow:var(--shadow-lg); cursor:pointer;
-    transition:transform .12s ease, filter .12s ease;
+    padding:10px 16px; text-align:left; margin-bottom:6px;
+    box-shadow:var(--shadow-lg);
   }
-  .new-game-box:active{ transform:scale(0.97); }
-  .new-game-box:hover{ filter:brightness(1.08); }
+  .new-game-icon{
+    width:40px; height:40px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 32% 28%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 14px rgba(232,184,75,0.32), inset 0 -3px 6px rgba(0,0,0,0.2);
+  }
+  .new-game-icon svg{ width:20px; height:20px; color:#1b1206; }
   .new-game-box p{
     margin:0; font-family:'Unbounded', sans-serif; font-weight:700;
-    font-size:1.05rem; color:var(--gold-2); letter-spacing:-0.01em;
+    font-size:1.0rem; color:var(--gold-2); letter-spacing:-0.01em; text-align:left;
+  }
+  .new-game-box-spacer{ flex:1 1 auto; min-width:8px; }
+  .admin-status{
+    display:flex; align-items:center; gap:8px; flex-shrink:0;
+    cursor:default;
+  }
+  .admin-status span{
+    font-size:0.68rem; font-weight:600; color:var(--text-dim); text-align:right; line-height:1.25; max-width:88px;
+  }
+  .admin-status.online span{ color:var(--emerald); }
+  .admin-status-circle{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); border:2px solid var(--border);
+    color:var(--text-dim);
+    transition:border-color .3s ease, color .3s ease, background .3s ease;
+  }
+  .admin-status-circle svg{ width:13px; height:13px; }
+  .admin-status.online .admin-status-circle{
+    border-color:var(--emerald);
+    color:var(--emerald);
+    background:rgba(63,191,143,0.12);
+    animation:adminPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes adminPulse{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(63,191,143,0.45); }
+    50%{ box-shadow:0 0 0 6px rgba(63,191,143,0); }
   }
 
   .info-box{
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
     border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px; margin-bottom:10px;
+    padding:12px; margin-bottom:6px;
     transition:background .2s ease, border-color .2s ease;
   }
   .info-box.active{
     border-color:var(--crimson);
     background:linear-gradient(180deg, rgba(226,83,107,0.18), var(--bg-2));
   }
-  .info-box-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .info-box-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; flex-wrap:wrap; }
   .info-box-head h3{ font-size:1.02rem; margin:0; display:flex; align-items:center; gap:10px; }
   .info-box-head h3 svg{ width:19px; height:19px; color:var(--gold); }
   .info-badge{
@@ -195,9 +227,23 @@
     padding:5px 11px; border-radius:999px; border:1px solid rgba(232,184,75,0.25);
     white-space:nowrap;
   }
-  .info-badge-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .box-empty{ text-align:center; padding:30px 16px; color:var(--text-muted); }
-  .box-empty svg{ width:36px; height:36px; opacity:0.35; margin-bottom:10px; }
+  .info-badge-row{
+    display:flex; gap:8px; align-items:center; flex-wrap:nowrap;
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 12px; scrollbar-width:thin;
+  }
+  .info-badge-row::-webkit-scrollbar{ height:6px; }
+  .info-badge-row::-webkit-scrollbar-thumb{ background:var(--border); border-radius:999px; }
+  .info-badge.sold-out-badge{
+    color:var(--crimson); background:rgba(226,83,107,0.14); border-color:rgba(226,83,107,0.35);
+  }
+  .badge-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-inline-end:6px; vertical-align:middle; }
+  .info-badge.badge-pending, .info-badge.badge-sold, .info-badge.badge-unsold{
+    color:#fff; border-color:#000;
+  }
+  .box-empty{ text-align:center; padding:16px 16px; color:var(--text-muted); }
+  .box-empty svg{ width:30px; height:30px; opacity:0.35; margin-bottom:6px; }
   .box-empty p{ font-size:0.85rem; margin:0; }
 
   /* Рамкаи призҳо (мисли qura-admin.html) */
@@ -272,10 +318,14 @@
      админ дар ҳолати интизорӣ мемонанд — норинҷӣ, то аз "locked"-и худи шумо
      ва "sold"-и сабз фарқ кунад */
   .number-chip.pending-taken{
-    background:linear-gradient(180deg,#f0a24b,#d67f2a) !important; color:#fff; cursor:not-allowed !important;
+    background:linear-gradient(180deg,#e2536b,#c23a52) !important; color:#fff; cursor:not-allowed !important;
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.2);
   }
   .numbers-row.selectable .number-chip.pending-taken{ cursor:not-allowed; }
+  /* Вақте ки ҳамаи рақамҳои даври ҷорӣ фурӯхта шудаанд — тӯби рақамҳо хира
+     мешавад (танҳо намуди зоҳирӣ), вале склор (ҳаракат бо ангушт/муш) кор
+     карда истодааст, зеро мо танҳо opacity-ро тағйир медиҳем, на pointer-events. */
+  .info-box.sold-out .numbers-row{ opacity:0.4; }
 
   .actions-row{ display:flex; gap:8px; margin-top:2px; }
   .action-btn{
@@ -296,6 +346,8 @@
     background:linear-gradient(180deg, rgba(63,191,143,0.28), var(--surface-2));
     border-color:#3fbf8f; color:#3fbf8f;
   }
+  /* Тугмаи "Харидани рақам" вақте ки ҳамаи рақамҳо аллакай фурӯхта шудаанд */
+  .action-btn.disabled{ opacity:0.45; pointer-events:none; }
   #registerNumbersBtn{ position:relative; }
   .selection-badge{
     position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 5px;
@@ -546,7 +598,7 @@
     font-size:0.9rem; font-weight:800; color:var(--gold-2);
   }
   .cart-empty{ text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.88rem; }
-  .cart-status-pending{ color:var(--text-muted); }
+  .cart-status-pending{ color:#e2536b; }
   .cart-status-success{ color:#3fbf8f; }
   .cart-status-fail{ color:var(--crimson); }
   .cart-row-countdown{ justify-content:flex-start; padding-top:0; }
@@ -769,6 +821,11 @@
     --text-dim:#95917f;
     --shadow-lg:0 10px 26px rgba(20,15,5,0.10);
   }
+  body.light .info-badge.badge-pending,
+  body.light .info-badge.badge-sold,
+  body.light .info-badge.badge-unsold{
+    color:#1c1b17; border-color:rgba(20,15,5,0.35);
+  }
 </style>
 </head>
 <body>
@@ -936,7 +993,17 @@
       <!-- Мундариҷаи асосии барнома дар ин ҷо ҷойгир мешавад -->
 
       <div class="new-game-box" id="newGameBox">
+        <div class="new-game-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
+        </div>
         <p>Старти бозии нав</p>
+        <div class="new-game-box-spacer"></div>
+        <div class="admin-status" id="adminStatusBadge">
+          <span id="adminStatusText">Админ дар барнома нест</span>
+          <div class="admin-status-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+        </div>
       </div>
 
       <div class="info-box" id="prizesBoxHome">
@@ -1163,7 +1230,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getDatabase, ref, set, push, onValue, get, onDisconnect, serverTimestamp, remove
+  getDatabase, ref, set, update, push, onValue, get, onDisconnect, serverTimestamp, remove
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -1228,26 +1295,33 @@ function tone(freq, dur=0.09, type="sine", vol=0.045, delay=0){
   osc.stop(t0 + dur + 0.02);
 }
 const sound = {
-  click: () => tone(520, 0.06, "sine", 0.035),
-  open:  () => tone(480, 0.07, "sine", 0.035),
-  close: () => tone(340, 0.06, "sine", 0.03),
-  success: () => { tone(660, 0.09, "sine", 0.05); tone(880, 0.14, "sine", 0.05, 0.09); },
-  error: () => tone(200, 0.22, "sawtooth", 0.05),
-  receive: () => { tone(700, 0.08, "sine", 0.05); tone(900, 0.1, "sine", 0.045, 0.07); },
-  reset: () => { tone(420, 0.07, "triangle", 0.04); tone(300, 0.09, "triangle", 0.035, 0.06); },
-  activate: () => { tone(500, 0.07, "square", 0.03); tone(760, 0.09, "square", 0.03, 0.07); },
-  confirm: () => { tone(760, 0.08, "sine", 0.05); tone(1020, 0.16, "sine", 0.05, 0.08); },
-  register: () => { tone(600, 0.06, "sine", 0.04); tone(600, 0.06, "sine", 0.04, 0.12); },
-  select: () => tone(540 + Math.random()*260, 0.055, "sine", 0.04),
-  deselect: () => tone(320 + Math.random()*100, 0.05, "triangle", 0.03),
-  prize: () => { tone(760, 0.05, "sine", 0.045); tone(1080, 0.08, "sine", 0.04, 0.05); },
-  numbersAppear: () => { tone(480, 0.07, "sine", 0.03); tone(680, 0.08, "sine", 0.03, 0.06); tone(920, 0.1, "sine", 0.028, 0.12); },
-  prizesAppear: () => { tone(700, 0.06, "sine", 0.035); tone(940, 0.09, "sine", 0.032, 0.06); },
+  click: () => tone(520, 0.06, "sine", 0.22),
+  open:  () => tone(480, 0.07, "sine", 0.22),
+  close: () => tone(340, 0.06, "sine", 0.2),
+  success: () => { tone(660, 0.09, "sine", 0.3); tone(880, 0.14, "sine", 0.3, 0.09); },
+  error: () => tone(200, 0.22, "sawtooth", 0.3),
+  receive: () => { tone(700, 0.08, "sine", 0.3); tone(900, 0.1, "sine", 0.28, 0.07); },
+  reset: () => { tone(420, 0.07, "triangle", 0.25); tone(300, 0.09, "triangle", 0.22, 0.06); },
+  activate: () => { tone(500, 0.07, "square", 0.2); tone(760, 0.09, "square", 0.2, 0.07); },
+  confirm: () => { tone(760, 0.08, "sine", 0.3); tone(1020, 0.16, "sine", 0.3, 0.08); },
+  register: () => { tone(600, 0.06, "sine", 0.25); tone(600, 0.06, "sine", 0.25, 0.12); },
+  select: () => tone(540 + Math.random()*260, 0.055, "sine", 0.25),
+  deselect: () => tone(320 + Math.random()*100, 0.05, "triangle", 0.2),
+  prize: () => { tone(760, 0.05, "sine", 0.28); tone(1080, 0.08, "sine", 0.25, 0.05); },
+  numbersAppear: () => { tone(480, 0.07, "sine", 0.2); tone(680, 0.08, "sine", 0.2, 0.06); tone(920, 0.1, "sine", 0.18, 0.12); },
+  prizesAppear: () => { tone(700, 0.06, "sine", 0.22); tone(940, 0.09, "sine", 0.2, 0.06); },
+  // Садои махсуси "чинг-чинг" — вақте рақамҳо ба сабад бомуваффақият илова мешаванд.
+  cartAdded: () => {
+    tone(1300, 0.14, "sine", 0.34);
+    tone(1600, 0.16, "sine", 0.3, 0.1);
+    tone(1300, 0.12, "sine", 0.28, 0.22);
+    tone(1600, 0.15, "sine", 0.26, 0.32);
+  },
   pushNotice: () => {
-    tone(784, 0.16, "sine", 0.09);
-    tone(988, 0.18, "sine", 0.085, 0.1);
-    tone(1175, 0.24, "sine", 0.08, 0.22);
-    tone(1568, 0.32, "sine", 0.075, 0.36);
+    tone(784, 0.16, "sine", 0.5);
+    tone(988, 0.18, "sine", 0.48, 0.1);
+    tone(1175, 0.24, "sine", 0.45, 0.22);
+    tone(1568, 0.32, "sine", 0.42, 0.36);
   },
 };
 document.addEventListener("click", (e) => {
@@ -1265,6 +1339,16 @@ const homePrizesEmpty = document.getElementById("homePrizesEmpty");
 const homePrizesRow = document.getElementById("homePrizesRow");
 const homePrizeCountBadge = document.getElementById("homePrizeCountBadge");
 let prizesWerePresent = false;
+
+/* Огоҳии ҳузури админ дар кура админ (реал вақт) */
+const adminStatusBadge = document.getElementById("adminStatusBadge");
+const adminStatusText = document.getElementById("adminStatusText");
+onValue(ref(db, "adminPresence/online"), (snap) => {
+  const isOnline = snap.exists() && snap.val() === true;
+  adminStatusBadge.classList.toggle("online", isOnline);
+  adminStatusText.textContent = isOnline ? "Админ дар барнома аст" : "Админ дар барнома нест";
+});
+
 onValue(ref(db, "prizes"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   const entries = data ? Object.entries(data) : [];
@@ -1350,25 +1434,52 @@ const homeRoundBadgeRow = document.getElementById("homeRoundBadgeRow");
 let hasActiveNumbers = false;
 let numbersWerePresent = false;
 let currentRoundName = "—";
+let currentRoundCount = 0;
+let currentPriceSomon = 10;
+let currentPriceRuble = 100;
+
+// Рамкаи бадҷҳо: Давр / Шумораи умумии рақамҳо / Шумораи рақамҳои нафурӯхта.
+// Ҳангоме ки ҳамаи рақамҳо фурӯхта шудаанд (soldCount === total), ба ҷои
+// "Нафурӯхта: 0" паёми возеҳ "Ҳама рақамҳо фурӯхта шуданд" нишон дода мешавад.
+function renderRoundBadges(soldCount, pendingCount){
+  const total = currentRoundCount;
+  let html =
+    '<span class="info-badge">Давр: ' + escapeHtml(currentRoundName) + '</span>' +
+    '<span class="info-badge">' + total + ' рақам</span>';
+  if(total > 0){
+    const unsold = Math.max(0, total - soldCount);
+    html += '<span class="info-badge">Нархи як рақам: ' + currentPriceSomon + ' сомон / ' + currentPriceRuble + ' рубл</span>';
+    html += '<span class="info-badge badge-pending"><span class="badge-dot" style="background:#e2536b"></span>Дархостшуда: ' + (pendingCount || 0) + '</span>';
+    html += '<span class="info-badge badge-sold"><span class="badge-dot" style="background:#3fbf8f"></span>Фурӯхта: ' + soldCount + '</span>';
+    html += (unsold === 0)
+      ? '<span class="info-badge sold-out-badge badge-unsold"><span class="badge-dot" style="background:#3fbf8f"></span>Ҳама рақамҳо фурӯхта шуданд</span>'
+      : '<span class="info-badge badge-unsold"><span class="badge-dot" style="background:var(--gold)"></span>Нафурӯхта: ' + unsold + '</span>';
+  }
+  homeRoundBadgeRow.innerHTML = html;
+}
 onValue(ref(db, "currentRound"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
-  if(!data || !data.count){
+  const count = (data && typeof data.count === "number") ? data.count : 0;
+  const roundName = data ? (data.name || "—") : "—";
+  currentRoundCount = count;
+  currentPriceSomon = (data && typeof data.priceSomon === "number") ? data.priceSomon : 10;
+  currentPriceRuble = (data && typeof data.priceRuble === "number") ? data.priceRuble : 100;
+  if(!data || !count){
     hasActiveNumbers = false;
     numbersWerePresent = false;
-    currentRoundName = "—";
+    currentRoundName = roundName;
     homeNumbersRow.classList.add("hidden");
     homeNumbersEmpty.classList.remove("hidden");
     homeNumbersRow.innerHTML = "";
-    homeRoundBadgeRow.innerHTML = "";
+    numbersBoxHome.classList.remove("sold-out");
+    buyNumberBtn.classList.remove("disabled");
+    renderRoundBadges(0, 0);
     return;
   }
   hasActiveNumbers = true;
   currentRoundName = data.name || "—";
   homeNumbersEmpty.classList.add("hidden");
   homeNumbersRow.classList.remove("hidden");
-  homeRoundBadgeRow.innerHTML =
-    '<span class="info-badge">Давр: ' + escapeHtml(data.name || "—") + '</span>' +
-    '<span class="info-badge">' + data.count + ' рақам</span>';
   let html = "";
   const STAGGER_CAP = 80;
   for(let i = 1; i <= data.count; i++){
@@ -1415,6 +1526,10 @@ resetNumbersBtn.addEventListener("click", () => {
 });
 
 buyNumberBtn.addEventListener("click", () => {
+  if(numbersBoxHome.classList.contains("sold-out")){
+    // Ҳама рақамҳои даври ҷорӣ аллакай фурӯхта шудаанд — харид пурра баста аст.
+    return;
+  }
   if(!numbersPurchaseEnabled && !hasActiveNumbers){
     // Ҳанӯз ҳеҷ рақаме сохта нашудааст — клик ҳеҷ таъсире намерасонад
     return;
@@ -1453,8 +1568,6 @@ const registerPhoneInput = document.getElementById("registerPhoneInput");
 const totalAmountValue = document.getElementById("totalAmountValue");
 const numbersCountValue = document.getElementById("numbersCountValue");
 const selectedNumbersList = document.getElementById("selectedNumbersList");
-const PRICE_PER_NUMBER_SOMON = 10;
-const PRICE_PER_NUMBER_RUBLE = 100;
 
 function openRegisterModal(){
   registerNameInput.value = userName.textContent && userName.textContent !== "—" ? userName.textContent : "";
@@ -1465,7 +1578,7 @@ function openRegisterModal(){
     .map(chip => '<div class="selected-number-circle">' + escapeHtml(chip.textContent) + '</div>')
     .join("");
   numbersCountValue.textContent = count + " дона";
-  totalAmountValue.textContent = (count * PRICE_PER_NUMBER_SOMON) + " сомон / " + (count * PRICE_PER_NUMBER_RUBLE) + " рубл";
+  totalAmountValue.textContent = (count * currentPriceSomon) + " сомон / " + (count * currentPriceRuble) + " рубл";
   registerModalOverlay.classList.add("show");
 }
 function closeRegisterModal(){
@@ -1557,8 +1670,10 @@ addToCartBtn.addEventListener("click", async () => {
       numbers,
       name: registerNameInput.value.trim(),
       phone: registerPhoneInput.value.trim(),
-      somon: numbers.length * PRICE_PER_NUMBER_SOMON,
-      ruble: numbers.length * PRICE_PER_NUMBER_RUBLE,
+      somon: numbers.length * currentPriceSomon,
+      ruble: numbers.length * currentPriceRuble,
+      priceSomon: currentPriceSomon,
+      priceRuble: currentPriceRuble,
       roundName: currentRoundName,
       dateTime: dateStr + " " + timeStr,
       status: "pending",
@@ -1577,6 +1692,8 @@ addToCartBtn.addEventListener("click", async () => {
         numbers: entry.numbers,
         somon: entry.somon,
         ruble: entry.ruble,
+        priceSomon: entry.priceSomon,
+        priceRuble: entry.priceRuble,
         roundName: entry.roundName,
         dateTime: entry.dateTime,
         status: "pending",
@@ -1600,6 +1717,7 @@ const cartSuccessCircleEl = addToCartSuccessOverlay.querySelector(".cart-success
 const cartSuccessCheckEl = addToCartSuccessOverlay.querySelector(".cart-success-check");
 let cartSuccessTimeout = null;
 function showAddToCartSuccess(){
+  sound.cartAdded();
   clearTimeout(cartSuccessTimeout);
   addToCartSuccessOverlay.classList.remove("show");
   // маҷбурӣ рестарт кардани аниматсия, агар пеш аз 3 сония дубора илова шавад
@@ -1728,6 +1846,14 @@ let currentPushNoticeUpdatedAt = null;
 // то ҳамин ки корбар ба home гузарад, дарҳол санҷида ва (агар лозим) нишон дода шавад.
 let appIsHome = false;
 let pendingPushNoticeData = null;
+// Огоҳии шахсӣ (танҳо ба як корбари мушаххас фиристодашуда) — сарчашма ва
+// калиди "дидашуд"-и он аз огоҳии умумӣ фарқ мекунад, аз ин рӯ алоҳида пайгирӣ мешавад.
+let currentPushNoticeSource = "global"; // "global" (ҳама корбарон) ё "user" (як корбари мушаххас)
+let currentPushNoticeSeenKey = PUSH_NOTICE_SEEN_KEY;
+// Навбати огоҳиномаҳо — агар дар як вақт ҳам огоҳии умумӣ ва ҳам огоҳии
+// шахсӣ омада бошанд (ё яке аллакай кушода бошад), навбатӣ нишон дода мешаванд.
+let noticeQueue = [];
+let noticeCurrentlyShowing = false;
 
 // Ҳар дастгоҳ (ҳатто агар корбар ҳанӯз вориди система нашуда бошад — масалан
 // дар экрани логин) як рамзи беному доимӣ мегирад, то фаъолияти дидани
@@ -1749,11 +1875,20 @@ function getPushDeviceId(){
 // то дар сурати мушкили иҷозат/пайваст фавран дида шавад.
 function markPushNoticeViewed(){
   if(!currentPushNoticeUpdatedAt) return;
-  const viewerId = currentUserId || getPushDeviceId();
   const noticeStamp = currentPushNoticeUpdatedAt;
+  const source = currentPushNoticeSource;
   currentPushNoticeUpdatedAt = null;
-  set(ref(db, "pushNotice/views/" + viewerId), true)
-    .catch((err) => console.error("Хатои сабти дидани огоҳинома (pushNotice/views):", err, "noticeStamp:", noticeStamp));
+  if(source === "user"){
+    // Огоҳии шахсӣ — танҳо як корбар онро мебинад, бинобар ин "дидашуд" дар
+    // худи гиреҳи ҳамон корбар сабт мешавад (на дар зергиреҳи views/{viewerId}).
+    if(!currentUserId) return;
+    update(ref(db, "userPushNotice/" + currentUserId), { seen: true, seenAt: Date.now() })
+      .catch((err) => console.error("Хатои сабти дидани огоҳии шахсӣ:", err, "noticeStamp:", noticeStamp));
+  } else {
+    const viewerId = currentUserId || getPushDeviceId();
+    set(ref(db, "pushNotice/views/" + viewerId), true)
+      .catch((err) => console.error("Хатои сабти дидани огоҳинома (pushNotice/views):", err, "noticeStamp:", noticeStamp));
+  }
 }
 
 // Матни хабари муҳимро бехатар ба HTML табдил медиҳад ва ҳар силкаи (URL)
@@ -1808,6 +1943,10 @@ function closePushNotice(){
   pushNoticeOverlay.classList.remove("show");
   appRoot.classList.remove("notice-blur");
   markPushNoticeViewed();
+  noticeCurrentlyShowing = false;
+  // Каме таъхир — то анимацияи пӯшидан ба итмом расад, пеш аз он ки
+  // огоҳии навбатӣ (агар бошад) нишон дода шавад.
+  setTimeout(showNextQueuedNotice, 350);
 }
 pushNoticeCloseBtn.addEventListener("click", () => {
   sound.close();
@@ -1839,6 +1978,17 @@ pushNoticeText.addEventListener("click", (e) => {
 pushNoticeCtaBtn.addEventListener("click", (e) => {
   e.preventDefault();
   e.stopPropagation();
+  // Агар тугма амали дохили барнома дошта бошад (чат/гурӯҳ/сабад — аз админ
+  // барои ҳамин корбар интихобшуда), аввал огоҳиномаро мепӯшонем ва баъд
+  // равзанаи дахлдорро мекушоем, на ки силкаи беруна.
+  const action = pushNoticeCtaBtn.dataset.pushAction;
+  if(action === "chat" || action === "group" || action === "cart"){
+    closePushNotice();
+    if(action === "chat") openChatModal();
+    else if(action === "group") openGroupModal();
+    else openCartModal();
+    return;
+  }
   const href = pushNoticeCtaBtn.getAttribute("href");
   markPushNoticeViewed();
   if(!href) return;
@@ -1855,55 +2005,118 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// Тугмаҳои дохили барнома, ки админ метавонад ба огоҳии ШАХСӢ (ба як корбар)
+// васл кунад — иконка ва номи стандартии ҳар кадом, айнан монанди тугмаҳои
+// боло дар саҳифаи асосӣ (чат/гурӯҳ/сабад), то корбар онҳоро шинохта тавонад.
+const PUSH_ACTION_LABELS = { chat: "Чат", group: "Гурӯҳ", cart: "Корзина" };
+const PUSH_ACTION_ICONS = {
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;vertical-align:-4px;margin-inline-end:7px;"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>',
+  group: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;vertical-align:-4px;margin-inline-end:7px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;vertical-align:-4px;margin-inline-end:7px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>'
+};
+
 // Огоҳиномаро воқеан кушода ва нишон медиҳад (танҳо агар корбар дар home бошад).
 function displayPushNotice(data){
   pushNoticeText.innerHTML = linkifyPushText(data.text);
-  // Агар админ тугмаи "Даромадан" (ё номи дигар) бо сылка гузошта бошад,
-  // онро дар поёни матн нишон медиҳем — клики корбар ӯро ба ҳамон сылка мебарад.
-  if(data.btnLink){
+  if(data.action && PUSH_ACTION_LABELS[data.action]){
+    // Огоҳии шахсӣ бо тугмаи амали дохили барнома (чат/гурӯҳ/сабад) — на силка.
+    pushNoticeCtaBtn.innerHTML = PUSH_ACTION_ICONS[data.action] + escapePushHtml(data.btnLabel || PUSH_ACTION_LABELS[data.action]);
+    pushNoticeCtaBtn.dataset.pushAction = data.action;
+    pushNoticeCtaBtn.href = "#";
+    pushNoticeCtaBtn.classList.remove("hidden");
+  } else if(data.btnLink){
+    // Агар админ тугмаи "Даромадан" (ё номи дигар) бо сылка гузошта бошад,
+    // онро дар поёни матн нишон медиҳем — клики корбар ӯро ба ҳамон сылка мебарад.
+    delete pushNoticeCtaBtn.dataset.pushAction;
     pushNoticeCtaBtn.textContent = data.btnLabel || "Даромадан";
     pushNoticeCtaBtn.href = data.btnLink;
     pushNoticeCtaBtn.classList.remove("hidden");
   } else {
+    delete pushNoticeCtaBtn.dataset.pushAction;
     pushNoticeCtaBtn.classList.add("hidden");
     pushNoticeCtaBtn.removeAttribute("href");
   }
   currentPushNoticeUpdatedAt = data.updatedAt;
+  currentPushNoticeSource = data.source || "global";
+  currentPushNoticeSeenKey = data.source === "user" ? data.seenKey : PUSH_NOTICE_SEEN_KEY;
+  noticeCurrentlyShowing = true;
   appRoot.classList.add("notice-blur");
   pushNoticeOverlay.classList.add("show");
   sound.pushNotice();
-  localStorage.setItem(PUSH_NOTICE_SEEN_KEY, String(data.updatedAt));
+  localStorage.setItem(currentPushNoticeSeenKey, String(data.updatedAt));
+}
+
+// Агар огоҳии дигаре дар навбат бошад, онро нишон медиҳад; вагарна навбатро холӣ мегузорад.
+function showNextQueuedNotice(){
+  if(noticeQueue.length === 0){
+    noticeCurrentlyShowing = false;
+    return;
+  }
+  const next = noticeQueue.shift();
+  displayPushNotice(next);
+}
+
+// Огоҳии наверо ё фавран нишон медиҳад (агар корбар дар home бошад ва ҳоло
+// ҳеҷ огоҳие кушода набошад), ё дар навбат мегузорад (агар дар логин бошад
+// ё аллакай огоҳии дигаре кушода бошад — масалан умумӣ ва шахсӣ якбора омада бошанд).
+function queueOrShowNotice(data){
+  if(!appIsHome){
+    pendingPushNoticeData ? noticeQueue.push(data) : (pendingPushNoticeData = data);
+    return;
+  }
+  if(noticeCurrentlyShowing){
+    noticeQueue.push(data);
+  } else {
+    displayPushNotice(data);
+  }
 }
 
 // Ҳамин ки корбар ба home ворид шуд, огоҳиномаи дар навбат истодаро (агар
 // бошад ва ҳанӯз дида нашуда бошад) фавран нишон медиҳад.
 function maybeShowPendingPushNotice(){
-  if(!appIsHome || !pendingPushNoticeData) return;
-  const data = pendingPushNoticeData;
-  pendingPushNoticeData = null;
-  const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
-  if(String(data.updatedAt) === seenStamp) return;
-  displayPushNotice(data);
+  if(!appIsHome || noticeCurrentlyShowing) return;
+  if(pendingPushNoticeData){
+    const data = pendingPushNoticeData;
+    pendingPushNoticeData = null;
+    const seenStamp = localStorage.getItem(data.source === "user" ? data.seenKey : PUSH_NOTICE_SEEN_KEY);
+    if(String(data.updatedAt) !== seenStamp) displayPushNotice(data);
+    else showNextQueuedNotice();
+    return;
+  }
+  showNextQueuedNotice();
 }
 
 onValue(ref(db, "pushNotice"), (snap) => {
   const data = snap.val();
   if(!data || !data.text){
-    pendingPushNoticeData = null;
-    closePushNotice();
+    if(pendingPushNoticeData && pendingPushNoticeData.source === "global") pendingPushNoticeData = null;
+    noticeQueue = noticeQueue.filter(n => n.source !== "global");
+    if(currentPushNoticeSource === "global") closePushNotice();
     return;
   }
   const seenStamp = localStorage.getItem(PUSH_NOTICE_SEEN_KEY);
   if(String(data.updatedAt) === seenStamp) return;
-  // Агар корбар ҳоло дар равзанаи воридшавӣ/бақайдгирӣ бошад (яъне ҳанӯз
-  // ба home нарасидааст), огоҳиномаро дар навбат мегузорем — фавран нишон
-  // намедиҳем, то дар экрани логин пайдо нашавад.
-  if(!appIsHome){
-    pendingPushNoticeData = data;
-    return;
-  }
-  displayPushNotice(data);
+  queueOrShowNotice(Object.assign({}, data, { source: "global" }));
 });
+
+// Огоҳии ШАХСӢ — фақат ба ҳамин як корбар (id) фиристодашуда. Гӯш карда мешавад
+// ҳамин ки корбар ворид шуд (аз дохили watchUser). Тугмааш (агар бошад) на
+// силкаи беруна, балки амали дохили барнома аст: чат/гурӯҳ/сабад.
+function watchUserPushNotice(id){
+  const seenKey = "qura_user_push_seen_" + id;
+  onValue(ref(db, "userPushNotice/" + id), (snap) => {
+    const data = snap.val();
+    if(!data || !data.text){
+      if(pendingPushNoticeData && pendingPushNoticeData.source === "user" && pendingPushNoticeData.seenKey === seenKey) pendingPushNoticeData = null;
+      noticeQueue = noticeQueue.filter(n => !(n.source === "user" && n.seenKey === seenKey));
+      if(currentPushNoticeSource === "user") closePushNotice();
+      return;
+    }
+    const seenStamp = localStorage.getItem(seenKey);
+    if(String(data.updatedAt) === seenStamp) return;
+    queueOrShowNotice(Object.assign({}, data, { source: "user", seenKey }));
+  });
+}
 
 const LS_KEY = "qura_user";
 
@@ -2088,6 +2301,24 @@ function applySoldNumbers(){
       chip.classList.remove("locked", "sold", "pending-taken");
     }
   });
+  // Шумораи умумӣ, дархостшуда (интизорӣ) ва фурӯхташуда (сабз) — барои
+  // навсозии бадҷҳо ва қулф кардани пурраи харид вақте ки ҳама фурӯхта шуд.
+  const totalCount = homeNumbersRow.querySelectorAll(".number-chip").length;
+  const soldCount = homeNumbersRow.querySelectorAll(".number-chip.sold").length;
+  const pendingCount = homeNumbersRow.querySelectorAll(".number-chip.pending-taken").length;
+  renderRoundBadges(soldCount, pendingCount);
+  const soldOut = totalCount > 0 && soldCount >= totalCount;
+  numbersBoxHome.classList.toggle("sold-out", soldOut);
+  buyNumberBtn.classList.toggle("disabled", soldOut);
+  if(soldOut && numbersPurchaseEnabled){
+    // Агар айнан дар ҳамин лаҳза (масалан фармоиши охирин тасдиқ шуд) ҳама
+    // рақамҳо фурӯхта шуданд, ҳолати "интихоб"-ро низ хомӯш мекунем.
+    numbersPurchaseEnabled = false;
+    homeNumbersRow.classList.remove("selectable");
+    buyNumberBtn.classList.remove("active");
+    numbersBoxHome.classList.remove("active");
+    buyNumberBtnLabel.textContent = "Харидани рақам";
+  }
 }
 
 const REJECTED_TTL_MS = 10 * 60 * 1000; // 10 дақиқа
@@ -2226,6 +2457,7 @@ function openCartModal(){
           '<div class="cart-row"><span class="cart-row-label">Давр</span><span class="cart-row-value">' + escapeHtml(entry.roundName || "—") + ' · ' + escapeHtml(entry.dateTime || "—") + '</span></div>' +
           '<div class="cart-row"><span class="cart-row-label">Ном</span><span class="cart-row-value">' + escapeHtml(entry.name || "—") + '</span></div>' +
           '<div class="cart-row"><span class="cart-row-label">Рақами телефон</span><span class="cart-row-value">' + escapeHtml(entry.phone || "—") + '</span></div>' +
+          '<div class="cart-row"><span class="cart-row-label">Нархи як рақам</span><span class="cart-row-value">' + (entry.priceSomon != null ? entry.priceSomon : Math.round(entry.somon / entry.numbers.length)) + ' сомон / ' + (entry.priceRuble != null ? entry.priceRuble : Math.round(entry.ruble / entry.numbers.length)) + ' рубл</span></div>' +
           '<div class="cart-row"><span class="cart-row-label">Шумораи рақамҳо</span><span class="cart-row-value">' + entry.numbers.length + ' дона</span></div>' +
           '<div class="cart-row"><span class="cart-row-label">Нархи умумӣ</span><span class="cart-row-value">' + entry.somon + ' сомон / ' + entry.ruble + ' рубл</span></div>' +
           rejectXHtml +
@@ -2735,6 +2967,8 @@ function watchUser(id, phone){
       forceLogout();
     }
   });
+  // Огоҳии шахсӣ (аз админ фақат барои ҳамин корбар фиристодашуда).
+  watchUserPushNotice(id);
   // Агар рақами телефони корбар ба рӯйхати сиёҳ (blockedPhones) илова шавад, ҳатто дар вақти
   // фаъол буданаш низ бояд фавран берун бароварда шавад.
   const normPhone = normalizePhone(phone);
