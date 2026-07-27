@@ -62,6 +62,11 @@
   }
   :root.light-theme ::-webkit-scrollbar-thumb{ background:var(--surface-2); border:2px solid var(--bg); }
   :root.light-theme .users-table tbody tr:hover{ background:rgba(20,20,10,0.035); }
+  :root.light-theme .badge.badge-pending,
+  :root.light-theme .badge.badge-sold,
+  :root.light-theme .badge.badge-unsold{
+    color:#20180a; border-color:rgba(20,20,10,0.35);
+  }
 
   *,*::before,*::after{ box-sizing:border-box; }
   html,body{
@@ -198,6 +203,8 @@
     transition:all .15s;
   }
   .icon-btn:hover{ background:var(--surface); }
+  .icon-btn.has-active-push{ border-color:var(--emerald); background:rgba(63,191,143,0.14); color:var(--emerald); }
+  .icon-btn.has-active-push:hover{ background:rgba(63,191,143,0.22); }
   .icon-btn:active{ transform:scale(0.88); }
   .icon-btn svg{ width:17px; height:17px; }
   #liveSetBtn.live-active{
@@ -302,6 +309,14 @@
     color:#1b1206; font-weight:800; font-size:0.72rem;
     box-shadow:inset 0 -2px 4px rgba(0,0,0,0.22), inset 0 1px 2px rgba(255,255,255,0.3);
   }
+  .player-num-chip.chip-pending{
+    background:radial-gradient(circle at 32% 26%, #ef7b8f, #e2536b 55%, #c23a52 100%);
+    color:#fff;
+  }
+  .player-num-chip.chip-approved{
+    background:radial-gradient(circle at 32% 26%, #6fe0b6, #3fbf8f 55%, #2a9c72 100%);
+    color:#fff;
+  }
   .order-cart-user-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid var(--border); }
   .order-cart-user-name{ font-weight:800; color:var(--text); font-size:0.98rem; }
   .order-cart-user-phone{ color:var(--text-muted); font-size:0.82rem; margin-top:2px; }
@@ -310,7 +325,7 @@
   .order-cart-card-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
   .order-cart-card-round{ font-size:0.82rem; font-weight:700; color:var(--gold-2); }
   .order-cart-status-badge{ font-size:0.72rem; font-weight:800; padding:3px 9px; border-radius:999px; }
-  .order-cart-status-badge.st-pending{ background:rgba(234,179,8,0.16); color:#eab308; }
+  .order-cart-status-badge.st-pending{ background:rgba(226,83,107,0.16); color:#e2536b; }
   .order-cart-status-badge.st-approved{ background:rgba(63,191,143,0.16); color:#3fbf8f; }
   .order-cart-status-badge.st-rejected{ background:rgba(226,83,107,0.16); color:var(--crimson); }
   .order-cart-empty{ text-align:center; padding:24px 10px; color:var(--text-muted); font-size:0.86rem; }
@@ -358,7 +373,21 @@
     padding:5px 11px; border-radius:999px; border:1px solid rgba(232,184,75,0.25);
     white-space:nowrap;
   }
-  .badge-sm-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .badge-sm-row{
+    display:flex; gap:8px; align-items:center; flex-wrap:nowrap;
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 12px; scrollbar-width:thin;
+  }
+  .badge-sm-row::-webkit-scrollbar{ height:6px; }
+  .badge-sm-row::-webkit-scrollbar-thumb{ background:var(--border); border-radius:999px; }
+  .badge.sold-out-badge{
+    color:var(--crimson); background:rgba(226,83,107,0.14); border-color:rgba(226,83,107,0.35);
+  }
+  .badge-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-inline-end:6px; vertical-align:middle; }
+  .badge.badge-pending, .badge.badge-sold, .badge.badge-unsold{
+    color:#fff; border-color:#000;
+  }
 
   .empty-state{ text-align:center; padding:40px 20px; color:var(--text-muted); }
   .empty-state svg{ width:46px; height:46px; opacity:0.35; margin-bottom:12px; }
@@ -386,6 +415,9 @@
   .ball.sold{
     background:#3fbf8f !important; color:#fff;
   }
+  /* Вақте ки ҳамаи рақамҳои даври ҷорӣ фурӯхта шудаанд — тӯб хира мешавад,
+     вале склор кор карда истодааст (танҳо opacity, на pointer-events). */
+  .ball-grid.sold-out{ opacity:0.4; }
 
   .prizes-box{
     border:1px solid var(--border); border-radius:var(--radius-sm);
@@ -528,6 +560,10 @@
   .u-dots-btn:hover{ background:var(--surface-2); color:var(--text); }
   .u-dots-btn svg{ width:18px; height:18px; }
 
+  .users-table tr.is-marked td{ color:var(--emerald) !important; }
+
+  .users-table tr.is-pinned{ background:rgba(232,184,75,0.07); }
+
   .user-ctx-menu{
     position:fixed; z-index:220; min-width:170px;
     background:linear-gradient(180deg, var(--surface), var(--bg-2));
@@ -554,6 +590,7 @@
   }
   .push-notif-views svg{ width:16px; height:16px; }
   .push-notif-views.has-views{ color:var(--emerald); }
+  .push-notif-views.is-seen{ color:var(--gold); }
   .push-notif-preview{
     background:var(--bg-2); border:1px dashed var(--border); border-radius:var(--radius-sm);
     padding:18px 16px; text-align:center;
@@ -567,6 +604,18 @@
   .push-notif-preview-title{ font-size:1rem; font-weight:700; color:var(--gold-2); margin-bottom:6px; }
   .push-notif-preview-text{ font-size:0.85rem; color:var(--text); line-height:1.55; white-space:pre-wrap; word-break:break-word; }
   .push-notif-preview-text a{ color:var(--gold-2); text-decoration:underline; word-break:break-all; }
+
+  /* ---------- Push notification: chat/group/cart action picker (огоҳии шахсӣ) ---------- */
+  .push-action-select{ display:flex; gap:8px; }
+  .push-action-btn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:12px 8px; border-radius:var(--radius-sm); border:1px solid var(--border);
+    background:var(--bg-2); color:var(--text-muted); cursor:pointer; font-size:0.75rem; font-weight:700;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .push-action-btn svg{ width:20px; height:20px; }
+  .push-action-btn:hover{ border-color:var(--gold); color:var(--text); }
+  .push-action-btn.active{ border-color:var(--gold); background:rgba(232,184,75,0.14); color:var(--gold-2); }
 
   /* ---------- Toasts ---------- */
   #toastHost{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:10px; align-items:center; width:100%; max-width:420px; padding:0 16px; }
@@ -630,6 +679,13 @@
   #connOverlay .conn-title{ font-family:'Unbounded', sans-serif; font-size:1rem; color:var(--text); margin:0; }
   #connOverlay .conn-sub{ color:var(--text-muted); font-size:0.85rem; max-width:280px; margin:0; line-height:1.5; }
   #appRoot.conn-blur{ filter:blur(6px); transition:filter .3s ease; pointer-events:none; }
+.btn[disabled]{ opacity:0.4; cursor:not-allowed; filter:grayscale(0.3); pointer-events:none; }
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.no-spinner{ -moz-appearance:textfield; }
+#playersPushBtn.push-active{ color:#2a9c72; border-color:#2a9c72; background:rgba(63,191,143,0.15); }
+.user-ctx-menu button[data-act="push"].push-active{ color:#2a9c72; }
+.user-ctx-menu button[data-act="push"].push-active svg{ color:#2a9c72; }
 </style>
 </head>
 <body>
@@ -789,10 +845,17 @@
         <input type="text" id="roundNameInput" placeholder="Мас: Даври 1" required />
       </div>
       <div class="field">
+        <label>Нархи як рақам</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="priceSomonInput" placeholder="сомон" min="0" step="0.01" style="flex:1; -moz-appearance:textfield;" class="no-spinner" required />
+          <input type="number" id="priceRubleInput" placeholder="рубль" min="0" step="0.01" style="flex:1; -moz-appearance:textfield;" class="no-spinner" required />
+        </div>
+      </div>
+      <div class="field">
         <label for="roundCountInput">Шумораи рақамҳо (аз 1 сар мешавад)</label>
         <input type="number" id="roundCountInput" placeholder="Мас: 100" min="1" required />
       </div>
-      <button type="submit" class="btn btn-success" style="width:100%">
+      <button type="submit" class="btn btn-success" id="numbersSubmitBtn" style="width:100%" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         Сохтан
       </button>
@@ -929,6 +992,10 @@
     <div class="modal-head">
       <h3>Корбарони қайдшуда</h3>
       <div style="display:flex; align-items:center; gap:10px;">
+        <button class="btn btn-ghost" id="openArchiveBtn" style="padding:9px 14px; font-size:0.8rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+          Архив
+        </button>
         <button class="btn btn-danger" id="openBlacklistBtn" style="padding:9px 14px; font-size:0.8rem;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
           Рӯйхати сиёҳ
@@ -965,6 +1032,52 @@
       </table>
     </div>
   </div>
+</div>
+
+<!-- ARCHIVE MODAL -->
+<div id="archiveModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal" style="max-width:760px;">
+    <div class="modal-head">
+      <h3>Архив</h3>
+      <button class="modal-close" data-close="archiveModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div class="users-search" id="archiveSearchWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="archiveSearchInput" placeholder="Кофтуков аз рӯи ном, телефон, рамз, сана..." autocomplete="off">
+        <button type="button" class="users-search-clear" id="archiveSearchClear" title="Пок кардан">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="archiveTableEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+        <p id="archiveTableEmptyText">Рӯйхати архив холист</p>
+      </div>
+      <table id="archiveTable" class="users-table hidden">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Ном</th>
+            <th>Рақами телефон</th>
+            <th>Рамз</th>
+            <th>Санаи архив</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="archiveTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHIVE ROW CONTEXT MENU -->
+<div id="archiveCtxMenu" class="user-ctx-menu hidden">
+  <button data-act="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Чат</button>
+  <button data-act="push"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>Огоҳии пуш</button>
+  <button data-act="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z"/></svg><span id="archiveCtxPinLabel">Мех кардан</span></button>
+  <button data-act="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span id="archiveCtxMarkLabel">Қайд кардан</span></button>
+  <button data-act="restore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>Баровардан аз архив</button>
+  <button data-act="delete" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Нест кардан</button>
 </div>
 
 <!-- NOTIFICATIONS MODAL (фармоишҳои нав аз сабад) -->
@@ -1005,7 +1118,7 @@
     </div>
     <div class="field">
       <label>Матни огоҳинома</label>
-      <textarea id="pushNotifText" rows="4" placeholder="Матни хабарро барои ҳамаи корбарон нависед..."></textarea>
+      <textarea id="pushNotifText" rows="4" placeholder="Матни хабарро барои ҳамаи корбарон нависед..." disabled></textarea>
     </div>
     <div class="field">
       <label>Номи тугма (масалан: Даромадан)</label>
@@ -1034,6 +1147,59 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-gold" id="pushNotifSendBtn" style="width:100%;">Ирсол кардан</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER PUSH NOTIFICATION MODAL (огоҳии пуш ба як корбари мушаххас) -->
+<div id="userPushNotifModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <h3>Огоҳии пуш — <span id="userPushTargetName" style="color:var(--gold-2)">—</span></h3>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="push-notif-views" id="userPushSeenIcon" title="Ҳанӯз дида нашудааст">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <button class="modal-close" data-close="userPushNotifModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Матни огоҳинома</label>
+      <textarea id="userPushText" rows="4" placeholder="Матни хабарро барои ин корбар нависед..."></textarea>
+    </div>
+    <div class="field">
+      <label>Тугма (ихтиёрӣ — интихоб кунед)</label>
+      <div class="push-action-select" id="userPushActionSelect">
+        <button type="button" class="push-action-btn" data-action="chat" title="Чат">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          <span>Чат</span>
+        </button>
+        <button type="button" class="push-action-btn" data-action="group" title="Гурӯҳ">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          <span>Гурӯҳ</span>
+        </button>
+        <button type="button" class="push-action-btn" data-action="cart" title="Корзина">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          <span>Корзина</span>
+        </button>
+      </div>
+    </div>
+    <div class="push-notif-preview-wrap">
+      <div class="push-preview-head">
+        <span class="total-amount-label">Пешнамоиш — корбар чунин мебинад</span>
+      </div>
+      <div class="push-notif-preview">
+        <div class="push-notif-preview-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <div class="push-notif-preview-title">Хабари муҳим!</div>
+        <div class="push-notif-preview-text" id="userPushPreviewText">Матни хабар дар ин ҷо намоён мешавад...</div>
+        <button class="btn btn-gold push-notif-preview-btn hidden" id="userPushPreviewBtn" type="button" style="width:100%;margin-top:10px;">Даромадан</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gold" id="userPushSendBtn" style="width:100%;">Ирсол кардан</button>
+      <button class="btn btn-danger" id="userPushDeleteBtn" style="width:100%;margin-top:10px;">Нест кардани пуш</button>
     </div>
   </div>
 </div>
@@ -1112,16 +1278,48 @@
   </div>
 </div>
 
+<!-- DELETE USER CONFIRM MODAL (Ҳа/Не) -->
+<div id="deleteUserConfirmModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h3>Нест кардани корбар</h3>
+      <button class="modal-close" data-close="deleteUserConfirmModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p id="deleteUserConfirmText" style="font-size:0.85rem;color:var(--text-muted);margin-top:0">Корбарро пурра нест кунам? Ин амалро баргардонидан ғайриимкон аст.</p>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close="deleteUserConfirmModal">Не</button>
+      <button type="button" class="btn btn-danger" id="deleteUserConfirmYesBtn">Ҳа</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE USER PASSWORD MODAL -->
+<div id="deleteUserPasswordModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h3>Пароли тасдиқ</h3>
+      <button class="modal-close" data-close="deleteUserPasswordModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="field">
+      <label>Барои нест кардани корбар парол нависед</label>
+      <input type="password" id="deleteUserPasswordInput" placeholder="Парол" autocomplete="off" />
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close="deleteUserPasswordModal">Бекор кардан</button>
+      <button type="button" class="btn btn-danger" id="deleteUserPasswordConfirmBtn">Нест кардан</button>
+    </div>
+  </div>
+</div>
+
 <!-- ORDER CONTEXT MENU (3-нуқта дар огоҳинома) -->
 <div id="orderCtxMenu" class="user-ctx-menu hidden">
   <button data-act="viewCart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>Дидани сабад</button>
   <button data-act="message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Паём навиштан</button>
-  <button data-act="approve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Иҷозат додан</button>
-  <button data-act="reject" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>Рад кардан</button>
+  <button data-act="push"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>Огоҳии пуш</button>
 </div>
 
 <!-- ORDER CART VIEW MODAL -->
-<div id="orderCartModal" class="modal-overlay hidden">
+<div id="orderCartModal" class="modal-overlay hidden" style="z-index:60;">
   <div class="modal" style="max-width:460px;">
     <div class="modal-head">
       <h3>Сабади корбар</h3>
@@ -1132,8 +1330,24 @@
         <div class="order-cart-user-name" id="orderCartUserName">—</div>
         <div class="order-cart-user-phone" id="orderCartUserPhone">—</div>
       </div>
+      <button class="icon-btn" id="orderCartTotalBtn" title="Ҷамъи сабад" style="position:relative; overflow:visible;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        <span class="notif-badge" id="orderCartTotalBadge"></span>
+      </button>
     </div>
     <div id="orderCartList" class="order-cart-list"></div>
+  </div>
+</div>
+
+<!-- ORDER CART TOTAL MODAL (Ҷамъи рақамҳо ва нархи умумии сабади корбар) -->
+<div id="orderCartTotalModal" class="modal-overlay hidden" style="z-index:65;">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head">
+      <h3>Ҷамъи сабад</h3>
+      <button class="modal-close" data-close="orderCartTotalModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="order-cart-row"><span class="order-cart-label">Шумораи умумии рақамҳо</span><span class="order-cart-value" id="orderCartTotalCount">0 дона</span></div>
+    <div class="order-cart-row"><span class="order-cart-label">Нархи умумӣ</span><span class="order-cart-value" id="orderCartTotalPrice">0 сомон / 0 рубл</span></div>
   </div>
 </div>
 
@@ -1142,7 +1356,12 @@
   <div class="modal chat-modal" style="max-width:820px;">
     <div class="modal-head">
       <h3>Рӯйхати бозингарон</h3>
-      <button class="modal-close" data-close="playersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="icon-btn" id="playersPushBtn" title="Огоҳии пуш ба бозингарон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>
+        </button>
+        <button class="modal-close" data-close="playersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
     </div>
     <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
       <div class="users-search" id="playersSearchWrap">
@@ -1174,9 +1393,73 @@
   </div>
 </div>
 
+<!-- PLAYERS PUSH MODAL (огоҳии пуш танҳо ба бозингароне, ки рақамҳояшон аллакай тасдиқ шудааст) -->
+<div id="playersPushModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <h3>Огоҳии пуш ба бозингарон</h3>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="push-notif-views" id="playersPushViewsWrap" title="Дидани рӯйхати бозингароне, ки огоҳиро диданд">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span id="playersPushViewsCount">0</span>
+        </div>
+        <button class="modal-close" data-close="playersPushModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Матни огоҳинома</label>
+      <textarea id="playersPushText" rows="4" placeholder="Матни хабарро барои бозингарони рӯйхат нависед..."></textarea>
+    </div>
+    <div class="field">
+      <label>Номи тугма (ихтиёрӣ)</label>
+      <input type="text" id="playersPushBtnLabel" placeholder="Даромадан" />
+    </div>
+    <div class="field">
+      <label>Пайванд (ихтиёрӣ)</label>
+      <input type="text" id="playersPushBtnLink" placeholder="https://..." />
+    </div>
+    <div id="playersPushTargetInfo" style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px;">Гиранда: 0 бозингар</div>
+    <button class="btn btn-gold" id="playersPushSendBtn" style="width:100%;">Ирсол кардан</button>
+    <button class="btn btn-danger" id="playersPushDeleteBtn" style="width:100%;margin-top:10px;">Нест кардани пуш</button>
+  </div>
+</div>
+
+<!-- PLAYERS PUSH VIEWERS MODAL (руйхати пурраи бозингароне, ки огоҳии пушро диданд) -->
+<div id="playersPushViewersModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal" style="max-width:760px;">
+    <div class="modal-head">
+      <h3>Бозингароне, ки огоҳиро диданд</h3>
+      <button class="modal-close" data-close="playersPushViewersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div id="playersPushViewersEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <p>Ҳанӯз ҳеҷ бозингаре огоҳиро надидааст</p>
+      </div>
+      <table id="playersPushViewersTable" class="users-table hidden">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Ном</th>
+            <th>Рақами телефон</th>
+            <th>Рамз</th>
+            <th>Рақамҳо</th>
+            <th>Вақти дидан</th>
+          </tr>
+        </thead>
+        <tbody id="playersPushViewersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- USER ROW CONTEXT MENU -->
 <div id="userCtxMenu" class="user-ctx-menu hidden">
   <button data-act="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Чат</button>
+  <button data-act="push" id="userCtxPushBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>Огоҳии пуш</button>
+  <button data-act="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z"/></svg><span id="userCtxPinLabel">Мех кардан</span></button>
+  <button data-act="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span id="userCtxMarkLabel">Қайд кардан</span></button>
+  <button data-act="archive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>Ба архив гузарондан</button>
   <button data-act="block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg><span id="userCtxBlockLabel">Блок кардан</span></button>
   <button data-act="delete" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Нест кардан</button>
 </div>
@@ -1252,7 +1535,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getDatabase, ref, get, set, remove, update, onValue, push, off
+  getDatabase, ref, get, set, remove, update, onValue, push, off, onDisconnect
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -1317,21 +1600,21 @@ function tone(freq, dur=0.09, type="sine", vol=0.045, delay=0){
   osc.stop(t0 + dur + 0.02);
 }
 const sound = {
-  click: () => tone(520, 0.06, "sine", 0.035),
-  open:  () => tone(480, 0.07, "sine", 0.035),
-  close: () => tone(340, 0.06, "sine", 0.03),
-  success: () => { tone(660, 0.09, "sine", 0.05); tone(880, 0.14, "sine", 0.05, 0.09); },
-  error: () => tone(200, 0.22, "sawtooth", 0.05),
-  pop: (delay=0) => tone(360 + Math.random()*120, 0.05, "triangle", 0.025, delay),
-  newUser: () => { tone(660, 0.1, "sine", 0.055); tone(880, 0.12, "sine", 0.055, 0.11); tone(1046, 0.18, "sine", 0.06, 0.23); },
-  newMessage: () => { tone(880, 0.09, "sine", 0.05); tone(700, 0.12, "sine", 0.05, 0.1); },
-  newOrder: () => { tone(740, 0.09, "sine", 0.055); tone(980, 0.12, "sine", 0.055, 0.1); tone(1180, 0.16, "sine", 0.06, 0.22); },
-  numbersAppear: () => { tone(480, 0.07, "sine", 0.03); tone(680, 0.08, "sine", 0.03, 0.06); tone(920, 0.1, "sine", 0.028, 0.12); },
-  prizesAppear: () => { tone(700, 0.06, "sine", 0.035); tone(940, 0.09, "sine", 0.032, 0.06); },
-  pushEdit: () => { tone(600, 0.06, "sine", 0.04); tone(860, 0.09, "sine", 0.04, 0.07); },
-  pushClear: () => { tone(500, 0.07, "triangle", 0.04); tone(360, 0.09, "triangle", 0.035, 0.07); },
-  pushDelete: () => { tone(420, 0.08, "sawtooth", 0.045); tone(260, 0.16, "sawtooth", 0.045, 0.08); },
-  pushViewsPing: () => tone(1200, 0.05, "sine", 0.03),
+  click: () => tone(520, 0.06, "sine", 0.22),
+  open:  () => tone(480, 0.07, "sine", 0.22),
+  close: () => tone(340, 0.06, "sine", 0.2),
+  success: () => { tone(660, 0.09, "sine", 0.3); tone(880, 0.14, "sine", 0.3, 0.09); },
+  error: () => tone(200, 0.22, "sawtooth", 0.3),
+  pop: (delay=0) => tone(360 + Math.random()*120, 0.05, "triangle", 0.16, delay),
+  newUser: () => { tone(660, 0.1, "sine", 0.32); tone(880, 0.12, "sine", 0.32, 0.11); tone(1046, 0.18, "sine", 0.35, 0.23); },
+  newMessage: () => { tone(880, 0.09, "sine", 0.3); tone(700, 0.12, "sine", 0.3, 0.1); },
+  newOrder: () => { tone(740, 0.09, "sine", 0.32); tone(980, 0.12, "sine", 0.32, 0.1); tone(1180, 0.16, "sine", 0.35, 0.22); },
+  numbersAppear: () => { tone(480, 0.07, "sine", 0.2); tone(680, 0.08, "sine", 0.2, 0.06); tone(920, 0.1, "sine", 0.18, 0.12); },
+  prizesAppear: () => { tone(700, 0.06, "sine", 0.22); tone(940, 0.09, "sine", 0.2, 0.06); },
+  pushEdit: () => { tone(600, 0.06, "sine", 0.24); tone(860, 0.09, "sine", 0.24, 0.07); },
+  pushClear: () => { tone(500, 0.07, "triangle", 0.24); tone(360, 0.09, "triangle", 0.2, 0.07); },
+  pushDelete: () => { tone(420, 0.08, "sawtooth", 0.26); tone(260, 0.16, "sawtooth", 0.26, 0.08); },
+  pushViewsPing: () => tone(1200, 0.05, "sine", 0.18),
 };
 document.addEventListener("click", (e) => {
   if(e.target.closest(".btn, .icon-btn, .action-card")) sound.click();
@@ -1350,6 +1633,13 @@ const icons = {
   error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v0"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v0M12 11v5"/></svg>'
 };
+// Пеш аз амалҳои бебозгашт (блок, нест кардан, пурра нест кардан) як тасдиқи
+// содда талаб карда мешавад, то ки як зеркунии тасодуфии тугма боиси нест
+// шудани пурраи маълумоти корбар нагардад.
+function confirmDangerous(message){
+  return window.confirm(message);
+}
+
 function showToast(msg, type="info", duration=3200){
   const el = document.createElement("div");
   el.className = `toast ${type}`;
@@ -1408,6 +1698,7 @@ function showLogin(message){
   loginScreen.classList.remove("hidden");
   splash.classList.add("hidden");
   codeInput.value = "";
+  remove(ref(db, "adminPresence/online")).catch(()=>{});
   if(message){
     loginError.textContent = message;
   } else {
@@ -1420,6 +1711,9 @@ function showDashboard(){
   splash.classList.add("hidden");
   dashboard.classList.remove("hidden");
   attachLiveListeners();
+  const presenceRef = ref(db, "adminPresence/online");
+  set(presenceRef, true).catch(()=>{});
+  onDisconnect(presenceRef).remove();
 }
 
 function forceLogout(reason){
@@ -1577,7 +1871,7 @@ function fmtDate(ts){
 
 function renderUsersTable(data){
   if(data !== undefined) usersCache = data || {};
-  const allEntries = Object.entries(usersCache);
+  const allEntries = Object.entries(usersCache).filter(([, u]) => !u.archived && !u.blocked);
   const usersTableEmptyText = document.getElementById("usersTableEmptyText");
 
   if(allEntries.length === 0){
@@ -1610,12 +1904,17 @@ function renderUsersTable(data){
 
   usersTableEmpty.classList.add("hidden");
   usersTable.classList.remove("hidden");
-  entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+  entries.sort((a,b) => {
+    const pa = a[1].pinned ? 1 : 0, pb = b[1].pinned ? 1 : 0;
+    if(pa !== pb) return pb - pa;
+    if(pa && pb) return (b[1].pinnedAt||0) - (a[1].pinnedAt||0);
+    return (a[1].createdAt||0) - (b[1].createdAt||0);
+  });
 
   usersTableBody.innerHTML = entries.map(([id, u], i) => `
-    <tr data-id="${id}" class="${u.blocked ? "is-blocked" : ""}">
+    <tr data-id="${id}" class="${u.blocked ? "is-blocked" : ""} ${u.pinned ? "is-pinned" : ""} ${u.marked ? "is-marked" : ""}">
       <td class="u-idx">${i+1}</td>
-      <td class="u-name">${escapeHtml(u.name || "—")}</td>
+      <td class="u-name">${u.pinned ? "📌 " : ""}${escapeHtml(u.name || "—")}</td>
       <td>${escapeHtml(u.phone || "—")}</td>
       <td>${escapeHtml(u.password || "—")}</td>
       <td class="status-cell ${onlineUserIds.has(id) ? "is-online" : ""}">
@@ -1655,15 +1954,48 @@ usersSearchClear.addEventListener("click", () => {
   usersSearchInput.focus();
 });
 
+// Ҳангоми нест ё блок кардани корбар, ҳамаи изи ӯ дар система пурра тоза
+// мешавад: фармоишҳо/сабади ӯ (то рақамҳояш озод шаванд), паёмҳои чат ва
+// вурудаш дар рӯйхати чати админ, огоҳиномаи шахсии push, ҳолати онлайн
+// ва индекси рақами телефон.
+async function cascadeDeleteUserData(u, id){
+  const tasks = [];
+  Object.entries(ordersCache || {}).forEach(([oid, o]) => {
+    if(o && o.userId === id){
+      tasks.push(remove(ref(db, "orders/" + oid)).catch(()=>{}));
+    }
+  });
+  if(u.name){
+    tasks.push(remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{}));
+    // Вурудаш аз рӯйхати мизоҷони админ-чат (admini_chat.html) низ пок мешавад,
+    // то номаш дар он рӯйхат дигар намоён набошад.
+    tasks.push(remove(ref(db, "sayt1_active_users/" + u.name)).catch(()=>{}));
+  }
+  tasks.push(remove(ref(db, "userPushNotice/" + id)).catch(()=>{}));
+  tasks.push(remove(ref(db, "onlineUsers/" + id)).catch(()=>{}));
+  const normPhone = u.normPhone || (u.phone ? normalizePhone(u.phone) : null);
+  if(normPhone){
+    tasks.push(remove(ref(db, "phoneIndex/" + normPhone)).catch(()=>{}));
+  }
+  await Promise.all(tasks);
+}
+
 function openUserCtxMenu(id, anchorBtn){
   ctxTargetId = id;
+  const u = usersCache[id] || {};
+  const pinLabelEl = document.getElementById("userCtxPinLabel");
+  if(pinLabelEl) pinLabelEl.textContent = u.pinned ? "Аз мех кушодан" : "Мех кардан";
+  const markLabelEl = document.getElementById("userCtxMarkLabel");
+  if(markLabelEl) markLabelEl.textContent = u.marked ? "Бекор кардани қайд" : "Қайд кардан";
+  const pushBtnEl = document.getElementById("userCtxPushBtn");
+  if(pushBtnEl) pushBtnEl.classList.toggle("push-active", !!(userPushNoticeCache && userPushNoticeCache[id]));
   const rect = anchorBtn.getBoundingClientRect();
   userCtxMenu.classList.remove("hidden");
-  const menuW = 180;
+  const menuW = 200;
   let left = rect.right - menuW;
   if(left < 8) left = 8;
   let top = rect.bottom + 6;
-  if(top + 140 > window.innerHeight) top = rect.top - 140;
+  if(top + 260 > window.innerHeight) top = rect.top - 260;
   userCtxMenu.style.left = left + "px";
   userCtxMenu.style.top = top + "px";
 }
@@ -1696,36 +2028,117 @@ userCtxMenu.addEventListener("click", async (e) => {
     chatFrame.src = CHAT_URL + "?" + params.toString();
     closeModal("usersDataModal");
     openModal("chatModal");
+  } else if(act === "push"){
+    openUserPushModal(id, u);
+  } else if(act === "pin"){
+    try{
+      const nowPinned = !u.pinned;
+      await update(ref(db, "users/" + id), nowPinned ? { pinned: true, pinnedAt: Date.now() } : { pinned: false, pinnedAt: null });
+      showToast(nowPinned ? "Корбар мех карда шуд" : "Корбар аз мех кушода шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои мех кардани корбар.", "error");
+    }
+  } else if(act === "mark"){
+    try{
+      const nowMarked = !u.marked;
+      await update(ref(db, "users/" + id), { marked: nowMarked });
+    } catch(err){
+      console.error(err);
+      showToast("Хатои қайд кардани корбар.", "error");
+    }
+  } else if(act === "archive"){
+    try{
+      await set(ref(db, "archivedUsers/" + id), { ...u, archivedAt: Date.now() });
+      await update(ref(db, "users/" + id), { archived: true, archivedAt: Date.now() });
+      showToast("Корбар ба архив гузаронда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои гузарондан ба архив.", "error");
+    }
   } else if(act === "block"){
+    openBlockUserConfirm(id, u);
+  } else if(act === "delete"){
+    openDeleteUserFlow(id, u);
+  }
+});
+
+let deleteUserPendingId = null;
+let deleteUserPendingAction = "delete";
+document.getElementById("deleteUserConfirmYesBtn").addEventListener("click", async () => {
+  closeModal("deleteUserConfirmModal");
+  if(deleteUserPendingAction === "block"){
+    const id = deleteUserPendingId;
+    if(!id) return;
+    const u = usersCache[id] || {};
     try{
       const normPhone = u.normPhone || normalizePhone(u.phone);
       if(normPhone){
-        // Рақами телефон ба рӯйхати сиёҳ илова мешавад — то ин корбар ҳатто бо номи дигар
-        // ё бо тағйир додани префикси рақам натавонад аз нав сабти ном кунад.
         await set(ref(db, "blockedPhones/" + normPhone), {
           name: u.name || "",
           phone: u.phone || "",
           blockedAt: Date.now()
         });
       }
-      // Корбари блокшуда аз рӯйхати корбарони қайдшуда пурра нест мешавад.
-      await remove(ref(db, "users/" + id));
-      if(u.name) remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{});
+      // Маълумоти корбар нест намешавад — фақат нишонаи blocked гузошта мешавад,
+      // то корбар аз индекс фавран берун бароварда шавад ва баъд аз баровардан
+      // аз рӯйхати сиёҳ (unblock) худкор ба ҷои аввалааш дар рӯйхат баргардад.
+      await update(ref(db, "users/" + id), { blocked: true, blockedAt: Date.now() });
+      await remove(ref(db, "onlineUsers/" + id)).catch(()=>{});
       showToast("Корбар блок карда шуд, аз рӯйхат нест шуд ва рақамаш ба рӯйхати сиёҳ гузашт", "success");
     } catch(err){
       console.error(err);
       showToast("Хатои блок кардани корбар.", "error");
     }
-  } else if(act === "delete"){
-    try{
-      await remove(ref(db, "users/" + id));
-      if(u.name) remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{});
-      showToast("Корбар нест карда шуд", "success");
-    } catch(err){
-      console.error(err);
-      showToast("Хатои нест кардани корбар.", "error");
-    }
+    deleteUserPendingId = null;
+    deleteUserPendingAction = "delete";
+    return;
   }
+  document.getElementById("deleteUserPasswordInput").value = "";
+  openModal("deleteUserPasswordModal");
+  setTimeout(() => document.getElementById("deleteUserPasswordInput").focus(), 50);
+});
+document.getElementById("deleteUserPasswordConfirmBtn").addEventListener("click", async () => {
+  const pass = document.getElementById("deleteUserPasswordInput").value;
+  if(pass !== "1995"){
+    showToast("Пароли нодуруст.", "error");
+    return;
+  }
+  const id = deleteUserPendingId;
+  if(!id) return;
+  closeModal("deleteUserPasswordModal");
+  const u = usersCache[id] || {};
+  try{
+    await remove(ref(db, "users/" + id));
+    await cascadeDeleteUserData(u, id);
+    showToast("Корбар нест карда шуд", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои нест кардани корбар.", "error");
+  }
+  deleteUserPendingId = null;
+  deleteUserPendingAction = "delete";
+});
+function openDeleteUserFlow(id, u){
+  deleteUserPendingId = id;
+  deleteUserPendingAction = "delete";
+  const titleEl = document.querySelector("#deleteUserConfirmModal h3");
+  if(titleEl) titleEl.textContent = "Нест кардани корбар";
+  document.getElementById("deleteUserConfirmText").textContent =
+    `Корбари "${u.name || u.phone || ""}"-ро пурра нест кунам? Ин амалро баргардонидан ғайриимкон аст.`;
+  openModal("deleteUserConfirmModal");
+}
+function openBlockUserConfirm(id, u){
+  deleteUserPendingId = id;
+  deleteUserPendingAction = "block";
+  const titleEl = document.querySelector("#deleteUserConfirmModal h3");
+  if(titleEl) titleEl.textContent = "Блок кардани корбар";
+  document.getElementById("deleteUserConfirmText").textContent =
+    `Корбари "${u.name || u.phone || ""}"-ро блок кунам? Ин амал бебозгашт аст: корбар аз рӯйхат нест мешавад ва рақамаш ба рӯйхати сиёҳ гузашта, дигар наметавонад ворид шавад.`;
+  openModal("deleteUserConfirmModal");
+}
+document.getElementById("deleteUserPasswordInput").addEventListener("keydown", (e) => {
+  if(e.key === "Enter") document.getElementById("deleteUserPasswordConfirmBtn").click();
 });
 
 /* ---------------- Фармоишҳо (orders аз сабади index.html) ---------------- */
@@ -1884,7 +2297,7 @@ function renderPlayersTable(data){
       <td>${escapeHtml(o.phone || "—")}</td>
       <td>${escapeHtml(o.roundName || "—")}</td>
       <td class="u-date">${escapeHtml(o.dateTime || fmtDate(o.createdAt))}</td>
-      <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
+      <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip chip-approved">${escapeHtml(String(n))}</span>`).join("")}</div></td>
       <td><button class="u-dots-btn player-view-cart-btn" data-id="${id}" title="Дидани сабад">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </button></td>
@@ -1893,14 +2306,173 @@ function renderPlayersTable(data){
   playersTableBody.querySelectorAll(".player-view-cart-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const o = ordersCache[btn.dataset.id];
+      // Равзанаи рӯйхати бозингарон қасдан пӯшида намешавад — сабад дар болои
+      // он кушода мешавад ва пас аз пӯшидани сабад рӯйхат ҳамчунон боқӣ мемонад.
       if(o) openUserCartModal(o.phone);
-      closeModal("playersModal");
     });
   });
 }
 
+/* ---------------- Push огоҳинома ба бозингарони рӯйхат (танҳо касоне, ки рақамҳояшон аллакай тасдиқ шудааст) ---------------- */
+const playersPushBtn = document.getElementById("playersPushBtn");
+const playersPushModal = document.getElementById("playersPushModal");
+const playersPushText = document.getElementById("playersPushText");
+const playersPushBtnLabel = document.getElementById("playersPushBtnLabel");
+const playersPushBtnLink = document.getElementById("playersPushBtnLink");
+const playersPushTargetInfo = document.getElementById("playersPushTargetInfo");
+const playersPushSendBtn = document.getElementById("playersPushSendBtn");
+const playersPushViewsWrap = document.getElementById("playersPushViewsWrap");
+const playersPushViewsCount = document.getElementById("playersPushViewsCount");
+const playersPushViewersEmpty = document.getElementById("playersPushViewersEmpty");
+const playersPushViewersTable = document.getElementById("playersPushViewersTable");
+const playersPushViewersTableBody = document.getElementById("playersPushViewersTableBody");
+
+// Танҳо userId-и корбароне, ки фармоишашон "approved" аст — яъне алкай дар
+// рӯйхати бозингарон ҳастанд ва рақамҳои харидаашон муваффақ шудааст.
+function getApprovedPlayerUserIds(){
+  const ids = new Set();
+  Object.values(ordersCache || {}).forEach(o => {
+    if(o && o.status === "approved" && o.userId) ids.add(o.userId);
+  });
+  return Array.from(ids);
+}
+
+// Рақамҳои корбари алакай тасдиқшудаи ҳамин userId (барои рӯйхати бинандагон).
+function getApprovedNumbersForUserId(uid){
+  const nums = [];
+  Object.values(ordersCache || {}).forEach(o => {
+    if(o && o.status === "approved" && o.userId === uid){
+      (o.numbers || []).forEach(n => nums.push(n));
+    }
+  });
+  return nums;
+}
+
+let userPushNoticeCache = {};
+let playersPushLastTargetIds = [];
+
+onValue(ref(db, "userPushNotice"), (snap) => {
+  userPushNoticeCache = snap.val() || {};
+  updatePlayersPushViewsBadge();
+}, (err) => {
+  console.error("Хатои хондани userPushNotice аз Firebase:", err);
+});
+
+// Гурӯҳи охирини гирандагони огоҳии бозингарон дар Firebase сабт мешавад, то
+// баъд аз пӯшидан/боз кардани равзана рӯйхати бинандагон боқӣ монад.
+onValue(ref(db, "playersPushBroadcast/targetIds"), (snap) => {
+  const data = snap.val();
+  playersPushLastTargetIds = data ? Object.keys(data) : [];
+  playersPushBtn.classList.toggle("push-active", playersPushLastTargetIds.length > 0);
+  updatePlayersPushViewsBadge();
+}, (err) => {
+  console.error("Хатои хондани playersPushBroadcast аз Firebase:", err);
+});
+
+function updatePlayersPushViewsBadge(){
+  const seenCount = playersPushLastTargetIds.filter(uid => userPushNoticeCache[uid] && userPushNoticeCache[uid].seen).length;
+  playersPushViewsCount.textContent = seenCount;
+  playersPushViewsWrap.classList.toggle("has-views", seenCount > 0);
+}
+
+playersPushBtn.addEventListener("click", () => {
+  const count = getApprovedPlayerUserIds().length;
+  playersPushTargetInfo.textContent = `Гиранда: ${count} бозингар`;
+  playersPushText.value = "";
+  playersPushBtnLabel.value = "";
+  playersPushBtnLink.value = "";
+  openModal("playersPushModal");
+});
+
+playersPushViewsWrap.addEventListener("click", () => {
+  renderPlayersPushViewers();
+  openModal("playersPushViewersModal");
+});
+
+function renderPlayersPushViewers(){
+  const viewers = playersPushLastTargetIds
+    .map(uid => ({ uid, notice: userPushNoticeCache[uid] }))
+    .filter(v => v.notice && v.notice.seen);
+  viewers.sort((a, b) => (b.notice.seenAt || 0) - (a.notice.seenAt || 0));
+
+  if(viewers.length === 0){
+    playersPushViewersTable.classList.add("hidden");
+    playersPushViewersEmpty.classList.remove("hidden");
+    playersPushViewersTableBody.innerHTML = "";
+    return;
+  }
+  playersPushViewersEmpty.classList.add("hidden");
+  playersPushViewersTable.classList.remove("hidden");
+  playersPushViewersTableBody.innerHTML = viewers.map((v, i) => {
+    const u = usersCache[v.uid] || {};
+    const nums = getApprovedNumbersForUserId(v.uid);
+    return `
+    <tr>
+      <td class="u-idx">${i+1}</td>
+      <td class="u-name">${escapeHtml(u.name || "—")}</td>
+      <td>${escapeHtml(u.phone || "—")}</td>
+      <td>${escapeHtml(u.password || "—")}</td>
+      <td><div class="player-numbers-scroll">${nums.map(n => `<span class="player-num-chip chip-approved">${escapeHtml(String(n))}</span>`).join("")}</div></td>
+      <td class="u-date">${v.notice.seenAt ? fmtDate(v.notice.seenAt) : "—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+playersPushSendBtn.addEventListener("click", async () => {
+  const text = playersPushText.value.trim();
+  if(!text){
+    showToast("Матни огоҳиномаро нависед.", "error");
+    return;
+  }
+  const ids = getApprovedPlayerUserIds();
+  if(ids.length === 0){
+    showToast("Ҳеҷ бозингаре барои ирсол ёфт нашуд.", "error");
+    return;
+  }
+  const btnLabel = playersPushBtnLabel.value.trim();
+  const btnLink = playersPushBtnLink.value.trim();
+  const payload = { text, updatedAt: Date.now() };
+  if(btnLink){
+    payload.btnLabel = btnLabel || "Даромадан";
+    payload.btnLink = btnLink;
+  }
+  playersPushSendBtn.disabled = true;
+  try{
+    await Promise.all(ids.map(uid => set(ref(db, "userPushNotice/" + uid), payload)));
+    const targetIds = {};
+    ids.forEach(uid => { targetIds[uid] = true; });
+    await set(ref(db, "playersPushBroadcast"), { targetIds, updatedAt: Date.now() });
+    playersPushBtn.classList.add("push-active");
+    showToast(`Огоҳинома ба ${ids.length} бозингар ирсол шуд ✅`, "success");
+    closeModal("playersPushModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои ирсоли огоҳинома.", "error");
+  } finally {
+    playersPushSendBtn.disabled = false;
+  }
+});
+
+document.getElementById("playersPushDeleteBtn").addEventListener("click", async () => {
+  try{
+    const ids = playersPushLastTargetIds.length ? playersPushLastTargetIds : getApprovedPlayerUserIds();
+    await Promise.all(ids.map(uid => remove(ref(db, "userPushNotice/" + uid)).catch(()=>{})));
+    await remove(ref(db, "playersPushBroadcast")).catch(()=>{});
+    playersPushBtn.classList.remove("push-active");
+    playersPushText.value = "";
+    playersPushBtnLabel.value = "";
+    playersPushBtnLink.value = "";
+    showToast("Пуш барои бозингарон нест карда шуд", "success");
+    closeModal("playersPushModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои нест кардани пуш.", "error");
+  }
+});
+
 const REJECTED_CART_DISPLAY_MS = 10 * 1000; // 10 сония — мутобиқ ба сабади корбар дар index.html
 let currentOrderCartPhone = null;
+let currentOrderCartTotals = { count: 0, somon: 0, ruble: 0 };
 
 function renderUserCartList(phone){
   document.getElementById("orderCartUserPhone").textContent = phone || "—";
@@ -1915,11 +2487,26 @@ function renderUserCartList(phone){
   });
   entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
   document.getElementById("orderCartUserName").textContent = (entries[0] && entries[0][1].name) || "—";
+  let totalCount = 0, totalSomon = 0, totalRuble = 0;
+  entries.forEach(([, o]) => {
+    totalCount += (o.numbers || []).length;
+    totalSomon += (o.somon || 0);
+    totalRuble += (o.ruble || 0);
+  });
+  currentOrderCartTotals = { count: totalCount, somon: totalSomon, ruble: totalRuble };
+  const totalBadge = document.getElementById("orderCartTotalBadge");
+  if(totalCount > 0){
+    totalBadge.textContent = totalCount;
+    totalBadge.classList.add("show");
+  } else {
+    totalBadge.textContent = "";
+    totalBadge.classList.remove("show");
+  }
   const listEl = document.getElementById("orderCartList");
   if(entries.length === 0){
     listEl.innerHTML = '<div class="order-cart-empty">Ин корбар ҳанӯз сабад надорад</div>';
   } else {
-    listEl.innerHTML = entries.map(([, o]) => {
+    listEl.innerHTML = entries.map(([oid, o]) => {
       const status = o.status || "pending";
       let badgeClass = "st-pending", badgeText = "Дар интизор";
       let countdownHtml = "";
@@ -1939,12 +2526,17 @@ function renderUserCartList(phone){
           <div class="order-cart-row"><span class="order-cart-label">Давр</span><span class="order-cart-value">${escapeHtml(o.roundName || "—")} · ${escapeHtml(o.dateTime || fmtDate(o.createdAt))}</span></div>
           <div class="order-cart-row"><span class="order-cart-label">Ном</span><span class="order-cart-value">${escapeHtml(o.name || "—")}</span></div>
           <div class="order-cart-row"><span class="order-cart-label">Рақами телефон</span><span class="order-cart-value">${escapeHtml(o.phone || "—")}</span></div>
+          <div class="order-cart-row"><span class="order-cart-label">Нархи як рақам</span><span class="order-cart-value">${o.priceSomon != null ? o.priceSomon : Math.round((o.somon||0) / ((o.numbers || []).length || 1))} сомон / ${o.priceRuble != null ? o.priceRuble : Math.round((o.ruble||0) / ((o.numbers || []).length || 1))} рубл</span></div>
           <div class="order-cart-row"><span class="order-cart-label">Шумораи рақамҳо</span><span class="order-cart-value">${(o.numbers || []).length} дона</span></div>
           <div class="order-cart-row"><span class="order-cart-label">Нархи умумӣ</span><span class="order-cart-value">${(o.somon||0)} сомон / ${(o.ruble||0)} рубл</span></div>
-          <div class="order-cart-row"><span class="order-cart-label">Рақамҳо</span></div>
-          <div class="order-cart-numbers player-numbers-scroll" style="max-width:100%;">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div>
+          <div class="order-cart-numbers player-numbers-scroll" style="max-width:100%;">${(o.numbers || []).map(n => `<span class="player-num-chip${status === "pending" ? " chip-pending" : status === "approved" ? " chip-approved" : ""}">${escapeHtml(String(n))}</span>`).join("")}</div>
           <div class="order-cart-row"><span class="order-cart-label">Статус</span><span class="order-cart-status-badge ${badgeClass}">${badgeText}</span></div>
           ${countdownHtml}
+          ${status === "pending" ? `
+          <div class="order-cart-actions-row" style="display:flex; gap:8px; margin-top:10px;">
+            <button type="button" class="btn btn-primary order-cart-approve-btn" data-order-id="${oid}" style="flex:1;">Иҷозат додан</button>
+            <button type="button" class="btn btn-danger order-cart-reject-btn" data-order-id="${oid}" style="flex:1;">Рад кардан</button>
+          </div>` : ""}
         </div>
       `;
     }).join("");
@@ -1956,6 +2548,36 @@ function openUserCartModal(phone){
   renderUserCartList(phone);
   openModal("orderCartModal");
 }
+
+document.getElementById("orderCartTotalBtn").addEventListener("click", () => {
+  document.getElementById("orderCartTotalCount").textContent = currentOrderCartTotals.count + " дона";
+  document.getElementById("orderCartTotalPrice").textContent = currentOrderCartTotals.somon + " сомон / " + currentOrderCartTotals.ruble + " рубл";
+  openModal("orderCartTotalModal");
+});
+
+document.getElementById("orderCartList").addEventListener("click", async (e) => {
+  const approveBtn = e.target.closest(".order-cart-approve-btn");
+  const rejectBtn = e.target.closest(".order-cart-reject-btn");
+  const btn = approveBtn || rejectBtn;
+  if(!btn) return;
+  const oid = btn.dataset.orderId;
+  if(!oid) return;
+  btn.disabled = true;
+  try{
+    if(approveBtn){
+      await update(ref(db, "orders/" + oid), { status: "approved" });
+      showToast("Фармоиш тасдиқ карда шуд — рақамҳо сабз шуданд", "success");
+    } else {
+      await update(ref(db, "orders/" + oid), { status: "rejected", rejectedAt: Date.now() });
+      showToast("Фармоиш рад карда шуд", "error");
+    }
+    if(currentOrderCartPhone) renderUserCartList(currentOrderCartPhone);
+  } catch(err){
+    console.error(err);
+    showToast("Хатои иҷрои амал.", "error");
+    btn.disabled = false;
+  }
+});
 
 // Ҳар сония, агар равзанаи "Сабади корбар" кушода бошад, аз нав рендер мекунем,
 // то фармоишҳои радшуда мисли index.html пас аз 10 сония худкор нест шаванд.
@@ -2015,22 +2637,14 @@ orderCtxMenu.addEventListener("click", async (e) => {
     chatFrame.src = CHAT_URL + "?" + params.toString();
     closeModal("notifModal");
     openModal("chatModal");
-  } else if(act === "approve"){
-    try{
-      await Promise.all(ids.map(oid => update(ref(db, "orders/" + oid), { status: "approved" })));
-      showToast(ids.length > 1 ? "Ҳамаи фармоишҳо тасдиқ карда шуданд — рақамҳо сабз шуданд" : "Фармоиш тасдиқ карда шуд — рақамҳо сабз шуданд", "success");
-    } catch(err){
-      console.error(err);
-      showToast("Хатои тасдиқ кардани фармоиш.", "error");
-    }
-  } else if(act === "reject"){
-    try{
-      const now = Date.now();
-      await Promise.all(ids.map(oid => update(ref(db, "orders/" + oid), { status: "rejected", rejectedAt: now })));
-      showToast(ids.length > 1 ? "Ҳамаи фармоишҳо рад карда шуданд" : "Фармоиш рад карда шуд", "error");
-    } catch(err){
-      console.error(err);
-      showToast("Хатои рад кардани фармоиш.", "error");
+  } else if(act === "push"){
+    const uid = o.userId;
+    if(!uid){
+      showToast("Корбари ин фармоиш ёфт нашуд.", "error");
+    } else {
+      const u = usersCache[uid] || { name: o.name, phone: o.phone };
+      closeModal("notifModal");
+      openUserPushModal(uid, u);
     }
   }
 });
@@ -2094,6 +2708,7 @@ function linkifyAdmin(escapedText){
 }
 
 pushNotifBtn.addEventListener("click", () => {
+  pushNotifText.disabled = true;
   openModal("pushNotifModal");
 });
 
@@ -2137,6 +2752,7 @@ onValue(ref(db, "pushNotice"), (snap) => {
     activePushNoticeBtnLink = (data && data.btnLink) ? data.btnLink : "";
     if(activePushNoticeViews > pushNoticeViewsWerePresent) sound.pushViewsPing();
     pushNoticeViewsWerePresent = activePushNoticeViews;
+    pushNotifBtn.classList.toggle("has-active-push", !!activePushNoticeText);
   } catch(err){
     console.error("Хатои коркарди маълумоти pushNotice:", err);
   }
@@ -2228,6 +2844,7 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
   closePushNotifCtxMenu();
 
   if(act === "edit"){
+    pushNotifText.disabled = false;
     if(activePushNoticeText){
       pushNotifText.value = activePushNoticeText;
       pushNotifBtnLabel.value = activePushNoticeBtnLabel;
@@ -2236,8 +2853,9 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
       sound.pushEdit();
       showToast("Матн аз пешнамоиш барои таҳрир бор карда шуд", "info");
     } else {
-      showToast("Ҳанӯз ягон огоҳинома фиристода нашудааст.", "error");
+      showToast("Ҳоло метавонед матни навро нависед.", "info");
     }
+    pushNotifText.focus();
   } else if(act === "clear"){
     askPushNotifConfirm(
       "Пок кардани матн",
@@ -2284,6 +2902,133 @@ pushNotifCtxMenu.addEventListener("click", async (e) => {
         }
       }
     );
+  }
+});
+
+/* ---------------- Push огоҳинома ба як корбари МУШАХХАС (аз 3-нуқтаи рӯйхат) ---------------- */
+const userPushNotifModal = document.getElementById("userPushNotifModal");
+const userPushTargetNameEl = document.getElementById("userPushTargetName");
+const userPushText = document.getElementById("userPushText");
+const userPushActionSelect = document.getElementById("userPushActionSelect");
+const userPushPreviewText = document.getElementById("userPushPreviewText");
+const userPushPreviewBtn = document.getElementById("userPushPreviewBtn");
+const userPushSendBtn = document.getElementById("userPushSendBtn");
+const userPushSeenIcon = document.getElementById("userPushSeenIcon");
+
+// Тугмаҳои амали дохили барнома — иконка ва номи стандартии ҳар кадом, айнан
+// монанди тугмаҳои чат/гурӯҳ/сабад дар боло дар index.html.
+const USER_PUSH_ACTION_LABELS = { chat: "Чат", group: "Гурӯҳ", cart: "Корзина" };
+const USER_PUSH_ACTION_ICONS = {
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;vertical-align:-3px;margin-inline-end:6px;"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>',
+  group: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;vertical-align:-3px;margin-inline-end:6px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;vertical-align:-3px;margin-inline-end:6px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>'
+};
+
+let userPushTargetId = null;
+let userPushSelectedAction = null;
+let userPushSeenUnsub = null;
+
+function updateUserPushPreview(){
+  const draft = userPushText.value.trim();
+  userPushPreviewText.innerHTML = draft ? linkifyAdmin(escapeHtml(draft)) : "Матни хабар дар ин ҷо намоён мешавад...";
+  if(userPushSelectedAction){
+    userPushPreviewBtn.innerHTML = USER_PUSH_ACTION_ICONS[userPushSelectedAction] + USER_PUSH_ACTION_LABELS[userPushSelectedAction];
+    userPushPreviewBtn.classList.remove("hidden");
+  } else {
+    userPushPreviewBtn.classList.add("hidden");
+  }
+}
+userPushText.addEventListener("input", updateUserPushPreview);
+
+userPushActionSelect.querySelectorAll(".push-action-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const action = btn.dataset.action;
+    // Такроран пахш кардани ҳамон тугма — интихобро бекор мекунад (танҳо як тугма дар як вақт).
+    userPushSelectedAction = (userPushSelectedAction === action) ? null : action;
+    userPushActionSelect.querySelectorAll(".push-action-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.action === userPushSelectedAction);
+    });
+    updateUserPushPreview();
+  });
+});
+
+async function openUserPushModal(id, u){
+  userPushTargetId = id;
+  userPushTargetNameEl.textContent = u.name || "—";
+  userPushText.value = "";
+  userPushSelectedAction = null;
+  userPushActionSelect.querySelectorAll(".push-action-btn").forEach(b => b.classList.remove("active"));
+  updateUserPushPreview();
+  closeModal("usersDataModal");
+  openModal("userPushNotifModal");
+  // Чашми "дидашуд" — ҳар дафъа барои корбари нав аз нав пайваст мешавад, то
+  // ранги зард танҳо вақте нишон дода шавад, ки ҳамин корбар воқеан огоҳиро
+  // дар индекс дида пӯшида бошад (userPushNotice/{id}/seen аз Firebase).
+  if(userPushSeenUnsub) userPushSeenUnsub();
+  userPushSeenIcon.classList.remove("is-seen");
+  userPushSeenIcon.title = "Ҳанӯз дида нашудааст";
+  userPushSeenUnsub = onValue(ref(db, "userPushNotice/" + id + "/seen"), (snap) => {
+    const seen = snap.val() === true;
+    userPushSeenIcon.classList.toggle("is-seen", seen);
+    userPushSeenIcon.title = seen ? "Корбар огоҳиро дид ва пӯшид" : "Ҳанӯз дида нашудааст";
+  }, (err) => {
+    console.error("Хатои хондани ҳолати дидашудани огоҳии корбар:", err);
+  });
+  // Агар қаблан ба ҳамин корбар огоҳие фиристода шуда бошад, барои осонии
+  // таҳрир матн ва интихоби тугмаро аз Firebase бор мекунем.
+  try{
+    const snap = await get(ref(db, "userPushNotice/" + id));
+    const data = snap.val();
+    if(data && data.text){
+      userPushText.value = data.text;
+      if(data.action && USER_PUSH_ACTION_LABELS[data.action]){
+        userPushSelectedAction = data.action;
+        userPushActionSelect.querySelectorAll(".push-action-btn").forEach(b => {
+          b.classList.toggle("active", b.dataset.action === data.action);
+        });
+      }
+      updateUserPushPreview();
+    }
+  } catch(err){
+    console.error("Хатои хондани огоҳии пешинаи корбар:", err);
+  }
+}
+
+userPushSendBtn.addEventListener("click", async () => {
+  const text = userPushText.value.trim();
+  if(!text){
+    showToast("Матни огоҳиномаро нависед.", "error");
+    return;
+  }
+  if(!userPushTargetId) return;
+  try{
+    const payload = { text, updatedAt: Date.now() };
+    if(userPushSelectedAction){
+      payload.action = userPushSelectedAction;
+      payload.btnLabel = USER_PUSH_ACTION_LABELS[userPushSelectedAction];
+    }
+    await set(ref(db, "userPushNotice/" + userPushTargetId), payload);
+    showToast("Огоҳинома ба корбар ирсол шуд ✅", "success");
+    closeModal("userPushNotifModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои ирсоли огоҳинома.", "error");
+  }
+});
+
+document.getElementById("userPushDeleteBtn").addEventListener("click", async () => {
+  if(!userPushTargetId) return;
+  try{
+    await remove(ref(db, "userPushNotice/" + userPushTargetId));
+    userPushText.value = "";
+    userPushSelectedAction = null;
+    userPushActionSelect.querySelectorAll(".push-action-btn").forEach(b => b.classList.remove("active"));
+    updateUserPushPreview();
+    showToast("Пуш барои ин корбар нест карда шуд", "success");
+    closeModal("userPushNotifModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои нест кардани пуш.", "error");
   }
 });
 
@@ -2487,25 +3232,207 @@ blacklistCtxMenu.addEventListener("click", async (e) => {
     try{
       await remove(ref(db, "blockedPhones/" + normPhone));
       const uid = findUserIdByNormPhone(normPhone);
-      if(uid) await update(ref(db, "users/" + uid), { blocked: false });
+      if(uid) await update(ref(db, "users/" + uid), { blocked: false, blockedAt: null });
       showToast("Рақам аз рӯйхати сиёҳ бароварда шуд", "success");
     } catch(err){
       console.error(err);
       showToast("Хатои баровардан аз рӯйхати сиёҳ.", "error");
     }
   } else if(act === "purge"){
+    if(!confirmDangerous("Ин рақам ва ҳамаи маълумоти марбут ба он пурра нест карда шавад? Ин амалро баргардонидан ғайриимкон аст.")) return;
     try{
       await remove(ref(db, "blockedPhones/" + normPhone));
       const uid = findUserIdByNormPhone(normPhone);
       if(uid){
         const u = usersCache[uid] || {};
         await remove(ref(db, "users/" + uid));
-        if(u.name) remove(ref(db, "sayt1_chats/" + u.name)).catch(()=>{});
+        await cascadeDeleteUserData(u, uid);
       }
       showToast("Пурра нест карда шуд", "success");
     } catch(err){
       console.error(err);
       showToast("Хатои нест кардани маълумот.", "error");
+    }
+  }
+});
+
+/* ---------------- Архив ---------------- */
+const archiveTable = document.getElementById("archiveTable");
+const archiveTableBody = document.getElementById("archiveTableBody");
+const archiveTableEmpty = document.getElementById("archiveTableEmpty");
+const archiveCtxMenu = document.getElementById("archiveCtxMenu");
+let archiveCache = {};
+let archiveCtxTargetId = null;
+let archiveSearchQuery = "";
+
+function renderArchiveTable(data){
+  if(data !== undefined) archiveCache = data || {};
+  const allEntries = Object.entries(archiveCache);
+  const archiveTableEmptyText = document.getElementById("archiveTableEmptyText");
+
+  if(allEntries.length === 0){
+    archiveTable.classList.add("hidden");
+    archiveTableEmpty.classList.remove("hidden");
+    archiveTableEmptyText.textContent = "Рӯйхати архив холист";
+    archiveTableBody.innerHTML = "";
+    return;
+  }
+
+  const q = archiveSearchQuery.trim().toLowerCase();
+  const entries = !q ? allEntries : allEntries.filter(([id, u]) => {
+    const haystack = [u.name, u.phone, u.password, fmtDate(u.createdAt), fmtDate(u.archivedAt)].join(" ").toLowerCase();
+    return haystack.includes(q);
+  });
+
+  if(entries.length === 0){
+    archiveTable.classList.add("hidden");
+    archiveTableEmpty.classList.remove("hidden");
+    archiveTableEmptyText.textContent = "Ҳеҷ корбаре мувофиқи кофтуков ёфт нашуд";
+    archiveTableBody.innerHTML = "";
+    return;
+  }
+
+  archiveTableEmpty.classList.add("hidden");
+  archiveTable.classList.remove("hidden");
+  entries.sort((a,b) => {
+    const pa = a[1].pinned ? 1 : 0, pb = b[1].pinned ? 1 : 0;
+    if(pa !== pb) return pb - pa;
+    if(pa && pb) return (b[1].pinnedAt||0) - (a[1].pinnedAt||0);
+    return (b[1].archivedAt||0) - (a[1].archivedAt||0);
+  });
+
+  archiveTableBody.innerHTML = entries.map(([id, u], i) => `
+    <tr data-id="${id}" class="${u.pinned ? "is-pinned" : ""} ${u.marked ? "is-marked" : ""}">
+      <td class="u-idx">${i+1}</td>
+      <td class="u-name">${u.pinned ? "📌 " : ""}${escapeHtml(u.name || "—")}</td>
+      <td>${escapeHtml(u.phone || "—")}</td>
+      <td>${escapeHtml(u.password || "—")}</td>
+      <td class="u-date">${fmtDate(u.archivedAt)}</td>
+      <td style="text-align:right">
+        <button class="u-dots-btn" data-id="${id}" title="Амалҳо">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  archiveTableBody.querySelectorAll(".u-dots-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openArchiveCtxMenu(btn.dataset.id, btn);
+    });
+  });
+}
+
+const archiveSearchInput = document.getElementById("archiveSearchInput");
+const archiveSearchWrap = document.getElementById("archiveSearchWrap");
+const archiveSearchClear = document.getElementById("archiveSearchClear");
+archiveSearchInput.addEventListener("input", () => {
+  archiveSearchQuery = archiveSearchInput.value;
+  archiveSearchWrap.classList.toggle("has-value", archiveSearchQuery.trim() !== "");
+  renderArchiveTable();
+});
+archiveSearchClear.addEventListener("click", () => {
+  archiveSearchInput.value = "";
+  archiveSearchQuery = "";
+  archiveSearchWrap.classList.remove("has-value");
+  renderArchiveTable();
+  archiveSearchInput.focus();
+});
+
+function openArchiveCtxMenu(id, anchorBtn){
+  archiveCtxTargetId = id;
+  const u = archiveCache[id] || {};
+  const pinLabelEl = document.getElementById("archiveCtxPinLabel");
+  if(pinLabelEl) pinLabelEl.textContent = u.pinned ? "Аз мех кушодан" : "Мех кардан";
+  const markLabelEl = document.getElementById("archiveCtxMarkLabel");
+  if(markLabelEl) markLabelEl.textContent = u.marked ? "Бекор кардани қайд" : "Қайд кардан";
+  const rect = anchorBtn.getBoundingClientRect();
+  archiveCtxMenu.classList.remove("hidden");
+  const menuW = 210;
+  let left = rect.right - menuW;
+  if(left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if(top + 280 > window.innerHeight) top = rect.top - 280;
+  archiveCtxMenu.style.left = left + "px";
+  archiveCtxMenu.style.top = top + "px";
+}
+function closeArchiveCtxMenu(){
+  archiveCtxMenu.classList.add("hidden");
+  archiveCtxTargetId = null;
+}
+document.addEventListener("click", (e) => {
+  if(!archiveCtxMenu.classList.contains("hidden") && !archiveCtxMenu.contains(e.target)){
+    closeArchiveCtxMenu();
+  }
+});
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeArchiveCtxMenu(); });
+
+document.getElementById("openArchiveBtn").addEventListener("click", () => openModal("archiveModal"));
+
+archiveCtxMenu.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if(!btn || !archiveCtxTargetId) return;
+  const act = btn.dataset.act;
+  const id = archiveCtxTargetId;
+  const u = archiveCache[id] || {};
+  closeArchiveCtxMenu();
+
+  if(act === "chat"){
+    if(!chatLoaded){
+      chatLoading.style.display = "flex";
+      chatFrame.addEventListener("load", () => { chatLoading.style.display = "none"; }, { once:true });
+      chatLoaded = true;
+    }
+    const params = new URLSearchParams({ name: u.name || "" });
+    chatFrame.src = CHAT_URL + "?" + params.toString();
+    closeModal("archiveModal");
+    openModal("chatModal");
+  } else if(act === "push"){
+    openUserPushModal(id, u);
+  } else if(act === "restore"){
+    try{
+      const liveSnap = await get(ref(db, "users/" + id));
+      if(liveSnap.exists()){
+        await update(ref(db, "users/" + id), { archived: false, archivedAt: null });
+      } else {
+        const rest = { ...u };
+        delete rest.archivedAt;
+        delete rest.archived;
+        await set(ref(db, "users/" + id), rest);
+      }
+      await remove(ref(db, "archivedUsers/" + id));
+      showToast("Корбар аз архив баргардонда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои баровардан аз архив.", "error");
+    }
+  } else if(act === "pin"){
+    try{
+      const nowPinned = !u.pinned;
+      await update(ref(db, "archivedUsers/" + id), nowPinned ? { pinned: true, pinnedAt: Date.now() } : { pinned: false, pinnedAt: null });
+      showToast(nowPinned ? "Корбар мех карда шуд" : "Корбар аз мех кушода шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои мех кардани корбар.", "error");
+    }
+  } else if(act === "mark"){
+    try{
+      const nowMarked = !u.marked;
+      await update(ref(db, "archivedUsers/" + id), { marked: nowMarked });
+    } catch(err){
+      console.error(err);
+      showToast("Хатои қайд кардани корбар.", "error");
+    }
+  } else if(act === "delete"){
+    if(!confirmDangerous(`Корбари "${u.name || u.phone || ""}"-ро аз архив пурра нест кунам? Ин амалро баргардонидан ғайриимкон аст.`)) return;
+    try{
+      await remove(ref(db, "archivedUsers/" + id));
+      await cascadeDeleteUserData(u, id);
+      showToast("Корбар пурра нест карда шуд", "success");
+    } catch(err){
+      console.error(err);
+      showToast("Хатои нест кардани корбар.", "error");
     }
   }
 });
@@ -2577,6 +3504,11 @@ function attachLiveListeners(){
   const blockedPhonesCb = (snap) => renderBlacklistTable(snap.exists() ? snap.val() : null);
   onValue(blockedPhonesRef, blockedPhonesCb);
   activeListeners.push({ path: blockedPhonesRef, cb: blockedPhonesCb });
+
+  const archivedUsersRef = ref(db, "archivedUsers");
+  const archivedUsersCb = (snap) => renderArchiveTable(snap.exists() ? snap.val() : null);
+  onValue(archivedUsersRef, archivedUsersCb);
+  activeListeners.push({ path: archivedUsersRef, cb: archivedUsersCb });
 
   // Огоҳии садоӣ барои корбари нав + бейджи паёмҳои нахонда дар тугмаи чат
   let knownChatUserKeys = null; // null = ҳанӯз бор нашудааст (аввалин снапшот)
@@ -2697,37 +3629,67 @@ const ballGrid = document.getElementById("ballGrid");
 const numbersEmpty = document.getElementById("numbersEmpty");
 const roundBadgeRow = document.getElementById("roundBadgeRow");
 let currentAdminRoundName = "—";
+let currentAdminRoundCount = 0;
+let currentAdminPriceSomon = 10;
+let currentAdminPriceRuble = 100;
+
+// Бадҷҳо: Давр / Шумораи умумӣ / Дархостшуда / Фурӯхта / Нафурӯхта (ё "Ҳама фурӯхта шуданд").
+function renderRoundBadges(soldCount, pendingCount){
+  const total = currentAdminRoundCount;
+  let html =
+    `<span class="badge">Давр: ${escapeHtml(currentAdminRoundName)}</span>` +
+    `<span class="badge">${total} рақам</span>`;
+  if(total > 0){
+    const unsold = Math.max(0, total - soldCount);
+    html += `<span class="badge">Нархи як рақам: ${currentAdminPriceSomon} сомон / ${currentAdminPriceRuble} рубл</span>`;
+    html += `<span class="badge badge-pending"><span class="badge-dot" style="background:#e2536b"></span>Дархостшуда: ${pendingCount || 0}</span>`;
+    html += `<span class="badge badge-sold"><span class="badge-dot" style="background:#3fbf8f"></span>Фурӯхта: ${soldCount}</span>`;
+    html += (unsold === 0)
+      ? `<span class="badge sold-out-badge badge-unsold"><span class="badge-dot" style="background:#3fbf8f"></span>Ҳама рақамҳо фурӯхта шуданд</span>`
+      : `<span class="badge badge-unsold"><span class="badge-dot" style="background:var(--gold)"></span>Нафурӯхта: ${unsold}</span>`;
+  }
+  roundBadgeRow.innerHTML = html;
+}
 
 function applySoldBalls(){
   if(!ballGrid) return;
   const soldSet = new Set();
+  const pendingSet = new Set();
   Object.values(ordersCache || {}).forEach(o => {
-    if(o && o.status === "approved" && o.roundName === currentAdminRoundName && Array.isArray(o.numbers)){
+    if(!o || o.roundName !== currentAdminRoundName || !Array.isArray(o.numbers)) return;
+    if(o.status === "approved"){
       o.numbers.forEach(n => soldSet.add(String(n)));
+    } else if(!o.status || o.status === "pending"){
+      o.numbers.forEach(n => pendingSet.add(String(n)));
     }
   });
   ballGrid.querySelectorAll(".ball").forEach(b => {
     b.classList.toggle("sold", soldSet.has(b.textContent));
   });
+  const totalCount = ballGrid.querySelectorAll(".ball").length;
+  const soldCount = ballGrid.querySelectorAll(".ball.sold").length;
+  renderRoundBadges(soldCount, pendingSet.size);
+  ballGrid.classList.toggle("sold-out", totalCount > 0 && soldCount >= totalCount);
 }
 
 let numbersWerePresent = false;
 function renderRound(data){
-  if(!data || !data.count){
+  const count = (data && typeof data.count === "number") ? data.count : 0;
+  const roundName = data ? (data.name || "—") : "—";
+  currentAdminRoundName = roundName;
+  currentAdminRoundCount = count;
+  currentAdminPriceSomon = (data && typeof data.priceSomon === "number") ? data.priceSomon : 10;
+  currentAdminPriceRuble = (data && typeof data.priceRuble === "number") ? data.priceRuble : 100;
+  if(!data || !count){
     ballGrid.classList.add("hidden");
+    ballGrid.classList.remove("sold-out");
     numbersEmpty.classList.remove("hidden");
-    roundBadgeRow.innerHTML = "";
-    currentAdminRoundName = "—";
     numbersWerePresent = false;
+    renderRoundBadges(0, 0);
     return;
   }
   numbersEmpty.classList.add("hidden");
   ballGrid.classList.remove("hidden");
-  currentAdminRoundName = data.name || "—";
-  roundBadgeRow.innerHTML = `
-    <span class="badge">Давр: ${escapeHtml(data.name || "—")}</span>
-    <span class="badge">${data.count} рақам</span>
-  `;
   const frag = document.createDocumentFragment();
   const STAGGER_CAP = 80;
   for(let i = 1; i <= data.count; i++){
@@ -2752,17 +3714,39 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
-document.getElementById("openNumbersModalBtn").addEventListener("click", () => openModal("numbersModal"));
+function updateNumbersSubmitState(){
+  const name = document.getElementById("roundNameInput").value.trim();
+  const somon = document.getElementById("priceSomonInput").value.trim();
+  const ruble = document.getElementById("priceRubleInput").value.trim();
+  const count = document.getElementById("roundCountInput").value.trim();
+  const filled = !!(name && somon && ruble && count);
+  document.getElementById("numbersSubmitBtn").disabled = !filled;
+}
+["roundNameInput","priceSomonInput","priceRubleInput","roundCountInput"].forEach(id => {
+  document.getElementById(id).addEventListener("input", updateNumbersSubmitState);
+});
+
+document.getElementById("openNumbersModalBtn").addEventListener("click", () => {
+  openModal("numbersModal");
+  updateNumbersSubmitState();
+});
 
 document.getElementById("numbersForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = document.getElementById("roundNameInput").value.trim();
   const count = parseInt(document.getElementById("roundCountInput").value, 10);
+  const priceSomon = parseFloat(document.getElementById("priceSomonInput").value);
+  const priceRuble = parseFloat(document.getElementById("priceRubleInput").value);
   if(!name || !count || count < 1) return;
+  if(isNaN(priceSomon) || priceSomon < 0 || isNaN(priceRuble) || priceRuble < 0) return;
   try{
-    await set(ref(db, "currentRound"), { name, count, createdAt: Date.now() });
+    await set(ref(db, "currentRound"), { name, count, priceSomon, priceRuble, createdAt: Date.now() });
     closeModal("numbersModal");
-    document.getElementById("numbersForm").reset();
+    document.getElementById("roundNameInput").value = "";
+    document.getElementById("priceSomonInput").value = "";
+    document.getElementById("priceRubleInput").value = "";
+    document.getElementById("roundCountInput").value = "";
+    updateNumbersSubmitState();
     showToast(`Даври "${name}" бо ${count} рақам сохта шуд`, "success");
   } catch(err){
     console.error(err);
