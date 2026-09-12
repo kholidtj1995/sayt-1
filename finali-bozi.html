@@ -232,6 +232,29 @@
   }
 
   /* ---------- header ---------- */
+  .admin-status{
+    display:flex; align-items:center; gap:6px; flex-shrink:0;
+    cursor:default; height:30px; padding:0 10px; border-radius:9px;
+    background:var(--surface-2); border:1px solid var(--border);
+  }
+  .admin-status span{
+    font-size:0.68rem; font-weight:700; color:var(--text-dim); white-space:nowrap;
+  }
+  .admin-status.online{ border-color:var(--gold); background:rgba(232,184,75,0.12); }
+  .admin-status.online span{ color:var(--gold); }
+  .admin-status-circle{
+    width:8px; height:8px; border-radius:50%; flex-shrink:0;
+    background:var(--text-dim);
+    transition:background .3s ease;
+  }
+  .admin-status.online .admin-status-circle{
+    background:var(--gold);
+    animation:adminPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes adminPulse{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(232,184,75,0.45); }
+    50%{ box-shadow:0 0 0 5px rgba(232,184,75,0); }
+  }
   .modal-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
   .final-title-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .final-title-row h3{ margin:0; font-size:1.05rem; }
@@ -1309,13 +1332,13 @@
   <!-- Садои равзанаи "Табрикот" — ба ҷои садои синтетикии хлопушка/салют,
        ин файли мусиқии беруна пахш мешавад, айнан ба муддати намоиши
        ин равзана (то тамом шудани навори вакти он) -->
-  <audio id="congratsMusic" src="http://xn--90a0aehdc6a.storeland.ru/design/bra_o-bra_o.mp3" preload="auto" loop></audio>
-  <audio id="gameOverWindowSound" src="http://xn--90a0aehdc6a.storeland.ru/design/Game%20over.mp3" preload="auto" loop></audio>
+  <audio id="congratsMusic" src="https://xn--90a0aehdc6a.storeland.ru/design/bra_o-bra_o.mp3" preload="auto" loop></audio>
+  <audio id="gameOverWindowSound" src="https://xn--90a0aehdc6a.storeland.ru/design/Game%20over.mp3" preload="auto" loop></audio>
   <!-- Садои "гейм" (пештар синтетики), ки то холи шудани вақти давр давом
        мекунад — акнун ба ҷои он ин файли мусиқи садо медиҳад: маҳз ҳамин
        ки вақти давр (навор) сар мешавад ин сар мешавад, ва маҳз ҳамин ки
        вақт холи мешавад (0:00) ин стоп карда мешавад. -->
-  <audio id="gameEndingMusic" src="http://xn--90a0aehdc6a.storeland.ru/design/Gameplay.mp3" preload="auto" loop></audio>
+  <audio id="gameEndingMusic" src="https://xn--90a0aehdc6a.storeland.ru/design/Gameplay.mp3" preload="auto" loop></audio>
 
   <!-- ---------- Равзанаи "Натиҷаи ниҳоии бози" ---------- -->
   <div class="gameover-overlay hidden" id="gameOverOverlay">
@@ -1414,6 +1437,10 @@
         <button class="btn-pause hidden" id="startGamePauseBtn" type="button">Стоп</button>
       </div>
       <div class="modal-head-actions">
+        <div class="admin-status" id="adminStatusBadge">
+          <span id="adminStatusText">Нет админа</span>
+          <div class="admin-status-circle"></div>
+        </div>
         <button class="icon-btn" id="finalGamePlayersBtn" title="Бозингарон">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </button>
@@ -3772,7 +3799,7 @@
   // ки дар админ ранги сабз мегиранд (яъне фурухта = status "approved"),
   // ба таври зинда дар кутии рақамҳои финали бози намоён шаванд.
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getDatabase, ref, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+  import { getDatabase, ref, onValue, remove, set, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
@@ -3793,6 +3820,26 @@
      байни телефон ва компютер ҳаргиз намерасад). */
   window._finaliRTDB = db;
   window._finaliRTDBFns = { ref, set, onValue };
+
+  /* Ҳолати "Админ в сети" — ин саҳифа (finali-bozi.html) низ идомаи ҳамон
+     сеанси кура-админ аст. То index.html ҳангоми будани админ дар ин саҳифа
+     низ "Админ в сети"-ро нишон диҳад (на танҳо ҳангоми будан дар
+     qura-admin.html), ҳамин ҷо ҲАМ "adminPresence/online"-ро true менависем
+     (бо onDisconnect, то агар саҳифа/варақа пушида шавад ё интернет қатъ
+     шавад, худкор пок шавад — айнан мисли қура-админ). */
+  const adminPresenceRef = ref(db, "adminPresence/online");
+  set(adminPresenceRef, true).catch(()=>{});
+  onDisconnect(adminPresenceRef).remove();
+
+  const adminStatusBadge = document.getElementById("adminStatusBadge");
+  const adminStatusText = document.getElementById("adminStatusText");
+  if(adminStatusBadge && adminStatusText){
+    onValue(adminPresenceRef, (snap) => {
+      const isOnline = snap.val() === true;
+      adminStatusBadge.classList.toggle("online", isOnline);
+      adminStatusText.textContent = isOnline ? "Админ в сети" : "Нет админа";
+    });
+  }
 
   /* Ҳамин ки "Огоз кардани бози" зада шавад ё LIVE/таймер аз ин саҳифа нест
      шавад — дар "liveGameStatus" сабт мешавад, то index.html (нишонаи
