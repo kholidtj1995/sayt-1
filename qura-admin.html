@@ -425,6 +425,12 @@
     0%,100%{ opacity:1; }
     50%{ opacity:0.55; }
   }
+  /* Ҳолати "Финал" — вақте ки бози дар finali-bozi.html оғоз мешавад,
+     кутии сурхи "Стоп билет" сабз мешавад ва матнаш ба "Финал" иваз мешавад. */
+  .stop-ticket-badge.final-live{
+    background:var(--emerald, #3fbf8f);
+    box-shadow:0 4px 12px rgba(63,191,143,0.4);
+  }
   /* Нишонаи "Рақамҳо банд шудаанд, лутфан чора бинед" — вақте ки ҳамаи
      рақамҳо аллакай дархост шудаанд (пендинг), вале ҳануз тасдиқ нашудаанд. */
   .wait-ticket-badge{
@@ -3890,6 +3896,39 @@ let currentAdminRoundCount = 0;
 let currentAdminPriceSomon = 10;
 let currentAdminPriceRuble = 100;
 
+/* ---------------- Матни нишонаи сурх/сабз (Стоп билет / Финал / Бози анҷом ёфт) ----------------
+   Ҳамон мантиқ, ки дар index.html истифода мешавад: тартиби афзалият —
+   1) бози воқеан анҷом ёфт (Firebase "gameEnded") → "Бози анҷом ёфт" (сурх, доими то ресет),
+   2) бози дар ҷараён аст (Firebase "liveGameStatus", аз finali-bozi.html) → "Финал" (сабз),
+   3) вагарна → "Стоп билет" (сурх, аз руи ҳолати сотиши рақамҳо, ниг. applySoldBalls). */
+let finalLiveActive = false;
+let finalGameTrulyEnded = false;
+function refreshStopTicketBadgeText(){
+  if(finalGameTrulyEnded){
+    stopTicketBadge.textContent = "Бози анҷом ёфт";
+    stopTicketBadge.classList.remove("final-live");
+    stopTicketBadge.classList.remove("hidden");
+  } else if(finalLiveActive){
+    stopTicketBadge.textContent = "Финал";
+    stopTicketBadge.classList.add("final-live");
+    stopTicketBadge.classList.remove("hidden");
+  } else {
+    stopTicketBadge.classList.remove("final-live");
+    // Бармегардем ба ҳолати аввала — матн ва намоёнии он аз руи
+    // ҳолати сотиши рақамҳо идора мешавад (ниг. applySoldBalls).
+    if(typeof applySoldBalls === "function") applySoldBalls();
+  }
+}
+onValue(ref(db, "liveGameStatus"), (snap) => {
+  const data = snap.exists() ? snap.val() : null;
+  finalLiveActive = !!(data && data.active);
+  refreshStopTicketBadgeText();
+});
+onValue(ref(db, "gameEnded"), (snap) => {
+  finalGameTrulyEnded = snap.exists() ? !!snap.val() : false;
+  refreshStopTicketBadgeText();
+});
+
 // Бадҷҳо: Давр / Шумораи умуми / Дархостшуда / Фурухта / Нафурухта (ё "Ҳама фурухта шуданд").
 function renderRoundBadges(soldCount, pendingCount){
   const total = currentAdminRoundCount;
@@ -3934,7 +3973,14 @@ function applySoldBalls(){
   // на "Стоп билет"-и сурх.
   const allRequested = totalCount > 0 && !soldOut && (soldCount + pendingSet.size) >= totalCount;
   ballGrid.classList.toggle("sold-out", soldOut || allRequested);
-  stopTicketBadge.classList.toggle("hidden", !soldOut);
+  if(!finalGameTrulyEnded && !finalLiveActive){
+    stopTicketBadge.textContent = "Стоп билет";
+    stopTicketBadge.classList.toggle("hidden", !soldOut);
+  }
+  // ЭЗОҲ: агар бози воқеан анҷом ёфта бошад ё дар finali-bozi.html дар
+  // ҷараён бошад, бадҷро ин ҷо намесозем — матнашро (ва рангашро) фақат
+  // refreshStopTicketBadgeText() идора мекунад, то ин ҷо ба "Стоп билет"
+  // барнагардад.
   waitTicketBadge.classList.toggle("hidden", !allRequested);
 }
 
@@ -3949,7 +3995,9 @@ function renderRound(data){
   if(!data || !count){
     ballGrid.classList.add("hidden");
     ballGrid.classList.remove("sold-out");
-    stopTicketBadge.classList.add("hidden");
+    if(!finalGameTrulyEnded && !finalLiveActive){
+      stopTicketBadge.classList.add("hidden");
+    }
     waitTicketBadge.classList.add("hidden");
     numbersEmpty.classList.remove("hidden");
     numbersWerePresent = false;
