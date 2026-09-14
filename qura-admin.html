@@ -892,6 +892,9 @@
         </button>
       </div>
       <div class="icon-group-sep"></div>
+      <button class="icon-btn" id="closeWindowBtn" title="Пушидани равзана">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
       <button class="icon-btn" id="logoutBtn" title="Баромадан">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       </button>
@@ -2127,6 +2130,10 @@ loginForm.addEventListener("submit", (e) => {
   const code = codeInput.value.trim();
   if(!code) return;
   attemptLogin(code);
+});
+
+document.getElementById("closeWindowBtn").addEventListener("click", () => {
+  window.location.href = "https://kholidtj1995.github.io/sayt-1/launcher.html";
 });
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
