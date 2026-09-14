@@ -216,13 +216,11 @@
   .live-float-resize-nw{ top:-4px; left:-4px; width:16px; height:16px; cursor:nwse-resize; }
   .live-float-resize-se{ bottom:-4px; right:-4px; width:16px; height:16px; cursor:nwse-resize; }
   .live-float-resize-sw{ bottom:-4px; left:-4px; width:16px; height:16px; cursor:nesw-resize; }
-  .live-float-reopen-chip{
-    position:fixed; right:24px; bottom:24px; z-index:900;
-    width:52px; height:52px; border-radius:50%; border:1px solid var(--border);
-    background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206;
-    font-size:1.3rem; cursor:pointer; box-shadow:0 8px 20px rgba(232,184,75,0.35);
-  }
-  .live-float-reopen-chip.hidden{ display:none; }
+  /* Ҳолати "пурра васеъ" (fullscreen) — равзана тамоми экранро мегирад,
+     кашола ва тағйири андоза ғайрифаъол мешаванд (нигар JS). */
+  .live-float-window.maximized{ border-radius:0; }
+  .live-float-window.maximized .live-float-header{ cursor:default; }
+  .live-float-window.maximized .live-float-resize{ display:none; }
   .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
 
   .login-error{
@@ -1116,7 +1114,7 @@
   <div class="live-float-header" id="liveFloatHeader">
     <span class="live-float-title">🎥 Эфир</span>
     <div class="live-float-actions">
-      <button type="button" class="live-float-btn" id="liveFloatMinimizeBtn" title="Хурд кардан">–</button>
+      <button type="button" class="live-float-btn" id="liveFloatMaximizeBtn" title="Васеъ кардан"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11-5v3a2 2 0 0 0-2 2h-3"/></svg></button>
       <button type="button" class="live-float-btn" id="liveFloatCloseBtn" title="Пушидан">✕</button>
     </div>
   </div>
@@ -1132,7 +1130,6 @@
   <div class="live-float-resize live-float-resize-se" data-dir="se"></div>
   <div class="live-float-resize live-float-resize-sw" data-dir="sw"></div>
 </div>
-<button type="button" class="live-float-reopen-chip hidden" id="liveFloatReopenChip" title="Кушодани равзанаи эфир">🎥</button>
 
 <!-- GAME HISTORY MODAL -->
 <div id="gameHistoryModal" class="modal-overlay chat-modal-overlay hidden">
@@ -1880,12 +1877,11 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 
 /* ---------------- Равзанаи шинокардашаванда (float): кашолакунӣ + андозадиҳӣ аз ҳар кунҷ/тараф ---------------- */
 (function(){
-  const floatWin    = document.getElementById("liveFloatWindow");
-  const floatHeader = document.getElementById("liveFloatHeader");
-  const floatIframe = document.getElementById("liveFloatIframe");
-  const minimizeBtn = document.getElementById("liveFloatMinimizeBtn");
-  const closeBtn    = document.getElementById("liveFloatCloseBtn");
-  const reopenChip  = document.getElementById("liveFloatReopenChip");
+  const floatWin      = document.getElementById("liveFloatWindow");
+  const floatHeader   = document.getElementById("liveFloatHeader");
+  const floatIframe   = document.getElementById("liveFloatIframe");
+  const maximizeBtn   = document.getElementById("liveFloatMaximizeBtn");
+  const closeBtn      = document.getElementById("liveFloatCloseBtn");
   if(!floatWin || !floatHeader || !floatIframe) return;
 
   const MIN_W = 240, MIN_H = 180;
@@ -1902,28 +1898,64 @@ document.querySelectorAll("[data-close]").forEach(btn => {
   function openFloatWindow(url){
     floatIframe.src = url;
     floatWin.classList.remove("hidden");
-    reopenChip.classList.add("hidden");
   }
   window.openLiveFloatWindow = openFloatWindow;
 
   function stopFloatWindow(){
     floatIframe.src = "about:blank";
     floatWin.classList.add("hidden");
-    reopenChip.classList.add("hidden");
+    if(fwIsMaximized) restoreFloatWindow();
     // Хабар додан ба корбарон, ки эфир қатъ шуд
     set(ref(db, "liveBroadcast/active"), false).catch(() => {});
   }
 
-  function minimizeFloatWindow(){
-    floatWin.classList.add("hidden");
-    reopenChip.classList.remove("hidden");
+  closeBtn.addEventListener("click", stopFloatWindow);
+
+  /* ---- Васеъ кардан то андозаи пурраи экран, ва баргардонидан ---- */
+  const MAX_ICON_EXPAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11-5v3a2 2 0 0 0-2 2h-3"/></svg>';
+  const MAX_ICON_COMPRESS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M9 3v3a2 2 0 0 1-2 2H4M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+  let fwIsMaximized = false;
+  let fwSavedRect = null;
+
+  function maximizeFloatWindow(){
+    if(fwIsMaximized) return;
+    const rect = pinToLeftTop();
+    fwSavedRect = { width: rect.width + "px", height: rect.height + "px", left: rect.left + "px", top: rect.top + "px" };
+    floatWin.classList.add("maximized");
+    floatWin.style.left = "0px";
+    floatWin.style.top = "0px";
+    floatWin.style.width = window.innerWidth + "px";
+    floatWin.style.height = window.innerHeight + "px";
+    fwIsMaximized = true;
+    maximizeBtn.innerHTML = MAX_ICON_COMPRESS;
+    maximizeBtn.title = "Хурд кардан";
   }
 
-  minimizeBtn.addEventListener("click", minimizeFloatWindow);
-  closeBtn.addEventListener("click", stopFloatWindow);
-  reopenChip.addEventListener("click", () => {
-    floatWin.classList.remove("hidden");
-    reopenChip.classList.add("hidden");
+  function restoreFloatWindow(){
+    if(!fwIsMaximized) return;
+    floatWin.classList.remove("maximized");
+    if(fwSavedRect){
+      floatWin.style.width  = fwSavedRect.width;
+      floatWin.style.height = fwSavedRect.height;
+      floatWin.style.left   = fwSavedRect.left;
+      floatWin.style.top    = fwSavedRect.top;
+    }
+    fwSavedRect = null;
+    fwIsMaximized = false;
+    maximizeBtn.innerHTML = MAX_ICON_EXPAND;
+    maximizeBtn.title = "Васеъ кардан";
+  }
+
+  maximizeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if(fwIsMaximized) restoreFloatWindow();
+    else maximizeFloatWindow();
+  });
+
+  window.addEventListener("resize", () => {
+    if(!fwIsMaximized) return;
+    floatWin.style.width = window.innerWidth + "px";
+    floatWin.style.height = window.innerHeight + "px";
   });
 
   /* ---- Кашолакунӣ (гузоштан ба дилхоҳ тарафи экран) ---- */
@@ -1931,6 +1963,7 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 
   floatHeader.addEventListener("pointerdown", (e) => {
     if(e.target.closest(".live-float-btn")) return;
+    if(fwIsMaximized) return;
     dragging = true;
     const rect = pinToLeftTop();
     dragOffsetX = e.clientX - rect.left;
