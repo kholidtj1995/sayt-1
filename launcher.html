@@ -470,8 +470,7 @@
         setTimeout(() => { ripple.remove(); flash.remove(); }, 750);
 
         setTimeout(function(){
-          const winName = btn.classList.contains('btn-final') ? 'behruzFinaliWindow' : 'behruzQuraWindow';
-          window.open(href, winName);
+          window.open(href, '_blank');
         }, 220);
       });
     });
