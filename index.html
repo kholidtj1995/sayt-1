@@ -879,6 +879,11 @@
   /* Ҳангоми кашола ё resize кардан, аниматсияи transition хомуш мешавад,
      то равзана бе таъхир аз паси ангушт/муш ҳаракат кунад. */
   #liveBroadcastWindow.dragging, #liveBroadcastWindow.resizing{ transition:none; }
+  /* Ҳолати "пурра васеъ" (fullscreen) — равзана тамоми экранро мегирад,
+     кашола ва resize ғайрифаъол мешаванд (нигар JS ва қоидаҳои поён). */
+  #liveBroadcastWindow.maximized{ border-radius:0; transition:none; }
+  #liveBroadcastWindow.maximized .lbw-head{ cursor:default; }
+  #liveBroadcastWindow.maximized .lbw-resize-handle{ display:none; }
   .lbw-head{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
     padding:9px 8px 9px 12px; flex-shrink:0; cursor:grab;
@@ -894,14 +899,16 @@
     width:7px; height:7px; border-radius:50%; background:var(--crimson);
     animation:liveBlink 1.3s ease-in-out infinite; flex-shrink:0;
   }
-  .lbw-close{
+  .lbw-head-actions{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .lbw-maximize, .lbw-close{
     width:25px; height:25px; border-radius:7px; border:none; flex-shrink:0;
     background:var(--surface); color:var(--text-muted); cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     -webkit-tap-highlight-color:transparent;
   }
+  .lbw-maximize:hover{ background:var(--gold); color:#1b1206; }
   .lbw-close:hover{ background:var(--crimson); color:#fff; }
-  .lbw-close svg{ width:13px; height:13px; }
+  .lbw-maximize svg, .lbw-close svg{ width:13px; height:13px; }
   .lbw-body{ flex:1 1 auto; position:relative; background:#000; }
   .lbw-body iframe{ position:absolute; inset:0; width:100%; height:100%; border:none; }
   .lbw-resize-handle{
@@ -1829,7 +1836,7 @@
   <div class="confirm-card chat-apps-card">
     <h3>Гуруҳ тавассути</h3>
     <div class="chat-apps-list">
-      <button class="chat-app-btn chat-app-whatsapp" id="groupAppWhatsappBtn" data-app="WhatsApp" data-url="https://whatsapp.com/channel/0029VbE0yeuJf05h8WnwA93g">
+      <button class="chat-app-btn chat-app-whatsapp" id="groupAppWhatsappBtn" data-app="WhatsApp" data-url="https://chat.whatsapp.com/FMB5JAINLz82sACKUa2VAl?s=cl&amp;p=a&amp;mlu=4&amp;ilr=4">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 004.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm5.8 14.14c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.11.11-1.79-.11-.41-.13-.94-.31-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.73-2.09.99-2.38c.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.57.81 1.98.88 2.12.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.28-.12.56.16.28.71 1.18 1.53 1.91 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.19-.28.37-.23.62-.14.26.09 1.64.77 1.92.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z"/></svg>
         <span>WhatsApp</span>
       </button>
@@ -2009,7 +2016,10 @@
 <div id="liveBroadcastWindow">
   <div class="lbw-head" id="liveBroadcastHeader">
     <div class="lbw-head-title"><span class="lbw-head-dot"></span>Эфир</div>
-    <button class="lbw-close" id="liveBroadcastClose" title="Пушидан"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="lbw-head-actions">
+      <button class="lbw-maximize" id="liveBroadcastMaximize" title="Васеъ кардан"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11-5v3a2 2 0 0 0-2 2h-3"/></svg></button>
+      <button class="lbw-close" id="liveBroadcastClose" title="Пушидан"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
   </div>
   <div class="lbw-body">
     <iframe id="liveBroadcastFrame" title="Эфир" src="about:blank" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
@@ -3284,7 +3294,53 @@ const liveBroadcastWindow = document.getElementById("liveBroadcastWindow");
 const liveBroadcastFrame = document.getElementById("liveBroadcastFrame");
 const liveBroadcastHeader = document.getElementById("liveBroadcastHeader");
 const liveBroadcastClose = document.getElementById("liveBroadcastClose");
+const liveBroadcastMaximize = document.getElementById("liveBroadcastMaximize");
 const liveBroadcastResizeHandle = document.getElementById("liveBroadcastResizeHandle");
+
+// --- Васеъ кардани равзана то андозаи пурраи экран, ва баргардонидан ---
+let lbwIsMaximized = false;
+let lbwSavedRect = null; // мавқеъ/андозаи пеш аз васеъ кардан, барои баргардонидан
+const LBW_ICON_EXPAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11-5v3a2 2 0 0 0-2 2h-3"/></svg>';
+const LBW_ICON_COMPRESS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v3a2 2 0 0 1-2 2H4M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+
+function maximizeLiveBroadcastWindow(){
+  if(lbwIsMaximized) return;
+  lbwSavedRect = {
+    width: liveBroadcastWindow.style.width,
+    height: liveBroadcastWindow.style.height,
+    left: liveBroadcastWindow.style.left,
+    top: liveBroadcastWindow.style.top
+  };
+  liveBroadcastWindow.classList.add("maximized");
+  liveBroadcastWindow.style.left = "0px";
+  liveBroadcastWindow.style.top = "0px";
+  liveBroadcastWindow.style.width = window.innerWidth + "px";
+  liveBroadcastWindow.style.height = window.innerHeight + "px";
+  lbwIsMaximized = true;
+  liveBroadcastMaximize.innerHTML = LBW_ICON_COMPRESS;
+  liveBroadcastMaximize.title = "Хурд кардан";
+}
+
+function restoreLiveBroadcastWindow(){
+  if(!lbwIsMaximized) return;
+  liveBroadcastWindow.classList.remove("maximized");
+  if(lbwSavedRect){
+    liveBroadcastWindow.style.width = lbwSavedRect.width;
+    liveBroadcastWindow.style.height = lbwSavedRect.height;
+    liveBroadcastWindow.style.left = lbwSavedRect.left;
+    liveBroadcastWindow.style.top = lbwSavedRect.top;
+  }
+  lbwSavedRect = null;
+  lbwIsMaximized = false;
+  liveBroadcastMaximize.innerHTML = LBW_ICON_EXPAND;
+  liveBroadcastMaximize.title = "Васеъ кардан";
+}
+
+liveBroadcastMaximize.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if(lbwIsMaximized) restoreLiveBroadcastWindow();
+  else maximizeLiveBroadcastWindow();
+});
 
 function openLiveBroadcastWindow(){
   const href = /^https?:\/\//i.test(currentLiveLink) ? currentLiveLink : "https://" + currentLiveLink;
@@ -3308,6 +3364,9 @@ function openLiveBroadcastWindow(){
 
 function closeLiveBroadcastWindow(){
   liveBroadcastWindow.classList.remove("show");
+  // Агар равзана дар ҳолати "васеъ" буд, пеш аз пушидан ба андозаи муқаррарӣ
+  // бармегардонем — то дафъаи БАЪДӢ кушодан аз ҳолати васеъ оғоз нашавад.
+  if(lbwIsMaximized) restoreLiveBroadcastWindow();
   // Барои сарфаи интернет/батарея, стриминги видеоро ҳангоми пушидани равзана қатъ мекунем.
   liveBroadcastFrame.src = "about:blank";
 }
@@ -3333,7 +3392,8 @@ function clampNum(val, min, max){ return Math.min(Math.max(val, min), max); }
   let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
   liveBroadcastHeader.addEventListener("pointerdown", (e) => {
-    if(e.target.closest(".lbw-close")) return;
+    if(e.target.closest(".lbw-close") || e.target.closest(".lbw-maximize")) return;
+    if(lbwIsMaximized) return;
     dragging = true;
     liveBroadcastWindow.classList.add("dragging");
     const rect = liveBroadcastWindow.getBoundingClientRect();
@@ -3405,6 +3465,11 @@ function clampNum(val, min, max){ return Math.min(Math.max(val, min), max); }
 
 // Ҳангоми чархиши экран/тағйири андозаи viewport, равзанаро дар дохили экран нигоҳ медорем.
 window.addEventListener("resize", () => {
+  if(lbwIsMaximized){
+    liveBroadcastWindow.style.width = window.innerWidth + "px";
+    liveBroadcastWindow.style.height = window.innerHeight + "px";
+    return;
+  }
   if(!liveBroadcastWindow.dataset.positioned) return;
   const rect = liveBroadcastWindow.getBoundingClientRect();
   const maxLeft = window.innerWidth - 46;
