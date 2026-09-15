@@ -819,6 +819,9 @@
   }
   #clearCartConfirmOverlay.show{ opacity:1; pointer-events:auto; }
   #registerPhoneInput{ opacity:0.7; cursor:not-allowed; }
+  /* Барои админ: майдони рақами телефон дар вақти сабти рақамҳо кушода (қобили таҳрир) мешавад,
+     то ӯ тавонад ба ҷои рақами худаш рақами дигар касро нависад (харидорӣ аз номи дигарон). */
+  #registerPhoneInput.admin-editable{ opacity:1; cursor:text; }
   .btn-gold{
     background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206;
     width:100%; box-shadow:0 8px 20px rgba(232,184,75,0.25); margin-top:6px;
@@ -2444,9 +2447,26 @@ const totalAmountValue = document.getElementById("totalAmountValue");
 const numbersCountValue = document.getElementById("numbersCountValue");
 const selectedNumbersList = document.getElementById("selectedNumbersList");
 
+// Рақами телефони админ (бо шакли якхела, бе +992/992/0). Ба ин корбар иҷозат
+// медиҳем, ки дар вақти сабти рақамҳо ба ҷои ном/рақами худаш, ном ва рақами
+// дигар касеро нависад — то битавонад аз номи дигарон рақам харидорӣ кунад.
+const ADMIN_PHONE_NORM = "919053669";
+
 function openRegisterModal(){
-  registerNameInput.value = userName.textContent && userName.textContent !== "—" ? userName.textContent : "";
-  registerPhoneInput.value = userPhone.textContent && userPhone.textContent !== "—" ? userPhone.textContent : "";
+  const isAdminUser = normalizePhone(userPhone.textContent) === ADMIN_PHONE_NORM;
+  if(isAdminUser){
+    // Майдонҳоро холи мегузорем (на бо номи/рақами худи админ) ва қулфи
+    // рақами телефонро мекушоем, то админ тавонад номи/рақами дигар касро нависад.
+    registerNameInput.value = "";
+    registerPhoneInput.value = "";
+    registerPhoneInput.readOnly = false;
+    registerPhoneInput.classList.add("admin-editable");
+  } else {
+    registerNameInput.value = userName.textContent && userName.textContent !== "—" ? userName.textContent : "";
+    registerPhoneInput.value = userPhone.textContent && userPhone.textContent !== "—" ? userPhone.textContent : "";
+    registerPhoneInput.readOnly = true;
+    registerPhoneInput.classList.remove("admin-editable");
+  }
   const selectedChips = homeNumbersRow.querySelectorAll(".number-chip.selected");
   const count = selectedChips.length;
   selectedNumbersList.innerHTML = Array.from(selectedChips)
@@ -2491,6 +2511,19 @@ function refreshCartBadge(){
 addToCartBtn.addEventListener("click", async () => {
   const selectedChips = Array.from(homeNumbersRow.querySelectorAll(".number-chip.selected"));
   if(!selectedChips.length) return;
+
+  // Барои админ майдонҳо холи мемонанд (на автоматӣ пур мешаванд) — бинобар ин
+  // санҷиш мекунем, ки ном ва рақами телефон пур шуда бошанд, пеш аз сабт.
+  if(!registerNameInput.value.trim() || !registerPhoneInput.value.trim()){
+    sound.error();
+    [registerNameInput, registerPhoneInput].forEach(inp => {
+      if(!inp.value.trim()){
+        inp.classList.add("field-error");
+        setTimeout(() => inp.classList.remove("field-error"), 1500);
+      }
+    });
+    return;
+  }
 
   addToCartBtn.disabled = true;
 
