@@ -1107,6 +1107,7 @@
     <div class="live-link-box" id="liveStreamLinkBox">—</div>
     <div class="modal-foot">
       <button type="button" class="btn btn-primary" id="liveStreamStartBtn">🚀 Оғоз кардани эфир</button>
+      <button type="button" class="btn btn-danger" id="liveStreamStopBtn" style="margin-top:8px;">⏹ Қатъ кардани эфир</button>
     </div>
     <button type="button" class="btn btn-success" id="liveStreamCopyBtn" style="width:100%;margin-top:10px;">📋 Нусха кардани линк</button>
   </div>
@@ -1801,6 +1802,7 @@ document.querySelectorAll("[data-close]").forEach(btn => {
   const idInput      = document.getElementById("liveStreamIdInput");
   const linkBox      = document.getElementById("liveStreamLinkBox");
   const startBtn      = document.getElementById("liveStreamStartBtn");
+  const stopBtn       = document.getElementById("liveStreamStopBtn");
   const copyBtn      = document.getElementById("liveStreamCopyBtn");
   if(!liveBtn || !idInput || !linkBox || !startBtn || !copyBtn) return;
 
@@ -1855,8 +1857,27 @@ document.querySelectorAll("[data-close]").forEach(btn => {
       link: viewLink,
       startedAt: serverTimestamp()
     }).catch(() => {});
+    // Ҳифзи иловагӣ: агар админ фаромӯш кунад тугмаи "Қатъ кардан"-ро пахш
+    // кунад ва танҳо табро/браузерро пӯшад ё интернет қатъ шавад, Firebase
+    // худ ба таври худкор "active"-ро false мекунад, то равзанаи эфир дар
+    // назди корбарони НАВ беасос кушода нашавад.
+    onDisconnect(ref(db, "liveBroadcast/active")).set(false);
     closeModal("liveStreamModal");
   });
+
+  if(stopBtn){
+    stopBtn.addEventListener("click", () => {
+      // Қатъи возеҳи эфир — новобаста аз он ки равзанаи float кушода аст ё не.
+      if(typeof window.closeLiveFloatWindow === "function"){
+        window.closeLiveFloatWindow();
+      } else {
+        set(ref(db, "liveBroadcast/active"), false).catch(() => {});
+      }
+      onDisconnect(ref(db, "liveBroadcast/active")).cancel();
+      if(typeof showToast === "function") showToast("Эфир қатъ карда шуд", "success");
+      closeModal("liveStreamModal");
+    });
+  }
 
   copyBtn.addEventListener("click", () => {
     if(!viewLink) return;
@@ -1910,9 +1931,14 @@ document.querySelectorAll("[data-close]").forEach(btn => {
     if(fwIsMaximized) restoreFloatWindow();
     // Хабар додан ба корбарон, ки эфир қатъ шуд
     set(ref(db, "liveBroadcast/active"), false).catch(() => {});
+    // Азбаски ҳозир бо дасти худамон "active:false"-ро навиштем, дигар лозим
+    // нест, ки ҳангоми қатъшавии пайвастшавӣ (onDisconnect) низ ҳамин корро
+    // такрор кунад — бекор мекунем, то амали ниҳонӣ бе сабаб боқӣ намонад.
+    onDisconnect(ref(db, "liveBroadcast/active")).cancel();
   }
 
   closeBtn.addEventListener("click", stopFloatWindow);
+  window.closeLiveFloatWindow = stopFloatWindow;
 
   /* ---- Васеъ кардан то андозаи пурраи экран, ва баргардонидан ---- */
   const MAX_ICON_EXPAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11-5v3a2 2 0 0 0-2 2h-3"/></svg>';
