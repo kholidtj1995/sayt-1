@@ -662,6 +662,7 @@
   .chat-app-whatsapp{ background:#25d366; }
   .chat-app-telegram{ background:#229ed9; }
   .chat-app-max{ background:#8b5cf6; }
+  .chat-app-youtube{ background:#ff0000; }
 
   /* Тасдиқи "Ҳа / Не" барои воридшави ба платформаи интихобшуда */
   #appConfirmOverlay{
@@ -686,6 +687,15 @@
     opacity:0; pointer-events:none; transition:opacity .22s;
   }
   #groupAppConfirmOverlay.show{ opacity:1; pointer-events:auto; }
+
+  /* Менюи "YouTube" — интихоби канал (агар якчанд канал бошад) */
+  #youtubeChannelsModalOverlay{
+    position:fixed; inset:0; z-index:62;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #youtubeChannelsModalOverlay.show{ opacity:1; pointer-events:auto; }
 
   /* Огоҳи дар бораи он, ки барномаи интихобшуда (WhatsApp/Telegram/Мах) дар телефони корбар насб нашудааст */
   #appNotInstalledOverlay{
@@ -1862,6 +1872,23 @@
     <div class="confirm-actions">
       <button class="btn btn-ghost" id="groupAppConfirmNoBtn">Не</button>
       <button class="btn btn-gold" id="groupAppConfirmYesBtn">Ҳа</button>
+    </div>
+  </div>
+</div>
+
+<!-- YOUTUBE CHANNELS MENU: аввал ин равзана — интихоби кадом канал -->
+<div id="youtubeChannelsModalOverlay">
+  <div class="confirm-card chat-apps-card">
+    <h3>Канали YouTube</h3>
+    <div class="chat-apps-list">
+      <button class="chat-app-btn chat-app-youtube" id="youtubeChannelBtn1" data-name="Канали 1" data-url="https://youtube.com/@behruztv-j1p?si=GUFt2Jcw2eBlSOSv">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 00.5 6.19 31.6 31.6 0 000 12a31.6 31.6 0 00.5 5.81 3.02 3.02 0 002.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 002.12-2.14A31.6 31.6 0 0024 12a31.6 31.6 0 00-.5-5.81zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>
+        <span>Канали 1</span>
+      </button>
+      <button class="chat-app-btn chat-app-youtube" id="youtubeChannelBtn2" data-name="Канали 2" data-url="https://youtube.com/@behruztv1-j8s?si=01_OHC_KNQbOvbaq"
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 00.5 6.19 31.6 31.6 0 000 12a31.6 31.6 0 00.5 5.81 3.02 3.02 0 002.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 002.12-2.14A31.6 31.6 0 0024 12a31.6 31.6 0 00-.5-5.81zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>
+        <span>Канали 2</span>
+      </button>
     </div>
   </div>
 </div>
@@ -4673,15 +4700,39 @@ function closeGroupAppsModal(){
 }
 groupBtn.addEventListener("click", () => { closeMenu(); openGroupAppsModal(); });
 
-/* ---------------- Тугмаи "YouTube" дар меню ---------------- */
+/* ---------------- Тугмаи "YouTube" дар меню — аввал равзанаи интихоби канал, баъд тасдиқ ---------------- */
 const youtubeBtn = document.getElementById("youtubeBtn");
-const YOUTUBE_URL = "https://youtube.com/@behruztv-j1p?si=GUFt2Jcw2eBlSOSv";
+const youtubeChannelsModalOverlay = document.getElementById("youtubeChannelsModalOverlay");
+const youtubeChannelBtns = Array.from(document.querySelectorAll(".chat-app-youtube"));
+
+function openYoutubeChannelsModal(){
+  youtubeChannelsModalOverlay.classList.add("show");
+  sound.open();
+}
+function closeYoutubeChannelsModal(){
+  youtubeChannelsModalOverlay.classList.remove("show");
+  sound.close();
+}
 youtubeBtn.addEventListener("click", () => {
   closeMenu();
-  pendingGroupAppUrl = YOUTUBE_URL;
-  pendingGroupAppName = "YouTube";
-  pendingIsYoutube = true;
-  openGroupAppConfirm("YouTube", "Оё мехоҳед ба канали YouTube-и мо ворид шавед?");
+  openYoutubeChannelsModal();
+});
+youtubeChannelsModalOverlay.addEventListener("click", (e) => {
+  if(e.target === youtubeChannelsModalOverlay) closeYoutubeChannelsModal();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && youtubeChannelsModalOverlay.classList.contains("show")) closeYoutubeChannelsModal();
+});
+youtubeChannelBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    sound.click();
+    const channelName = btn.dataset.name || "YouTube";
+    pendingGroupAppUrl = btn.dataset.url || "";
+    pendingGroupAppName = channelName;
+    pendingIsYoutube = true;
+    closeYoutubeChannelsModal();
+    openGroupAppConfirm(channelName, "Оё мехоҳед ба канали \"" + channelName + "\" ворид шавед?");
+  });
 });
 groupAppsModalOverlay.addEventListener("click", (e) => {
   if(e.target === groupAppsModalOverlay) closeGroupAppsModal();
