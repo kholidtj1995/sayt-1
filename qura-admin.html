@@ -2904,6 +2904,17 @@ function renderUserCartList(phone){
     totalBadge.classList.remove("show");
   }
   const listEl = document.getElementById("orderCartList");
+  // Пеш аз он ки рӯйхатро аз нав созем (ин ҳар сония рӯй медиҳад), мавқеи
+  // скроли ҳар як қатори рақамҳо (ва худи рӯйхатро) нигоҳ медорем, то
+  // навсозии худкор скролро ба ибтидо барнагардонад ва корбар тавонад
+  // рӯйхатро озодона ба чапу рост бикашад.
+  const savedListScrollTop = listEl.scrollTop;
+  const savedChipScrollLeft = {};
+  listEl.querySelectorAll(".order-cart-card").forEach(card => {
+    const oid = card.dataset.orderId;
+    const scrollEl = card.querySelector(".player-numbers-scroll");
+    if(oid && scrollEl) savedChipScrollLeft[oid] = scrollEl.scrollLeft;
+  });
   if(entries.length === 0){
     listEl.innerHTML = '<div class="order-cart-empty">Ин корбар ҳануз сабад надорад</div>';
   } else {
@@ -2942,6 +2953,14 @@ function renderUserCartList(phone){
       `;
     }).join("");
   }
+  // Мавқеи скролро, ки пеш аз навсозӣ нигоҳ дошта будем, баргардонед — то
+  // агар корбар айни ҳол дар ҳоли кашидани рӯйхат бошад, ин кор канда нашавад.
+  listEl.scrollTop = savedListScrollTop;
+  listEl.querySelectorAll(".order-cart-card").forEach(card => {
+    const oid = card.dataset.orderId;
+    const scrollEl = card.querySelector(".player-numbers-scroll");
+    if(oid && scrollEl && savedChipScrollLeft[oid] != null) scrollEl.scrollLeft = savedChipScrollLeft[oid];
+  });
 }
 
 function openUserCartModal(phone){
