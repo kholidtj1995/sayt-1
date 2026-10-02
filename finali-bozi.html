@@ -273,6 +273,7 @@
 
   #startGameSettingsBtn{ width:30px; height:30px; }
   #startGameSettingsBtn svg{ width:15px; height:15px; }
+  .panel-head > #startGameSettingsBtn{ margin-left:4px; }
 
   #startGameActionBtn{
     height:30px; padding:0 14px; font-size:.78rem; font-weight:700; border-radius:9px;
@@ -946,9 +947,9 @@
   .next-round-overlay.hidden{ display:none; }
   .next-round-card{
     position:relative;
-    background:rgba(22,27,34,0.95);
-    border:4px solid #00f0ff; border-radius:20px;
-    padding:35px 30px; width:100%; max-width:500px; text-align:center;
+    background:linear-gradient(180deg,#9bbcfa,#7aa5f5);
+    border:8px solid #00f0ff; border-radius:40px;
+    padding:70px 60px; width:100%; max-width:min(1000px, 94vw); text-align:center;
     box-shadow:0 0 25px rgba(0,240,255,0.4);
     animation: nextRoundCardAppear .7s cubic-bezier(.175,.885,.32,1.275), nextRoundGlow 2s infinite alternate;
     transition:opacity .8s ease, transform .8s ease;
@@ -962,16 +963,16 @@
     100%{ border-color:#7000ff; box-shadow:0 0 30px rgba(112,0,255,0.7); }
   }
   .next-round-card h1{
-    color:#fff; font-size:24px; margin:0 0 20px; text-transform:uppercase;
-    letter-spacing:1.5px; text-shadow:0 0 10px #00f0ff; font-family:'Unbounded', sans-serif;
+    color:#000; font-size:48px; margin:0 0 40px; text-transform:uppercase;
+    letter-spacing:3px; text-shadow:0 0 10px #00f0ff; font-family:'Unbounded', sans-serif;
   }
   .next-round-timer{
-    font-size:36px; font-weight:700; color:#00f0ff; margin-bottom:20px;
+    font-size:72px; font-weight:700; color:#000; margin-bottom:40px;
     font-family:monospace; text-shadow:0 0 12px rgba(0,240,255,0.6);
   }
   .next-round-progress-bar{
-    width:100%; height:12px; background-color:#161b22; border-radius:6px;
-    border:1px solid rgba(0,240,255,0.3); overflow:hidden; box-shadow:inset 0 0 5px #000;
+    width:100%; height:24px; background-color:#b3cdfc; border-radius:12px;
+    border:2px solid #000; overflow:hidden; box-shadow:none;
   }
   .next-round-progress-fill{
     height:100%; background:linear-gradient(90deg,#00f0ff,#7000ff); width:100%;
@@ -1172,6 +1173,820 @@
     font-family:'Bebas Neue', sans-serif; font-size:2.2rem; line-height:1; color:#1b1206;
   }
   .net-resume-countdown-num.pop{ animation:countdownPop .5s cubic-bezier(.2,.8,.2,1); }
+
+  /* =====================================================================
+     ЭФИР / КАМЕРА: рангҳои яктарафа, контрасти баланд, бе тобиш ва градиент.
+     Ин блок ҳамаи услубҳои болоиро бекор мекунад. Барои баргардонидан
+     ба намуди пештара, ин блокро (то "КОНЕЦ ЭФИР") нест кунед.
+     ===================================================================== */
+  :root{
+    --bg:#5b8def;
+    --bg-2:#7aa5f5;
+    --surface:#9bbcfa;
+    --surface-2:#b3cdfc;
+    --border:#000;
+    --gold:#ffd400;
+    --gold-2:#ffe45c;
+    --gold-dark:#ffd400;
+    --emerald:#0a9a4f;
+    --crimson:#ff3b5c;
+    --text:#000;
+    --text-muted:#e6eeff;
+    --text-dim:#cdd9f5;
+    --shadow-lg:none;
+  }
+  body{ background:#5b8def !important; }
+  #finalGameWindow{
+    background:#5b8def !important; border:3px solid #000 !important; box-shadow:none !important;
+  }
+  .panel, .prizes-box, .winners-log-title-row, .winners-log-progress-frame,
+  .winners-log-progress-track, .winners-log-table, .date-badge{
+    background:#7aa5f5 !important; background-image:none !important;
+    border:3px solid #000 !important; box-shadow:none !important;
+  }
+  .winners-log-frame, .winners-list-frame{ border-color:#ffd400 !important; box-shadow:none !important; }
+  .prizes-box{ background:#4f7fe0 !important; }
+
+  /* сарлавҳаҳо ва матнҳо: калонтар ва сафед */
+  .panel-head-label{ font-size:1.05rem !important; color:#000 !important; font-weight:800 !important; }
+  .panel-head h2{ font-size:1.25rem !important; color:#000 !important; }
+  .winners-log-title-text{ font-size:1.15rem !important; color:#000 !important; font-weight:800 !important; }
+  .winners-log-col-label, .winners-log-dot-label, .winners-log-prize-label{
+    font-size:.8rem !important; color:#000 !important; letter-spacing:0 !important; font-weight:800 !important;
+  }
+  .winners-log-col-value{ font-size:1.5rem !important; color:#000 !important; font-weight:800 !important; }
+  .winners-log-progress-text{ font-size:1rem !important; color:#000 !important; }
+  .winners-log-col.winners-log-name{ border-right:3px solid #000 !important; }
+
+  /* нишонаҳо (badge) */
+  .badge{
+    font-size:1rem !important; font-weight:800 !important; color:#111 !important;
+    background:#ffd400 !important; border:3px solid #000 !important; padding:5px 14px !important;
+  }
+  .badge.badge-sold, .badge.badge-unsold{ color:#000 !important; border:3px solid #000 !important; }
+  .badge-dot{ border:2px solid #000; }
+  .round-index-label{
+    font-size:1.1rem !important; color:#111 !important; background:#ffd400 !important;
+    border:3px solid #000 !important;
+  }
+
+  /* тӯбҳои рақамҳо: яктарафа, сарҳади сафед, рақами калон */
+  .ball-grid{ --ball-size:44px !important; gap:5px !important; }
+  .ball{
+    background:#ffd400 !important; background-image:none !important; color:#111 !important;
+    border:3px solid #000 !important; box-shadow:none !important;
+    font-size:21px !important; font-weight:800 !important;
+  }
+  .ball.sold{
+    background:#00a650 !important; color:#000 !important; border:3px solid #000 !important;
+    font-weight:800 !important; text-shadow:none !important;
+  }
+  @keyframes ballDrawnBlink{
+    0%,100%{ background:#00a650; transform:scale(1); }
+    50%{ background:#ff1f3d; transform:scale(1.22); }
+  }
+  @keyframes ballSpotlightPulse{
+    0%,100%{ transform:scale(1); background:#00a650; }
+    45%{ transform:scale(1.16); background:#ffd400; color:#111; }
+  }
+
+  /* навори пешрафт */
+  .final-divider-line{ height:16px !important; background:#c9dbfd !important; border:3px solid #000 !important; box-shadow:none !important; }
+  .final-divider-fill{ background:#00d26a !important; background-image:none !important; }
+  .final-divider-dot{ background:#00a650 !important; border:3px solid #000 !important; box-shadow:none !important; }
+  .round-ring-num{ color:#000 !important; font-size:1.1rem !important; }
+  @keyframes dividerFillDanger{ 0%,100%{ background:#ff1f3d; box-shadow:none; } 50%{ background:#7a0f1f; box-shadow:none; } }
+  @keyframes dividerDotDanger{ 0%,100%{ background:#ff1f3d; box-shadow:none; } 50%{ background:#7a0f1f; box-shadow:none; } }
+
+  /* кортҳои призҳо */
+  .prize-card{
+    flex:0 0 96px !important; background:#9bbcfa !important; background-image:none !important;
+    border:3px solid #000 !important; box-shadow:none !important; padding:10px 6px 9px !important;
+  }
+  .prize-card.active{ background:#ffd400 !important; border-color:#000 !important; box-shadow:none !important; }
+  .prize-card.active h4, .prize-card.active .qty-label, .prize-card.active .qty-num{ color:#111 !important; }
+  .prize-card h4{ font-size:.95rem !important; color:#000 !important; font-weight:800 !important; }
+  .qty-label{ font-size:.7rem !important; color:#000 !important; letter-spacing:0 !important; font-weight:800 !important; }
+  .qty-num{ font-size:1.4rem !important; color:#000 !important; }
+  .trophy-circle{ width:30px !important; height:30px !important; background:#ffd400 !important; background-image:none !important; border:2px solid #000 !important; box-shadow:none !important; }
+  .trophy-circle svg{ width:16px !important; height:16px !important; }
+  @keyframes prizeDrawnBlink{
+    0%,100%{ border-color:#000; background:#9bbcfa; transform:scale(1); box-shadow:none; }
+    50%{ border-color:#000; background:#ff1f3d; transform:scale(1.08); box-shadow:none; }
+  }
+  @keyframes prizeSpotlightPulse{
+    0%,100%{ border-color:#000; background:#9bbcfa; transform:scale(1); box-shadow:none; }
+    45%{ border-color:#000; background:#ffd400; transform:scale(1.07); box-shadow:none; }
+  }
+
+  /* рақами баромада ва приз */
+  .winners-log-dot{
+    width:84px !important; height:84px !important; font-size:2.6rem !important;
+    background:#00a650 !important; background-image:none !important; color:#000 !important;
+    border:4px solid #000 !important; box-shadow:none !important;
+  }
+  @keyframes winnersLogDotBlink{
+    0%,100%{ background:#00a650; box-shadow:none; }
+    50%{ background:#ff1f3d; box-shadow:none; }
+  }
+  .winners-log-prize-box{ width:84px !important; height:84px !important; background:#9bbcfa !important; background-image:none !important; border:4px solid #000 !important; box-shadow:none !important; }
+  /* рамкаи берунии "Рақами баромада / Маълумоти ғолиб / Призи бурдашуда" — сиёҳ */
+  .winners-log-frame{ border-color:#000 !important; }
+  /* тугмаи "Васеъ/хурд кардан" ва "Нет админа" пинҳон */
+  #finalGameExpandBtn, #adminStatusBadge{ display:none !important; }
+  /* Равзанаи "Руйхати бозингарон" — калон (тамоми экран), бе анимацияи пӯшидан */
+  #playersModal{ padding:0 !important; backdrop-filter:none !important; }
+  #playersModal .chat-modal{ max-width:none !important; max-height:none !important; width:100% !important; height:100% !important; border-radius:0 !important; animation:none !important; }
+  #playersModal.closing, #playersModal.closing .modal{ animation:none !important; }
+  /* Кутии ҷустуҷӯ дар рӯйхати бозингарон пинҳон */
+  #playersSearchWrap{ display:none !important; }
+  /* Рӯйхати бозингарон: ҳамаи матнҳо сиёҳ; матни сутунҳои Ном, Телефон, Давр, Сана калон */
+  #playersTable th, #playersTable td, #playersTable .u-name, #playersTable .u-date{ color:#000 !important; }
+  #playersTable thead th:nth-child(n+2){ font-size:1.05rem !important; }
+  #playersTable tbody td:nth-child(n+3){ font-size:1.3rem !important; line-height:1.25 !important; }
+  #playersTable tbody td.u-name{ font-weight:800 !important; }
+  /* Рақамҳои корбар: матн сиёҳ ва калон */
+  #playersTable thead th:nth-child(6){ font-size:1.05rem !important; }
+  #playersTable{ --chip:clamp(56px, 7.2vh, 100px); }
+  #playersTable .player-num-chip{
+    width:var(--chip) !important; height:var(--chip) !important; border-radius:50% !important;
+    background:#3ddc84 !important; background-image:none !important; color:#000 !important;
+    border:3px solid #000 !important; box-shadow:none !important; text-shadow:none !important;
+    font-family:'Bebas Neue', sans-serif !important; font-size:calc(var(--chip) * .5) !important; font-weight:800 !important;
+  }
+  #playersTable .player-numbers-scroll{ max-width:calc(var(--chip) * 10 + 8px * 9) !important; gap:8px !important; flex-wrap:wrap !important; overflow:visible !important; padding-bottom:0 !important; }
+  /* Фони ҳуҷайраҳои сутуни "Рақамҳои бозингарон" — сафед */
+  #playersTable tbody td:nth-child(2), #playersTable tbody td:nth-child(3), #playersTable tbody td:nth-child(4){ background:#ffffff !important; }
+  /* Маълумоти сутунҳои Телефон, Давр, Сана дар байн */
+  #playersTable tbody td:nth-child(3), #playersTable tbody td.u-name, #playersTable tbody td:nth-child(4), #playersTable tbody td:nth-child(5), #playersTable tbody td:nth-child(6){ text-align:center !important; }
+  /* Равзанаи "Танзимоти оғози бозӣ": калонтар, матнҳо сиёҳ, бе рамз */
+  #startGameSettingsModal .modal{ max-width:min(860px, 94vw) !important; padding:44px !important; border-radius:28px !important; }
+  #startGameSettingsModal .modal-head{ margin-bottom:28px !important; }
+  #startGameSettingsModal .modal-head h3{ font-size:2.1rem !important; color:#000 !important; }
+  #startGameSettingsModal .modal-close{ width:56px !important; height:56px !important; }
+  #startGameSettingsModal .modal-close svg{ width:26px !important; height:26px !important; }
+  #startGameSettingsModal .field{ margin-bottom:26px !important; }
+  #startGameSettingsModal label, #startGameSettingsModal label span{ color:#000 !important; font-size:1.5rem !important; margin-bottom:12px !important; display:inline-block; }
+  #startGameSettingsModal input{ color:#000 !important; font-size:1.9rem !important; padding:24px 26px !important; border-radius:18px !important; }
+  #startGameSettingsModal input::placeholder{ color:#000 !important; opacity:.55 !important; }
+  #startGameSettingsModal .speed-select-row, #startGameSettingsModal .time-select-row{ gap:18px !important; }
+  #startGameSettingsModal .speed-btn, #startGameSettingsModal .btn{ color:#000 !important; font-size:1.8rem !important; padding:26px 16px !important; border-radius:18px !important; }
+  #startGameSettingsModal .field:has(#startGameSettingsCodeInput){ display:none !important; }
+  /* Номи сутунҳо дар байн */
+  #playersTable thead th{ text-align:center !important; }
+  /* Сатри сарлавҳа ҳангоми ғелонидани рӯйхат дар ҷояш мемонад */
+  #playersTable{ border-collapse:separate !important; border-spacing:0 !important; }
+  #playersTable thead th{ position:sticky !important; top:0 !important; z-index:5 !important; background:#7aa5f5 !important; }
+  #playersModal .chat-modal-body{ padding-top:0 !important; background:#7aa5f5 !important; }
+  #playersTable thead{ position:sticky !important; top:0 !important; z-index:6 !important; background:#7aa5f5 !important; }
+  #playersTable thead th{ position:static !important; background:#7aa5f5 !important; }
+  #playersTable tbody tr, #playersTable tbody td{ position:relative; z-index:0; }
+  /* Хати болои ҷадвал */
+  #playersTable thead th:nth-child(n+2){ border-top:1px solid #000 !important; }
+  /* Хатҳои чап ва рости ҷадвал */
+  #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ border-left:1px solid #000 !important; }
+  #playersTable thead th:nth-child(6), #playersTable tbody td:nth-child(6){ border-right:1px solid #000 !important; }
+  /* Хатҳои амудӣ байни сутунҳо */
+  #playersTable thead th:nth-child(n+3), #playersTable tbody td:nth-child(n+3){ border-left:1px solid #000 !important; }
+  /* Сутуни № дар рӯйхати бозингарон пинҳон */
+  #playersTable thead th:first-child, #playersTable tbody td:first-child{ display:none !important; }
+    /* Равзанаи "Огоҳии пуш": 4 маротиба калонтар (2x дар паҳно ва баландӣ), ҳамаи матнҳо сиёҳ */
+  #playersPushModal, #gameOverPushModal{ overflow-y:auto !important; }
+  #playersPushModal .modal, #gameOverPushModal .modal{ max-width:min(840px, 94vw) !important; max-height:96vh !important; overflow-y:auto !important; padding:44px !important; border-radius:28px !important; }
+  #playersPushModal .modal-head, #gameOverPushModal .modal-head{ margin-bottom:28px !important; }
+  #playersPushModal .modal-head h3, #gameOverPushModal .modal-head h3{ font-size:2.1rem !important; color:#000 !important; }
+  #playersPushModal .modal-close, #gameOverPushModal .modal-close{ width:56px !important; height:56px !important; }
+  #playersPushModal .modal-close svg, #gameOverPushModal .modal-close svg{ width:26px !important; height:26px !important; }
+  #playersPushModal .push-notif-views, #gameOverPushModal .push-notif-views{ color:#000 !important; font-size:1.5rem !important; gap:10px !important; }
+  #playersPushModal .push-notif-views svg, #gameOverPushModal .push-notif-views svg{ width:32px !important; height:32px !important; color:#000 !important; stroke:#000 !important; }
+  #playersPushModal .field, #gameOverPushModal .field{ margin-bottom:26px !important; }
+  #playersPushModal label, #gameOverPushModal label{ color:#000 !important; font-size:1.5rem !important; margin-bottom:12px !important; display:inline-block; }
+  #playersPushModal input, #playersPushModal textarea, #gameOverPushModal textarea{ color:#000 !important; font-size:1.9rem !important; padding:24px 26px !important; border-radius:18px !important; }
+  #playersPushModal textarea, #gameOverPushModal textarea{ min-height:200px !important; }
+  #playersPushModal input::placeholder, #playersPushModal textarea::placeholder, #gameOverPushModal textarea::placeholder{ color:#000 !important; opacity:.55 !important; }
+  #playersPushModal .modal > div, #gameOverPushModal .modal > div{ color:#000 !important; }
+  #playersPushTargetInfo, #gameOverPushTargetInfo{ color:#000 !important; font-size:1.5rem !important; margin-bottom:22px !important; }
+  #gameOverPushModal .modal > div[style*="font-size:.78rem"]{ font-size:1.4rem !important; color:#000 !important; margin:-4px 0 22px !important; }
+  #playersPushModal .btn, #gameOverPushModal .btn{ color:#000 !important; font-size:1.8rem !important; padding:26px 16px !important; border-radius:18px !important; }
+  .push-actions-row{ display:flex !important; flex-direction:row !important; gap:20px !important; width:100% !important; }
+  .push-actions-row .btn{ flex:1 1 0 !important; width:auto !important; min-width:0 !important; margin-top:0 !important; }
+  .winners-log-table.has-winner{ background:#00a650 !important; border-color:#000 !important; box-shadow:none !important; }
+  .track-num-ball{ width:28px !important; height:28px !important; font-size:1.1rem !important; background:#ffd400 !important; background-image:none !important; color:#111 !important; border:2px solid #000 !important; box-shadow:none !important; }
+
+  /* рӯйхати ғолибон: ҷадвал */
+  .winners-list-frame .users-table-scroll thead th{ background:#4f7fe0 !important; color:#000 !important; font-size:1rem !important; font-weight:800 !important; }
+  .winners-list-frame .users-table td{ color:#000 !important; font-size:1.05rem !important; font-weight:700 !important; border-color:#000 !important; }
+  .win-number-ball{ width:34px !important; height:34px !important; background:#00a650 !important; background-image:none !important; color:#000 !important; border:2px solid #000 !important; box-shadow:none !important; font-size:1.1rem !important; }
+
+  /* тугмаҳои боло ва сояҳои умумӣ */
+  button, .btn, .modal-close{ box-shadow:none !important; }
+  .modal-close{ background:#b3cdfc !important; border:2px solid #000 !important; color:#000 !important; }
+  * { text-shadow:none !important; }
+
+  .ball.sold, .win-number-ball, .winners-log-dot, .badge.badge-sold, .badge.badge-unsold, .round-ring-num, .mini-countdown-num{ color:#000 !important; }
+  .ball.sold{ background:#3ddc84 !important; }
+  .winners-log-dot, .win-number-ball, .final-divider-dot{ background:#3ddc84 !important; }
+  .winners-log-table.has-winner{ background:#3ddc84 !important; }
+  .winners-list-frame .users-table td, .winners-list-frame .users-table-scroll thead th{ color:#000 !important; }
+  .panel-head-label, .panel-head h2, .winners-log-col-value, .winners-log-col-label, .winners-log-progress-text, .prize-card h4, .qty-label{ color:#000 !important; }
+  /* ===================== КОНЕЦ ЭФИР ===================== */
+
+  /* ===== ЭФИР 3+4: фақат дар ҳолати "Васеъ" (пурраэкран); дар ҳолати хурд андозаҳои муқаррарӣ ===== */
+  #finalGameWindow.fullscreen #windowBody{flex:1 1 auto; min-height:0; }
+  #finalGameWindow.fullscreen .ball-grid{--ball-size:clamp(46px, 5.8cqh, 76px) !important;
+    gap:clamp(5px, .8cqh, 9px) !important; padding:6px 8px 8px !important;
+    justify-content:start; }
+  #finalGameWindow.fullscreen .ball{font-size:calc(var(--ball-size) * .5) !important; border-width:3px !important; }
+  #finalGameWindow.fullscreen .prizes-grid{gap:12px !important; }
+  #finalGameWindow.fullscreen .prize-card{flex:0 0 clamp(96px, 7cqw, 130px) !important; }
+  #finalGameWindow.fullscreen .panel-head-label{font-size:1.25rem !important; }
+  #finalGameWindow.fullscreen .badge{font-size:1.15rem !important; }
+  #finalGameWindow.fullscreen .round-index-label{font-size:1.25rem !important; }
+  #finalGameWindow.fullscreen .prizes-box{padding:12px 14px !important; }
+  #finalGameWindow.fullscreen .prizes-grid{gap:clamp(10px, 1.2cqw, 20px) !important; padding:6px 6px 10px !important; }
+  #finalGameWindow.fullscreen .prize-card{flex:0 0 clamp(120px, 8.6cqw, 180px) !important;
+    padding:clamp(10px, 1.6cqh, 18px) 8px clamp(10px, 1.4cqh, 16px) !important; }
+  #finalGameWindow.fullscreen .prize-card h4{font-size:clamp(1.05rem, 2.3cqh, 1.6rem) !important; margin-bottom:clamp(6px, 1cqh, 12px) !important; }
+  #finalGameWindow.fullscreen .qty-label{font-size:clamp(.8rem, 1.5cqh, 1.1rem) !important; }
+  #finalGameWindow.fullscreen .qty-num{font-size:clamp(1.6rem, 3.2cqh, 2.4rem) !important; }
+  #finalGameWindow.fullscreen .trophy-circle{width:clamp(34px, 4.6cqh, 56px) !important; height:clamp(34px, 4.6cqh, 56px) !important; margin-bottom:clamp(6px, 1cqh, 12px) !important; }
+  #finalGameWindow.fullscreen .trophy-circle svg{width:55% !important; height:55% !important; }
+  #finalGameWindow.fullscreen .winners-log-frame{padding:clamp(12px, 2cqh, 22px) !important; }
+  #finalGameWindow.fullscreen .winners-log-title-row{padding:clamp(8px, 1.2cqh, 14px) 18px !important; }
+  #finalGameWindow.fullscreen .winners-log-title-text{font-size:clamp(1.3rem, 3cqh, 2rem) !important; }
+  #finalGameWindow.fullscreen .date-badge{font-size:clamp(1rem, 2cqh, 1.4rem) !important; padding:6px 16px !important; }
+  #finalGameWindow.fullscreen .winners-log-progress-track{height:clamp(36px, 5cqh, 56px) !important; }
+  #finalGameWindow.fullscreen .winners-log-progress-text{font-size:clamp(1.1rem, 2.4cqh, 1.7rem) !important; }
+  #finalGameWindow.fullscreen .track-num-ball{width:clamp(30px, 4cqh, 46px) !important; height:clamp(30px, 4cqh, 46px) !important; font-size:clamp(1.1rem, 2.2cqh, 1.6rem) !important; }
+  #finalGameWindow.fullscreen .winners-log-panel{margin-top:clamp(12px, 2cqh, 24px) !important; }
+  #finalGameWindow.fullscreen .winners-log-row{align-items:center !important; gap:clamp(14px, 2cqw, 32px) !important; }
+  #finalGameWindow.fullscreen .winners-log-dot-label, #finalGameWindow.fullscreen .winners-log-prize-label, #finalGameWindow.fullscreen .winners-log-col-label{font-size:clamp(.9rem, 1.9cqh, 1.3rem) !important; }
+  #finalGameWindow.fullscreen .winners-log-dot{width:clamp(96px, 14cqh, 170px) !important; height:clamp(96px, 14cqh, 170px) !important;
+    font-size:clamp(3rem, 7cqh, 5.5rem) !important; }
+  #finalGameWindow.fullscreen .winners-log-prize-box{width:clamp(110px, 15cqh, 180px) !important; height:clamp(110px, 15cqh, 180px) !important; padding:8px !important; }
+  #finalGameWindow.fullscreen .winners-log-prize-box .prize-card h4{font-size:clamp(.9rem, 1.9cqh, 1.3rem) !important; margin-bottom:4px !important; }
+  #finalGameWindow.fullscreen .winners-log-prize-box .qty-label{font-size:clamp(.7rem, 1.3cqh, 1rem) !important; }
+  #finalGameWindow.fullscreen .winners-log-prize-box .qty-num{font-size:clamp(1.2rem, 2.4cqh, 1.8rem) !important; }
+  #finalGameWindow.fullscreen .winners-log-prize-box .trophy-circle{width:clamp(26px, 3.4cqh, 40px) !important; height:clamp(26px, 3.4cqh, 40px) !important; }
+  #finalGameWindow.fullscreen .winners-log-table{min-height:clamp(96px, 14cqh, 170px); align-items:stretch; }
+  #finalGameWindow.fullscreen .winners-log-col{display:flex; flex-direction:column; justify-content:center; padding:12px 14px !important; }
+  #finalGameWindow.fullscreen .winners-log-col-value{font-size:clamp(1.8rem, 4.4cqh, 3.4rem) !important; }
+  /* ===== КОНЕЦ ===== */
+
+  /* =====================================================================
+     ТУГМАҲО сурх, "Админ в сети" зард, нуқтаи мигзан сабз
+     ===================================================================== */
+  button, .btn, .btn-gold, .icon-btn, .modal-close, .btn-pause, .btn-pause.is-paused,
+  .speed-btn, .reopen-btn, #startGameActionBtn, #finalGamePlayersBtn, #finalGameExpandBtn,
+  #finalGameCloseBtn, #startGameSettingsBtn{
+    background:#ff3b3b !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+  }
+  button:hover, .btn:hover, .icon-btn:hover, .modal-close:hover, .speed-btn:hover, .btn-gold:hover{
+    background:#ff6a6a !important; filter:none !important;
+  }
+  /* Фақат тугмаҳои сатри боло: Стоп/Давом додан, вақт, танзимот, бозингарон, пушидан */
+  #startGameActionBtn, #startGamePauseBtn, #startGamePauseBtn.is-paused, #startGameSettingsBtn, #finalGamePlayersBtn,
+  #finalGameCloseBtn, #startGameTimerBox, #startGameTimerBox.is-green{
+    background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+  }
+  #startGameActionBtn:hover, #startGamePauseBtn:hover, #startGameSettingsBtn:hover, #finalGamePlayersBtn:hover, #finalGameCloseBtn:hover{
+    background:#eee !important;
+  }
+  .speed-btn.active{ outline:4px solid #000; outline-offset:2px; }
+  button svg, .icon-btn svg, .modal-close svg{ color:#000 !important; stroke:#000 !important; }
+
+  .admin-status, .admin-status.online{
+    background:#ffd400 !important; border:2px solid #000 !important; box-shadow:none !important;
+  }
+  .admin-status span, .admin-status.online span{ color:#000 !important; font-weight:800 !important; }
+  .admin-status-circle, .admin-status.online .admin-status-circle{
+    width:12px !important; height:12px !important; background:#00c853 !important;
+    border:1.5px solid #000; box-shadow:none !important;
+    animation:adminGreenBlink 1s ease-in-out infinite !important;
+  }
+  @keyframes adminGreenBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.15; } }
+  /* ===================== КОНЕЦ ТУГМАҲО ===================== */
+
+  /* нишонаи "Бозингарони ҳозир дар финал" пинҳон карда шуд */
+  .players-count-badge{ display:none !important; }
+
+  /* матни "Давр" ғафс */
+  .round-index-label{ font-family:'Unbounded', sans-serif !important; font-weight:900 !important; -webkit-text-stroke:.6px #000; }
+
+  
+    #finalGameWindow.fullscreen{ container-type:size; }
+
+  /* "Рафти бозӣ" акнун дар зери рамкаи маълумоти бозӣ */
+  #finalGameWindow .winners-log-frame .winners-log-panel{ margin-top:0 !important; }
+  #finalGameWindow .winners-log-frame .winners-log-title-row{ margin-top:clamp(10px, 1.6vh, 20px) !important; }
+
+  /* тугмаҳои боло ва "Админ в сети" дохили кутии рақамҳо, пеш аз "Монд" */
+  .panel-head .modal-head-actions{ margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:nowrap; }
+  #finalNumbersPanel .panel-head .badge-remaining{ margin-left:12px !important; }
+
+  /* "Финали бози" + танзимот дохили кутии рақамҳо, аввали сатр */
+  #windowBody > .modal-head{ display:none !important; }
+  .panel-head .final-title-row{ margin-right:18px; }
+  .panel-head .final-title-row h3{ font-size:clamp(1.1rem, 2.4vh, 1.7rem); white-space:nowrap; }
+
+  /* "Рафти бозӣ" + сана дохили сатри боло, пеш аз "Админ в сети"; андозаи матн = андозаи "Монд" */
+  .log-title-group{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .panel-head .log-title-group + .modal-head-actions{ margin-left:14px; }
+  #finalGameWindow .panel-head .winners-log-title-text{ font-size:1rem !important; font-weight:800 !important; }
+  #finalGameWindow.fullscreen .panel-head .winners-log-title-text{ font-size:1.15rem !important; }
+  #finalGameWindow .panel-head .date-badge{ font-size:1rem !important; }
+  #finalGameWindow.fullscreen .panel-head .date-badge{ font-size:1.15rem !important; }
+
+  /* қутти холии навори рақамҳо (зери рамкаи маълумоти бозӣ) пинҳон шуд */
+  #finalGameWindow .winners-log-frame .winners-log-title-row{ display:none !important; }
+
+  /* Дар экрани хурд / телевизор: тамоми барнома худкор ба экран мегунҷад */
+  #windowBody.fit{ transform-origin:0 0; overflow:hidden !important; flex:none !important; padding-right:0 !important; }
+
+  /* "Фурухта" ва "Нафурухта" пинҳон шуданд */
+  #finalSoldBadge, #finalUnsoldBadge{ display:none !important; }
+
+  /* Рақамҳо дар 4 сатр, тӯбҳо калонтар */
+  .ball-grid{ --ball-size:54px !important; grid-template-rows:repeat(4, var(--ball-size)) !important; }
+  .ball{ font-size:calc(var(--ball-size) * .5) !important; }
+  #finalGameWindow.fullscreen .ball-grid{
+    --ball-size:clamp(56px, 7.2cqh, 100px) !important;
+    grid-template-rows:repeat(4, var(--ball-size)) !important;
+  }
+
+  /* санаи "30 Сентябр" дар аввали сатр, пеш аз "Финали бози" */
+  .panel-head > .date-badge{ margin-right:14px; }
+  .panel-head .modal-head-actions{ margin-left:auto !important; }
+
+  #finalGameWindow .date-badge, #finalGameWindow #finalRoundNameText{ color:#000 !important; font-weight:800 !important; }
+
+  #finalNumbersPanel .panel-head #finalRemainingBadge{ margin-left:0 !important; }
+
+  /* =====================================================================
+     МИГАТИ СУРХИ рақам/приз — ислоҳ. Сабаб: қоидаҳои "!important" барои
+     ранги фон (.ball.sold, .prize-card, .winners-log-dot, ...) аниматсияро
+     пахш мекарданд (аниматсия ба !important ғолиб намеояд). Ҳоло ранг тавассути
+     хосияти махсуси @property мигат мекунад ва қоида аз ҳама боло меистад.
+     ===================================================================== */
+  @property --blink-ball { syntax:'<color>'; inherits:false; initial-value:#3ddc84; }
+  @property --blink-prize{ syntax:'<color>'; inherits:false; initial-value:#9bbcfa; }
+  @property --blink-dot  { syntax:'<color>'; inherits:false; initial-value:#3ddc84; }
+  @property --blink-pbox { syntax:'<color>'; inherits:false; initial-value:#9bbcfa; }
+
+  .ball.sold.ball-drawn-blink{
+    background:var(--blink-ball) !important;
+    animation: ballBlinkRed .4s ease-in-out 5;
+  }
+  @keyframes ballBlinkRed{
+    0%,100%{ --blink-ball:#3ddc84; transform:scale(1); filter:none; }
+    50%{ --blink-ball:#ff1f3d; transform:scale(1.22); filter:drop-shadow(0 0 8px #ff1f3d); }
+  }
+
+  .prize-card.prize-drawn-blink{
+    background:var(--blink-prize) !important;
+    animation: prizeBlinkRed .4s ease-in-out 5;
+  }
+  @keyframes prizeBlinkRed{
+    0%,100%{ --blink-prize:#9bbcfa; transform:scale(1); filter:none; }
+    50%{ --blink-prize:#ff1f3d; transform:scale(1.08); filter:drop-shadow(0 0 8px #ff1f3d); }
+  }
+
+  .winners-log-dot.winners-log-dot-blink{
+    background:var(--blink-dot) !important;
+    animation: dotBlinkRed .4s ease-in-out 3;
+  }
+  @keyframes dotBlinkRed{
+    0%,100%{ --blink-dot:#3ddc84; filter:none; }
+    50%{ --blink-dot:#ff1f3d; filter:drop-shadow(0 0 10px #ff1f3d); }
+  }
+
+  .winners-log-prize-box.winners-log-prize-blink{
+    background:var(--blink-pbox) !important;
+    animation: pboxBlinkRed .4s ease-in-out 3;
+  }
+  .winners-log-prize-box.winners-log-prize-blink .prize-card{ background:transparent !important; animation:none !important; }
+  @keyframes pboxBlinkRed{
+    0%,100%{ --blink-pbox:#9bbcfa; filter:none; }
+    50%{ --blink-pbox:#ff1f3d; filter:drop-shadow(0 0 10px #ff1f3d); }
+  }
+
+  /* ===== Равзанаи "Омода бошед" — бо рангҳои барнома (кабуд, зард, хати сиёҳ) ===== */
+  .countdown-overlay{
+    background:#5b8def !important; background-image:none !important; backdrop-filter:none !important;
+  }
+  .countdown-content{
+    background:#7aa5f5; border:3px solid #000; border-radius:28px;
+    padding:28px 64px 20px; gap:14px; box-shadow:none;
+  }
+  .countdown-label{
+    background:#ffd400; color:#000 !important; border:3px solid #000; border-radius:999px;
+    padding:10px 26px; font-size:1.3rem; font-weight:800;
+  }
+  .countdown-number{
+    color:#000 !important; text-shadow:none !important; font-size:10rem;
+  }
+  .countdown-number.go{ color:#000 !important; text-shadow:none !important; }
+
+  /* ===== "Омода бошед" — андозаи калон ===== */
+  .countdown-content{
+    padding:clamp(36px, 7vmin, 90px) clamp(80px, 16vmin, 220px) clamp(24px, 5vmin, 70px) !important;
+    gap:clamp(20px, 4vmin, 56px) !important;
+    border-width:5px !important; border-radius:clamp(36px, 6vmin, 80px) !important;
+  }
+  .countdown-label{
+    font-size:clamp(2rem, 6vmin, 4.5rem) !important;
+    padding:clamp(14px, 2.4vmin, 32px) clamp(40px, 7vmin, 100px) !important;
+    border-width:5px !important;
+  }
+  .countdown-number{
+    font-size:clamp(14rem, 48vmin, 36rem) !important;
+  }
+
+  /* ===== "Даври аввалро оғоз мекунем" — рангҳои барнома + андозаи калон ===== */
+  .start-round-overlay{ background:#5b8def !important; backdrop-filter:none !important; }
+  .start-round-card{
+    background:#7aa5f5 !important; border:5px solid #000 !important; box-shadow:none !important;
+    border-radius:clamp(36px, 6vmin, 80px) !important;
+    max-width:min(94vw, 1100px) !important;
+    padding:clamp(40px, 8vmin, 100px) clamp(30px, 6vmin, 90px) !important;
+    animation: startRoundCardAppear .7s cubic-bezier(.175,.885,.32,1.275) !important;
+  }
+  .start-round-card h1{
+    color:#000 !important; text-shadow:none !important;
+    font-size:clamp(2rem, 6vmin, 4.6rem) !important; margin:0 0 clamp(24px, 4vmin, 56px) !important;
+    line-height:1.2;
+  }
+  .start-round-timer{
+    color:#000 !important; text-shadow:none !important;
+    font-size:clamp(4rem, 15vmin, 11rem) !important; margin-bottom:clamp(24px, 4vmin, 56px) !important;
+    font-family:'Bebas Neue', sans-serif !important; line-height:1;
+  }
+  .start-round-progress-bar{
+    height:clamp(22px, 3.6vmin, 44px) !important; border-radius:999px !important;
+    background:#c9dbfd !important; border:4px solid #000 !important; box-shadow:none !important;
+  }
+  .start-round-progress-fill{ background:#00d26a !important; background-image:none !important; }
+
+  /* ===== Равзанаҳои "рақами тасодуфи" / "призи тасодуфи" / "Бози ба анҷом мерасад" —
+     рангҳои барнома + андозаи калон ===== */
+  .rn-container{ max-width:min(94vw, 820px) !important; filter:none !important; }
+  .rn-circle{
+    width:clamp(80px, 11vmin, 130px) !important; height:clamp(80px, 11vmin, 130px) !important;
+    margin-bottom:calc(clamp(80px, 11vmin, 130px) / -2) !important;
+    background:#00a650 !important; background-image:none !important;
+    border:5px solid #000 !important; box-shadow:none !important; animation:none !important;
+  }
+  .rn-circle svg{ width:55% !important; height:55% !important; stroke:#000 !important; }
+  .rn-box{
+    background:#7aa5f5 !important; border:5px solid #000 !important; box-shadow:none !important;
+    border-radius:clamp(28px, 4.5vmin, 56px) !important;
+    min-height:clamp(180px, 26vmin, 320px) !important;
+    padding:clamp(60px, 9vmin, 110px) clamp(24px, 4vmin, 60px) clamp(28px, 4vmin, 56px) !important;
+  }
+  .rn-text{
+    color:#000 !important; text-shadow:none !important; font-weight:800 !important;
+    font-size:clamp(1.8rem, 5.2vmin, 3.6rem) !important; line-height:1.25 !important;
+    font-family:'Unbounded', sans-serif;
+  }
+  .rn-progress{
+    height:clamp(20px, 3.2vmin, 40px) !important; border-radius:999px !important;
+    background:#c9dbfd !important; border:4px solid #000 !important; margin-top:clamp(20px, 3.5vmin, 44px) !important;
+  }
+  .rn-progress-fill{ background:#00d26a !important; background-image:none !important; }
+
+  /* ===== "Табрикот" — андозаи калон (тақрибан 4-5 маротиба) ===== */
+  .congrats-card{
+    max-width:min(94vw, 1800px) !important; border-width:10px !important;
+    border-radius:clamp(36px, 6vmin, 80px) !important;
+    padding:clamp(40px, 7vmin, 100px) clamp(30px, 5vmin, 80px) !important;
+  }
+  .congrats-content h1{
+    font-size:clamp(2.4rem, 9vmin, 7rem) !important; margin:0 0 clamp(24px, 4vmin, 60px) !important;
+    letter-spacing:.08em !important;
+  }
+  .congrats-table{ border-radius:clamp(16px, 2.4vmin, 32px) !important; margin-top:0 !important; }
+  .congrats-table th, .congrats-table td{ padding:clamp(18px, 3.2vmin, 48px) clamp(6px, 1vmin, 16px) !important; }
+  .congrats-table th{ font-size:clamp(1.3rem, 4.4vmin, 3.4rem) !important; }
+  .congrats-table td{ font-size:clamp(1.5rem, 5vmin, 3.8rem) !important; }
+  .congrats-table th.congrats-col-phone{ font-size:clamp(1rem, 3vmin, 2.3rem) !important; }
+  .congrats-table td.congrats-col-phone{ font-size:clamp(1.3rem, 4vmin, 3.1rem) !important; }
+  .congrats-num-ball{
+    width:clamp(52px, 9vmin, 120px) !important; height:clamp(52px, 9vmin, 120px) !important;
+    font-size:clamp(1.6rem, 5vmin, 3.8rem) !important;
+  }
+  .congrats-progress-bar{
+    height:clamp(18px, 3vmin, 40px) !important; border-radius:999px !important;
+    margin-top:clamp(24px, 4vmin, 56px) !important;
+  }
+
+  /* ===== Ҳисоби хурди сурх (5→1) — 4 маротиба калон ===== */
+  .mini-countdown-circle{
+    width:clamp(240px, 38vmin, 416px) !important; height:clamp(240px, 38vmin, 416px) !important;
+    border-width:clamp(8px, 1.4vmin, 16px) !important;
+  }
+  .mini-countdown-num{ font-size:clamp(8rem, 29vmin, 13.2rem) !important; }
+
+  /* "Табрикот": сарлавҳаи "Рақам" (ба ҷои #), андозаи телефон = андозаи приз */
+  .congrats-col-num{ width:17% !important; }
+  .congrats-col-name{ width:31% !important; }
+  .congrats-col-phone{ width:30% !important; }
+  .congrats-col-prize{ width:22% !important; }
+  .congrats-table th.congrats-col-num{ font-size:clamp(1.3rem, 4.4vmin, 3.4rem) !important; }
+  .congrats-table th.congrats-col-phone{
+    font-size:clamp(1.3rem, 4.4vmin, 3.4rem) !important; white-space:normal !important; letter-spacing:0 !important;
+  }
+  .congrats-table td.congrats-col-phone{
+    font-size:clamp(1.5rem, 5vmin, 3.8rem) !important; letter-spacing:0 !important;
+  }
+
+  /* ===== "Табрикот" — рангҳои барнома, матнҳо сиёҳ ===== */
+  .congrats-overlay{ background:#5b8def !important; backdrop-filter:none !important; }
+  .congrats-card{
+    background:#7aa5f5 !important; border:10px solid #000 !important; box-shadow:none !important;
+    animation: congratsCardIn .8s cubic-bezier(.175,.885,.32,1.275) !important;
+  }
+  .congrats-content h1{
+    color:#000 !important; text-shadow:none !important; animation:none !important;
+  }
+  .congrats-table{
+    background:#fff !important; color:#000 !important; box-shadow:none !important;
+    border:4px solid #000 !important;
+  }
+  .congrats-table th{
+    background:#ffd400 !important; background-image:none !important; color:#000 !important;
+    text-shadow:none !important; border:3px solid #000 !important;
+  }
+  .congrats-table tr.congrats-green-row{ background:#3ddc84 !important; background-image:none !important; box-shadow:none !important; }
+  .congrats-table tr.congrats-green-row td{
+    color:#000 !important; text-shadow:none !important; border:3px solid #000 !important; font-weight:800 !important;
+  }
+  .congrats-num-ball{
+    background:#00a650 !important; background-image:none !important; color:#000 !important;
+    border:4px solid #000 !important; box-shadow:none !important;
+  }
+  .congrats-progress-bar{ background:#c9dbfd !important; border:4px solid #000 !important; }
+  .congrats-progress-fill{ background:#00d26a !important; background-image:none !important; }
+
+  /* "Табрикот": рақам айнан мисли рақамҳои "Руйхати рақамҳо" (доираи сабз, рамкаи сиёҳ, рақами сиёҳ) */
+  .congrats-table .congrats-num-ball{
+    background:#3ddc84 !important; background-image:none !important;
+    color:#000 !important; border:4px solid #000 !important; box-shadow:none !important;
+    font-family:'Bebas Neue', sans-serif !important; font-weight:800 !important; text-shadow:none !important;
+    border-radius:50% !important; letter-spacing:.02em;
+    font-size:clamp(2.2rem, 7vmin, 5.2rem) !important;
+  }
+
+  /* "Табрикот": сатри ғолиб сафед (то бо доираи сабзи рақам омехта нашавад) */
+  .congrats-table tr.congrats-green-row, .congrats-table tr.congrats-green-row td{
+    background:#fff !important; background-image:none !important;
+  }
+
+  /* ===== "Интернет қатъ шуд" ва "Интернет барқарор шуд" — рангҳои барнома, матни сиёҳ, 5 маротиба калон ===== */
+  .net-status-overlay, .net-resume-overlay{
+    background:#5b8def !important; background-image:none !important; backdrop-filter:none !important;
+  }
+  .net-status-card, .net-resume-card{
+    background:#7aa5f5 !important; background-image:none !important;
+    border:6px solid #000 !important; box-shadow:none !important;
+    border-radius:clamp(36px, 6vmin, 80px) !important;
+    width:min(94vw, 1500px) !important; max-width:min(94vw, 1500px) !important;
+    padding:clamp(36px, 7vmin, 100px) clamp(28px, 5vmin, 80px) !important;
+    gap:clamp(20px, 4vmin, 56px) !important;
+  }
+  .net-spinner{
+    width:clamp(150px, 24vmin, 380px) !important; height:clamp(150px, 24vmin, 380px) !important;
+    border:clamp(12px, 2vmin, 30px) solid rgba(0,0,0,0.15) !important;
+    border-top-color:#000 !important; box-shadow:none !important;
+  }
+  .net-status-overlay.net-state-offline .net-spinner{ border-top-color:#000 !important; box-shadow:none !important; }
+  .net-status-title, .net-status-overlay.net-state-offline .net-status-title, .net-resume-title{
+    color:#000 !important; text-shadow:none !important;
+    font-size:clamp(2rem, 6.5vmin, 5rem) !important; line-height:1.2;
+  }
+  .net-status-subtitle, .net-resume-subtitle{
+    color:#000 !important; font-weight:700 !important;
+    font-size:clamp(1.3rem, 3.6vmin, 2.8rem) !important; max-width:none !important; line-height:1.4 !important;
+  }
+  .net-resume-icon{
+    width:clamp(150px, 24vmin, 360px) !important; height:clamp(150px, 24vmin, 360px) !important;
+    background:#3ddc84 !important; background-image:none !important;
+    border:6px solid #000 !important; box-shadow:none !important;
+  }
+  .net-resume-icon svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+  .net-resume-btn{
+    padding:clamp(18px, 3vmin, 44px) clamp(48px, 9vmin, 140px) !important;
+    font-size:clamp(1.8rem, 5vmin, 3.8rem) !important; border-radius:clamp(18px, 3vmin, 40px) !important;
+    margin-top:clamp(8px, 2vmin, 24px) !important;
+  }
+  .net-resume-countdown{
+    width:clamp(150px, 24vmin, 320px) !important; height:clamp(150px, 24vmin, 320px) !important;
+    background:#ffd400 !important; background-image:none !important;
+    border:6px solid #000 !important; box-shadow:none !important;
+  }
+  .net-resume-countdown-num{ font-size:clamp(5rem, 16vmin, 11rem) !important; color:#000 !important; }
+
+  /* Тугмаҳои сатри боло — андозаи онҳо = андозаи қуттии "Монд" (баландӣ ва ҳарф) */
+  #startGameActionBtn, #startGamePauseBtn, #startGameTimerBox, #startGameLiveBadge,
+  #startGameSettingsBtn, #finalGamePlayersBtn, #finalGameExpandBtn, #finalGameCloseBtn{
+    --hb-font:1rem;
+    font-size:var(--hb-font) !important;
+    height:calc(var(--hb-font) * 1.21 + 16px) !important; min-height:0 !important;
+    box-sizing:border-box !important;
+  }
+  #finalGameWindow.fullscreen #startGameActionBtn, #finalGameWindow.fullscreen #startGamePauseBtn,
+  #finalGameWindow.fullscreen #startGameTimerBox, #finalGameWindow.fullscreen #startGameLiveBadge,
+  #finalGameWindow.fullscreen #startGameSettingsBtn, #finalGameWindow.fullscreen #finalGamePlayersBtn,
+  #finalGameWindow.fullscreen #finalGameExpandBtn, #finalGameWindow.fullscreen #finalGameCloseBtn{ --hb-font:1.15rem; }
+  #startGameActionBtn, #startGamePauseBtn{
+    padding:0 14px !important; font-weight:800 !important; border-radius:999px !important;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  #startGameTimerBox, #startGameLiveBadge{ padding:0 14px !important; font-weight:800 !important; border-radius:999px !important; }
+  #startGameSettingsBtn, #finalGamePlayersBtn, #finalGameExpandBtn, #finalGameCloseBtn{
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; padding:0 !important; border-radius:999px !important;
+  }
+  #startGameSettingsBtn svg, #finalGamePlayersBtn svg, #finalGameExpandBtn svg, #finalGameCloseBtn svg{
+    width:55% !important; height:55% !important;
+  }
+
+  /* Кутии призҳо: дар тарафи рост як рамкаи собит. Призҳо ҳангоми склор ва дар рафти бозӣ
+     ба зери ин рамка рафта нопадид мешаванд ва ба он халал намерасонанд. */
+  #finalPrizesBox{ position:relative; --pf-w:clamp(150px, 16vw, 330px); }
+  #finalPrizesBox #finalPrizesGrid{ margin-right:calc(var(--pf-w) + 12px) !important; }
+  .prizes-right-frame{
+    position:absolute; top:6px; bottom:6px; right:10px; width:var(--pf-w);
+    background:inherit; background-image:none;
+    border:4px solid #000; border-radius:8px; box-sizing:border-box;
+    z-index:5; pointer-events:none;
+  }
+  #finalGameWindow.fullscreen .prizes-right-frame{ top:12px; bottom:12px; right:14px; }
+
+  /* F11 / экрани пурра: равзана то канор, бе фосилаи калон */
+  #finalGameWindow.fullscreen{ padding:10px 10px 8px !important; }
+
+  /* "Финали бози" ва "Руйхати рақамҳо" — андозаи ҳарфи якхела, ҳар кадом дохили қуттӣ:
+     "Финали бози" мисли "1 кум" (кабуд), "Руйхати рақамҳо" мисли "Монд" (зард) */
+  #finalNumbersPanel .panel-head .final-title-row h3{
+    font-size:1rem !important; font-weight:800 !important; line-height:1.21 !important; margin:0 !important;
+    background:#7aa5f5 !important; color:#000 !important;
+    border:3px solid #000 !important; border-radius:999px !important;
+    padding:5px 14px !important; white-space:nowrap !important;
+  }
+  #finalNumbersPanel .panel-head > .panel-head-label{
+    font-size:1rem !important; font-weight:800 !important; line-height:1.21 !important;
+    background:#ffd400 !important; color:#111 !important;
+    border:3px solid #000 !important; border-radius:999px !important;
+    padding:5px 14px !important; white-space:nowrap !important;
+  }
+  #finalGameWindow.fullscreen #finalNumbersPanel .panel-head .final-title-row h3,
+  #finalGameWindow.fullscreen #finalNumbersPanel .panel-head > .panel-head-label{ font-size:1.15rem !important; }
+
+  /* Заминаи "Руйхати рақамҳо" ва "Руйхати призҳо" — сафед */
+  #finalNumbersBox, #finalPrizesBox{ background:#fff !important; background-image:none !important; }
+  /* Ҳангоми интихоби рақам ва интихоби приз: ЗАМИНАИ кутии рақамҳо ва кутии призҳо сурх мешавад (на ҳошия) */
+  @property --nbox-bg { syntax:'<color>'; inherits:false; initial-value:#ffffff; }
+  #finalNumbersBox.numbers-box-danger, #finalPrizesBox.numbers-box-danger{
+    border-color:#000 !important; box-shadow:none !important;
+    background:var(--nbox-bg) !important; background-image:none !important;
+    animation:nboxRedBlink .35s steps(1,end) infinite !important;
+  }
+  @keyframes nboxRedBlink{
+    0%,100%{ --nbox-bg:#ffffff; }
+    50%{ --nbox-bg:#ff1f3d; }
+  }
+  #finalNumbersBox.numbers-box-soft-blink, #finalPrizesBox.numbers-box-soft-blink{
+    border-color:#000 !important; box-shadow:none !important;
+    background:var(--nbox-bg) !important; background-image:none !important;
+    animation:nboxRedSoft 1.4s ease-in-out infinite !important;
+  }
+  @keyframes nboxRedSoft{
+    0%,100%{ --nbox-bg:#ffffff; }
+    50%{ --nbox-bg:#ff1f3d; }
+  }
+  /* Рамкаи рости кутии призҳо ҳеҷ гоҳ сурх намешавад — ҳамеша сафед */
+  #finalPrizesBox .prizes-right-frame, #finalPrizesBox.numbers-box-danger .prizes-right-frame, #finalPrizesBox.numbers-box-soft-blink .prizes-right-frame{
+    background:#ffffff !important; background-color:#ffffff !important; background-image:none !important; animation:none !important;
+  }
+
+  /* Тугмаи "Натиҷаи бози" — айнан мисли тугмаи "Пушидан" (✕) */
+  #finalGameResultBtn{
+    --hb-font:1rem;
+    font-size:var(--hb-font) !important;
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; height:calc(var(--hb-font) * 1.21 + 16px) !important;
+    min-height:0 !important; min-width:0 !important; padding:0 !important; box-sizing:border-box !important;
+    border-radius:999px !important;
+    background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+  }
+  #finalGameResultBtn:hover{ background:#eee !important; }
+  #finalGameResultBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+  #finalGameWindow.fullscreen #finalGameResultBtn{ --hb-font:1.15rem; }
+
+  /* ===== Равзанаи "Бози анҷом ёфт": худкор калон (экрани пурра), матнҳо сиёҳ ва калонтар, тугмаҳо мисли ⚙ ===== */
+  #gameOverCard .gameover-title{ color:#000 !important; font-size:2.4rem !important; }
+  #gameOverCard .gameover-section-head h4{ color:#000 !important; font-size:1.8rem !important; }
+  #gameOverCard .gameover-section-head{ margin-bottom:14px !important; }
+  #gameOverCard .winners-log-title-text{ color:#000 !important; }
+  #gameOverCard .users-table thead th{ color:#000 !important; font-size:1.3rem !important; padding:16px 12px !important; }
+  #gameOverCard .users-table td, #gameOverCard .users-table td *{ color:#000 !important; font-size:1.5rem !important; font-weight:700 !important; }
+  #gameOverCard .users-table td{ padding:16px 12px !important; }
+  #gameOverCard .u-idx{ color:#000 !important; }
+  #gameOverCard .win-number-ball, #gameOverCard .users-table td .win-number-ball{ width:76px !important; height:76px !important; font-size:2.6rem !important; color:#000 !important; }
+  #gameOverCard .gameover-winners-scroll, #gameOverCard .gameover-losing-list{ max-height:none !important; }
+  /* Ҷадвали "Руйхати ғолибон": хатҳои сиёҳ байни сутунҳо ва сатрҳо — мисли ҷадвали "Руйхати бозингарон" */
+  #gameOverCard .gameover-winners-scroll .users-table{ border-collapse:separate !important; border-spacing:0 !important; width:100%; border-top:1px solid #000 !important; border-left:1px solid #000 !important; }
+  #gameOverCard .gameover-winners-scroll .users-table th, #gameOverCard .gameover-winners-scroll .users-table td{ border-right:1px solid #000 !important; border-bottom:1px solid #000 !important; border-top:none !important; border-left:none !important; }
+  #gameOverCard .gameover-losing-row{ gap:16px !important; padding:12px 14px !important; }
+  #gameOverCard .gameover-losing-ball{ width:52px !important; height:52px !important; font-size:1.7rem !important; color:#000 !important; border:2px solid #000 !important; box-shadow:none !important; }
+  #gameOverCard .gameover-losing-name{ color:#000 !important; font-size:1.5rem !important; }
+  #gameOverCard .gameover-losing-phone{ color:#000 !important; font-size:1.3rem !important; }
+  #gameOverCard .modal-head-actions{ gap:12px !important; }
+  #gameOverCard .modal-head-actions .icon-btn, #gameOverCard .modal-head-actions .modal-close{
+    width:56px !important; height:56px !important; min-width:0 !important; padding:0 !important; box-sizing:border-box !important;
+    border-radius:999px !important; background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    display:flex !important; align-items:center; justify-content:center;
+  }
+  #gameOverCard .modal-head-actions .icon-btn:hover, #gameOverCard .modal-head-actions .modal-close:hover{ background:#eee !important; }
+  #gameOverCard .modal-head-actions svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+
+  /* ===== Равзанаи "Пок кардани руйхат": 4 маротиба калонтар, ҳамаи матнҳо сиёҳ ===== */
+  #clearWinnersModal{ overflow-y:auto !important; }
+  #clearWinnersModal .modal{ max-width:min(840px, 94vw) !important; max-height:96vh !important; overflow-y:auto !important; padding:44px !important; border-radius:28px !important; }
+  #clearWinnersModal .modal-head{ margin-bottom:28px !important; }
+  #clearWinnersModal .modal-head h3{ font-size:2.1rem !important; color:#000 !important; }
+  #clearWinnersModal .modal-close{ width:56px !important; height:56px !important; }
+  #clearWinnersModal .modal-close svg{ width:26px !important; height:26px !important; }
+  #clearWinnersModal .modal > p{ color:#000 !important; font-size:1.6rem !important; margin:0 0 28px !important; line-height:1.4; }
+  #clearWinnersModal .field{ margin-bottom:26px !important; }
+  #clearWinnersModal label{ color:#000 !important; font-size:1.5rem !important; margin-bottom:12px !important; display:inline-block; }
+  #clearWinnersModal input{ color:#000 !important; font-size:1.9rem !important; padding:24px 26px !important; border-radius:18px !important; }
+  #clearWinnersModal input::placeholder{ color:#000 !important; opacity:.55 !important; }
+  #clearWinnersModal .modal-foot{ margin-top:28px !important; }
+  #clearWinnersModal .btn{ color:#000 !important; font-size:1.8rem !important; padding:26px 16px !important; border-radius:18px !important; }
+
+
+  /* "Руйхати бозингарон": ҳамаи матнҳои ҷадвал ғафс (жирный) */
+  #playersTable, #playersTable th, #playersTable td, #playersTable td *, #playersTable th *,
+  #playersTable .u-name, #playersTable .u-date, #playersTable .u-idx{ font-weight:800 !important; }
+
+  /* "Руйхати бозингарон": се тугмаи боло — андозаи якхела, ранг ва шакл мисли ⚙ / бозингарон / ✕ */
+  #playersModal .modal-head-actions{ display:flex; align-items:center; gap:8px; }
+  #playersPushBtn, #playersSaveWordBtn, #playersModal .modal-head-actions .modal-close{
+    --hb-font:1rem;
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; height:calc(var(--hb-font) * 1.21 + 16px) !important;
+    min-width:0 !important; padding:0 !important; box-sizing:border-box !important;
+    border-radius:999px !important;
+    background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    display:flex !important; align-items:center; justify-content:center;
+  }
+  #playersPushBtn:hover, #playersSaveWordBtn:hover, #playersModal .modal-head-actions .modal-close:hover{ background:#eee !important; }
+  #playersPushBtn svg, #playersSaveWordBtn svg, #playersModal .modal-head-actions .modal-close svg{
+    width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important;
+  }
+  /* Корти нонамоёни "ghost" дар кутии призҳо — баландии кортро нигоҳ медорад */
+  .prize-ghost{
+    flex:0 0 0 !important; width:0 !important; min-width:0 !important; overflow:visible;
+    visibility:hidden; pointer-events:none; white-space:nowrap;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    border:3px solid transparent !important; border-left-width:0 !important; border-right-width:0 !important;
+    padding:10px 0 9px !important; margin:0 !important;
+  }
+  .prize-ghost .trophy-circle{ margin:0 0 5px; }
+  .prize-ghost h4{ font-family:'Unbounded', sans-serif; font-weight:700; font-size:.95rem !important; margin:0 0 5px; }
+  .prize-ghost .qty-label{ font-size:.7rem !important; font-weight:800; }
+  .prize-ghost .qty-num{ font-family:'Bebas Neue', sans-serif; font-size:1.4rem !important; }
+  #finalGameWindow.fullscreen .prize-ghost{ padding:clamp(10px, 1.6cqh, 18px) 0 clamp(10px, 1.4cqh, 16px) !important; }
+  #finalGameWindow.fullscreen .prize-ghost .trophy-circle{ width:clamp(34px, 4.6cqh, 56px) !important; height:clamp(34px, 4.6cqh, 56px) !important; margin-bottom:clamp(6px, 1cqh, 12px) !important; }
+  #finalGameWindow.fullscreen .prize-ghost h4{ font-size:clamp(1.05rem, 2.3cqh, 1.6rem) !important; margin-bottom:clamp(6px, 1cqh, 12px) !important; }
+  #finalGameWindow.fullscreen .prize-ghost .qty-label{ font-size:clamp(.8rem, 1.5cqh, 1.1rem) !important; }
+  #finalGameWindow.fullscreen .prize-ghost .qty-num{ font-size:clamp(1.6rem, 3.2cqh, 2.4rem) !important; }
+  /* "Монд" (рақамҳо ва призҳо) то оғози бозӣ пинҳон аст */
+  .mond-hidden{ display:none !important; }
+  /* "Рақамҳое, ки бурд накардаанд": ном ва телефон дар як сатр, рақамҳо калонтар */
+  #gameOverCard .gameover-losing-row{ gap:28px !important; padding:14px 16px !important; align-items:center !important; }
+  #gameOverCard .gameover-losing-ball{
+    width:76px !important; height:76px !important; font-size:2.6rem !important; border-width:3px !important;
+  }
+  #gameOverCard .gameover-losing-info{ flex-direction:row !important; align-items:center !important; gap:48px !important; flex:1 1 auto; min-width:0; }
+  #gameOverCard .gameover-losing-name{ flex:0 1 40%; min-width:200px; font-size:1.8rem !important; font-weight:800 !important; }
+  #gameOverCard .gameover-losing-phone{ flex:1 1 auto; font-size:1.8rem !important; font-weight:800 !important; }
+  /* Равзанаи "Бози анҷом ёфт": сарлавҳа, "Рафти бозӣ" ва сарлавҳаҳои бахшҳо собит мемонанд;
+     фақат ҷадвали "Руйхати ғолибон" ва руйхати "Рақамҳое, ки бурд накардаанд" склор мешаванд */
+  #gameOverCard .gameover-body{ overflow:hidden !important; display:flex !important; flex-direction:column; min-height:0; padding-right:0 !important; }
+  #gameOverCard .gameover-columns{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:14px !important; }
+  #gameOverCard .gameover-col{ flex:1 1 0; min-height:0; display:flex; flex-direction:column; }
+  #gameOverCard .gameover-section-head{ flex:0 0 auto; }
+  #gameOverCard .gameover-winners-scroll,
+  #gameOverCard .gameover-losing-list{ flex:1 1 auto; min-height:0; overflow-y:auto !important; overscroll-behavior:contain; }
+  /* Нишонаи "Бози анҷом ёфт" дар паҳлуи "Монд" */
+  .game-ended-badge{ display:none !important; }
+  .game-ended-badge.show{ display:inline-block !important; }
+  #gameEndedBadge{ background:#ff1f3d !important; color:#fff !important; animation:endedBadgeBlink 1.4s ease-in-out infinite; }
+  @keyframes endedBadgeBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
 </style>
 </head>
 <body>
@@ -1308,7 +2123,7 @@
         <table class="congrats-table">
           <thead>
             <tr>
-              <th class="congrats-col-num">#</th>
+              <th class="congrats-col-num">Рақам</th>
               <th class="congrats-col-name">Ном</th>
               <th class="congrats-col-phone">Рақами телефон</th>
               <th class="congrats-col-prize">Приз</th>
@@ -1342,12 +2157,15 @@
 
   <!-- ---------- Равзанаи "Натиҷаи ниҳоии бози" ---------- -->
   <div class="gameover-overlay hidden" id="gameOverOverlay">
-    <div class="gameover-card" id="gameOverCard">
+    <div class="gameover-card fullscreen" id="gameOverCard">
       <div class="modal-head" style="margin-bottom:14px;">
         <div class="final-title-row">
           <h3 class="gameover-title">🏆 Бози анҷом ёфт</h3>
         </div>
         <div class="modal-head-actions">
+          <button class="icon-btn" id="gameOverMuteBtn" title="Хомуш кардани садо">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
+          </button>
           <button class="icon-btn" id="gameOverPushBtn" title="Огоҳии пуш ба ғолибон">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>
           </button>
@@ -1356,10 +2174,6 @@
           </button>
           <button class="icon-btn" id="gameOverClearBtn" title="Пок кардани руйхат">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-          </button>
-          <button class="icon-btn" id="gameOverExpandBtn" title="Васеъ кардан">
-            <svg class="gameover-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M21 16v3a2 2 0 01-2 2h-3M3 16v3a2 2 0 002 2h3"/></svg>
-            <svg class="gameover-collapse-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v4a2 2 0 01-2 2H3M15 3v4a2 2 0 002 2h4M9 21v-4a2 2 0 00-2-2H3M15 21v-4a2 2 0 012-2h4"/></svg>
           </button>
           <button class="modal-close" id="gameOverCloseIconBtn" title="Пушидан">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -1384,7 +2198,7 @@
               <table class="users-table">
                 <thead>
                   <tr>
-                    <th>№</th><th>Ном</th><th>Рақами телефон</th><th>Рақами баромада</th><th>Призи бурдашуда</th>
+                    <th>№</th><th>Призи бурдашуда</th><th>Ном</th><th>Рақами баромада</th><th>Рақами телефон</th>
                   </tr>
                 </thead>
                 <tbody id="gameOverWinnersBody"></tbody>
@@ -1412,13 +2226,10 @@
         <h3>Пок кардани руйхат</h3>
         <button class="modal-close" data-close="clearWinnersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
-      <p style="color:var(--text-muted); font-size:.9rem; margin:0 0 14px;">Ин амал руйхати натиҷаи бози ва руйхати ғолибонро пурра пок мекунад. Барои тасдиқ, рамзро ворид кунед.</p>
-      <div class="field">
-        <label>Рамз</label>
-        <input type="password" id="clearWinnersCodeInput" placeholder="Рамз" />
-      </div>
-      <div class="modal-foot">
-        <button type="button" class="btn btn-gold" id="clearWinnersConfirmBtn">Пок кардан</button>
+      <p style="color:var(--text-muted); font-size:.9rem; margin:0 0 14px;">Оё мехоҳед руйхати натиҷаи бози ва руйхати ғолибонро пурра пок кунед?</p>
+      <div class="modal-foot push-actions-row">
+        <button type="button" class="btn btn-gold" id="clearWinnersConfirmBtn">Ҳа</button>
+        <button type="button" class="btn btn-ghost" id="clearWinnersNoBtn" data-close="clearWinnersModal">Не</button>
       </div>
     </div>
   </div>
@@ -1426,50 +2237,51 @@
   <div id="windowBody">
 
     <div class="modal-head">
-      <div class="final-title-row">
-        <h3>Финали бози</h3>
-        <button class="icon-btn" id="startGameSettingsBtn" title="Танзимот">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        </button>
-        <button class="hidden" id="startGameActionBtn" type="button">Оғоз кардани бози</button>
-        <div class="live-badge hidden" id="startGameLiveBadge"><span class="live-dot"></span><span class="live-text">LIVE</span></div>
-        <div class="start-game-timer hidden" id="startGameTimerBox">00:00:00</div>
-        <button class="btn-pause hidden" id="startGamePauseBtn" type="button">Стоп</button>
-      </div>
-      <div class="modal-head-actions">
-        <div class="admin-status" id="adminStatusBadge">
-          <span id="adminStatusText">Нет админа</span>
-          <div class="admin-status-circle"></div>
-        </div>
-        <button class="icon-btn" id="finalGamePlayersBtn" title="Бозингарон">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        </button>
-        <div class="players-count-badge" title="Бозингарони ҳозир дар финал">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span class="players-count-num" id="finalPlayersCountNum">0</span>
-          <span class="players-count-dot"></span>
-        </div>
-        <button class="modal-close hidden" id="finalGameResultBtn" title="Натиҷаи бози">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M17 4H7v4a5 5 0 0010 0V4z"/><path d="M5 4H3v2a4 4 0 004 4M19 4h2v2a4 4 0 01-4 4"/></svg>
-        </button>
-        <button class="modal-close" id="finalGameExpandBtn" title="Васеъ кардан">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M21 16v3a2 2 0 01-2 2h-3M3 16v3a2 2 0 002 2h3"/></svg>
-        </button>
-        <button class="modal-close" id="finalGameCloseBtn" title="Пушидан">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>
-      </div>
     </div>
 
     <div class="panel" id="finalCombinedFrame">
       <div id="finalNumbersPanel">
         <div class="panel-head">
-          <span class="panel-head-label">Руйхати рақамҳо</span>
-          <span class="badge" id="finalTotalCountBadge">0 рақам</span>
+          <span class="date-badge" id="finalRoundNameText">—</span>
+      <div class="final-title-row">
+            <h3>Финали бози</h3>
+          </div>
+              <span class="panel-head-label">Руйхати рақамҳо</span>
+          <span class="badge" id="finalTotalCountBadge">Ҳамагӣ: 0 | Рафт: 0</span>
+              <span class="badge badge-remaining mond-hidden" id="finalRemainingBadge">Монд: 0</span>
+              <span class="badge game-ended-badge" id="gameEndedBadge">🏁 Бози анҷом ёфт</span>
           <span class="badge badge-sold" id="finalSoldBadge"><span class="badge-dot" style="background:#3fbf8f"></span>Фурухта: 0</span>
           <span class="badge badge-unsold" id="finalUnsoldBadge"><span class="badge-dot" style="background:var(--gold)"></span>Нафурухта: 0</span>
-          <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></h2>
-          <span class="badge badge-remaining" id="finalRemainingBadge">Монд: 0</span>
+      <div class="modal-head-actions">
+            <div class="admin-status" id="adminStatusBadge">
+              <span id="adminStatusText">Нет админа</span>
+              <div class="admin-status-circle"></div>
+            </div>
+            <button class="hidden" id="startGameActionBtn" type="button">Оғоз кардани бози</button>
+            <div class="live-badge hidden" id="startGameLiveBadge"><span class="live-dot"></span><span class="live-text">LIVE</span></div>
+            <button class="btn-pause hidden" id="startGamePauseBtn" type="button">Стоп</button>
+            <div class="start-game-timer hidden" id="startGameTimerBox">00:00:00</div>
+            <button class="icon-btn" id="startGameSettingsBtn" title="Танзимот">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            </button>
+            <button class="icon-btn" id="finalGamePlayersBtn" title="Бозингарон">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </button>
+            <div class="players-count-badge" title="Бозингарони ҳозир дар финал">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              <span class="players-count-num" id="finalPlayersCountNum">0</span>
+              <span class="players-count-dot"></span>
+            </div>
+            <button class="modal-close hidden" id="finalGameResultBtn" title="Натиҷаи бози">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M17 4H7v4a5 5 0 0010 0V4z"/><path d="M5 4H3v2a4 4 0 004 4M19 4h2v2a4 4 0 01-4 4"/></svg>
+            </button>
+            <button class="modal-close" id="finalGameExpandBtn" title="Васеъ кардан">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M21 16v3a2 2 0 01-2 2h-3M3 16v3a2 2 0 002 2h3"/></svg>
+            </button>
+            <button class="modal-close" id="finalGameCloseBtn" title="Пушидан">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
         </div>
         <div class="prizes-box" id="finalNumbersBox">
           <div class="ball-grid" id="finalBallGrid"></div>
@@ -1488,21 +2300,16 @@
         <div class="panel-head">
           <span class="panel-head-label">Руйхати призҳо</span>
           <span class="badge" id="finalPrizeCountBadge">0 приз</span>
-          <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg></h2>
-          <span class="badge badge-remaining" id="finalPrizeRemainingBadge">Монд: 0</span>
+          <span class="badge badge-remaining mond-hidden" id="finalPrizeRemainingBadge">Монд: 0</span>
         </div>
         <div class="prizes-box" id="finalPrizesBox">
-          <div class="prizes-grid" id="finalPrizesGrid"></div>
+          <div class="prizes-grid" id="finalPrizesGrid"><div class="prize-ghost" aria-hidden="true"><div class="trophy-circle"></div><h4>&nbsp;</h4><div class="qty-block"><span class="qty-label">Миқдор</span><br><span class="qty-num">0</span></div></div></div>
+          <div class="prizes-right-frame" id="finalPrizesRightFrame"></div>
         </div>
       </div>
     </div>
 
     <div class="panel winners-log-frame">
-      <div class="winners-log-title-row">
-        <div class="winners-log-progress-track" id="winnersLogNumbersTrack"></div>
-        <span class="winners-log-title-text">Рафти бозии</span>
-        <span class="date-badge" id="finalRoundNameText">—</span>
-      </div>
       <div class="winners-log-panel">
         <div class="winners-log-row">
           <div class="winners-log-dot-wrap">
@@ -1528,30 +2335,8 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="panel winners-list-frame">
-      <div class="panel-head">
-        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg> Руйхати ғолибон</h2>
-        <span class="badge badge-remaining" id="winnersListCountBadge">0 ғолиб</span>
-      </div>
-      <div id="winnersListEmpty" class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
-        <p>Ҳануз ҳеҷ ғолибе эълон нашудааст</p>
-      </div>
-      <div class="users-table-scroll">
-        <table id="winnersListTable" class="users-table hidden">
-          <thead>
-            <tr>
-              <th>№</th>
-              <th>Ном</th>
-              <th>Рақами телефон</th>
-              <th>Рақами баромада</th>
-              <th>Призи бурдашуда</th>
-            </tr>
-          </thead>
-          <tbody id="winnersListTableBody"></tbody>
-        </table>
+      <div class="winners-log-title-row">
+        <div class="winners-log-progress-track" id="winnersLogNumbersTrack"></div>
       </div>
     </div>
 
@@ -1630,11 +2415,11 @@
         <thead>
           <tr>
             <th>№</th>
+            <th>Рақамҳои бозингарон</th>
             <th>Ном</th>
             <th>Рақами телефон</th>
             <th>Давр</th>
             <th>Сана ва соат</th>
-            <th>Рақамҳои корбар</th>
           </tr>
         </thead>
         <tbody id="playersTableBody"></tbody>
@@ -1669,8 +2454,10 @@
       <input type="text" id="playersPushBtnLink" placeholder="https://..." />
     </div>
     <div id="playersPushTargetInfo" style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px;">Гиранда: 0 бозингар</div>
-    <button class="btn btn-gold" id="playersPushSendBtn" style="width:100%;">Ирсол кардан</button>
-    <button class="btn btn-danger" id="playersPushDeleteBtn" style="width:100%;margin-top:10px;">Нест кардани пуш</button>
+    <div class="push-actions-row">
+      <button class="btn btn-gold" id="playersPushSendBtn" style="width:100%;">Ирсол кардан</button>
+      <button class="btn btn-danger" id="playersPushDeleteBtn" style="width:100%;margin-top:10px;">Нест кардани пуш</button>
+    </div>
   </div>
 </div>
 
@@ -1721,8 +2508,10 @@
     </div>
     <div style="font-size:.78rem;color:var(--text-muted);margin:-4px 0 14px;">Баъд аз матн тугмаи «Чат» худкор илова мешавад, то ғолиб тавонад ба он ворид шуда бо шумо нависад.</div>
     <div id="gameOverPushTargetInfo" style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px;">Гиранда: 0 ғолиб</div>
-    <button class="btn btn-gold" id="gameOverPushSendBtn" style="width:100%;">Ирсол кардан</button>
-    <button class="btn btn-danger" id="gameOverPushDeleteBtn" style="width:100%;margin-top:10px;">Нест кардани пуш</button>
+    <div class="push-actions-row">
+      <button class="btn btn-gold" id="gameOverPushSendBtn" style="width:100%;">Ирсол кардан</button>
+      <button class="btn btn-danger" id="gameOverPushDeleteBtn" style="width:100%;margin-top:10px;">Нест кардани пуш</button>
+    </div>
   </div>
 </div>
 
@@ -1771,6 +2560,11 @@
     expandBtn.title = isFull ? 'Хурд кардан' : 'Васеъ кардан';
   });
 
+  // Дар оғоз равзана васеъ (пурраэкран) аст; бо тугма хурд мешавад
+  win.classList.add('fullscreen');
+  expandBtn.innerHTML = COLLAPSE_ICON;
+  expandBtn.title = 'Хурд кардан';
+
   closeBtn.addEventListener('click', () => {
     window.close();
   });
@@ -1806,6 +2600,7 @@
   function closeSettingsModal(id){
     const m = document.getElementById(id);
     if(!m) return;
+    if(id === 'playersModal'){ m.classList.remove('closing'); m.classList.add('hidden'); return; } // бе анимацияи пӯшидан
     m.classList.add('closing');
     setTimeout(() => { m.classList.add('hidden'); m.classList.remove('closing'); }, 180);
   }
@@ -1890,7 +2685,9 @@
   window.updateSettingsBtnBySoldOut = function(){
     if(!startGameSettingsBtn) return;
     if(window.liveGameStarted) return;
-    startGameSettingsBtn.disabled = !window.allNumbersSoldNow;
+    // Тугма новобаста аз он ки ҳамаи рақамҳо фурухта шудаанд ё не, фаъол аст
+    // (кутиҳои холӣ дар handler-и клик санҷида мешаванд)
+    startGameSettingsBtn.disabled = false;
   };
   // Ҳолати ибтидои (то расидани аввалин маълумот аз Firebase)
   window.updateSettingsBtnBySoldOut();
@@ -1912,10 +2709,6 @@
       // Ҳатто агар кути холи набошад — то даме ки ҳамаи рақамҳо фурухта
       // нашудаанд, тугма набояд кушода шавад (тугма худ хира буд, вале
       // барои эҳтиёт ин санҷиш низ дар ин ҷо такрор мешавад)
-      if(!window.allNumbersSoldNow){
-        showSettingsToast("Ҳануз ҳамаи рақамҳо фурухта нашудаанд ❌", "error");
-        return;
-      }
       startGameSettingsCodeInput.value = "";
       startGameSettingsCodeInput.classList.remove("field-error");
       const autoRounds = currentPrizeCount > 0 ? currentPrizeCount : 1;
@@ -1952,10 +2745,7 @@
         startGameTimeSecInput.classList.add("field-error");
         hasError = true;
       }
-      if(code !== SETTINGS_CODE){
-        startGameSettingsCodeInput.classList.add("field-error");
-        hasError = true;
-      }
+      // Рамз дигар талаб карда намешавад
       if(hasError) return;
       safeStorage.setItem(START_GAME_ROUND_KEY, round);
       safeStorage.setItem(START_GAME_TIME_KEY, minNum + ":" + secNum);
@@ -2195,6 +2985,22 @@
   window.pauseAllPausableTimers = pauseAllPausableTimers;
   window.resumeAllPausableTimers = resumeAllPausableTimers;
   window.isGamePausedNow = function(){ return isGamePaused; };
+
+  /* РЕСЕТ: ҳамаи таймерҳои дар навбатмонда (ки \"Стоп\" онҳоро нигоҳ медошт ё
+     ҳанӯз кор мекарданд) пурра бекор карда мешаванд ва ҳолати \"Стоп\" тоза
+     мешавад. Бе ин, баъд аз ресет таймерҳои кӯҳна боз равзанаҳоро мекушоданд
+     ва ҳатто beginLiveGame()-ро аз нав даъват мекарданд. */
+  function cancelAllPausableTimers(){
+    pausableTimers.forEach(function(h){
+      h.cancelled = true;
+      if(h.id != null){ if(h.type === "timeout") clearTimeout(h.id); else clearInterval(h.id); }
+      h.id = null;
+    });
+    pausableTimers.clear();
+    isGamePaused = false;
+    document.body.classList.remove("game-frozen");
+  }
+  window.cancelAllPausableTimers = cancelAllPausableTimers;
 
   /* Аз руйхати бозингарони тасдиқшуда (ordersCache) ёфтани бозингаре, ки
      рақами баромада ба у тааллуқ дорад */
@@ -2627,6 +3433,7 @@
   const gameEndingProgressFill = document.getElementById("gameEndingProgressFill");
   const winnersListFrameEl = document.querySelector(".winners-list-frame");
   let gameEndingActiveTimers = [];
+  let gameEndingTickInterval = null;
 
   function showGameEndingTransition(onDone){
     if(!gameEndingOverlay || !gameEndingContainer || !gameEndingBox || !gameEndingProgressFill){
@@ -2673,7 +3480,7 @@
     gameEndingProgressFill.classList.add("rn-start");
 
     let secondsLeft = 10;
-    const tickInterval = setInterval(() => {
+    const tickInterval = gameEndingTickInterval = setInterval(() => {
       secondsLeft--;
       if(secondsLeft > 0){
         rnPlayTickSound(600 + (10 - secondsLeft) * 50);
@@ -2979,7 +3786,7 @@
     if(startGameLiveBadge) startGameLiveBadge.classList.add('hidden');
     if(startGameTimerBox) startGameTimerBox.classList.add('hidden');
     if(startGamePauseBtn) startGamePauseBtn.classList.add('hidden');
-    if(startGameSettingsBtn) startGameSettingsBtn.disabled = !window.allNumbersSoldNow;
+    if(startGameSettingsBtn) startGameSettingsBtn.disabled = false;
     liveGameStarted = false;
     window.liveGameStarted = false;
     window.gameSequenceActive = false; // бози пурра анҷом ёфт — санҷиши интернет дигар набояд онро "Стоп" кунад
@@ -2995,6 +3802,7 @@
      ҳам ҳама равзанаҳои гузарандаи кушода (агар бошанд) бояд пушида ва
      тоза шаванд, гуё бози ҳануз ягон бор танзим нашудааст. */
   function resetGameToPreStartState(){
+    cancelAllPausableTimers();
     // Агар дар лаҳзаи ресет тугмаи "Стоп" фаъол буда бошад — онро низ
     // бекор мекунем, вагарна ҳолати "Давом додан" нодуруст мемонад.
     if(startGamePauseBtn) startGamePauseBtn.classList.remove('is-paused');
@@ -3043,6 +3851,41 @@
       roundProgressFill.style.width = "100%";
       roundProgressFill.classList.remove("time-danger");
     }
+
+    // --- Боқимондаҳое, ки ресет пештар пок намекард ---
+    if(typeof window.setMondBadgesVisible === "function") window.setMondBadgesVisible(false);
+    window.numberRevealBlinking = false;   // вагарна кутии рақамҳо то абад нав намешуд
+    window.prizeRevealBlinking = false;    // вагарна кутии призҳо то абад нав намешуд
+    clearTimeout(numbersBoxSoftBlinkTimeout);
+    gameEndingActiveTimers.forEach(clearTimeout); gameEndingActiveTimers = [];
+    clearInterval(gameEndingTickInterval); gameEndingTickInterval = null;
+    if(miniCountdownCircle) miniCountdownCircle.classList.add('hidden');
+    ["rnContainer","prizeRevealInner","gameEndingContainer"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.remove("rn-appear","rn-disappear");
+    });
+    ["finalNumbersBox","finalPrizesBox"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.remove("numbers-box-danger","numbers-box-soft-blink");
+    });
+    // Маълумоти ғолиби охирин (Ном / Телефон / Призи бурдашуда)
+    if(winnersLogNameValue) winnersLogNameValue.textContent = "—";
+    if(winnersLogPhoneValue) winnersLogPhoneValue.textContent = "—";
+    if(winnersLogTable) winnersLogTable.classList.remove("has-winner");
+    if(winnersLogPrizeBox){
+      winnersLogPrizeBox.innerHTML = "";
+      winnersLogPrizeBox.classList.remove("has-prize","winners-log-prize-blink");
+    }
+    window.currentWinnerNumber = null; window.currentWinnerName = "—";
+    window.currentWinnerPhone = "—"; window.currentWinnerUserId = null;
+    // Нишонаи LIVE/СТОП ба ҳолати аввала
+    if(startGameLiveBadge){
+      startGameLiveBadge.classList.remove('dot-hidden','is-green');
+      const lt = startGameLiveBadge.querySelector('.live-text'); if(lt) lt.textContent = 'LIVE';
+    }
+    if(startGameTimerBox) startGameTimerBox.classList.remove('is-green');
+    // Мусиқии ҳисоб ва садо
+    if(typeof window.stopAllGameAudio === "function") window.stopAllGameAudio();
   }
   window.resetGameToPreStartState = resetGameToPreStartState;
 
@@ -3105,6 +3948,7 @@
   let numbersBoxSoftBlinkTimeout = null;
 
   function beginLiveGame(){
+    if(typeof window.setGameEndedView === "function" && window.gameEndedView) window.setGameEndedView(false);
     try{ window.localStorage.removeItem("finaliBoziGameEnded_v1"); }catch(e){}
     if(startGameLiveBadge) startGameLiveBadge.classList.remove('hidden');
     if(startGameTimerBox) startGameTimerBox.classList.remove('hidden');
@@ -3303,6 +4147,7 @@
     const usePausable = opts.pausable !== false;
     const setIntervalFn = usePausable ? pausableSetInterval : setInterval;
     const clearIntervalFn = usePausable ? pausableClearInterval : clearInterval;
+    const setTimeoutFn = usePausable ? pausableSetTimeout : setTimeout;
     if(!countdownOverlay || !countdownNumber){ onDone(); return; }
     let timeLeft = startFrom;
     countdownOverlay.classList.remove('hidden');
@@ -3321,7 +4166,7 @@
 
     function closeOverlay(){
       countdownOverlay.classList.add('fade-out');
-      setTimeout(() => {
+      setTimeoutFn(() => {
         countdownOverlay.classList.add('hidden');
         countdownOverlay.classList.remove('fade-out');
         countdownOverlay.classList.remove('countdown-force-run');
@@ -3342,7 +4187,7 @@
         if(finalText){
           showNumber(finalText, true);
           playBeep(1100, 0.5);
-          setTimeout(closeOverlay, 350);
+          setTimeoutFn(closeOverlay, 350);
         } else {
           playBeep(1100, 0.35);
           closeOverlay();
@@ -3695,7 +4540,16 @@
     return finaliSyncRng ? finaliSyncRng() : Math.random();
   };
 
+  function setMondBadgesVisible(v){
+    ["finalRemainingBadge","finalPrizeRemainingBadge"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.toggle("mond-hidden", !v);
+    });
+  }
+  window.setMondBadgesVisible = setMondBadgesVisible;
+
   function beginGameStartSequence(){
+    setMondBadgesVisible(true); // ҳамин ки "Оғоз кардани бозӣ" зада шуд — "Монд" пайдо мешавад
     unlockGameAudioElements();
     if(startGameActionBtn) startGameActionBtn.classList.add('hidden');
     window.gameSequenceActive = true; // аз ҳамин лаҳза — санҷиши интернет бояд бозиро (агар кад шавад) фавран "Стоп" кунад
@@ -4038,6 +4892,10 @@
 
   /* --- Призҳое, ки дар кура-админ дар кутии "Сохтани призҳо" илова шудаанд,
      ба таври зинда дар кутии призҳои финали бози намоён мешаванд --- */
+  /* Корти "рӯҳ" (ghost): нонамоён ва бе паҳно, вале баландии кортро нигоҳ медорад,
+     то кутии призҳо ҳангоми холӣ шудани руйхат (призҳо тамом шуданд / бози анҷом
+     ёфт) хурд нашавад ва рамкаи рост ҳамон тавр истад. */
+  const PRIZE_GHOST_HTML = `<div class="prize-ghost" aria-hidden="true"><div class="trophy-circle"></div><h4>&nbsp;</h4><div class="qty-block"><span class="qty-label">Миқдор</span><br><span class="qty-num">0</span></div></div>`;
   function renderFinalPrizes(){
     // Ҳамин лаҳза, ки приз дар ҳоли мигаткуни аст (то нест/кам шуданаш аз
     // руйхат) — бозсозии кутии призҳоро аз навсозии зинда вақтан нигоҳ
@@ -4050,7 +4908,7 @@
     const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
 
     if(finalPrizesGrid){
-      finalPrizesGrid.innerHTML = entries.map(([id, p]) => `
+      finalPrizesGrid.innerHTML = (window.gameEndedView ? [] : entries).map(([id, p]) => `
         <div class="prize-card" data-id="${id}">
           <div class="trophy-circle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
@@ -4061,7 +4919,7 @@
             <span class="qty-num">${p.qty ?? 1}</span>
           </div>
         </div>
-      `).join("");
+      `).join("") + PRIZE_GHOST_HTML;
       // Кути тоза аз нав сохта шуд — агар склори худкор дар ин лаҳза
       // фаъол бошад, нусхаҳои муваққатии склорро низ мувофиқи руйхати
       // тоза аз нав месозем, то склор ҳеҷ гоҳ бо руйхати куҳна кор накунад
@@ -4138,6 +4996,10 @@
       : null;
 
     const finishPick = () => {
+      // Приз интихоб шуд — ранги сурх/мигати кутии призҳо ҳамон лаҳза бояд нест шавад
+      // (на танҳо дар охири afterPick, ки метавонад ба хато дучор шавад)
+      { const pb = document.getElementById("finalPrizesBox");
+        if(pb) pb.classList.remove("numbers-box-danger", "numbers-box-soft-blink"); }
       prizeRemaining[chosenId] = Math.max(0, (prizeRemaining[chosenId] || 0) - 1);
       if(typeof saveLiveGameState === "function") saveLiveGameState();
       const remainingForPrize = prizeRemaining[chosenId];
@@ -4330,7 +5192,7 @@
     const sold = Array.from(soldSet).filter(n => !drawnNumbers.has(n)).sort((a, b) => a - b);
 
     finalBallGrid.innerHTML = "";
-    sold.forEach(num => {
+    (window.gameEndedView ? [] : sold).forEach(num => {
       const ball = document.createElement("div");
       ball.className = "ball sold";
       ball.textContent = num;
@@ -4345,7 +5207,7 @@
     // Се бадҷи алоҳида: шумораи умумии рақамҳо, фурухта ва нафурухта
     // (яъне рақамҳое, ки дар кура-админ ҳануз холианд).
     const notSold = Math.max(0, currentRoundCount - totalSold);
-    if(finalTotalCountBadge) finalTotalCountBadge.textContent = currentRoundCount + " рақам";
+    if(finalTotalCountBadge) finalTotalCountBadge.textContent = "Ҳамагӣ: " + currentRoundCount + " | Рафт: " + totalSold;
     if(finalSoldBadge) finalSoldBadge.innerHTML = `<span class="badge-dot" style="background:#3fbf8f"></span>Фурухта: ${totalSold}`;
     if(finalUnsoldBadge) finalUnsoldBadge.innerHTML = `<span class="badge-dot" style="background:var(--gold)"></span>Нафурухта: ${notSold}`;
 
@@ -4354,7 +5216,7 @@
     // То даме ки бози воқеан оғоз нашудааст (яъне пеш аз танзимот ва пеш аз
     // пахши тугмаи "Оғоз кардани бози"), ин бадҷ бояд ҳамеша "Монд: 0" бошад.
     if(finalRemainingBadge){
-      finalRemainingBadge.textContent = "Монд: " + (window.liveGameStarted ? sold.length : 0);
+      finalRemainingBadge.textContent = "Монд: " + (window.gameEndedView ? 0 : sold.length);
     }
     updateFinalPlayersCountBadge();
 
@@ -4549,6 +5411,15 @@
   // Ҳамин ки саҳифа боркуни ёфт — пеш аз он ки Firebase ҷавоб диҳад, аввал
   // маълумоти сабтшудаи ин браузерро барқарор мекунем, то корбар ягон
   // "ҳолати холи"-ро ҳатто барои як лаҳза набинад.
+  /* Ҳолати "Бози анҷом ёфт": нишона дар паҳлуи "Монд" + кутиҳои рақамҳо ва призҳо холӣ */
+  window.setGameEndedView = function(on){
+    window.gameEndedView = !!on;
+    if(!on && typeof window.resetGameOverMute === "function") window.resetGameOverMute();
+    const b = document.getElementById("gameEndedBadge");
+    if(b) b.classList.toggle("show", !!on);
+    renderSoldNumbers();
+    renderFinalPrizes();
+  };
   loadLiveGameState();
   loadResultsClearedFlag();
   renderWinnersList(winnersDataCache);
@@ -4566,6 +5437,9 @@
       // фавран мегузорем — то интизории 900мс поён ин ҳолат ҳатто як лаҳза
       // намоён нашавад.
       document.querySelectorAll(".winners-log-title-text:not(.no-end-blink)").forEach(el => { el.classList.add("game-ended-blink"); el.textContent = "Бози анҷом шуд"; });
+      if(typeof window.setMondBadgesVisible === "function") window.setMondBadgesVisible(true);
+      window.gameEndedView = true;
+      { const eb = document.getElementById("gameEndedBadge"); if(eb) eb.classList.add("show"); }
       const numsBoxElEarly = document.getElementById("finalNumbersBox");
       const prizesBoxElEarly = document.getElementById("finalPrizesBox");
       if(numsBoxElEarly) numsBoxElEarly.classList.add("game-ended-dim");
@@ -4629,6 +5503,7 @@
     { const numsBoxElReset = document.getElementById("finalNumbersBox"); if(numsBoxElReset) numsBoxElReset.classList.remove("game-ended-dim"); }
     { const prizesBoxElReset = document.getElementById("finalPrizesBox"); if(prizesBoxElReset) prizesBoxElReset.classList.remove("game-ended-dim"); }
     renderWinnersList({});
+    window.setGameEndedView(false);
     if(typeof window.resetGameToPreStartState === "function") window.resetGameToPreStartState();
   });
 
@@ -4739,10 +5614,10 @@
       gameOverWinnersBody.innerHTML = winnerEntries.length ? winnerEntries.map(([id, w], i) => `
         <tr>
           <td class="u-idx">${i+1}</td>
-          <td class="u-name">${escapeHtml(w.name || "—")}</td>
-          <td>${escapeHtml(w.phone || "—")}</td>
-          <td class="win-number">${w.number != null ? `<span class="win-number-ball">${escapeHtml(String(w.number))}</span>` : "—"}</td>
           <td>${escapeHtml(w.prize || "—")}</td>
+          <td class="u-name">${escapeHtml(w.name || "—")}</td>
+          <td class="win-number">${w.number != null ? `<span class="win-number-ball">${escapeHtml(String(w.number))}</span>` : "—"}</td>
+          <td>${escapeHtml(w.phone || "—")}</td>
         </tr>
       `).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">Ғолибе нест</td></tr>`;
     }
@@ -4751,16 +5626,23 @@
     // Рақамҳои фурухташуда (тасдиқшуда)-и давраи ҷори — барои ҳар рақам соҳибашро (ном/телефон) низ нигоҳ медорем
     const soldSet = new Set();
     const numberOwner = {};
-    Object.values(ordersCache || {}).forEach(o => {
-      if(!o || o.roundName !== currentRoundName || !Array.isArray(o.numbers)) return;
-      if(o.status === "approved"){
-        o.numbers.forEach(n => {
-          const num = Number(n);
-          soldSet.add(num);
-          numberOwner[num] = { name: o.name || "—", phone: o.phone || "—", userId: o.userId || null };
-        });
-      }
-    });
+    // Агар номи давр дар Firebase холӣ/"—" бошад (масалан баъд аз абнависти
+    // саҳифа ё баъд аз анҷоми бози), бе филтри давр ҳамаи рақамҳои тасдиқшударо мегирем
+    const collectSoldNumbers = (useRoundFilter) => {
+      Object.values(ordersCache || {}).forEach(o => {
+        if(!o || !Array.isArray(o.numbers)) return;
+        if(useRoundFilter && o.roundName !== currentRoundName) return;
+        if(o.status === "approved"){
+          o.numbers.forEach(n => {
+            const num = Number(n);
+            soldSet.add(num);
+            numberOwner[num] = { name: o.name || "—", phone: o.phone || "—", userId: o.userId || null };
+          });
+        }
+      });
+    };
+    collectSoldNumbers(!!currentRoundName && currentRoundName !== "—");
+    if(soldSet.size === 0) collectSoldNumbers(false);
     const winningNumbers = new Set(
       winnerEntries.map(([, w]) => Number(w.number)).filter(n => !isNaN(n))
     );
@@ -4886,6 +5768,7 @@
       // мешаванд. Ин ҳолат то пахши тугмаи "Ресет" аз кура-админ мемонад
       // (ниг. handler-и "gameReset" поён, ки ин синфҳоро бармедорад).
       document.querySelectorAll(".winners-log-title-text:not(.no-end-blink)").forEach(el => { el.classList.add("game-ended-blink"); el.textContent = "Бози анҷом шуд"; });
+      window.setGameEndedView(true);
       const numsBoxEl = document.getElementById("finalNumbersBox");
       const prizesBoxEl = document.getElementById("finalPrizesBox");
       if(numsBoxEl) numsBoxEl.classList.add("game-ended-dim");
@@ -4920,6 +5803,21 @@
     }
   }
   if(gameOverCloseIconBtn) gameOverCloseIconBtn.addEventListener("click", hideGameOverOverlay);
+
+  /* Тугмаи "Хомуш кардани садо" дар равзанаи "Бози анҷом ёфт" */
+  const gameOverMuteBtn = document.getElementById("gameOverMuteBtn");
+  const MUTE_ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>';
+  const MUTE_ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+  let gameOverMuted = false;
+  function applyGameOverMute(){
+    if(gameOverWindowSound) gameOverWindowSound.muted = gameOverMuted;
+    if(gameOverMuteBtn){
+      gameOverMuteBtn.innerHTML = gameOverMuted ? MUTE_ICON_OFF : MUTE_ICON_ON;
+      gameOverMuteBtn.title = gameOverMuted ? "Фаъол кардани садо" : "Хомуш кардани садо";
+    }
+  }
+  if(gameOverMuteBtn) gameOverMuteBtn.addEventListener("click", () => { gameOverMuted = !gameOverMuted; applyGameOverMute(); });
+  window.resetGameOverMute = function(){ gameOverMuted = false; applyGameOverMute(); };
   if(finalGameResultBtn){
     finalGameResultBtn.addEventListener("click", () => {
       // Натиҷаро аз нав ҳисоб карда нишон медиҳем (на танҳо равзанаи
@@ -4954,7 +5852,7 @@
   <h2>Натиҷаи бози — ${escapeHtml(roundName)}</h2>
   <h3>Руйхати ғолибон</h3>
   <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%;">
-    <thead><tr><th>№</th><th>Ном</th><th>Рақами телефон</th><th>Рақами баромада</th><th>Призи бурдашуда</th></tr></thead>
+    <thead><tr><th>№</th><th>Призи бурдашуда</th><th>Ном</th><th>Рақами баромада</th><th>Рақами телефон</th></tr></thead>
     <tbody>${winnersRowsHtml}</tbody>
   </table>
   <h3>Рақамҳое, ки бурд накардаанд</h3>
@@ -5005,12 +5903,6 @@
 
   if(clearWinnersConfirmBtn){
     clearWinnersConfirmBtn.addEventListener("click", async () => {
-      const code = (clearWinnersCodeInput ? clearWinnersCodeInput.value : "").trim();
-      if(code !== CLEAR_WINNERS_CODE){
-        if(clearWinnersCodeInput) clearWinnersCodeInput.classList.add("field-error");
-        showSettingsToast("Рамз нодуруст аст ❌", "error");
-        return;
-      }
       clearWinnersConfirmBtn.disabled = true;
       try{
         // Руйхати ғолибон дар Firebase пок карда мешавад — ин ба ҳамаи
@@ -5093,11 +5985,11 @@
     playersTableBody.innerHTML = entries.map(([id, o], i) => `
       <tr>
         <td class="u-idx">${i+1}</td>
+        <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
         <td class="u-name">${escapeHtml(o.name || "—")}</td>
         <td>${escapeHtml(o.phone || "—")}</td>
         <td>${escapeHtml(o.roundName || "—")}</td>
-        <td class="u-date">${escapeHtml(o.dateTime || fmtDate(o.createdAt))}</td>
-        <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
+        <td class="u-date">${escapeHtml(o.dateTime || fmtDate(o.createdAt)).replace(/^(\S+)\s+(\d{1,2}:\d{2}.*)$/, "$1 | $2")}</td>
       </tr>
     `).join("");
   }
@@ -5131,31 +6023,43 @@
      кофтуков, агар корбар чизе ҷустуҷу карда бошад), ба файли .doc содир
      мешаванд. ---------- */
   function exportPlayersToWord(){
+    // Рақами бозингар: доираи сабз бо ҳошияи сиёҳ (VML — Word инро дастгирӣ мекунад)
+    const wordBall = n => `<v:oval style="width:26pt;height:26pt;v-text-anchor:middle" fillcolor="#3ddc84" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:12pt;color:#000000;">${escapeHtml(String(n))}</span></b></p></v:textbox></v:oval>&nbsp;`;
     const rows = playersTableBody ? Array.from(playersTableBody.querySelectorAll("tr")) : [];
     const tableRows = rows.length
       ? rows.map(row => {
           const idx = row.querySelector(".u-idx");
           const name = row.querySelector(".u-name");
-          const phone = row.children[2];
-          const roundName = row.children[3];
+          const phone = row.children[3];
+          const roundName = row.children[4];
           const date = row.querySelector(".u-date");
           const numsWrap = row.querySelector(".player-numbers-scroll");
-          const nums = numsWrap
-            ? Array.from(numsWrap.querySelectorAll(".player-num-chip")).map(el => el.textContent).join(", ")
+          const numsArr = numsWrap
+            ? Array.from(numsWrap.querySelectorAll(".player-num-chip")).map(el => el.textContent)
+            : [];
+          const nums = numsArr.length
+            ? numsArr.map(wordBall).join(" ")
             : "—";
-          return `<tr><td>${escapeHtml(idx ? idx.textContent : "—")}</td><td>${escapeHtml(name ? name.textContent : "—")}</td><td>${escapeHtml(phone ? phone.textContent : "—")}</td><td>${escapeHtml(roundName ? roundName.textContent : "—")}</td><td>${escapeHtml(date ? date.textContent : "—")}</td><td>${escapeHtml(nums)}</td></tr>`;
+          return `<tr><td>${nums}</td><td>${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(roundName ? roundName.textContent : "—")}</td><td style="text-align:center; white-space:nowrap;">${escapeHtml(date ? date.textContent : "—").replace(/\s+/g, "&nbsp;")}</td></tr>`;
         }).join("")
-      : `<tr><td colspan="6" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>`;
+      : `<tr><td colspan="5" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>`;
 
     const docHtml = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8"><title>Руйхати бозингарон</title></head>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>Руйхати бозингарон</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+  v\\:* {behavior:url(#default#VML);} o\\:* {behavior:url(#default#VML);}
+  @page Section1 { size:21.0cm 29.7cm; mso-page-orientation:portrait; margin:1.5cm 1.5cm 1.5cm 1.5cm; }
+  div.Section1 { page:Section1; }
+</style></head>
 <body style="font-family:Arial, sans-serif;">
+<div class="Section1">
   <h2>Руйхати бозингарон</h2>
-  <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%;">
-    <thead><tr><th>№</th><th>Ном</th><th>Рақами телефон</th><th>Давр</th><th>Сана ва соат</th><th>Рақамҳои корбар</th></tr></thead>
+  <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%; table-layout:fixed;">
+    <thead><tr><th style="width:27%;">Рақамҳои бозингарон</th><th style="width:17%;">Ном</th><th style="width:18%;">Рақами телефон</th><th style="width:10%;">Давр</th><th style="width:28%;white-space:nowrap;">Сана ва соат</th></tr></thead>
     <tbody>${tableRows}</tbody>
   </table>
+</div>
 </body>
 </html>`;
 
@@ -5952,6 +6856,65 @@
   // Санҷиши даврии воқеи (суръат/пайвастшави), новобаста аз он чи браузер мегуяд
   netCheckTimerId = setInterval(netCheckSpeed, NET_CHECK_INTERVAL);
   netCheckSpeed();
+})();
+</script>
+
+
+<script>
+/* Худкор ба андозаи экран мегунҷонад: агар мундариҷа аз баландии экран зиёд бошад
+   (масалан дар телевизор), тамоми равзана якхела хурд мешавад, то ҳама чиз пурра намоён бошад. */
+(function(){
+  const win = document.getElementById('finalGameWindow');
+  const body = document.getElementById('windowBody');
+  const expandBtn = document.getElementById('finalGameExpandBtn');
+  if(!win || !body) return;
+  function reset(){ body.classList.remove('fit'); body.style.cssText = ''; }
+  // "имзо"-и мундариҷа (ҷамъи баландии блокҳо) — барои фаҳмидани тағйирёбии андоза
+  let lastSig = -1;
+  function sig(){
+    let t = 0, n = 0;
+    Array.from(body.children).forEach(c => { if(c.offsetParent !== null){ t += c.offsetHeight; n++; } });
+    return t * 10 + n;
+  }
+  function fit(){
+    if(!win.classList.contains('fullscreen')){ reset(); return; }
+    reset();
+    const baseW = body.clientWidth, baseH = body.clientHeight;
+    if(!baseW || !baseH) return;
+    let z = 1, h = 0;
+    body.classList.add('fit');
+    for(let k = 0; k < 6; k++){
+      body.style.width = (baseW / z) + 'px';
+      body.style.height = 'auto';
+      body.style.transform = 'none';
+      h = body.offsetHeight;
+      const nz = Math.max(0.3, Math.min(4, baseH / h));   // ҳам хурд, ҳам калон мешавад — пурра ба экран
+      if(Math.abs(nz - z) < 0.005){ z = nz; break; }
+      z = nz;
+    }
+    // санҷиши ниҳоӣ
+    body.style.width = (baseW / z) + 'px';
+    body.style.height = 'auto';
+    h = body.offsetHeight;
+    if(h * z > baseH + 1) z = Math.max(0.3, baseH / h);
+    body.style.width = (baseW / z) + 'px';
+    body.style.height = (baseH / z) + 'px';
+    body.style.transform = 'scale(' + z + ')';
+    lastSig = sig();
+  }
+  let t = null;
+  function later(ms){ clearTimeout(t); t = setTimeout(fit, ms || 80); }
+  window.addEventListener('resize', () => { later(120); setTimeout(fit, 700); });   // F11: баъд аз устувор шудани андозаи экран боз як бор
+  window.addEventListener('resize-finali', () => later(80));
+  if(expandBtn) expandBtn.addEventListener('click', () => later(120));
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => later(50));
+  window.addEventListener('load', () => later(200));
+  // агар мундариҷа тағйир ёбад (рақамҳо, ғолибон), дубора ҳисоб мекунем
+  setInterval(() => {
+    if(!win.classList.contains('fullscreen')) return;
+    if(body.scrollHeight > body.clientHeight + 2 || Math.abs(sig() - lastSig) > 20) fit();
+  }, 1500);
+  later(300);
 })();
 </script>
 </body>
