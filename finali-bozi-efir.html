@@ -1303,7 +1303,8 @@
   /* Рӯйхати бозингарон: ҳамаи матнҳо сиёҳ; матни сутунҳои Ном, Телефон, Давр, Сана калон */
   #playersTable th, #playersTable td, #playersTable .u-name, #playersTable .u-date{ color:#000 !important; }
   #playersTable thead th:nth-child(n+2){ font-size:1.05rem !important; }
-  #playersTable tbody td:nth-child(n+3){ font-size:1.3rem !important; line-height:1.25 !important; }
+  #playersTable tbody td:nth-child(n+3){ font-size:clamp(1.2rem, 2.2vw, 2.85rem) !important; line-height:1.25 !important; font-weight:800 !important; }
+  #playersTable thead th:nth-child(n+2){ font-size:1.25rem !important; }
   #playersTable tbody td.u-name{ font-weight:800 !important; }
   /* Рақамҳои корбар: матн сиёҳ ва калон */
   #playersTable thead th:nth-child(6){ font-size:1.05rem !important; }
@@ -1314,9 +1315,19 @@
     border:3px solid #000 !important; box-shadow:none !important; text-shadow:none !important;
     font-family:'Bebas Neue', sans-serif !important; font-size:calc(var(--chip) * .5) !important; font-weight:800 !important;
   }
-  #playersTable .player-numbers-scroll{ max-width:calc(var(--chip) * 10 + 8px * 9) !important; gap:8px !important; flex-wrap:wrap !important; overflow:visible !important; padding-bottom:0 !important; }
+  #playersTable .player-numbers-scroll{ width:calc(var(--chip) * 5 + 8px * 4) !important; max-width:calc(var(--chip) * 5 + 8px * 4) !important; gap:8px !important; flex-wrap:wrap !important; justify-content:flex-start !important; overflow:visible !important; padding-bottom:0 !important; margin:0 !important; }
+  /* Ҷадвали аз нав ҷойгиршуда: сутуни рақамҳо айнан барои 5 рақам дар як сатр, дигар сутунҳо тақсим мешаванд */
+  #playersTable{ table-layout:auto !important; width:100% !important; }
+  #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ width:auto !important; min-width:calc(var(--chip) * 5 + 8px * 4 + 28px) !important; padding:8px 14px !important; vertical-align:middle !important; }
+  #playersTable thead th:nth-child(n+3), #playersTable tbody td:nth-child(n+3){ width:1% !important; white-space:nowrap !important; }
+    #playersTable tbody td:nth-child(n+3){ vertical-align:middle !important; overflow-wrap:anywhere; }
+  /* Ном, Рақами телефон, Давр — сарлавҳа ва маълумот дар марказ */
+  #playersModal #playersTable thead th:nth-child(n+3), #playersModal #playersTable tbody td:nth-child(n+3), #playersModal #playersTable tbody td.u-name{ text-align:center !important; padding-right:14px !important; padding-left:14px !important; }
   /* Фони ҳуҷайраҳои сутуни "Рақамҳои бозингарон" — сафед */
   #playersTable tbody td:nth-child(2), #playersTable tbody td:nth-child(3), #playersTable tbody td:nth-child(4){ background:#ffffff !important; }
+  /* сутунҳои Давр ва Сана ва соат — сурх, матн сиёҳ */
+  #playersTable tbody td:nth-child(5), #playersTable tbody td:nth-child(6){ background:#f5c518 !important; color:#000 !important; }
+  #playersTable tbody td:nth-child(5) *, #playersTable tbody td:nth-child(6) *{ color:#000 !important; }
   /* Маълумоти сутунҳои Телефон, Давр, Сана дар байн */
   #playersTable tbody td:nth-child(3), #playersTable tbody td.u-name, #playersTable tbody td:nth-child(4), #playersTable tbody td:nth-child(5), #playersTable tbody td:nth-child(6){ text-align:center !important; }
   /* Равзанаи "Танзимоти оғози бозӣ": калонтар, матнҳо сиёҳ, бе рамз */
@@ -1345,7 +1356,7 @@
   #playersTable thead th:nth-child(n+2){ border-top:1px solid #000 !important; }
   /* Хатҳои чап ва рости ҷадвал */
   #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ border-left:1px solid #000 !important; }
-  #playersTable thead th:nth-child(6), #playersTable tbody td:nth-child(6){ border-right:1px solid #000 !important; }
+  #playersTable thead th:nth-child(5), #playersTable tbody td:nth-child(5){ border-right:1px solid #000 !important; }
   /* Хатҳои амудӣ байни сутунҳо */
   #playersTable thead th:nth-child(n+3), #playersTable tbody td:nth-child(n+3){ border-left:1px solid #000 !important; }
   /* Сутуни № дар рӯйхати бозингарон пинҳон */
@@ -1389,10 +1400,6 @@
   .winners-log-table.has-winner{ background:#3ddc84 !important; }
   .winners-list-frame .users-table td, .winners-list-frame .users-table-scroll thead th{ color:#000 !important; }
   .panel-head-label, .panel-head h2, .winners-log-col-value, .winners-log-col-label, .winners-log-progress-text, .prize-card h4, .qty-label{ color:#000 !important; }
-  /* сутунҳои Давр ва Сана ва соат — сурхи ҷигарӣ, матн сиёҳ */
-  #playersTable tbody td:nth-child(5){ background:#7aa5f5 !important; color:#000 !important; }
-  #playersTable tbody td:nth-child(6){ background:#7aa5f5 !important; color:#000 !important; }
-  #playersTable tbody td:nth-child(5) *, #playersTable tbody td:nth-child(6) *{ color:#000 !important; }
   /* ===================== КОНЕЦ ЭФИР ===================== */
 
   /* ===== ЭФИР 3+4: фақат дар ҳолати "Васеъ" (пурраэкран); дар ҳолати хурд андозаҳои муқаррарӣ ===== */
@@ -1693,16 +1700,19 @@
   .mini-countdown-num{ font-size:clamp(8rem, 29vmin, 13.2rem) !important; }
 
   /* "Табрикот": сарлавҳаи "Рақам" (ба ҷои #), андозаи телефон = андозаи приз */
-  .congrats-col-num{ width:17% !important; }
-  .congrats-col-name{ width:31% !important; }
-  .congrats-col-phone{ width:30% !important; }
+  .congrats-col-num{ width:15% !important; }
+  .congrats-col-name{ width:27% !important; }
+  .congrats-col-phone{ width:36% !important; }
   .congrats-col-prize{ width:22% !important; }
   .congrats-table th.congrats-col-num{ font-size:clamp(1.3rem, 4.4vmin, 3.4rem) !important; }
   .congrats-table th.congrats-col-phone{
     font-size:clamp(1.3rem, 4.4vmin, 3.4rem) !important; white-space:normal !important; letter-spacing:0 !important;
   }
+  /* Рақами телефон бояд ПУРРА намоён шавад (бе "..."): андоза аз паҳнои экран вобаста аст */
   .congrats-table td.congrats-col-phone{
-    font-size:clamp(1.5rem, 5vmin, 3.8rem) !important; letter-spacing:0 !important;
+    font-size:clamp(.6rem, 2.4vw, 3rem) !important; letter-spacing:0 !important;
+    white-space:nowrap !important; overflow:visible !important; text-overflow:clip !important;
+    padding-left:4px !important; padding-right:4px !important;
   }
 
   /* ===== "Табрикот" — рангҳои барнома, матнҳо сиёҳ ===== */
@@ -2423,7 +2433,6 @@
             <th>Ном</th>
             <th>Рақами телефон</th>
             <th>Давр</th>
-            <th>Сана ва соат</th>
           </tr>
         </thead>
         <tbody id="playersTableBody"></tbody>
@@ -2548,10 +2557,10 @@
 </div>
 
 <script>
-/* Ҷудосозии хотираи браузер: калидҳо бо номи лоиҳаи Firebase (live-chat-ea070) оғоз мешаванд,
+/* Ҷудосозии хотираи браузер: калидҳо бо номи лоиҳаи Firebase (bozibehruz) оғоз мешаванд,
    то барномаҳои гуногун дар як домен ба ҳам халал нарасонанд. */
 (function(){
-  var P="live-chat-ea070:";
+  var P="bozibehruz:";
   ["localStorage","sessionStorage"].forEach(function(n){
     try{
       var st=window[n]; if(!st) return;
@@ -2659,7 +2668,7 @@
   const START_GAME_UNLOCKED_KEY = "startGameSettingsSaved";
   const START_GAME_ROUND_KEY = "startGameRoundNumber";
   const START_GAME_TIME_KEY = "startGameRoundTime";
-  const SETTINGS_CODE = "3333";
+  const SETTINGS_CODE = "2222";
 
   const startGameSettingsModal = document.getElementById("startGameSettingsModal");
   const startGameRoundInput = document.getElementById("startGameRoundInput");
@@ -4680,14 +4689,15 @@
   import { getDatabase, ref, onValue, remove, set, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
   const firebaseConfig = {
-  apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
-  authDomain: "live-chat-ea070.firebaseapp.com",
-  databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
-  projectId: "live-chat-ea070",
-  storageBucket: "live-chat-ea070.firebasestorage.app",
-  messagingSenderId: "321161064947",
-  appId: "1:321161064947:web:53603c0e1be0b3baf66286"
-};
+    apiKey: "AIzaSyD9z3bbjnG8S-ARcwACCew0OGzRuyQRnfY",
+    authDomain: "bozibehruz.firebaseapp.com",
+    databaseURL: "https://bozibehruz-default-rtdb.firebaseio.com",
+    projectId: "bozibehruz",
+    storageBucket: "bozibehruz.firebasestorage.app",
+    messagingSenderId: "113663164009",
+    appId: "1:113663164009:web:5c56426905932b9f9a6cf8",
+    measurementId: "G-BS2SERWQYZ"
+  };
   const app = initializeApp(firebaseConfig, "finali-efir");
   const db = getDatabase(app);
 
@@ -5909,7 +5919,7 @@
      намоёнро пок мекунад. Пок кардан ФАҚАТ бо ин тугма ва рамзи дуруст
      сурат мегирад — бозии анҷомёфта ё пушидани равзана ба ҳеҷ ваҷҳ
      руйхати ғолибонро худкор пок НАМЕКУНАД. ---------- */
-  const CLEAR_WINNERS_CODE = "3333";
+  const CLEAR_WINNERS_CODE = "2222";
   const gameOverClearBtn = document.getElementById("gameOverClearBtn");
   const clearWinnersModal = document.getElementById("clearWinnersModal");
   const clearWinnersCodeInput = document.getElementById("clearWinnersCodeInput");
@@ -6008,7 +6018,7 @@
     }
     playersTableEmpty.classList.add("hidden");
     playersTable.classList.remove("hidden");
-    entries.sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+    entries.sort((a, b) => (a[1].approvedAt || a[1].createdAt || 0) - (b[1].approvedAt || b[1].createdAt || 0));
     playersTableBody.innerHTML = entries.map(([id, o], i) => `
       <tr>
         <td class="u-idx">${i+1}</td>
@@ -6016,7 +6026,6 @@
         <td class="u-name">${escapeHtml(o.name || "—")}</td>
         <td>${escapeHtml(o.phone || "—")}</td>
         <td>${escapeHtml(o.roundName || "—")}</td>
-        <td class="u-date">${escapeHtml(o.dateTime || fmtDate(o.createdAt)).replace(/^(\S+)\s+(\d{1,2}:\d{2}.*)$/, "$1 | $2")}</td>
       </tr>
     `).join("");
   }
@@ -6059,7 +6068,6 @@
           const name = row.querySelector(".u-name");
           const phone = row.children[3];
           const roundName = row.children[4];
-          const date = row.querySelector(".u-date");
           const numsWrap = row.querySelector(".player-numbers-scroll");
           const numsArr = numsWrap
             ? Array.from(numsWrap.querySelectorAll(".player-num-chip")).map(el => el.textContent)
@@ -6067,9 +6075,9 @@
           const nums = numsArr.length
             ? numsArr.map(wordBall).join(" ")
             : "—";
-          return `<tr><td>${nums}</td><td>${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(roundName ? roundName.textContent : "—")}</td><td style="text-align:center; white-space:nowrap;">${escapeHtml(date ? date.textContent : "—").replace(/\s+/g, "&nbsp;")}</td></tr>`;
+          return `<tr><td>${nums}</td><td>${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(roundName ? roundName.textContent : "—")}</td></tr>`;
         }).join("")
-      : `<tr><td colspan="5" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>`;
+      : `<tr><td colspan="4" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>`;
 
     const docHtml = `<!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
@@ -6078,12 +6086,52 @@
   v\\:* {behavior:url(#default#VML);} o\\:* {behavior:url(#default#VML);}
   @page Section1 { size:21.0cm 29.7cm; mso-page-orientation:portrait; margin:1.5cm 1.5cm 1.5cm 1.5cm; }
   div.Section1 { page:Section1; }
+
+  /* ---------- "Руйхати бозингарон": тугмаи хурд кардани равзана (барои экрани телефон) ---------- */
+  #playersCompactBtn{
+    --hb-font:1rem;
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; height:calc(var(--hb-font) * 1.21 + 16px) !important;
+    min-width:0 !important; padding:0 !important; box-sizing:border-box !important;
+    border-radius:999px !important; background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    display:flex !important; align-items:center; justify-content:center;
+  }
+  #playersCompactBtn:hover{ background:#eee !important; }
+  #playersCompactBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+  #playersCompactBtn .pc-ico-max{ display:none; }
+  #playersModal.players-compact #playersCompactBtn .pc-ico-min{ display:none; }
+  #playersModal.players-compact #playersCompactBtn .pc-ico-max{ display:block; }
+
+  /* Ҳолати "хурд": равзана на тамоми экран, балки равзанаи ихчам дар мобайн — барои телефон мувофиқ */
+  #playersModal.players-compact{ padding:8px !important; background:rgba(6,9,17,0.72) !important; }
+  #playersModal.players-compact .chat-modal{
+    width:100% !important; max-width:560px !important;
+    height:auto !important; max-height:88vh !important; max-height:88dvh !important;
+    border-radius:16px !important;
+  }
+  #playersModal.players-compact .modal-head{ padding:10px 12px !important; flex-wrap:nowrap; align-items:center; }
+  #playersModal.players-compact .modal-head h3{ font-size:.95rem !important; }
+  #playersModal.players-compact .modal-head-actions{ gap:6px; }
+  #playersModal.players-compact #playersCompactBtn,
+  #playersModal.players-compact #playersPushBtn,
+  #playersModal.players-compact #playersSaveWordBtn,
+  #playersModal.players-compact .modal-head-actions .modal-close{ --hb-font:.75rem; }
+  #playersModal.players-compact .chat-modal-body{ padding:0 !important; overflow:auto !important; -webkit-overflow-scrolling:touch; }
+  #playersModal.players-compact #playersTable{ --chip:24px; width:100% !important; min-width:0; table-layout:auto; }
+  #playersModal.players-compact .chat-modal-body{ overflow-x:hidden !important; overflow-y:auto !important; }
+  #playersModal.players-compact #playersTable thead th{ font-size:.62rem !important; padding:6px 4px !important; white-space:normal !important; line-height:1.15; }
+  #playersModal.players-compact #playersTable tbody td{ font-size:.74rem !important; line-height:1.2 !important; padding:6px 4px !important; word-break:break-word; }
+  #playersModal.players-compact #playersTable tbody td.u-date{ white-space:normal !important; font-size:.66rem !important; }
+  #playersModal.players-compact #playersTable .player-num-chip{ border-width:2px !important; font-size:.8rem !important; }
+  #playersModal.players-compact #playersTable .player-numbers-scroll{
+    max-width:calc(24px * 5 + 4px * 4) !important; gap:4px !important; margin:0 auto !important;
+  }
 </style></head>
 <body style="font-family:Arial, sans-serif;">
 <div class="Section1">
   <h2>Руйхати бозингарон</h2>
   <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%; table-layout:fixed;">
-    <thead><tr><th style="width:27%;">Рақамҳои бозингарон</th><th style="width:17%;">Ном</th><th style="width:18%;">Рақами телефон</th><th style="width:10%;">Давр</th><th style="width:28%;white-space:nowrap;">Сана ва соат</th></tr></thead>
+    <thead><tr><th style="width:34%;">Рақамҳои бозингарон</th><th style="width:24%;">Ном</th><th style="width:24%;">Рақами телефон</th><th style="width:18%;">Давр</th></tr></thead>
     <tbody>${tableRows}</tbody>
   </table>
 </div>
@@ -6106,7 +6154,6 @@
   document.querySelectorAll('#playersModal [data-close]').forEach(btn => {
     btn.addEventListener('click', () => closeSettingsModal(btn.dataset.close));
   });
-
   /* ---------- Огоҳии пуш ба бозингарон (аз кура-админ гирифта шуд) ----------
      Пуши фиристодашуда дар Firebase (userPushNotice/<userId>) сабт мешавад,
      ки index.html (равзанаи бозингар) онро мехонад ва ба корбар нишон
