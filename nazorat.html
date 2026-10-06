@@ -1419,7 +1419,7 @@
   #home .topbar,
   #home .actions-row,
   #bottomNav .nav-item[data-tab="main"]{ display:none !important; }
-  #pushNoticeOverlay, #prizeResultOverlay{ display:none !important; }
+  #pushNoticeOverlay, #prizeResultOverlay, #loginScreen, #loginWaitOverlay{ display:none !important; }
   #bottomNav #navWinnersItem{ margin-left:auto; }
   /* Рамкаи поён рост (бе буриши доира дар мобайн), кунҷҳои гирди боло мемонанд */
   #bottomNav{ -webkit-mask-image:none !important; mask-image:none !important; }
@@ -4581,9 +4581,7 @@ function showHome(){
       // клавиатураро пурра напушонда бошад. keepReadonly=true — сабабашро дар боло бингар.
       setTimeout(() => forceCloseKeyboard(true), 250);
       // Тугмаи чат зуд кор кунад — чатро аллакай ҳамин ҷо, дар паси парда, бор мекунем
-      setTimeout(preloadChatFrame, 600);
       // Тугмаи гуруҳ низ зуд кор кунад — гуруҳро низ пешаки дар паси парда бор мекунем
-      setTimeout(preloadGroupFrame, 800);
       // Назорати паёмҳои нави гуруҳ барои бадҷ ва садо
       watchGroupMessages();
       // Ҳозир корбар воқеан дар home аст (аллакай сабтшуда/воридшуда) —
@@ -5062,22 +5060,10 @@ function watchUser(id, phone){
   }
 }
 
-// Агар корбар қаблан дарояд, мустақим равзанаи холи нишон дода шавад
-const saved = localStorage.getItem(LS_KEY);
-if(saved){
-  try{
-    const user = JSON.parse(saved);
-    fillUserBadge(user);
-    showHome();
-    watchUser(user.id, user.phone);
-    watchChatMessages(user.name);
-    markUserOnline(user.id);
-  } catch(err){
-    forceLogout();
-  }
-} else {
-  setTimeout(showLogin, 400);
-}
+// nazorat: сабти ном/логин НЕСТ — барнома мустақим кушода мешавад.
+// Корбар сабт намешавад, "онлайн" қайд намешавад ва ба Firebase чизе навишта намешавад.
+fillUserBadge({ name: "nazorat", phone: "" });
+showHome();
 
 // Руйхати кодҳои телефонии давлатҳо — барои муайян кардани давлат аз руи рақами
 // воридшуда. Тартиб аз руи дарозии код (аз калон ба хурд), то ки кодҳои дарозтар
