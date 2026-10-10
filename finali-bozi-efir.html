@@ -1715,6 +1715,14 @@
     padding-left:4px !important; padding-right:4px !important;
   }
 
+  /* ===== "Табрикот" — равзана ба боло кӯчонида шуд ===== */
+  :root{ --congrats-top:4vh; } /* ҳамин ададро тағйир диҳед: хурдтар = болотар */
+  .congrats-overlay{
+    align-items:flex-start !important;
+    padding-top:var(--congrats-top) !important;
+    padding-bottom:0 !important;
+  }
+
   /* ===== "Табрикот" — рангҳои барнома, матнҳо сиёҳ ===== */
   .congrats-overlay{ background:#5b8def !important; backdrop-filter:none !important; }
   .congrats-card{
@@ -2401,9 +2409,6 @@
     <div class="modal-head">
       <h3>Руйхати бозингарон</h3>
       <div class="modal-head-actions">
-        <button class="icon-btn" id="playersPushBtn" title="Огоҳии пуш ба бозингарон">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11 16v3a2 2 0 01-4 0v-3"/></svg>
-        </button>
         <button class="icon-btn" id="playersSaveWordBtn" title="Захира кардан ба файл (Word)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         </button>
@@ -5963,34 +5968,74 @@
      рақамҳои бурднакардаро ба файли .doc (кушодашаванда дар Microsoft
      Word) содир мекунад, маҳз ҳамон маълумоте, ки дар равзана намоён аст. ---------- */
   const gameOverSaveWordBtn = document.getElementById("gameOverSaveWordBtn");
-  function exportGameOverToWord(){
-    const roundName = (document.getElementById("gameOverRoundNameText") || {}).textContent || "—";
-    const winnersRowsHtml = gameOverWinnersBody ? gameOverWinnersBody.innerHTML : "";
-    const losingRows = Array.from(document.querySelectorAll("#gameOverLosingGrid .gameover-losing-row"));
-    const losingTableRows = losingRows.length
-      ? losingRows.map(row => {
-          const num = row.querySelector(".gameover-losing-ball");
-          const name = row.querySelector(".gameover-losing-name");
-          const phone = row.querySelector(".gameover-losing-phone");
-          return `<tr><td>${escapeHtml(num ? num.textContent : "—")}</td><td>${escapeHtml(name ? name.textContent : "—")}</td><td>${escapeHtml(phone ? phone.textContent : "—")}</td></tr>`;
-        }).join("")
-      : `<tr><td colspan="3" style="text-align:center;">Ҳама рақамҳо бурд карданд</td></tr>`;
+  function exportGameOverToWordTable(){
+    // Файли Word айнан ба мисли равзанаи "Бози анҷом ёфт" дар экран сохта мешавад
+    const T = sel => (document.querySelector(sel) || {}).textContent || "";
+    const roundName = T("#gameOverRoundNameText") || "—";
+    const winnersCount = T("#gameOverWinnersCount");
+    const losingCount = T("#gameOverLosingCount");
+    // Доираи рақамдор (VML — Word инро дастгирӣ мекунад)
+    const ball = (n, fill, size, fs) => `<v:oval style="width:${size}pt;height:${size}pt;v-text-anchor:middle" fillcolor="${fill}" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:${fs}pt;color:#000000;">${escapeHtml(String(n))}</span></b></p></v:textbox></v:oval>&nbsp;`;
+    const C = "text-align:center; vertical-align:middle; font-size:15pt; font-weight:bold; color:#000000;";
 
+    // "Рафти бозии": рақамҳои баромада (доирачаҳои зард)
+    const trackBalls = Array.from(document.querySelectorAll("#gameOverNumbersTrack .track-num-ball"))
+      .map(el => ball(el.textContent, "#f5c518", 22, 11)).join(" ");
+
+    // Ҷадвали ғолибон
+    const wRows = gameOverWinnersBody ? Array.from(gameOverWinnersBody.querySelectorAll("tr")) : [];
+    const winnersRows = wRows.length ? wRows.map(row => {
+      const c = row.children;
+      if(c.length < 5) return `<tr><td colspan="5" style="${C}">${escapeHtml(row.textContent.trim())}</td></tr>`;
+      const numEl = c[3].querySelector(".win-number-ball");
+      const numCell = numEl ? ball(numEl.textContent, "#3ddc84", 34, 16) : escapeHtml(c[3].textContent.trim() || "—");
+      return `<tr style="height:42pt;"><td style="${C}">${escapeHtml(c[0].textContent.trim())}</td><td style="${C}">${escapeHtml(c[1].textContent.trim())}</td><td style="${C}">${escapeHtml(c[2].textContent.trim())}</td><td style="${C}">${numCell}</td><td style="${C}">${escapeHtml(c[4].textContent.trim())}</td></tr>`;
+    }).join("") : `<tr><td colspan="5" style="${C}">Ғолибе нест</td></tr>`;
+
+    // Рақамҳои бурднакарда (доирачаҳои сурх + ном + телефон)
+    const lRows = Array.from(document.querySelectorAll("#gameOverLosingGrid .gameover-losing-row"));
+    const losingRowsHtml = lRows.length ? lRows.map(row => {
+      const num = row.querySelector(".gameover-losing-ball");
+      const name = row.querySelector(".gameover-losing-name");
+      const phone = row.querySelector(".gameover-losing-phone");
+      return `<tr style="height:42pt;"><td style="width:14%; text-align:center; vertical-align:middle;">${ball(num ? num.textContent : "—", "#e8393f", 34, 16)}</td><td style="width:43%; text-align:center; vertical-align:middle; font-size:15pt; font-weight:bold;">${escapeHtml(name ? name.textContent : "—")}</td><td style="width:43%; text-align:center; vertical-align:middle; font-size:15pt; font-weight:bold;">${escapeHtml(phone ? phone.textContent : "—")}</td></tr>`;
+    }).join("") : `<tr><td colspan="3" style="${C}">Ҳама рақамҳо бурд карданд</td></tr>`;
+
+    const BG = "#7aa5f5", BG2 = "#9bb9f8";
     const docHtml = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8"><title>Натиҷаи бози</title></head>
-<body style="font-family:Arial, sans-serif;">
-  <h2>Натиҷаи бози — ${escapeHtml(roundName)}</h2>
-  <h3>Руйхати ғолибон</h3>
-  <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%;">
-    <thead><tr><th>№</th><th>Призи бурдашуда</th><th>Ном</th><th>Рақами баромада</th><th>Рақами телефон</th></tr></thead>
-    <tbody>${winnersRowsHtml}</tbody>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>Бози анҷом ёфт</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DisplayBackgroundShape/></w:WordDocument></xml><![endif]-->
+<style>
+  v\\:* {behavior:url(#default#VML);} o\\:* {behavior:url(#default#VML);}
+  @page Section1 { size:29.7cm 21.0cm; mso-page-orientation:landscape; margin:1.2cm; }
+  div.Section1 { page:Section1; }
+  table { border-collapse:collapse; }
+  th { font-size:13pt; text-transform:uppercase; }
+</style></head>
+<body style="font-family:Arial, sans-serif; background:${BG2};" bgcolor="${BG2}">
+<div class="Section1">
+  <h1 style="font-size:30pt; margin:0 0 10pt 0;">Бози анҷом ёфт</h1>
+
+  <table border="2" cellspacing="0" cellpadding="8" style="width:100%; border:2.25pt solid #000000; background:${BG};" bgcolor="${BG}">
+    <tr>
+      <td style="width:62%; vertical-align:middle;">${trackBalls || "&nbsp;"}</td>
+      <td style="text-align:right; vertical-align:middle; font-size:20pt; font-weight:bold;">Рафти бозии &nbsp; <span style="border:1.5pt solid #000000; background:#f5c518; font-size:13pt; padding:2pt 8pt;">&nbsp;${escapeHtml(roundName)}&nbsp;</span></td>
+    </tr>
   </table>
-  <h3>Рақамҳое, ки бурд накардаанд</h3>
-  <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%;">
-    <thead><tr><th>Рақам</th><th>Ном</th><th>Рақами телефон</th></tr></thead>
-    <tbody>${losingTableRows}</tbody>
+
+  <h2 style="font-size:22pt; margin:14pt 0 6pt 0;">Руйхати ғолибон &nbsp; <span style="border:1.5pt solid #000000; background:#f5c518; font-size:13pt;">&nbsp;${escapeHtml(winnersCount)}&nbsp;</span></h2>
+  <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border:1.5pt solid #000000; background:${BG2};" bgcolor="${BG2}">
+    <thead><tr style="height:30pt;">
+      <th style="width:6%; ${C}">№</th><th style="width:26%; ${C}">Призи бурдашуда</th><th style="width:16%; ${C}">Ном</th><th style="width:26%; ${C}">Рақами баромада</th><th style="width:26%; ${C}">Рақами телефон</th>
+    </tr></thead>
+    <tbody>${winnersRows}</tbody>
   </table>
+
+  <h2 style="font-size:22pt; margin:18pt 0 6pt 0;">Рақамҳое, ки бурд накардаанд &nbsp; <span style="border:1.5pt solid #000000; background:#f5c518; font-size:13pt;">&nbsp;${escapeHtml(losingCount)}&nbsp;</span></h2>
+  <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border:1.5pt solid #000000; background:${BG};" bgcolor="${BG}">
+    <tbody>${losingRowsHtml}</tbody>
+  </table>
+</div>
 </body>
 </html>`;
 
@@ -6003,6 +6048,9 @@
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  async function exportGameOverToWord(){
+    exportGameOverToWordTable();
   }
   if(gameOverSaveWordBtn){
     gameOverSaveWordBtn.addEventListener("click", exportGameOverToWord);
@@ -6108,8 +6156,10 @@
       playersTableEmpty.classList.remove("hidden");
       playersTableBody.innerHTML = "";
       document.getElementById("playersTableEmptyText").textContent = q ? "Ҳеҷ бозингаре мувофиқи кофтуков ёфт нашуд" : "Ҳануз ҳеҷ бозингаре тасдиқ нашудааст";
+      if(playersSaveWordBtn) playersSaveWordBtn.style.setProperty("display", "none", "important");
       return;
     }
+    if(playersSaveWordBtn) playersSaveWordBtn.style.removeProperty("display");
     playersTableEmpty.classList.add("hidden");
     playersTable.classList.remove("hidden");
     // Кӯҳна -> нав: бозингари нав ҳамеша дар поёни руйхат меистад (1, 2, 3, 4, 5...).
@@ -6180,7 +6230,7 @@
           const nums = numsArr.length
             ? numsArr.map(wordBall).join(" ")
             : "—";
-          return `<tr><td>${nums}</td><td>${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(roundName ? roundName.textContent : "—")}</td></tr>`;
+          return `<tr><td>${nums}</td><td style="text-align:center;">${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(roundName ? roundName.textContent : "—")}</td></tr>`;
         }).join("")
       : `<tr><td colspan="4" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>`;
 
