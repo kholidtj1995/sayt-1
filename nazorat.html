@@ -1447,6 +1447,19 @@
   #navFabBtn.nav-fab.nav-fab-active svg,
   #navFabBtn.nav-fab.nav-fab-active span{ color:var(--gold); }
   #adminStatusText{ max-width:none !important; white-space:nowrap; font-size:0.72rem !important; }
+
+  /* ===== Руйхати бозингарон: хатҳои ҷадвал, рақамҳо бе скролл ва дар тарафи чап ===== */
+  #playersTable{ width:100% !important; min-width:0 !important; border-collapse:separate; border-spacing:0; table-layout:auto; border-top:1px solid rgba(255,255,255,0.28); border-left:1px solid rgba(255,255,255,0.28); }
+  #playersTable th, #playersTable td{ border-right:1px solid rgba(255,255,255,0.28); border-bottom:1px solid rgba(255,255,255,0.28); text-align:center; vertical-align:middle; }
+  #playersTable th:first-child, #playersTable td:first-child{ width:48%; text-align:left; white-space:normal; padding-left:12px; }
+  #playersTable .player-numbers-scroll{
+    width:100%; max-width:none !important; overflow:visible !important; flex-wrap:wrap !important;
+    justify-content:flex-start !important; margin:0 !important; padding:2px 0 !important; gap:6px;
+  }
+  #playersTable .player-num-chip{ flex-shrink:0; }
+  /* То 10 рақам дар як сатр: паҳнои сутун = 10 доира + 9 фосила + канорҳо */
+  #playersTable th:first-child, #playersTable td:first-child{ min-width:calc(21px * 10 + 6px * 9 + 26px); }
+  #playersTable .player-numbers-scroll{ width:calc(21px * 10 + 6px * 9) !important; }
 </style>
 </head>
 <body>
@@ -1757,7 +1770,7 @@
           </div>
           <table class="gw-table hidden" id="playersTable">
             <thead>
-              <tr><th>№</th><th>Ном</th><th>Рақами телефон</th><th>Бозии</th><th>Сана ва соат</th><th>Рақами бозингар</th></tr>
+              <tr><th>Рақамҳои бозингар</th><th>Номи билетхо</th><th>Рақами телефон</th><th>Аз бозии</th></tr>
             </thead>
             <tbody id="playersTableBody"></tbody>
           </table>
@@ -4512,12 +4525,10 @@ function renderPlayersTable(){
   playersTable.classList.remove("hidden");
   playersTableBody.innerHTML = entries.map(([id, o], i) => `
     <tr>
-      <td class="gw-idx">${i+1}</td>
+      <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
       <td class="gw-name">${escapeHtml(o.name || "—")}</td>
       <td>${escapeHtml(o.phone || "—")}</td>
       <td class="gw-round">${escapeHtml(o.roundName || "—")}</td>
-      <td class="gw-datetime">${escapeHtml(o.dateTime || fmtDate(o.createdAt))}</td>
-      <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
     </tr>
   `).join("");
 }
