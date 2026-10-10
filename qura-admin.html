@@ -1,0 +1,3059 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="google" content="notranslate" />
+<meta name="robots" content="notranslate" />
+<title>Идоракунии Барнома</title>
+<script>
+/* Ҷудосозии хотираи браузер: калидҳо бо номи лоиҳаи Firebase (bozibehruz) оғоз мешаванд,
+   то барномаҳои гуногун дар як домен ба ҳам халал нарасонанд. */
+(function(){
+  var P="bozibehruz:";
+  ["localStorage","sessionStorage"].forEach(function(n){
+    try{
+      var st=window[n]; if(!st) return;
+      var proto=Object.getPrototypeOf(st);
+      var g=proto.getItem,s=proto.setItem,r=proto.removeItem;
+      proto.getItem=function(k){ return g.call(this,this===st?P+k:k); };
+      proto.setItem=function(k,v){ return s.call(this,this===st?P+k:k,v); };
+      proto.removeItem=function(k){ return r.call(this,this===st?P+k:k); };
+    }catch(e){}
+  });
+  try{
+    var BC=window.BroadcastChannel;
+    if(BC){ window.BroadcastChannel=function(n){ return new BC(P+n); }; window.BroadcastChannel.prototype=BC.prototype; }
+  }catch(e){}
+})();
+</script>
+<script>
+  try{
+    const savedTheme = localStorage.getItem("qura_theme");
+    if(savedTheme === "light") document.documentElement.classList.add("light-theme");
+  }catch(e){}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f1c;
+    --bg-2:#0d1426;
+    --surface:#121b30;
+    --surface-2:#182241;
+    --border:rgba(255,255,255,0.08);
+    --border-soft:rgba(255,255,255,0.05);
+    --gold:#e8b84b;
+    --gold-2:#f4d374;
+    --gold-dark:#a9781f;
+    --crimson:#e2536b;
+    --crimson-dark:#7a1f2d;
+    --emerald:#3fbf8f;
+    --emerald-dark:#155a44;
+    --text:#f3efe7;
+    --text-muted:#8c93a8;
+    --text-dim:#5c6479;
+    --radius:20px;
+    --radius-sm:12px;
+    --shadow-lg:0 20px 60px rgba(0,0,0,0.45);
+    --shadow-md:0 10px 30px rgba(0,0,0,0.35);
+    font-size:16px;
+  }
+
+  :root.light-theme{
+    --bg:#f2efe6;
+    --bg-2:#e9e4d6;
+    --surface:#ffffff;
+    --surface-2:#f4f1e9;
+    --border:rgba(20,20,10,0.10);
+    --border-soft:rgba(20,20,10,0.06);
+    --text:#20180a;
+    --text-muted:#5f5947;
+    --text-dim:#8f8770;
+    --shadow-lg:0 20px 60px rgba(20,15,5,0.12);
+    --shadow-md:0 10px 30px rgba(20,15,5,0.10);
+  }
+  :root.light-theme body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,184,75,0.14), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(63,191,143,0.10), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(226,83,107,0.08), transparent 45%),
+      var(--bg);
+  }
+  :root.light-theme ::-webkit-scrollbar-thumb{ background:var(--surface-2); border:2px solid var(--bg); }
+  :root.light-theme .users-table tbody tr:hover{ background:rgba(20,20,10,0.035); }
+  :root.light-theme .badge.badge-pending,
+  :root.light-theme .badge.badge-sold,
+  :root.light-theme .badge.badge-unsold{
+    color:#20180a; border-color:rgba(20,20,10,0.35);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{
+    height:100%; width:100%;
+    overflow:hidden; position:fixed; inset:0;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+    -webkit-user-select:none; -moz-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
+  input, textarea{
+    -webkit-user-select:text; -moz-user-select:text; user-select:text;
+  }
+  body{
+    margin:0;
+    height:100%;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,184,75,0.10), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(63,191,143,0.08), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(226,83,107,0.06), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3, .display{ font-family:'Unbounded', sans-serif; letter-spacing:-0.01em; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--gold); color:#1b1206; }
+
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:var(--surface-2); border-radius:10px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--gold-dark); }
+
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+
+  .hidden{ display:none !important; }
+
+  /* ---------- Splash ---------- */
+  #splash{
+    position:fixed; inset:0; z-index:100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--bg); gap:18px;
+  }
+  .splash-ring{
+    width:56px; height:56px; border-radius:50%;
+    border:3px solid var(--border);
+    border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #splash p{ color:var(--text-muted); font-size:0.9rem; letter-spacing:0.02em; }
+
+  /* ---------- Login ---------- */
+  #loginScreen{
+    height:100%; overflow-y:auto; display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:400px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:40px 32px 32px;
+    box-shadow:var(--shadow-lg);
+    text-align:center;
+    animation:cardIn 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(16px) scale(0.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .brand-mark{
+    width:64px; height:64px; margin:0 auto 18px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(232,184,75,0.35), inset 0 -4px 8px rgba(0,0,0,0.25);
+  }
+  .brand-mark svg{ width:30px; height:30px; }
+  .login-card h1{ font-size:1.5rem; margin:0 0 6px; }
+  .login-card .sub{ color:var(--text-muted); font-size:0.88rem; margin:0 0 28px; line-height:1.5; }
+  .field{ text-align:left; margin-bottom:16px; }
+  .field label{ display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
+  .field input, .field textarea{
+    width:100%; padding:13px 14px; border-radius:var(--radius-sm);
+    background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    font-size:0.95rem; transition:border-color .15s, box-shadow .15s;
+  }
+  .field textarea{ resize:vertical; min-height:70px; font-family:inherit; }
+  .field input:focus, .field textarea:focus{
+    border-color:var(--gold); box-shadow:0 0 0 3px rgba(232,184,75,0.15); outline:none;
+  }
+  .btn{
+    border:none; cursor:pointer; border-radius:var(--radius-sm);
+    font-weight:700; font-size:0.95rem; padding:13px 20px;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn svg{ width:18px; height:18px; flex-shrink:0; }
+  .btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:linear-gradient(180deg,var(--gold-2),var(--gold)); color:#1b1206; box-shadow:0 8px 20px rgba(232,184,75,0.25); width:100%; }
+  .btn-primary:hover{ filter:brightness(1.06); box-shadow:0 10px 26px rgba(232,184,75,0.35); }
+  .btn-success{ background:linear-gradient(180deg,#4fd4a3,var(--emerald)); color:#062e22; box-shadow:0 8px 20px rgba(63,191,143,0.25); }
+  .btn-success:hover{ filter:brightness(1.06); }
+  .btn-danger{ background:linear-gradient(180deg,#ea6f83,var(--crimson)); color:#2c0810; box-shadow:0 8px 20px rgba(226,83,107,0.2); }
+  .btn-danger:hover{ filter:brightness(1.06); }
+  .btn-ghost{ background:var(--surface-2); color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ background:#212c4d; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+  .login-error{
+    color:var(--crimson); font-size:0.82rem; margin-top:14px; min-height:18px; font-weight:600;
+  }
+  .login-hint{ color:var(--text-dim); font-size:0.74rem; margin-top:18px; line-height:1.5; }
+
+  /* ---------- Dashboard ---------- */
+  #dashboard{ height:100%; overflow-y:auto; padding:14px 20px 60px; max-width:1180px; margin:0 auto; }
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; padding:12px 18px; margin-bottom:6px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; }
+  .brand-mark.sm{ width:42px; height:42px; flex-shrink:0; }
+  .brand-mark.sm svg{ width:20px; height:20px; }
+  .brand-text{ min-width:0; overflow:hidden; }
+  .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text span{ font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+  .top-actions{
+    display:flex; align-items:center; gap:8px; flex-shrink:1; min-width:0;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:5px 8px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap; scrollbar-width:thin;
+  }
+  .top-actions::-webkit-scrollbar{ height:5px; }
+  .top-actions::-webkit-scrollbar-thumb{ background:var(--border); border-radius:999px; }
+  .top-actions .icon-btn{ flex-shrink:0; }
+  .icon-group-sep{ width:1px; height:22px; background:var(--border); flex-shrink:0; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:var(--radius-sm);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .15s;
+  }
+  .icon-btn:hover{ background:var(--surface); }
+  .icon-btn:active{ transform:scale(0.88); }
+  .icon-btn svg{ width:17px; height:17px; }
+  @keyframes questionBtnShake{
+    0%,100%{ transform:rotate(0); }
+    15%{ transform:rotate(-14deg); }
+    30%{ transform:rotate(11deg); }
+    45%{ transform:rotate(-8deg); }
+    60%{ transform:rotate(6deg); }
+    75%{ transform:rotate(-3deg); }
+    90%{ transform:rotate(2deg); }
+  }
+  #notifBtn{ position:relative; overflow:visible; }
+  .notif-badge{
+    position:absolute; top:-7px; right:-7px;
+    min-width:18px; height:18px; padding:0 4px;
+    border-radius:999px; background:var(--crimson); color:#fff;
+    font-size:11px; font-weight:800; font-family:'Inter',sans-serif;
+    line-height:18px; text-align:center;
+    box-shadow:0 0 0 2px var(--bg-2);
+    display:none; pointer-events:none;
+  }
+  .notif-badge.show{ display:flex; align-items:center; justify-content:center; }
+  #notifBtn.has-alert{ background:var(--crimson); border-color:var(--crimson); color:#ffffff; animation:questionBtnShake 0.7s ease-in-out infinite; }
+  #notifBtn.has-alert:hover{ background:var(--crimson); }
+
+  .notif-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:12px 14px; margin-bottom:10px;
+  }
+  .notif-item-name{ font-weight:700; color:var(--text); font-size:0.92rem; }
+  .notif-item-phone{ color:var(--text-muted); font-size:0.82rem; margin-top:2px; }
+  .notif-item-meta{ color:var(--text-dim); font-size:0.76rem; margin-top:4px; }
+  .order-num-chip{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:30px; height:30px; padding:0 6px; margin:3px;
+    border-radius:50%; background:rgba(232,184,75,0.14); color:var(--gold);
+    border:1px solid rgba(232,184,75,0.3); font-weight:700; font-size:0.82rem;
+  }
+  .order-cart-numbers{ display:flex; flex-wrap:wrap; margin-top:6px; }
+  .order-cart-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); }
+  .order-cart-row:last-child{ border-bottom:none; }
+  .order-cart-label{ font-size:0.78rem; color:var(--text-muted); font-weight:600; }
+  .order-cart-value{ font-size:0.86rem; color:var(--text); font-weight:700; text-align:right; }
+  .player-numbers-scroll{
+    display:flex; flex-wrap:nowrap; gap:6px; overflow-x:auto; overflow-y:hidden;
+    max-width:220px; padding-bottom:2px; scrollbar-width:thin;
+  }
+  .player-num-chip{
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    width:28px; height:28px; border-radius:50%;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; font-weight:800; font-size:0.72rem;
+    box-shadow:inset 0 -2px 4px rgba(0,0,0,0.22), inset 0 1px 2px rgba(255,255,255,0.3);
+  }
+  .player-num-chip.chip-pending{
+    background:radial-gradient(circle at 32% 26%, #ef7b8f, #e2536b 55%, #c23a52 100%);
+    color:#fff;
+  }
+  .player-num-chip.chip-approved{
+    background:radial-gradient(circle at 32% 26%, #6fe0b6, #3fbf8f 55%, #2a9c72 100%);
+    color:#fff;
+  }
+  .order-cart-user-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid var(--border); }
+  .order-cart-user-name{ font-weight:800; color:var(--text); font-size:0.98rem; }
+  .order-cart-user-phone{ color:var(--text-muted); font-size:0.82rem; margin-top:2px; }
+  .order-cart-list{ display:flex; flex-direction:column; gap:12px; max-height:56vh; overflow-y:auto; }
+  .order-cart-card{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+  .order-cart-card.selected{ border-color:var(--crimson); box-shadow:0 0 0 1px var(--crimson); }
+  .order-cart-card-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+  .order-cart-card-round{ font-size:0.82rem; font-weight:700; color:var(--gold-2); }
+  .order-cart-status-badge{ font-size:0.72rem; font-weight:800; padding:3px 9px; border-radius:999px; }
+  .order-cart-status-badge.st-pending{ background:rgba(226,83,107,0.16); color:#e2536b; }
+  .order-cart-status-badge.st-approved{ background:rgba(63,191,143,0.16); color:#3fbf8f; }
+  .order-cart-status-badge.st-rejected{ background:rgba(226,83,107,0.16); color:var(--crimson); }
+  .order-cart-empty{ text-align:center; padding:24px 10px; color:var(--text-muted); font-size:0.86rem; }
+  .order-cart-reject-countdown{ font-size:0.76rem; color:var(--crimson); opacity:0.9; text-align:left; margin-top:6px; }
+
+  .icon-group{
+    display:flex; align-items:center; gap:4px;
+  }
+  .icon-group .icon-btn{
+    width:30px; height:30px;
+  }
+
+  .action-row{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px; }
+  .action-card{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px 16px; cursor:pointer; text-align:left;
+    display:flex; align-items:center; gap:14px;
+    transition:transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .action-card:hover{ transform:translateY(-3px); border-color:rgba(232,184,75,0.4); box-shadow:var(--shadow-md); }
+  .action-card:active{ transform:translateY(0) scale(0.99); }
+  .action-icon{
+    width:52px; height:52px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .action-icon.gold{ background:rgba(232,184,75,0.14); color:var(--gold); }
+  .action-icon.emerald{ background:rgba(63,191,143,0.14); color:var(--emerald); }
+  .action-icon svg{ width:26px; height:26px; }
+  .action-card h3{ font-size:1rem; margin:0 0 4px; color:var(--text); }
+  .action-card p{ font-size:0.8rem; color:var(--text-muted); margin:0; }
+
+  .panel{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px; margin-bottom:5px;
+  }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .panel-head h2{ font-size:1.02rem; margin:0; display:flex; align-items:center; gap:10px; }
+  .panel-head h2 svg{ width:19px; height:19px; color:var(--gold); }
+  .badge{
+    font-size:0.74rem; font-weight:700; color:var(--gold); background:rgba(232,184,75,0.12);
+    padding:5px 11px; border-radius:999px; border:1px solid rgba(232,184,75,0.25);
+    white-space:nowrap;
+  }
+  .badge-sm-row{
+    display:flex; gap:8px; align-items:center; flex-wrap:nowrap;
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 12px; scrollbar-width:thin;
+  }
+  .badge-sm-row::-webkit-scrollbar{ height:6px; }
+  .badge-sm-row::-webkit-scrollbar-thumb{ background:var(--border); border-radius:999px; }
+  .badge.sold-out-badge{
+    color:var(--crimson); background:rgba(226,83,107,0.14); border-color:rgba(226,83,107,0.35);
+  }
+  .badge-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-inline-end:6px; vertical-align:middle; }
+  .badge.badge-pending, .badge.badge-sold, .badge.badge-unsold{
+    color:#fff; border-color:#000;
+  }
+
+  /* Нишонаи "Стоп билет" — вақте ки ҳамаи рақамҳо тасдиқ (фурухта) шудаанд. */
+  .stop-ticket-badge{
+    display:inline-flex; align-items:center; margin-inline-start:8px;
+    padding:4px 12px; border-radius:999px; background:var(--crimson); color:#fff;
+    font-family:'Unbounded', sans-serif; font-weight:700; font-size:0.66rem;
+    letter-spacing:0.02em; text-transform:uppercase;
+    box-shadow:0 4px 12px rgba(226,83,107,0.4);
+    animation:soldOutBlink 1.1s ease-in-out infinite;
+  }
+  @keyframes soldOutBlink{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.55; }
+  }
+  /* Ҳолати "Финал" — вақте ки бози дар finali-bozi.html оғоз мешавад,
+     кутии сурхи "Стоп билет" сабз мешавад ва матнаш ба "Финал" иваз мешавад. */
+  .stop-ticket-badge.final-live{
+    background:var(--emerald, #3fbf8f);
+    box-shadow:0 4px 12px rgba(63,191,143,0.4);
+  }
+  /* Нишонаи "Рақамҳо банд шудаанд, лутфан чора бинед" — вақте ки ҳамаи
+     рақамҳо аллакай дархост шудаанд (пендинг), вале ҳануз тасдиқ нашудаанд. */
+  .wait-ticket-badge{
+    display:inline-flex; align-items:center; margin-inline-start:8px;
+    padding:4px 12px; border-radius:999px; background:var(--emerald); color:#fff;
+    font-family:'Unbounded', sans-serif; font-weight:700; font-size:0.66rem;
+    letter-spacing:0.02em; text-transform:none;
+    box-shadow:0 4px 12px rgba(63,191,143,0.4);
+    animation:soldOutBlink 1.1s ease-in-out infinite;
+  }
+
+  .empty-state{ text-align:center; padding:40px 20px; color:var(--text-muted); }
+  .empty-state svg{ width:46px; height:46px; opacity:0.35; margin-bottom:12px; }
+  .empty-state p{ font-size:0.85rem; margin:0; }
+
+  /* ---------- Историяи бозиҳо (аз "gameHistory" дар Firebase — сабт мешавад
+     аз finali-bozi.html ҳамин ки бози воқеан ба анҷом мерасад) ---------- */
+  .game-history-list{ display:flex; flex-direction:column; gap:12px; }
+  .history-entry{
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--bg-2); padding:12px 14px;
+  }
+  .history-entry-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+  .history-entry-round{ font-weight:700; font-size:0.92rem; color:var(--text); }
+  .history-entry-date{ font-size:0.72rem; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:4px 10px; white-space:nowrap; }
+  .history-entry-stats{ font-size:0.76rem; color:var(--text-muted); margin-bottom:6px; }
+  .history-winner-row{ display:flex; align-items:center; gap:8px; padding:5px 0; border-top:1px solid var(--border); font-size:0.8rem; }
+  .history-winner-row:first-of-type{ border-top:none; }
+  .history-winner-num{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue', sans-serif; font-size:0.85rem; font-weight:700;
+  }
+  .history-winner-name{ flex:1 1 auto; min-width:0; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .history-winner-phone{ flex-shrink:0; max-width:34%; font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .history-winner-prize{ flex-shrink:0; font-size:0.72rem; color:var(--gold-2); white-space:nowrap; }
+
+  .ball-grid{
+    --ball-size:38px;
+    display:grid; grid-template-rows:repeat(5, var(--ball-size));
+    grid-auto-flow:column; grid-auto-columns:var(--ball-size);
+    gap:8px;
+    overflow-x:auto; overflow-y:hidden;
+    padding:6px 4px 12px; width:100%;
+  }
+  .ball{
+    width:var(--ball-size); height:var(--ball-size); border-radius:50%;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:0.02em;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+    position:relative; transform:scale(0); opacity:0;
+    animation:rollIn 0.45s cubic-bezier(.2,.9,.3,1.3) forwards;
+  }
+  @keyframes rollIn{ from{ transform:scale(0) rotate(-70deg); opacity:0; } to{ transform:scale(1) rotate(0); opacity:1; } }
+  /* Рақамҳое, ки фармоишашон тасдиқ (иҷозат) шудааст — сабз мешаванд.
+     Барои дида шудани рақами сафед беҳтар, ба матн контури (outline) торик илова шуд */
+  .ball.sold{
+    background:#3fbf8f !important; color:#fff; font-weight:800;
+    text-shadow:0 1px 2px rgba(0,0,0,0.55), 0 0 3px rgba(0,0,0,0.5), 0 0 1px rgba(0,0,0,0.9);
+  }
+  /* Рақамҳое, ки дар сабади касе ҳастанд, вале ҳануз аз ҷониби админ тасдиқ
+     (ё рад) нашудаанд — банд (pending) ҳисобида мешаванд ва ранги сурхи
+     торик мегиранд, то аз рақамҳои холии тиллои ва фурухтаи сабз фарқ кунанд. */
+  .ball.pending{
+    background:radial-gradient(circle at 32% 26%, var(--crimson), var(--crimson-dark) 65%, #3d0f18 100%) !important;
+    color:#fff;
+  }
+  /* Вақте ки ҳамаи рақамҳои даври ҷори фурухта шудаанд — туб хира мешавад,
+     вале склор кор карда истодааст (танҳо opacity, на pointer-events). */
+  .ball-grid.sold-out{ opacity:0.4; }
+
+  .prizes-box{
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--bg-2); padding:14px 10px;
+    position:relative;
+  }
+  .prizes-grid{
+    display:flex; flex-wrap:nowrap; gap:14px;
+    overflow-x:auto; overflow-y:hidden;
+    padding:2px 4px 8px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .prize-card{
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid rgba(232,184,75,0.35); border-radius:var(--radius-sm);
+    padding:14px 10px 12px; position:relative;
+    transition:transform .15s, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    opacity:0; transform:translateY(16px) scale(0.85);
+    animation:prizePopIn 0.5s cubic-bezier(.2,.9,.3,1.25) forwards;
+    flex:0 0 128px; min-width:0;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    cursor:pointer;
+  }
+  @keyframes prizePopIn{ from{ opacity:0; transform:translateY(16px) scale(0.85); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  @media (hover:hover) and (pointer:fine){
+    .prize-card:hover{ border-color:var(--gold); transform:translateY(-2px); box-shadow:0 10px 22px rgba(232,184,75,0.15); }
+  }
+  .prize-card.active{
+    border-color:var(--gold);
+    background:linear-gradient(180deg, rgba(232,184,75,0.22), var(--bg-2));
+    box-shadow:0 0 0 2px rgba(232,184,75,0.4), 0 10px 22px rgba(232,184,75,0.2);
+  }
+  .prize-card.active h4{ color:var(--gold-2); }
+  .prize-card .trophy-circle{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center; margin:0 0 8px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
+  }
+  .prize-card .trophy-circle svg{ width:18px; height:18px; color:#1b1206; }
+  .prize-card h4{
+    font-family:'Unbounded', sans-serif; font-weight:700; font-size:0.8rem;
+    margin:0 0 8px; padding-right:0; color:var(--text); word-break:break-word; line-height:1.25;
+    transition:color .25s ease;
+  }
+  .prize-card .qty-block{ display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .prize-card .qty-label{ font-size:0.58rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; font-weight:700; }
+  .prize-card .qty-num{ font-family:'Bebas Neue', sans-serif; font-size:1.35rem; color:var(--gold); line-height:1; }
+  .prize-del{
+    position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:7px;
+    background:transparent; border:none; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .15s;
+  }
+  .prize-del:hover{ background:var(--crimson-dark); color:#fff; }
+  .prize-del svg{ width:12px; height:12px; }
+
+  /* ---- Руйхати призҳо (модали "Руйхати призҳо") ---- */
+  .prizes-list-items{ display:flex; flex-direction:column; gap:10px; margin-top:4px; max-height:60vh; overflow-y:auto; }
+  .prizes-list-items.hidden{ display:none; }
+  .prize-list-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:12px 14px;
+  }
+  .prize-list-row .prize-list-name{ font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .prize-list-row .prize-list-qty{
+    flex-shrink:0; display:flex; align-items:baseline; gap:5px;
+    background:rgba(232,184,75,0.12); border:1px solid rgba(232,184,75,0.35);
+    color:var(--gold); font-family:'Bebas Neue', sans-serif; font-size:1.05rem;
+    padding:4px 10px; border-radius:999px; letter-spacing:0.02em;
+  }
+  .prize-list-row .prize-list-qty span{ font-family:'Inter', sans-serif; font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.04em; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(6,9,17,0.72); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:50;
+    animation:fadeIn 0.18s ease;
+  }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  .modal{
+    width:100%; max-width:420px; background:linear-gradient(180deg,var(--surface),var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius); padding:26px;
+    box-shadow:var(--shadow-lg); animation:cardIn 0.25s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .modal-head h3{ font-size:1.05rem; margin:0; }
+  .modal-close{ width:30px; height:30px; border-radius:8px; border:none; background:var(--surface-2); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .modal-close:hover{ background:var(--crimson-dark); color:#fff; }
+  .modal-close svg{ width:15px; height:15px; }
+  .modal-foot{ display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; }
+  .modal-foot .btn{ flex:1; }
+  .danger-zone{ margin-top:22px; padding-top:18px; border-top:1px dashed var(--border); }
+  .danger-zone p{ font-size:0.74rem; color:var(--text-dim); margin:0 0 10px; }
+  .logout-modal-icon{
+    width:60px; height:60px; border-radius:50%; margin:4px auto 0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px rgba(232,184,75,0.3);
+  }
+  .logout-modal-icon svg{ width:26px; height:26px; color:#1b1206; }
+
+  /* ---------- Chat Modal ---------- */
+  .chat-modal-overlay{ padding:12px; }
+  .chat-modal{
+    width:100%; max-width:900px; height:100%; max-height:820px;
+    padding:0; display:flex; flex-direction:column; overflow:hidden;
+  }
+  .chat-modal .modal-head{ margin:0; padding:14px 18px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .chat-modal-body{ flex:1 1 auto; position:relative; background:var(--bg-2); }
+  .chat-modal-body iframe{ position:absolute; inset:0; width:100%; height:100%; border:none; }
+  .chat-modal-loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--text-muted); font-size:0.85rem; gap:10px; flex-direction:column;
+  }
+
+  /* ---------- Users table ---------- */
+  .users-table{ width:100%; border-collapse:collapse; font-size:0.86rem; }
+  .users-table th{
+    text-align:left; color:var(--text-muted); font-weight:700; font-size:0.72rem;
+    text-transform:uppercase; letter-spacing:0.04em; padding:8px 10px; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .users-table td{ padding:10px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+  .users-table tbody tr:hover{ background:rgba(255,255,255,0.03); }
+  .users-table td.u-idx{ color:var(--text-dim); width:36px; }
+  .users-table td.u-name{ font-weight:700; color:var(--text); }
+  .users-table td.u-date{ color:var(--text-muted); white-space:nowrap; }
+  .users-table tr.is-blocked td.u-name{ color:var(--crimson); }
+  .users-search{ position:relative; margin-bottom:14px; }
+  .users-search input{
+    width:100%; padding:11px 14px 11px 38px; border-radius:var(--radius-sm);
+    background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    font-size:0.88rem; outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  .users-search input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(232,184,75,0.15); }
+  .users-search input::placeholder{ color:var(--text-dim); }
+  .users-search svg{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px; color:var(--text-dim); pointer-events:none;
+  }
+  .users-search .users-search-clear{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    width:22px; height:22px; border-radius:7px; border:none; background:transparent;
+    color:var(--text-dim); cursor:pointer; display:none; align-items:center; justify-content:center;
+  }
+  .users-search .users-search-clear:hover{ background:var(--surface-2); color:var(--text); }
+  .users-search.has-value .users-search-clear{ display:flex; }
+  .status-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-dim); margin-right:6px; vertical-align:middle; }
+  .status-dot.online{ background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.22); }
+  .status-cell{ white-space:nowrap; }
+  .status-cell.is-online{ color:#22c55e; font-weight:700; }
+  .u-dots-btn{
+    width:30px; height:30px; border-radius:8px; border:none; background:transparent; color:var(--text-muted);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .u-dots-btn:hover{ background:var(--surface-2); color:var(--text); }
+  .u-dots-btn svg{ width:18px; height:18px; }
+
+  .users-table tr.is-marked td{ color:var(--emerald) !important; }
+
+  .users-table tr.is-pinned{ background:rgba(232,184,75,0.07); }
+
+  .user-ctx-menu{
+    position:fixed; z-index:220; min-width:170px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-2));
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-lg); padding:6px; display:flex; flex-direction:column; gap:2px;
+    animation:cardIn 0.15s ease;
+  }
+  .user-ctx-menu button{
+    display:flex; align-items:center; gap:10px; background:transparent; border:none; color:var(--text);
+    font-size:0.85rem; font-weight:600; padding:9px 10px; border-radius:8px; cursor:pointer; text-align:left; width:100%;
+  }
+  .user-ctx-menu button svg{ width:16px; height:16px; flex-shrink:0; color:var(--text-muted); }
+  .user-ctx-menu button:hover{ background:var(--surface-2); }
+  .user-ctx-menu button.danger{ color:var(--crimson); }
+  .user-ctx-menu button.danger svg{ color:var(--crimson); }
+  .user-ctx-menu button[data-act="resetOne"].reset-selected{ color:var(--crimson); }
+  .user-ctx-menu button[data-act="resetOne"].reset-selected svg{ color:var(--crimson); }
+
+
+
+  /* ---------- Toasts ---------- */
+  #toastHost{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:10px; align-items:center; width:100%; max-width:420px; padding:0 16px; }
+  .toast{
+    display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--border);
+    padding:13px 16px; border-radius:var(--radius-sm); font-size:0.85rem; box-shadow:var(--shadow-md);
+    animation:toastIn 0.25s cubic-bezier(.2,.8,.2,1); width:100%;
+  }
+  @keyframes toastIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .toast.success{ border-color:rgba(63,191,143,0.4); }
+  .toast.error{ border-color:rgba(226,83,107,0.4); }
+  .toast svg{ width:18px; height:18px; flex-shrink:0; }
+  .toast.success svg{ color:var(--emerald); }
+  .toast.error svg{ color:var(--crimson); }
+  .toast.info svg{ color:var(--gold); }
+
+  @media (max-width:640px){
+    .action-row{ grid-template-columns:1fr; }
+    header.topbar{ flex-wrap:nowrap; padding:12px 14px; gap:8px; }
+    .brand{ gap:8px; flex-shrink:0; }
+    .brand-text span{ font-size:0.62rem; }
+    .top-actions{ gap:5px; padding:4px 6px; }
+    .ball-grid{ --ball-size:32px; }
+    #dashboard{ padding:14px 12px 50px; }
+    .panel{ padding:16px 12px; }
+    .prizes-box{ padding:10px 6px; }
+    .prize-card{ flex:0 0 104px; padding:12px 8px; }
+  }
+
+  @media (max-width:380px){
+    .brand-mark.sm{ width:36px; height:36px; }
+    .brand-mark.sm svg{ width:17px; height:17px; }
+    .brand-text h1{ font-size:0.98rem; }
+    .brand-text span{ font-size:0.58rem; }
+    .icon-group{ height:34px; }
+    .icon-group .icon-btn{ width:26px; height:26px; }
+    .icon-btn{ width:34px; height:34px; }
+    .top-actions{ gap:4px; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .ball{ animation:none !important; transform:none; opacity:1; }
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* Connection overlay */
+  #connOverlay{
+    position:fixed; inset:0; z-index:150;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+    background:rgba(8,12,22,0.62);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    text-align:center; padding:24px;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  #connOverlay.show{ opacity:1; pointer-events:auto; }
+  #connOverlay .conn-ring{
+    width:48px; height:48px; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  #connOverlay .conn-title{ font-family:'Unbounded', sans-serif; font-size:1rem; color:var(--text); margin:0; }
+  #connOverlay .conn-sub{ color:var(--text-muted); font-size:0.85rem; max-width:280px; margin:0; line-height:1.5; }
+  #appRoot.conn-blur{ filter:blur(6px); transition:filter .3s ease; pointer-events:none; }
+.btn[disabled]{ opacity:0.4; cursor:not-allowed; filter:grayscale(0.3); pointer-events:none; }
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.no-spinner{ -moz-appearance:textfield; }
+
+  /* ===== Харид аз утоқи админ: се тугма + интихоби рақамҳо + корзина ===== */
+  .actions-row{ display:flex; gap:6px; margin:6px 0 0; }
+  .action-btn{
+    flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    border-radius:var(--radius-sm); padding:9px 4px; cursor:pointer; position:relative;
+    transition:all .15s ease; -webkit-tap-highlight-color:transparent; font-family:inherit;
+  }
+  .action-btn:hover{ filter:brightness(1.15); }
+  .action-btn:active{ transform:scale(0.94); }
+  .action-btn svg{ width:16px; height:16px; flex-shrink:0; }
+  .action-btn span.lbl{ font-size:0.7rem; font-weight:700; text-align:center; line-height:1.15; }
+  .action-btn.active{ background:linear-gradient(180deg, rgba(226,83,107,0.28), var(--surface-2)); border-color:var(--crimson); color:var(--crimson); }
+  .action-btn.active-green{ background:linear-gradient(180deg, rgba(63,191,143,0.28), var(--surface-2)); border-color:#3fbf8f; color:#3fbf8f; }
+  .action-btn.disabled{ opacity:0.45; pointer-events:none; }
+  .selection-badge{
+    position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 5px;
+    border-radius:10px; font-size:0.68rem; font-weight:800; line-height:1;
+    align-items:center; justify-content:center;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; box-shadow:0 0 0 2px var(--crimson); display:none;
+  }
+  .selection-badge.show{ display:flex; }
+  .selection-badge.confirmed{ background:#3fbf8f; color:#fff; box-shadow:0 0 0 2px #ffffff; }
+  .ball-grid.selectable .ball{ cursor:pointer; }
+  .ball-grid.selectable .ball:active{ transform:scale(0.88); }
+  .ball-grid.selectable .ball.sold, .ball-grid.selectable .ball.pending{ cursor:not-allowed; }
+  .ball.selected{ box-shadow:0 0 0 3px var(--crimson), 0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35); }
+  .panel.buying{ border-color:var(--crimson); }
+  #adminCartBtn{ position:relative; overflow:visible; }
+  .cart-badge{
+    position:absolute; top:-7px; right:-7px; min-width:18px; height:18px; padding:0 4px;
+    border-radius:999px; background:var(--crimson); color:#fff; font-size:11px; font-weight:800;
+    font-family:'Inter',sans-serif; line-height:18px; text-align:center; box-shadow:0 0 0 2px var(--bg-2);
+    display:none; pointer-events:none;
+  }
+  .cart-badge.show{ display:flex; align-items:center; justify-content:center; }
+  .sel-total-box{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:10px; }
+  .sel-total-label{ font-size:0.8rem; color:var(--text-muted); font-weight:600; white-space:nowrap; }
+  .sel-total-value{ font-size:0.88rem; font-weight:800; color:var(--gold-2); text-align:right; }
+  .sel-numbers-list{ display:flex; flex-wrap:wrap; gap:6px; max-height:110px; overflow-y:auto; }
+  .sel-num-circle{
+    width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
+    color:#1b1206; font-family:'Bebas Neue',sans-serif; font-size:13px;
+  }
+  .sel-num-circle.approved{ background:#3fbf8f; color:#fff; }
+  .acart-list{ display:flex; flex-direction:column; gap:10px; max-height:62vh; overflow-y:auto; }
+  @keyframes acartBlink{
+    0%,100%{ border-color:var(--border); box-shadow:none; }
+    50%{ border-color:#ff2d2d; box-shadow:0 0 0 2px #ff2d2d, 0 0 14px rgba(255,45,45,0.65); }
+  }
+  .order-cart-card.acart-new{ animation:acartBlink .7s ease-in-out 3; }
+  .acart-del{ width:28px; height:28px; border-radius:8px; border:none; background:var(--surface); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .acart-del:hover{ background:var(--crimson); color:#fff; }
+  .acart-del svg{ width:14px; height:14px; }
+  .acart-actions{ display:flex; align-items:center; gap:6px; }
+  .acart-eye{ width:28px; height:28px; border-radius:8px; border:none; background:var(--surface); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .acart-eye:hover{ background:var(--gold); color:#1b1206; }
+  .acart-eye svg{ width:15px; height:15px; }
+  /* Равзанаи чашм: равзанаи миёна (на тамоми экран), ҷадвал бо дизайни эфир */
+  .eyeview-wrap{ overflow-x:auto; border:2px solid #111; border-radius:6px; background:#fff; }
+  .eyeview-table{ width:100%; border-collapse:collapse; table-layout:auto; font-family:'Inter',Arial,sans-serif; }
+  .eyeview-table th{ background:#76a5f7; color:#111; font-weight:800; font-size:0.78rem; text-transform:uppercase; padding:8px 10px; border:1px solid #111; text-align:center; white-space:nowrap; }
+  .eyeview-table td{ background:#fff; color:#111; border:1px solid #111; padding:10px 12px; text-align:center; vertical-align:middle; font-weight:800; font-size:1.5rem; }
+  .eyeview-table td.ev-nums{ text-align:left; min-width:600px; }
+  .eyeview-table td.ev-round{ background:#f6c619; white-space:nowrap; }
+  .eyeview-nums{ display:flex; flex-wrap:wrap; gap:8px; min-width:560px; }
+  .eyeview-circle{ min-width:48px; height:48px; padding:0 6px; border-radius:50%; background:#3ddc84; border:1.5px solid #111; color:#111; font-weight:800; font-size:1.3rem; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
+
+  /* ===== "Руйхати бозингарон" — айнан мисли finali-bozi-efir.html ===== */
+  /* Равзанаи "Руйхати бозингарон" — калон (тамоми экран), бе анимацияи пӯшидан */
+  #playersModal{ padding:0 !important; backdrop-filter:none !important; }
+  #playersModal .chat-modal{ max-width:none !important; max-height:none !important; width:100% !important; height:100% !important; border-radius:0 !important; animation:none !important; }
+  #playersModal.closing, #playersModal.closing .modal{ animation:none !important; }
+  /* Кутии ҷустуҷӯ дар рӯйхати бозингарон пинҳон */
+  #playersSearchWrap{ display:none !important; }
+  /* Рӯйхати бозингарон: ҳамаи матнҳо сиёҳ; матни сутунҳои Ном, Телефон, Давр, Сана калон */
+  #playersTable th, #playersTable td, #playersTable .u-name, #playersTable .u-date{ color:#000 !important; }
+  #playersTable thead th:nth-child(n+2){ font-size:1.05rem !important; }
+  #playersTable tbody td:nth-child(n+3){ font-size:clamp(1.2rem, 2.2vw, 2.85rem) !important; line-height:1.25 !important; font-weight:800 !important; }
+  #playersTable thead th:nth-child(n+2){ font-size:1.25rem !important; }
+  #playersTable tbody td.u-name{ font-weight:800 !important; }
+  /* Рақамҳои корбар: матн сиёҳ ва калон */
+  #playersTable thead th:nth-child(6){ font-size:1.05rem !important; }
+  #playersTable{ --chip:clamp(56px, 7.2vh, 100px); }
+  #playersTable .player-num-chip{
+    width:var(--chip) !important; height:var(--chip) !important; border-radius:50% !important;
+    background:#3ddc84 !important; background-image:none !important; color:#000 !important;
+    border:3px solid #000 !important; box-shadow:none !important; text-shadow:none !important;
+    font-family:'Bebas Neue', sans-serif !important; font-size:calc(var(--chip) * .5) !important; font-weight:800 !important;
+  }
+  #playersTable .player-numbers-scroll{ width:calc(var(--chip) * 5 + 8px * 4) !important; max-width:calc(var(--chip) * 5 + 8px * 4) !important; gap:8px !important; flex-wrap:wrap !important; justify-content:flex-start !important; overflow:visible !important; padding-bottom:0 !important; margin:0 !important; }
+  /* Ҷадвали аз нав ҷойгиршуда: сутуни рақамҳо айнан барои 5 рақам дар як сатр, дигар сутунҳо тақсим мешаванд */
+  #playersTable{ table-layout:auto !important; width:100% !important; }
+  #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ width:auto !important; min-width:calc(var(--chip) * 5 + 8px * 4 + 28px) !important; padding:8px 14px !important; vertical-align:middle !important; }
+  #playersTable thead th:nth-child(n+3), #playersTable tbody td:nth-child(n+3){ width:1% !important; white-space:nowrap !important; }
+    #playersTable tbody td:nth-child(n+3){ vertical-align:middle !important; overflow-wrap:anywhere; }
+  /* Ном, Рақами телефон, Давр — сарлавҳа ва маълумот дар марказ */
+  #playersModal #playersTable thead th:nth-child(n+3), #playersModal #playersTable tbody td:nth-child(n+3), #playersModal #playersTable tbody td.u-name{ text-align:center !important; padding-right:14px !important; padding-left:14px !important; }
+  /* Фони ҳуҷайраҳои сутуни "Рақамҳои бозингарон" — сафед */
+  #playersTable tbody td:nth-child(2), #playersTable tbody td:nth-child(3), #playersTable tbody td:nth-child(4){ background:#ffffff !important; }
+  /* сутунҳои Давр ва Сана ва соат — сурх, матн сиёҳ */
+  #playersTable tbody td:nth-child(5), #playersTable tbody td:nth-child(6){ background:#f5c518 !important; color:#000 !important; }
+  #playersTable tbody td:nth-child(5) *, #playersTable tbody td:nth-child(6) *{ color:#000 !important; }
+  /* Маълумоти сутунҳои Телефон, Давр, Сана дар байн */
+  #playersTable tbody td:nth-child(3), #playersTable tbody td.u-name, #playersTable tbody td:nth-child(4), #playersTable tbody td:nth-child(5), #playersTable tbody td:nth-child(6){ text-align:center !important; }
+  #playersTable thead th{ text-align:center !important; }
+  /* Сатри сарлавҳа ҳангоми ғелонидани рӯйхат дар ҷояш мемонад */
+  #playersTable{ border-collapse:separate !important; border-spacing:0 !important; }
+  #playersTable thead th{ position:sticky !important; top:0 !important; z-index:5 !important; background:#7aa5f5 !important; }
+  #playersModal .chat-modal-body{ padding-top:0 !important; background:#7aa5f5 !important; }
+  #playersTable thead{ position:sticky !important; top:0 !important; z-index:6 !important; background:#7aa5f5 !important; }
+  #playersTable thead th{ position:static !important; background:#7aa5f5 !important; }
+  #playersTable tbody tr, #playersTable tbody td{ position:relative; z-index:0; }
+  /* Хати болои ҷадвал */
+  #playersTable thead th:nth-child(n+2){ border-top:1px solid #000 !important; }
+  /* Хатҳои чап ва рости ҷадвал */
+  #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ border-left:1px solid #000 !important; }
+  #playersTable thead th:nth-child(5), #playersTable tbody td:nth-child(5){ border-right:1px solid #000 !important; }
+  /* Хатҳои амудӣ байни сутунҳо */
+  #playersTable thead th:nth-child(n+3), #playersTable tbody td:nth-child(n+3){ border-left:1px solid #000 !important; }
+  /* Сутуни № дар рӯйхати бозингарон пинҳон */
+  #playersTable thead th:first-child, #playersTable tbody td:first-child{ display:none !important; }
+  /* "Руйхати бозингарон": се тугмаи боло — андозаи якхела, ранг ва шакл мисли ⚙ / бозингарон / ✕ */
+  #playersModal .modal-head-actions{ display:flex; align-items:center; gap:8px; }
+  #playersPushBtn, #playersSaveWordBtn, #playersModal .modal-head-actions .modal-close{
+    --hb-font:1rem;
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; height:calc(var(--hb-font) * 1.21 + 16px) !important;
+    min-width:0 !important; padding:0 !important; box-sizing:border-box !important;
+    border-radius:999px !important;
+    background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    display:flex !important; align-items:center; justify-content:center;
+  }
+  #playersPushBtn:hover, #playersSaveWordBtn:hover, #playersModal .modal-head-actions .modal-close:hover{ background:#eee !important; }
+  #playersPushBtn svg, #playersSaveWordBtn svg, #playersModal .modal-head-actions .modal-close svg{
+    width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important;
+  }
+  #playersModal .modal-head{ margin:0 !important; padding:14px 16px !important; background:#9dbcf9 !important; border-bottom:1px solid rgba(0,0,0,0.25) !important; }
+  #playersModal .modal-head h3{ color:#000 !important; font-size:1rem !important; font-weight:800 !important; }
+  #playersModal .modal-head-actions{ display:flex; align-items:center; gap:8px; }
+  #playersTable tbody tr{ cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div id="appRoot">
+<div id="splash">
+  <div class="splash-ring"></div>
+  <p>Пайваст шудан ба система...</p>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="hidden">
+  <div class="login-card">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1b1206" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <h1>Воридшавии Админ</h1>
+    <p class="sub">Барои идоракунии қуръакаши рамзи худро ворид кунед</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="codeInput">Рамзи админ</label>
+        <input type="password" id="codeInput" placeholder="•••••••" autocomplete="off" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Ворид шудан</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+    <p class="login-hint" id="loginHint"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-text">
+        <h1>ҚУРЪА</h1>
+        <span>Утоқи идоракуни</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="icon-group">
+        <button class="icon-btn" id="adminCartBtn" title="Корзина">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          <span class="cart-badge" id="adminCartBadge"></span>
+        </button>
+        <button class="icon-btn" id="prizesListBtn" title="Руйхати призҳо">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </button>
+        <button class="icon-btn" id="gameHistoryBtn" title="История">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
+        </button>
+        <button class="icon-btn" id="resetAllBtn" title="Ресет">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+      <div class="icon-group-sep"></div>
+      <div class="icon-group">
+        <button class="icon-btn" id="usersBtn" title="Руйхати бозингарон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="icon-group-sep"></div>
+      <button class="icon-btn" id="closeWindowBtn" title="Пушидани равзана">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <button class="icon-btn" id="logoutBtn" title="Баромадан">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="action-row">
+    <button class="action-card" id="openNumbersModalBtn">
+      <div class="action-icon gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      </div>
+      <div>
+        <h3>Сохтани рақамҳо</h3>
+        <p>Даври нав ва руйхати рақамҳо созед</p>
+      </div>
+    </button>
+    <button class="action-card" id="openPrizesModalBtn">
+      <div class="action-icon emerald">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
+      </div>
+      <div>
+        <h3>Сохтани призҳо</h3>
+        <p>Мукофотҳоро номгузори ва илова кунед</p>
+      </div>
+    </button>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        Руйхати рақамҳо
+        <span class="stop-ticket-badge hidden" id="stopTicketBadge">Стоп билет</span>
+        <span class="wait-ticket-badge hidden" id="waitTicketBadge">Рақамҳо банд шудаанд, лутфан чора бинед</span>
+      </h2>
+      <div class="badge-sm-row" id="roundBadgeRow"></div>
+    </div>
+    <div id="numbersEmpty" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="4"/><circle cx="16" cy="16" r="4"/><path d="M8 12v0M16 8v0"/></svg>
+      <p>Ҳануз ҳеҷ рақаме сохта нашудааст</p>
+    </div>
+    <div id="ballGrid" class="ball-grid hidden"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+        Призҳо
+      </h2>
+      <span class="badge" id="prizeCountBadge">0 приз</span>
+    </div>
+    <div class="prizes-box" id="prizesBox">
+      <div id="prizesEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+        <p>Ҳануз призе илова карда нашудааст</p>
+      </div>
+      <div id="prizesGrid" class="prizes-grid hidden"></div>
+    </div>
+  </section>
+
+  <div class="actions-row">
+    <button class="action-btn" id="resetNumbersBtn" title="Бозгашт">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <span class="lbl">Бозгашт</span>
+    </button>
+    <button class="action-btn" id="buyNumberBtn" title="Харидани рақам">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+      <span class="lbl" id="buyNumberBtnLabel">Харидани рақам</span>
+    </button>
+    <button class="action-btn" id="registerNumbersBtn" title="Ба қайд гирифтани рақамҳо">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span class="lbl">Ба қайд гирифтан</span>
+      <span class="selection-badge" id="registerCountBadge"></span>
+    </button>
+  </div>
+
+</div>
+
+
+<!-- REGISTER (BUY) NUMBERS MODAL -->
+<div id="registerModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Сабти рақамҳо</h3>
+      <button class="modal-close" data-close="registerModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sel-total-box" style="flex-direction:column; align-items:flex-start;">
+      <span class="sel-total-label">Рақамҳои интихобшуда</span>
+      <div class="sel-numbers-list" id="selectedNumbersList"></div>
+    </div>
+    <div class="sel-total-box"><span class="sel-total-label">Шумораи рақамҳо</span><span class="sel-total-value" id="numbersCountValue">0</span></div>
+    <div class="sel-total-box"><span class="sel-total-label">Маблағи умуми</span><span class="sel-total-value" id="totalAmountValue">0 сомон / 0 рубл</span></div>
+    <div class="field"><label for="registerNameInput">Ном</label><input type="text" id="registerNameInput" autocomplete="off" /></div>
+    <div class="field"><label for="registerPhoneInput">Рақами телефон</label><input type="text" id="registerPhoneInput" autocomplete="off" inputmode="tel" /></div>
+    <button class="btn btn-primary" id="addToCartBtn">Илова ба сабад</button>
+  </div>
+</div>
+
+<!-- ADMIN CART MODAL -->
+<div id="adminCartModal" class="modal-overlay hidden" style="z-index:55;">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Корзина</h3>
+      <button class="modal-close" data-close="adminCartModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="acart-list" id="adminCartList"></div>
+  </div>
+</div>
+
+<!-- NUMBERS MODAL -->
+<div id="numbersModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Сохтани рақамҳои нав</h3>
+      <button class="modal-close" data-close="numbersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <form id="numbersForm">
+      <div class="field">
+        <label for="roundNameInput">Номи давр</label>
+        <input type="text" id="roundNameInput" placeholder="Мас: Даври 1" required />
+      </div>
+      <div class="field">
+        <label>Нархи як рақам</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="priceSomonInput" placeholder="сомон" min="0" step="0.01" style="flex:1; -moz-appearance:textfield;" class="no-spinner" required />
+          <input type="number" id="priceRubleInput" placeholder="рубль" min="0" step="0.01" style="flex:1; -moz-appearance:textfield;" class="no-spinner" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="roundCountInput">Шумораи рақамҳо (аз 1 сар мешавад)</label>
+        <input type="number" id="roundCountInput" placeholder="Мас: 100" min="1" required />
+      </div>
+      <button type="submit" class="btn btn-success" id="numbersSubmitBtn" style="width:100%" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Сохтан
+      </button>
+    </form>
+    <div class="danger-zone">
+      <p>Пок кардани руйхати ҳозира ба рамзи махсус ниёз дорад.</p>
+      <button class="btn btn-danger" id="clearListBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+        Пок кардани руйхат
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIZES MODAL -->
+<div id="prizesModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Илова кардани приз</h3>
+      <button class="modal-close" data-close="prizesModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <form id="prizeForm">
+      <div class="field">
+        <label for="prizeNameInput">Номи приз</label>
+        <input type="text" id="prizeNameInput" placeholder="Мас: Телефони мобили" required />
+      </div>
+      <div class="field">
+        <label for="prizeQtyInput">Миқдор</label>
+        <input type="number" id="prizeQtyInput" placeholder="Мас: 1" min="1" required />
+      </div>
+      <button type="submit" class="btn btn-success" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Илова кардан
+      </button>
+    </form>
+    <div class="danger-zone">
+      <p>Пок кардани ҳамаи призҳо ба рамзи тасдиқ ниёз дорад.</p>
+      <button class="btn btn-danger" id="clearPrizesBtn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+        Пок кардани призҳо
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIZES LIST MODAL -->
+<div id="prizesListModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Руйхати призҳо</h3>
+      <button class="modal-close" data-close="prizesListModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="prizes-list-box" id="prizesListBox">
+      <div id="prizesListEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
+        <p>Ҳануз призе илова карда нашудааст</p>
+      </div>
+      <div id="prizesListItems" class="prizes-list-items hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM CODE MODAL -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h3>Тасдиқи амал</h3>
+      <button class="modal-close" data-close="confirmModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0">Барои пок кардани руйхати рақамҳо рамзи тасдиқро ворид кунед.</p>
+    <form id="confirmForm">
+      <div class="field">
+        <input type="password" id="confirmCodeInput" placeholder="Рамзи тасдиқ" required />
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="confirmModal">Бекор кардан</button>
+        <button type="submit" class="btn btn-danger">Тасдиқ ва пок кардан</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EYE VIEW MODAL -->
+<div id="eyeViewModal" class="modal-overlay hidden" style="z-index:70;">
+  <div class="modal" style="max-width:1280px; width:96vw">
+    <div class="modal-head">
+      <h3>Рақамҳои бозингар</h3>
+      <button class="modal-close" data-close="eyeViewModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="eyeview-wrap">
+      <table class="eyeview-table">
+        <thead><tr><th>Рақамҳои бозингар</th><th id="eyeViewNameTh">Номи билетхо</th><th>Рақами телефон</th><th>Аз бозии</th></tr></thead>
+        <tbody id="eyeViewBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- YES/NO CONFIRM MODAL -->
+<div id="yesNoModal" class="modal-overlay hidden" style="z-index:90;">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h3 id="yesNoTitle">Тасдиқи амал</h3>
+      <button class="modal-close" type="button" id="yesNoCloseBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p id="yesNoText" style="font-size:0.9rem;color:var(--text-muted);margin:0;line-height:1.5"></p>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" id="yesNoNoBtn">Не</button>
+      <button type="button" class="btn btn-danger" id="yesNoYesBtn">Ҳа</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME HISTORY MODAL -->
+<div id="gameHistoryModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h3>Историяи бозиҳо</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="btn btn-danger" id="clearGameHistoryBtn" style="padding:9px 14px; font-size:0.8rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+          Пок кардани таърих
+        </button>
+        <button class="modal-close" data-close="gameHistoryModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div id="gameHistoryEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
+        <p>Ҳанӯз ягон бозии финали анҷом наёфтааст</p>
+      </div>
+      <div id="gameHistoryBody" class="game-history-list hidden"></div>
+    </div>
+  </div>
+</div>
+
+<div id="logoutModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:340px; text-align:center;">
+    <div class="logout-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    </div>
+    <h3 style="margin:16px 0 6px">Баромадан аз барнома</h3>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 22px">Оё шумо мутмаин ҳастед, ки мехоҳед аз барнома бароед?</p>
+    <div class="modal-foot" style="margin-top:0">
+      <button type="button" class="btn btn-ghost" data-close="logoutModal">Не</button>
+      <button type="button" class="btn btn-danger" id="logoutConfirmBtn">Ҳа</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS MODAL (фармоишҳои нав аз сабад) -->
+<div id="notifModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal" style="max-width:520px;">
+    <div class="modal-head">
+      <h3>Огоҳиномаҳо — фармоишҳои нав</h3>
+      <button class="modal-close" data-close="notifModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div class="users-search" id="notifSearchWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="notifSearchInput" placeholder="Кофтуков аз руи ном, телефон..." autocomplete="off">
+        <button type="button" class="users-search-clear" id="notifSearchClear" title="Пок кардан">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="notifEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <p id="notifEmptyText">Ҳануз фармоиши нав нест</p>
+      </div>
+      <div id="notifList" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE USER CONFIRM MODAL (Ҳа/Не) -->
+<div id="deleteUserConfirmModal" class="modal-overlay hidden" style="z-index:70;">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h3>Нест кардани корбар</h3>
+      <button class="modal-close" data-close="deleteUserConfirmModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <p id="deleteUserConfirmText" style="font-size:0.85rem;color:var(--text-muted);margin-top:0">Корбарро пурра нест кунам? Ин амалро баргардонидан ғайриимкон аст.</p>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close="deleteUserConfirmModal">Не</button>
+      <button type="button" class="btn btn-danger" id="deleteUserConfirmYesBtn">Ҳа</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER CONTEXT MENU (3-нуқта дар огоҳинома) -->
+<div id="orderCtxMenu" class="user-ctx-menu hidden">
+  <button data-act="viewCart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>Дидани сабад</button>
+</div>
+
+<!-- ORDER CART DOTS MENU (амалҳо барои бозингари мушаххас дар равзанаи сабад) -->
+<div id="orderCartDotsMenu" class="user-ctx-menu hidden">
+  <button data-act="resetOne"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 019-9 9 9 0 019 9 9 9 0 01-9 9"/><path d="M3 12l4-4M3 12l4 4"/></svg>Ресети рақамҳо</button>
+</div>
+
+<!-- ORDER CART VIEW MODAL -->
+<div id="orderCartModal" class="modal-overlay hidden" style="z-index:60;">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <h3>Сабади корбар</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="icon-btn" id="orderCartDotsBtn" title="Амалҳо">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </button>
+        <button class="modal-close" data-close="orderCartModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="order-cart-user-row">
+      <div>
+        <div class="order-cart-user-name" id="orderCartUserName">—</div>
+        <div class="order-cart-user-phone" id="orderCartUserPhone">—</div>
+      </div>
+      <button class="icon-btn" id="orderCartTotalBtn" title="Ҷамъи сабад" style="position:relative; overflow:visible;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        <span class="notif-badge" id="orderCartTotalBadge"></span>
+      </button>
+    </div>
+    <div id="orderCartList" class="order-cart-list"></div>
+  </div>
+</div>
+
+<!-- ORDER CART TOTAL MODAL (Ҷамъи рақамҳо ва нархи умумии сабади корбар) -->
+<div id="orderCartTotalModal" class="modal-overlay hidden" style="z-index:65;">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head">
+      <h3>Ҷамъи сабад</h3>
+      <button class="modal-close" data-close="orderCartTotalModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="order-cart-row"><span class="order-cart-label">Шумораи умумии рақамҳо</span><span class="order-cart-value" id="orderCartTotalCount">0 дона</span></div>
+    <div class="order-cart-row"><span class="order-cart-label">Нархи умуми</span><span class="order-cart-value" id="orderCartTotalPrice">0 сомон / 0 рубл</span></div>
+  </div>
+</div>
+
+<!-- PLAYERS LIST MODAL (Руйхати бозингарон — фармоишҳои тасдиқшуда) -->
+<div id="playersModal" class="modal-overlay chat-modal-overlay hidden">
+  <div class="modal chat-modal">
+    <div class="modal-head">
+      <h3>Руйхати бозингарон</h3>
+      <div class="modal-head-actions">
+        <button class="modal-close" data-close="playersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="chat-modal-body" style="overflow-y:auto; padding:14px 18px;">
+      <div class="users-search" id="playersSearchWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="playersSearchInput" placeholder="Кофтуков аз руи ном, телефон..." autocomplete="off">
+        <button type="button" class="users-search-clear" id="playersSearchClear" title="Пок кардан">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="playersTableEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <p id="playersTableEmptyText">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</p>
+      </div>
+      <table id="playersTable" class="users-table hidden">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Рақамҳои бозингар</th>
+            <th>Номи билетхо</th>
+            <th>Рақами телефон</th>
+            <th>Аз бозии</th>
+          </tr>
+        </thead>
+        <tbody id="playersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toastHost"></div>
+</div><!-- /appRoot -->
+
+<!-- CONNECTION STATUS OVERLAY -->
+<div id="connOverlay">
+  <div class="conn-ring"></div>
+  <p class="conn-title" id="connTitle">Пайваст шудан...</p>
+  <p class="conn-sub" id="connSub">Интернети шумо суст аст. Лутфан интизор шавед.</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getDatabase, ref, get, set, remove, update, onValue, push, off, onDisconnect, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9z3bbjnG8S-ARcwACCew0OGzRuyQRnfY",
+  authDomain: "bozibehruz.firebaseapp.com",
+  databaseURL: "https://bozibehruz-default-rtdb.firebaseio.com",
+  projectId: "bozibehruz",
+  storageBucket: "bozibehruz.firebasestorage.app",
+  messagingSenderId: "113663164009",
+  appId: "1:113663164009:web:5c56426905932b9f9a6cf8",
+  measurementId: "G-BS2SERWQYZ"
+};
+
+const app = initializeApp(firebaseConfig, "qura-admin");
+const db = getDatabase(app);
+
+
+/* ---- Ёрирасонҳои амният: ҳэш (SHA-256). Рамзҳо дар код ва Firebase ошкор нестанд ---- */
+const ADMIN_SALT = "bozibehruz:admin:v1|";
+// Барои иваз кардани рамз: дар консол иҷро кунед
+//   crypto.subtle.digest("SHA-256", new TextEncoder().encode("bozibehruz:admin:v1|РАМЗИ_НАВ")).then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+// ва натиҷаро ба ADMIN_CODE_HASH гузоред. Рамзи 8+ аломат истифода баред.
+const ADMIN_CODE_HASH = "8724916da2456af9977f1aaa99d3863b8c5ab44686e70d048adf873fc5ec76f1";
+async function sha256Hex(s){
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,"0")).join("");
+}
+async function isAdminCode(code){ return (await sha256Hex(ADMIN_SALT + code)) === ADMIN_CODE_HASH; }
+function pwShow(u){ const p = u && u.password; return (typeof p === "string" && p.startsWith("h1:")) ? "🔒 (ҳэш)" : (p || "—"); }
+const LS_KEY = "qura_admin_code";
+
+/* ---------------- Sound ---------------- */
+let actx = null;
+let pendingTones = [];
+function flushPendingTones(){
+  if(pendingTones.length){
+    const queued = pendingTones;
+    pendingTones = [];
+    queued.forEach(fn => fn());
+  }
+}
+function ensureAudio(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return;
+  if(!actx) actx = new AC();
+  if(actx.state === "suspended"){
+    actx.resume().then(flushPendingTones).catch(() => {});
+  } else {
+    flushPendingTones();
+  }
+}
+// Набояд {once:true} гузошт — агар як маротиба иҷро шавад, садоҳое, ки пеш аз
+// он дар навбат монданд (масалан, садои пайдоиши рақамҳо/призҳо ҳангоми боршавии
+// саҳифа, пеш аз аввалин клики админ) метавонанд гум шаванд ва садо умуман набарояд.
+["pointerdown","touchstart","mousedown","keydown"].forEach(evt =>
+  document.addEventListener(evt, ensureAudio, { passive:true })
+);
+
+function tone(freq, dur=0.09, type="sine", vol=0.045, delay=0){
+  ensureAudio();
+  if(!actx || actx.state === "suspended"){
+    if(pendingTones.length < 10) pendingTones.push(() => tone(freq, dur, type, vol, delay));
+    return;
+  }
+  const t0 = actx.currentTime + delay;
+  const osc = actx.createOscillator();
+  const gain = actx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain).connect(actx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+const sound = {
+  click: () => tone(520, 0.06, "sine", 0.22),
+  open:  () => tone(480, 0.07, "sine", 0.22),
+  close: () => tone(340, 0.06, "sine", 0.2),
+  success: () => { tone(660, 0.09, "sine", 0.3); tone(880, 0.14, "sine", 0.3, 0.09); },
+  error: () => tone(200, 0.22, "sawtooth", 0.3),
+  pop: (delay=0) => tone(360 + Math.random()*120, 0.05, "triangle", 0.16, delay),
+  newUser: () => { tone(660, 0.1, "sine", 0.32); tone(880, 0.12, "sine", 0.32, 0.11); tone(1046, 0.18, "sine", 0.35, 0.23); },
+  newMessage: () => { tone(880, 0.09, "sine", 0.3); tone(700, 0.12, "sine", 0.3, 0.1); },
+  newOrder: () => { tone(740, 0.09, "sine", 0.32); tone(980, 0.12, "sine", 0.32, 0.1); tone(1180, 0.16, "sine", 0.35, 0.22); },
+  numbersAppear: () => { tone(480, 0.07, "sine", 0.2); tone(680, 0.08, "sine", 0.2, 0.06); tone(920, 0.1, "sine", 0.18, 0.12); },
+  prizesAppear: () => { tone(700, 0.06, "sine", 0.22); tone(940, 0.09, "sine", 0.2, 0.06); },
+  reset: () => { tone(420, 0.07, "triangle", 0.25); tone(300, 0.09, "triangle", 0.22, 0.06); },
+  activate: () => { tone(500, 0.07, "square", 0.2); tone(760, 0.09, "square", 0.2, 0.07); },
+  confirm: () => { tone(760, 0.08, "sine", 0.3); tone(1020, 0.16, "sine", 0.3, 0.08); },
+  register: () => { tone(600, 0.06, "sine", 0.25); tone(600, 0.06, "sine", 0.25, 0.12); },
+  select: () => tone(540 + Math.random()*260, 0.055, "sine", 0.25),
+  deselect: () => tone(320 + Math.random()*100, 0.05, "triangle", 0.2),
+  cartAdded: () => { tone(1300, 0.14, "sine", 0.34); tone(1600, 0.16, "sine", 0.3, 0.1); tone(1300, 0.12, "sine", 0.28, 0.22); tone(1600, 0.15, "sine", 0.26, 0.32); },
+};
+document.addEventListener("click", (e) => {
+  if(e.target.closest(".btn, .icon-btn, .action-card")) sound.click();
+});
+
+/* ---------------- Toasts ---------------- */
+const toastHost = document.getElementById("toastHost");
+const icons = {
+  success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
+  error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v0"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v0M12 11v5"/></svg>'
+};
+// Пеш аз амалҳои бебозгашт (блок, нест кардан, пурра нест кардан) як тасдиқи
+// содда талаб карда мешавад, то ки як зеркунии тасодуфии тугма боиси нест
+// шудани пурраи маълумоти корбар нагардад.
+function confirmDangerous(message){
+  return new Promise(resolve => {
+    const modal = document.getElementById("yesNoModal");
+    document.getElementById("yesNoText").textContent = message;
+    const yes = document.getElementById("yesNoYesBtn");
+    const no = document.getElementById("yesNoNoBtn");
+    const x = document.getElementById("yesNoCloseBtn");
+    let done = false;
+    const finish = (val) => {
+      if(done) return; done = true;
+      yes.removeEventListener("click", onYes);
+      no.removeEventListener("click", onNo);
+      x.removeEventListener("click", onNo);
+      modal.removeEventListener("click", onBackdrop);
+      document.removeEventListener("keydown", onKey, true);
+      closeModal("yesNoModal");
+      if(document.querySelector(".modal-overlay:not(.hidden)")) document.body.style.overflow = "hidden";
+      resolve(val);
+    };
+    const onYes = () => finish(true);
+    const onNo = () => finish(false);
+    const onBackdrop = (e) => { if(e.target === modal) finish(false); };
+    const onKey = (e) => { if(e.key === "Escape"){ e.stopPropagation(); finish(false); } };
+    yes.addEventListener("click", onYes);
+    no.addEventListener("click", onNo);
+    x.addEventListener("click", onNo);
+    modal.addEventListener("click", onBackdrop);
+    document.addEventListener("keydown", onKey, true);
+    openModal("yesNoModal");
+  });
+}
+
+function showToast(msg, type="info", duration=3200){
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.innerHTML = `${icons[type] || icons.info}<span>${msg}</span>`;
+  toastHost.appendChild(el);
+  if(type === "success") sound.success();
+  if(type === "error") sound.error();
+  setTimeout(() => { el.style.transition = "opacity .3s"; el.style.opacity = "0"; setTimeout(()=>el.remove(), 300); }, duration);
+}
+
+/* ---------------- Modal helpers ---------------- */
+function openModal(id){
+  const el = document.getElementById(id);
+  // Ҳамаи равзанаҳо (.modal-overlay) як z-index доранд — агар як равзана
+  // (мас. confirmModal) БОЛОИ равзанаи дигари аллакай кушода (мас.
+  // gameHistoryModal) кушода шавад, бе ин хат он аз рӯи тартиби DOM на
+  // ҳатман болотар меистад. Бо гузоштани ҳамин элемент дар охири <body>
+  // (яъне охирин фарзанд) ҳамеша БОЛОИ ҳамаи равзанаҳои дигар меистад.
+  document.body.appendChild(el);
+  el.classList.remove("hidden");
+  sound.open();
+  document.body.style.overflow = "hidden";
+}
+function closeModal(id){
+  document.getElementById(id).classList.add("hidden");
+  sound.close();
+  document.body.style.overflow = "";
+}
+document.querySelectorAll("[data-close]").forEach(btn => {
+  btn.addEventListener("click", () => closeModal(btn.dataset.close));
+});
+
+document.querySelectorAll(".modal-overlay").forEach(overlay => {
+  overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(overlay.id); });
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape"){
+    document.querySelectorAll(".modal-overlay:not(.hidden)").forEach(m => closeModal(m.id));
+  }
+});
+
+/* ---------------- DOM refs ---------------- */
+const splash = document.getElementById("splash");
+const loginScreen = document.getElementById("loginScreen");
+const dashboard = document.getElementById("dashboard");
+const loginForm = document.getElementById("loginForm");
+const codeInput = document.getElementById("codeInput");
+const loginError = document.getElementById("loginError");
+const loginHint = document.getElementById("loginHint");
+const loginCard = document.querySelector(".login-card");
+
+let activeListeners = [];
+function clearListeners(){
+  activeListeners.forEach(({ path, cb }) => off(path, "value", cb));
+  activeListeners = [];
+}
+
+/* ---------------- Auth flow ---------------- */
+function showLogin(message){
+  clearListeners();
+  dashboard.classList.add("hidden");
+  loginScreen.classList.remove("hidden");
+  splash.classList.add("hidden");
+  codeInput.value = "";
+  remove(ref(db, "adminPresence/sessions/qura-admin")).catch(()=>{});
+  if(message){
+    loginError.textContent = message;
+  } else {
+    loginError.textContent = "";
+  }
+}
+
+function showDashboard(){
+  loginScreen.classList.add("hidden");
+  splash.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  attachLiveListeners();
+  const presenceRef = ref(db, "adminPresence/sessions/qura-admin");
+  set(presenceRef, true).catch(()=>{});
+  onDisconnect(presenceRef).remove();
+}
+
+function forceLogout(reason){
+  localStorage.removeItem(LS_KEY);
+  showLogin(reason || "Шумо аз система хориҷ шудед.");
+  showToast(reason || "Шумо аз система хориҷ шудед.", "error");
+}
+
+async function attemptLogin(code){
+  const submitBtn = document.getElementById("loginBtn");
+  submitBtn.disabled = true;
+  try{
+    const lockUntil = Number(localStorage.getItem("adm_lock_until") || 0);
+    if(Date.now() < lockUntil){
+      showLogin("Кушишҳои зиёд. " + Math.ceil((lockUntil - Date.now())/1000) + " сония интизор шавед.");
+      return;
+    }
+    if(!(await isAdminCode(code))){
+      const fails = Number(localStorage.getItem("adm_fails") || 0) + 1;
+      localStorage.setItem("adm_fails", String(fails));
+      if(fails >= 5){
+        const wait = Math.min(3600000, 30000 * Math.pow(2, fails - 5));
+        localStorage.setItem("adm_lock_until", String(Date.now() + wait));
+      }
+      showLogin("Рамз нодуруст. Аз нав кушиш кунед.");
+      return;
+    }
+    localStorage.removeItem("adm_fails"); localStorage.removeItem("adm_lock_until");
+    // Дар Firebase РАМЗ ё ҲЭШИ он нигоҳ дошта намешавад — танҳо нишонаи тасодуфии "давр"
+    // (то бо иваз шудани он дигар дастгоҳҳо аз система хориҷ шаванд).
+    let epoch;
+    const snap = await get(ref(db, "admin/code"));
+    if(snap.exists() && typeof snap.val() === "string" && snap.val().startsWith("ep_")){
+      epoch = snap.val();
+    } else {
+      const r = new Uint8Array(16); crypto.getRandomValues(r);
+      epoch = "ep_" + Array.from(r).map(x => x.toString(16).padStart(2,"0")).join("");
+      await set(ref(db, "admin/code"), epoch);
+    }
+    localStorage.setItem(LS_KEY, epoch);
+    showDashboard();
+    showToast("Хуш омадед!", "success");
+  } catch(err){
+    console.error(err);
+    showLogin("Хатои пайваст ба система. Танзимоти Firebase-ро санҷед.");
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const code = codeInput.value.trim();
+  if(!code) return;
+  attemptLogin(code);
+});
+
+document.getElementById("closeWindowBtn").addEventListener("click", () => {
+  window.close();
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  openModal("logoutModal");
+});
+document.getElementById("logoutConfirmBtn").addEventListener("click", () => {
+  closeModal("logoutModal");
+  localStorage.removeItem(LS_KEY);
+  showLogin();
+});
+
+/* ---------------- Маълумоти корбарон (танҳо кэш барои руйхати бозингарон) ---------------- */
+let usersCache = {};
+
+function fmtDate(ts){
+  if(!ts) return "—";
+  const d = new Date(ts);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+let deleteUserPendingId = null;
+let deleteUserPendingPhone = null;
+let deleteUserPendingOrderId = null;
+document.getElementById("deleteUserConfirmYesBtn").addEventListener("click", async () => {
+  closeModal("deleteUserConfirmModal");
+  const phone = deleteUserPendingPhone;
+  const uid = deleteUserPendingId;
+  const orderId = deleteUserPendingOrderId;
+  deleteUserPendingPhone = null;
+  deleteUserPendingId = null;
+  deleteUserPendingOrderId = null;
+  if(!phone) return;
+  try{
+    if(orderId){
+      // Танҳо ҳамин як руйхати рақамҳои харидашуда (фармоиш) ресет мешавад,
+      // на ҳамаи фармоишҳои корбар.
+      await remove(ref(db, "orders/" + orderId)).catch(()=>{});
+    } else {
+      const tasks = [];
+      Object.entries(ordersCache || {}).forEach(([oid, o]) => {
+        if(o && o.phone === phone){
+          tasks.push(remove(ref(db, "orders/" + oid)).catch(()=>{}));
+        }
+      });
+      await Promise.all(tasks);
+    }
+    selectedCartOrderId = null;
+    updateResetOneBtnState();
+    showToast("Рақамҳои бозингар бар гардонда шуданд 🔄", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои бар гардондани рақамҳо.", "error");
+  }
+});
+function openResetPlayerConfirm(phone, name, uid, orderId){
+  deleteUserPendingPhone = phone;
+  deleteUserPendingId = uid || null;
+  deleteUserPendingOrderId = orderId || null;
+  const titleEl = document.querySelector("#deleteUserConfirmModal h3");
+  if(titleEl) titleEl.textContent = "Ресети рақамҳо";
+  document.getElementById("deleteUserConfirmText").textContent = orderId
+    ? `Рақамҳои ин руйхати мушаххаси харидаи "${name || phone || ""}"-ро бар гардонам? Онҳо дубора кушода мешаванд ва дигарон метавонанд харанд.`
+    : `Рақамҳои харидаи "${name || phone || ""}"-ро бар гардонам? Онҳо дубора кушода мешаванд ва дигарон метавонанд харанд.`;
+  openModal("deleteUserConfirmModal");
+}
+
+/* ---------------- Фармоишҳо (orders аз сабади index.html) ---------------- */
+let ordersCache = {};
+const notifBtnEl = document.getElementById("notifBtn");
+const notifBadge = document.getElementById("notifBadge");
+const notifEmpty = document.getElementById("notifEmpty");
+const notifListEl = document.getElementById("notifList");
+const orderCtxMenu = document.getElementById("orderCtxMenu");
+const playersTable = document.getElementById("playersTable");
+const playersTableEmpty = document.getElementById("playersTableEmpty");
+const playersTableBody = document.getElementById("playersTableBody");
+let ctxOrderIds = [];
+let notifShakeTimer = null;
+let notifSearchQuery = "";
+let playersSearchQuery = "";
+
+const notifSearchInput = document.getElementById("notifSearchInput");
+const notifSearchWrap = document.getElementById("notifSearchWrap");
+const notifSearchClear = document.getElementById("notifSearchClear");
+notifSearchInput.addEventListener("input", () => {
+  notifSearchQuery = notifSearchInput.value;
+  notifSearchWrap.classList.toggle("has-value", notifSearchQuery.trim() !== "");
+  renderNotifList();
+});
+notifSearchClear.addEventListener("click", () => {
+  notifSearchInput.value = "";
+  notifSearchQuery = "";
+  notifSearchWrap.classList.remove("has-value");
+  renderNotifList();
+  notifSearchInput.focus();
+});
+
+const playersSearchInput = document.getElementById("playersSearchInput");
+const playersSearchWrap = document.getElementById("playersSearchWrap");
+const playersSearchClear = document.getElementById("playersSearchClear");
+playersSearchInput.addEventListener("input", () => {
+  playersSearchQuery = playersSearchInput.value;
+  playersSearchWrap.classList.toggle("has-value", playersSearchQuery.trim() !== "");
+  renderPlayersTable();
+});
+playersSearchClear.addEventListener("click", () => {
+  playersSearchInput.value = "";
+  playersSearchQuery = "";
+  playersSearchWrap.classList.remove("has-value");
+  renderPlayersTable();
+  playersSearchInput.focus();
+});
+
+function pendingOrdersCount(){
+  return Object.values(ordersCache).filter(o => !o.status || o.status === "pending").length;
+}
+function updateNotifBadge(){
+  const count = pendingOrdersCount();
+  if(count > 0){
+    if(notifBadge){ notifBadge.textContent = count > 99 ? "99+" : String(count); notifBadge.classList.add("show"); }
+  } else {
+    if(notifBadge) notifBadge.classList.remove("show");
+  }
+}
+function triggerNotifShake(){
+  if(!notifBtnEl) return;
+  notifBtnEl.classList.add("has-alert");
+  clearTimeout(notifShakeTimer);
+  notifShakeTimer = setTimeout(() => notifBtnEl.classList.remove("has-alert"), 5000);
+}
+
+function renderNotifList(data){
+  const source = data !== undefined ? data : ordersCache;
+  const allEntries = Object.entries(source || {}).filter(([, o]) => !o.status || o.status === "pending");
+  const q = notifSearchQuery.trim().toLowerCase();
+  const entries = !q ? allEntries : allEntries.filter(([, o]) => {
+    const haystack = [o.name, o.phone].join(" ").toLowerCase();
+    return haystack.includes(q);
+  });
+  if(entries.length === 0){
+    notifListEl.classList.add("hidden");
+    notifEmpty.classList.remove("hidden");
+    notifListEl.innerHTML = "";
+    document.getElementById("notifEmptyText").textContent = q ? "Ҳеҷ фармоише мувофиқи кофтуков ёфт нашуд" : "Ҳануз фармоиши нав нест";
+    return;
+  }
+  notifEmpty.classList.add("hidden");
+  notifListEl.classList.remove("hidden");
+  // Гуруҳбанди бар асоси рақами телефон — агар як корбар якчанд фармоиш
+  // (сабад) фиристода бошад, номаш дар руйхат якчанд бор такрор намеёбад;
+  // ҳамаи фармоишҳои у дар як корти ягона ҷамъ мешаванд ва тугмаи "..."
+  // амали тасдиқ/рад-ро ба ҳамаи онҳо якбора татбиқ мекунад.
+  const groupsMap = new Map();
+  entries.forEach(([id, o]) => {
+    const key = o.phone || ("__noPhone__:" + (o.name || id));
+    let g = groupsMap.get(key);
+    if(!g){
+      g = { ids: [], name: o.name, phone: o.phone, numbersCount: 0, latestCreatedAt: 0, roundName: o.roundName, dateTime: o.dateTime };
+      groupsMap.set(key, g);
+    }
+    g.ids.push(id);
+    g.numbersCount += (o.numbers || []).length;
+    const createdAt = o.createdAt || 0;
+    if(createdAt >= g.latestCreatedAt){
+      g.latestCreatedAt = createdAt;
+      g.name = o.name || g.name;
+      g.roundName = o.roundName;
+      g.dateTime = o.dateTime;
+    }
+  });
+  const groups = Array.from(groupsMap.values());
+  groups.sort((a,b) => b.latestCreatedAt - a.latestCreatedAt);
+  notifListEl.innerHTML = groups.map(g => {
+    const idsAttr = g.ids.join(",");
+    const reqPrefix = g.ids.length > 1 ? (g.ids.length + " фармоиш · ") : "";
+    return `
+    <div class="notif-item" data-ids="${idsAttr}">
+      <div>
+        <div class="notif-item-name">${escapeHtml(g.name || "—")}</div>
+        <div class="notif-item-phone">${escapeHtml(g.phone || "—")}</div>
+        <div class="notif-item-meta">${reqPrefix}${g.numbersCount} рақам · ${escapeHtml(g.roundName || "—")} · ${escapeHtml(g.dateTime || "—")}</div>
+      </div>
+      <button class="u-dots-btn" data-ids="${idsAttr}" title="Амалҳо">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+      </button>
+    </div>
+  `;
+  }).join("");
+  notifListEl.querySelectorAll(".u-dots-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const ids = btn.dataset.ids.split(",").filter(Boolean);
+      openOrderCtxMenu(ids, btn);
+    });
+  });
+}
+
+let playersLastCount = 0;
+function renderPlayersTable(data){
+  const source = data !== undefined ? data : ordersCache;
+  const allEntries = Object.entries(source || {}).filter(([, o]) => o.status === "approved");
+  const q = playersSearchQuery.trim().toLowerCase();
+  const entries = !q ? allEntries : allEntries.filter(([, o]) => {
+    const haystack = [o.name, o.phone].join(" ").toLowerCase();
+    return haystack.includes(q);
+  });
+  if(entries.length === 0){
+    playersTable.classList.add("hidden");
+    playersTableEmpty.classList.remove("hidden");
+    playersTableBody.innerHTML = "";
+    document.getElementById("playersTableEmptyText").textContent = q ? "Ҳеҷ бозингаре мувофиқи кофтуков ёфт нашуд" : "Ҳануз ҳеҷ бозингаре тасдиқ нашудааст";
+    return;
+  }
+  playersTableEmpty.classList.add("hidden");
+  playersTable.classList.remove("hidden");
+  // Кӯҳна -> нав: бозингари нав ҳамеша дар поёни руйхат меистад (1, 2, 3, 4, 5...).
+  entries.sort((a,b) =>
+    ((a[1].approvedAt||a[1].createdAt||0) - (b[1].approvedAt||b[1].createdAt||0)) ||
+    String(a[0]).localeCompare(String(b[0]))
+  );
+  playersTableBody.innerHTML = entries.map(([id, o], i) => `
+    <tr data-id="${id}" title="Дидани сабад">
+      <td class="u-idx">${i+1}</td>
+      <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
+      <td class="u-name">${escapeHtml(o.name || "—")}</td>
+      <td>${escapeHtml(o.phone || "—")}</td>
+      <td>${escapeHtml(o.roundName || "—")}</td>
+    </tr>
+  `).join("");
+  // Агар бозингари нав илова шуда бошад — ба поёни руйхат мегузарем, то намоён шавад.
+  if(!q && playersLastCount > 0 && entries.length > playersLastCount){
+    const lastRow = playersTableBody.lastElementChild;
+    if(lastRow && lastRow.scrollIntoView) lastRow.scrollIntoView({ block: "nearest" });
+  }
+  if(!q) playersLastCount = entries.length;
+  playersTableBody.querySelectorAll("tr[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const o = ordersCache[btn.dataset.id];
+      // Равзанаи руйхати бозингарон қасдан пушида намешавад — сабад дар болои
+      // он кушода мешавад ва пас аз пушидани сабад руйхат ҳамчунон боқи мемонад.
+      if(o) openUserCartModal(o.phone);
+    });
+  });
+}
+
+const REJECTED_CART_DISPLAY_MS = 10 * 1000; // 10 сония — мутобиқ ба сабади корбар дар index.html
+let currentOrderCartPhone = null;
+let currentOrderCartTotals = { count: 0, somon: 0, ruble: 0 };
+// Руйхати рақамҳои харидашуда (як фармоиши мушаххас), ки корбари админ дар
+// сабад клик карда интихоб кардааст — вақте интихоб шуда бошад, тугмаи
+// "Ресети рақамҳо" сурх мешавад ва танҳо ҳамин руйхат ресет мешавад.
+let selectedCartOrderId = null;
+
+function renderUserCartList(phone){
+  document.getElementById("orderCartUserPhone").textContent = phone || "—";
+  const now = Date.now();
+  const entries = Object.entries(ordersCache || {}).filter(([, o]) => {
+    if(!o || o.phone !== phone) return false;
+    if(o.status === "rejected"){
+      const rejectedAt = o.rejectedAt || o.createdAt || 0;
+      if(now - rejectedAt >= REJECTED_CART_DISPLAY_MS) return false;
+    }
+    return true;
+  });
+  entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+  document.getElementById("orderCartUserName").textContent = (entries[0] && entries[0][1].name) || "—";
+  let totalCount = 0, totalSomon = 0, totalRuble = 0;
+  entries.forEach(([, o]) => {
+    totalCount += (o.numbers || []).length;
+    totalSomon += (o.somon || 0);
+    totalRuble += (o.ruble || 0);
+  });
+  currentOrderCartTotals = { count: totalCount, somon: totalSomon, ruble: totalRuble };
+  const totalBadge = document.getElementById("orderCartTotalBadge");
+  if(totalCount > 0){
+    totalBadge.textContent = totalCount;
+    totalBadge.classList.add("show");
+  } else {
+    totalBadge.textContent = "";
+    totalBadge.classList.remove("show");
+  }
+  const listEl = document.getElementById("orderCartList");
+  // Пеш аз он ки рӯйхатро аз нав созем (ин ҳар сония рӯй медиҳад), мавқеи
+  // скроли ҳар як қатори рақамҳо (ва худи рӯйхатро) нигоҳ медорем, то
+  // навсозии худкор скролро ба ибтидо барнагардонад ва корбар тавонад
+  // рӯйхатро озодона ба чапу рост бикашад.
+  const savedListScrollTop = listEl.scrollTop;
+  const savedChipScrollLeft = {};
+  listEl.querySelectorAll(".order-cart-card").forEach(card => {
+    const oid = card.dataset.orderId;
+    const scrollEl = card.querySelector(".player-numbers-scroll");
+    if(oid && scrollEl) savedChipScrollLeft[oid] = scrollEl.scrollLeft;
+  });
+  if(entries.length === 0){
+    listEl.innerHTML = '<div class="order-cart-empty">Ин корбар ҳануз сабад надорад</div>';
+  } else {
+    listEl.innerHTML = entries.map(([oid, o]) => {
+      const status = o.status || "pending";
+      let badgeClass = "st-pending", badgeText = "Дар интизор";
+      let countdownHtml = "";
+      if(status === "approved"){ badgeClass = "st-approved"; badgeText = "Тасдиқшуда"; }
+      else if(status === "rejected"){
+        badgeClass = "st-rejected"; badgeText = "Радшуда";
+        const rejectedAt = o.rejectedAt || o.createdAt || 0;
+        const remainingSec = Math.max(0, 10 - Math.floor((now - rejectedAt) / 1000));
+        countdownHtml = `<div class="order-cart-reject-countdown" data-order-reject-countdown="${o.orderId || ''}">Нест мешавад пас аз ${remainingSec} сония</div>`;
+      }
+      return `
+        <div class="order-cart-card${selectedCartOrderId === oid ? " selected" : ""}" data-order-id="${oid}">
+          <div class="order-cart-card-head">
+            <span class="order-cart-card-round">Руйхати рақамҳои харидашуда</span>
+            <span class="order-cart-status-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="order-cart-row"><span class="order-cart-label">Давр</span><span class="order-cart-value">${escapeHtml(o.roundName || "—")} · ${escapeHtml(o.dateTime || fmtDate(o.createdAt))}</span></div>
+          <div class="order-cart-row"><span class="order-cart-label">Ном</span><span class="order-cart-value">${escapeHtml(o.name || "—")}</span></div>
+          <div class="order-cart-row"><span class="order-cart-label">Рақами телефон</span><span class="order-cart-value">${escapeHtml(o.phone || "—")}</span></div>
+          <div class="order-cart-row"><span class="order-cart-label">Нархи як рақам</span><span class="order-cart-value">${o.priceSomon != null ? o.priceSomon : Math.round((o.somon||0) / ((o.numbers || []).length || 1))} сомон / ${o.priceRuble != null ? o.priceRuble : Math.round((o.ruble||0) / ((o.numbers || []).length || 1))} рубл</span></div>
+          <div class="order-cart-row"><span class="order-cart-label">Шумораи рақамҳо</span><span class="order-cart-value">${(o.numbers || []).length} дона</span></div>
+          <div class="order-cart-row"><span class="order-cart-label">Нархи умуми</span><span class="order-cart-value">${(o.somon||0)} сомон / ${(o.ruble||0)} рубл</span></div>
+          <div class="order-cart-numbers player-numbers-scroll" style="max-width:100%;">${(o.numbers || []).map(n => `<span class="player-num-chip${status === "pending" ? " chip-pending" : status === "approved" ? " chip-approved" : ""}">${escapeHtml(String(n))}</span>`).join("")}</div>
+          <div class="order-cart-row"><span class="order-cart-label">Статус</span><span class="order-cart-status-badge ${badgeClass}">${badgeText}</span></div>
+          ${countdownHtml}
+          ${status === "pending" ? `
+          <div class="order-cart-actions-row" style="display:flex; gap:8px; margin-top:10px;">
+            <button type="button" class="btn btn-primary order-cart-approve-btn" data-order-id="${oid}" style="flex:1;">Иҷозат додан</button>
+            <button type="button" class="btn btn-danger order-cart-reject-btn" data-order-id="${oid}" style="flex:1;">Рад кардан</button>
+          </div>` : ""}
+        </div>
+      `;
+    }).join("");
+  }
+  // Мавқеи скролро, ки пеш аз навсозӣ нигоҳ дошта будем, баргардонед — то
+  // агар корбар айни ҳол дар ҳоли кашидани рӯйхат бошад, ин кор канда нашавад.
+  listEl.scrollTop = savedListScrollTop;
+  listEl.querySelectorAll(".order-cart-card").forEach(card => {
+    const oid = card.dataset.orderId;
+    const scrollEl = card.querySelector(".player-numbers-scroll");
+    if(oid && scrollEl && savedChipScrollLeft[oid] != null) scrollEl.scrollLeft = savedChipScrollLeft[oid];
+  });
+}
+
+function openUserCartModal(phone){
+  currentOrderCartPhone = phone || null;
+  selectedCartOrderId = null;
+  renderUserCartList(phone);
+  updateResetOneBtnState();
+  openModal("orderCartModal");
+}
+
+function updateResetOneBtnState(){
+  const resetBtn = orderCartDotsMenu.querySelector('button[data-act="resetOne"]');
+  if(resetBtn) resetBtn.classList.toggle("reset-selected", !!selectedCartOrderId);
+}
+
+document.getElementById("orderCartTotalBtn").addEventListener("click", () => {
+  document.getElementById("orderCartTotalCount").textContent = currentOrderCartTotals.count + " дона";
+  document.getElementById("orderCartTotalPrice").textContent = currentOrderCartTotals.somon + " сомон / " + currentOrderCartTotals.ruble + " рубл";
+  openModal("orderCartTotalModal");
+});
+
+// Клик дар худи корти "Руйхати рақамҳои харидашуда" — интихоб мекунад (ё аз
+// интихоб мебарорад), то тугмаи "Ресети рақамҳо" факат ба ҳамин руйхат
+// нигаронда шавад. Клик руи тугмаҳои Иҷозат/Рад ин интихобро иваз намекунад.
+document.getElementById("orderCartList").addEventListener("click", (e) => {
+  if(e.target.closest(".order-cart-approve-btn") || e.target.closest(".order-cart-reject-btn")) return;
+  const card = e.target.closest(".order-cart-card");
+  if(!card) return;
+  const oid = card.dataset.orderId;
+  if(!oid) return;
+  selectedCartOrderId = (selectedCartOrderId === oid) ? null : oid;
+  if(currentOrderCartPhone) renderUserCartList(currentOrderCartPhone);
+  updateResetOneBtnState();
+});
+
+document.getElementById("orderCartList").addEventListener("click", async (e) => {
+  const approveBtn = e.target.closest(".order-cart-approve-btn");
+  const rejectBtn = e.target.closest(".order-cart-reject-btn");
+  const btn = approveBtn || rejectBtn;
+  if(!btn) return;
+  const oid = btn.dataset.orderId;
+  if(!oid) return;
+  btn.disabled = true;
+  try{
+    if(approveBtn){
+      // Ҳимоя аз такрори рақам: агар ягон рақами ин фармоиш аллакай дар фармоиши дигари
+      // тасдиқшудаи ҳамин давр бошад, тасдиқ намешавад (то ғолиб дуӣ ё нодуруст набарояд).
+      const cur = ordersCache[oid] || {};
+      const mine = new Set((cur.numbers || []).map(Number));
+      const clash = [];
+      Object.entries(ordersCache || {}).forEach(([k, o]) => {
+        if(k === oid || !o || o.status !== "approved" || o.roundName !== cur.roundName) return;
+        (o.numbers || []).forEach(n => { if(mine.has(Number(n))) clash.push(Number(n)); });
+      });
+      if(clash.length){
+        showToast("Рақамҳои " + clash.slice(0,8).join(", ") + " аллакай дар фармоиши дигари тасдиқшуда ҳастанд. Тасдиқ нашуд.", "error", 6000);
+        btn.disabled = false;
+        return;
+      }
+      await update(ref(db, "orders/" + oid), { status: "approved", approvedAt: Date.now() });
+      showToast("Фармоиш тасдиқ карда шуд — рақамҳо сабз шуданд", "success");
+    } else {
+      await update(ref(db, "orders/" + oid), { status: "rejected", rejectedAt: Date.now() });
+      showToast("Фармоиш рад карда шуд", "error");
+    }
+    if(currentOrderCartPhone) renderUserCartList(currentOrderCartPhone);
+  } catch(err){
+    console.error(err);
+    showToast("Хатои иҷрои амал.", "error");
+    btn.disabled = false;
+  }
+});
+
+// Ҳар сония, агар равзанаи "Сабади корбар" кушода бошад, аз нав рендер мекунем,
+// то фармоишҳои радшуда мисли index.html пас аз 10 сония худкор нест шаванд.
+setInterval(() => {
+  const modalEl = document.getElementById("orderCartModal");
+  if(modalEl && !modalEl.classList.contains("hidden") && currentOrderCartPhone){
+    renderUserCartList(currentOrderCartPhone);
+  }
+}, 1000);
+
+/* ---------------- 3-нуқта дар равзанаи "Сабади корбар" (амалҳо барои ҳамин бозингари мушаххас) ---------------- */
+const orderCartDotsBtn = document.getElementById("orderCartDotsBtn");
+const orderCartDotsMenu = document.getElementById("orderCartDotsMenu");
+
+function openOrderCartDotsMenu(){
+  const rect = orderCartDotsBtn.getBoundingClientRect();
+  orderCartDotsMenu.classList.remove("hidden");
+  updateResetOneBtnState();
+  const menuW = 240;
+  let left = rect.right - menuW;
+  if(left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if(top + 170 > window.innerHeight) top = rect.top - 170;
+  orderCartDotsMenu.style.left = left + "px";
+  orderCartDotsMenu.style.top = top + "px";
+}
+function closeOrderCartDotsMenu(){
+  orderCartDotsMenu.classList.add("hidden");
+}
+orderCartDotsBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if(!orderCartDotsMenu.classList.contains("hidden")){
+    closeOrderCartDotsMenu();
+  } else {
+    openOrderCartDotsMenu();
+  }
+});
+document.addEventListener("click", (e) => {
+  if(!orderCartDotsMenu.classList.contains("hidden") && !orderCartDotsMenu.contains(e.target) && e.target !== orderCartDotsBtn){
+    closeOrderCartDotsMenu();
+  }
+});
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeOrderCartDotsMenu(); });
+
+// Аз руи рақами телефон, охирин фармоиши ин бозингарро (барои гирифтани userId
+// ва ном) дар ordersCache меёбем.
+function getLatestOrderByPhone(phone){
+  let latest = null;
+  Object.values(ordersCache || {}).forEach(o => {
+    if(o && o.phone === phone && (!latest || (o.createdAt || 0) >= (latest.createdAt || 0))) latest = o;
+  });
+  return latest;
+}
+
+orderCartDotsMenu.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if(!btn) return;
+  const act = btn.dataset.act;
+  closeOrderCartDotsMenu();
+  const phone = currentOrderCartPhone;
+  if(!phone) return;
+  const order = getLatestOrderByPhone(phone);
+  const uid = order && order.userId;
+  const name = order && order.name;
+  if(act === "resetOne"){
+    closeModal("orderCartModal");
+    openResetPlayerConfirm(phone, name, uid, selectedCartOrderId);
+  }
+});
+
+function openOrderCtxMenu(ids, anchorBtn){
+  ctxOrderIds = Array.isArray(ids) ? ids : [ids];
+  const rect = anchorBtn.getBoundingClientRect();
+  orderCtxMenu.classList.remove("hidden");
+  const menuW = 200;
+  let left = rect.right - menuW;
+  if(left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if(top + 210 > window.innerHeight) top = rect.top - 210;
+  orderCtxMenu.style.left = left + "px";
+  orderCtxMenu.style.top = top + "px";
+}
+function closeOrderCtxMenu(){
+  orderCtxMenu.classList.add("hidden");
+  ctxOrderIds = [];
+}
+document.addEventListener("click", (e) => {
+  if(!orderCtxMenu.classList.contains("hidden") && !orderCtxMenu.contains(e.target)){
+    closeOrderCtxMenu();
+  }
+});
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeOrderCtxMenu(); });
+
+orderCtxMenu.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if(!btn || !ctxOrderIds.length) return;
+  const act = btn.dataset.act;
+  const ids = ctxOrderIds;
+  // Барои амалҳои viewCart/message маълумоти намояндаги (ном/телефон)-ро аз
+  // фармоиши охирин (аз руи вақти сохта шудан) мегирем.
+  let o = ordersCache[ids[0]] || {};
+  ids.forEach(oid => {
+    const cand = ordersCache[oid];
+    if(cand && (cand.createdAt || 0) >= (o.createdAt || 0)) o = cand;
+  });
+  closeOrderCtxMenu();
+
+  if(act === "viewCart"){
+    openUserCartModal(o.phone);
+  }
+});
+
+if(notifBtnEl) notifBtnEl.addEventListener("click", () => {
+  notifBtnEl.classList.remove("has-alert");
+  clearTimeout(notifShakeTimer);
+  openModal("notifModal");
+});
+document.getElementById("usersBtn").addEventListener("click", () => {
+  openModal("playersModal");
+});
+
+/* ---------------- Live listeners (admin kill-switch + data) ---------------- */
+function attachLiveListeners(){
+  clearListeners();
+
+  const adminRef = ref(db, "admin/code");
+  const adminCb = (snap) => {
+    const saved = localStorage.getItem(LS_KEY);
+    if(!snap.exists()){
+      forceLogout("Рамзи админ аз система нест карда шуд.");
+    } else if(saved && snap.val() !== saved){
+      forceLogout("Рамзи админ иваз шуд. Лутфан аз нав ворид шавед.");
+    }
+  };
+  onValue(adminRef, adminCb);
+  activeListeners.push({ path: adminRef, cb: adminCb });
+
+  const roundRef = ref(db, "currentRound");
+  const roundCb = (snap) => renderRound(snap.exists() ? snap.val() : null);
+  onValue(roundRef, roundCb);
+  activeListeners.push({ path: roundRef, cb: roundCb });
+
+  const prizesRef = ref(db, "prizes");
+  const prizesCb = (snap) => {
+    const val = snap.exists() ? snap.val() : null;
+    renderPrizes(val);
+    renderPrizesList(val);
+  };
+  onValue(prizesRef, prizesCb);
+  activeListeners.push({ path: prizesRef, cb: prizesCb });
+
+  const usersRef = ref(db, "users");
+  const usersCb = (snap) => { usersCache = snap.exists() ? snap.val() : {}; };
+  onValue(usersRef, usersCb);
+  activeListeners.push({ path: usersRef, cb: usersCb });
+
+  // Огоҳии зангула: фармоишҳои нав аз сабади корбарон (index.html -> "Илова ба сабад")
+  let knownOrderIds = null; // null = ҳануз бор нашудааст (аввалин снапшот)
+  const ordersRef = ref(db, "orders");
+  const REJECTED_TTL_MS = 10 * 60 * 1000; // 10 дақиқа
+  function cleanupRejectedOrders(){
+    const now = Date.now();
+    Object.entries(ordersCache || {}).forEach(([id, o]) => {
+      if(o && o.status === "rejected"){
+        const rejectedAt = o.rejectedAt || o.createdAt || 0;
+        if(now - rejectedAt >= REJECTED_TTL_MS){
+          remove(ref(db, "orders/" + id)).catch(() => {});
+        }
+      }
+    });
+  }
+  const ordersCb = (snap) => {
+    const data = snap.val() || {};
+    ordersCache = data;
+    const ids = new Set(Object.keys(data));
+
+    if(knownOrderIds === null){
+      knownOrderIds = ids;
+    } else {
+      let hasNewPending = false;
+      ids.forEach(id => {
+        const st = data[id].status || "pending";
+        if(!knownOrderIds.has(id) && st === "pending") hasNewPending = true;
+      });
+      knownOrderIds = ids;
+      if(hasNewPending){
+        sound.newOrder();
+        triggerNotifShake();
+        showToast("Фармоиши нав дар сабад омад 🛒", "info");
+      }
+    }
+
+    updateNotifBadge();
+    renderNotifList(data);
+    renderPlayersTable(data);
+    applySoldBalls();
+    cleanupRejectedOrders();
+  };
+  onValue(ordersRef, ordersCb);
+  activeListeners.push({ path: ordersRef, cb: ordersCb });
+  setInterval(cleanupRejectedOrders, 30000);
+}
+
+/* ---------------- Numbers / rounds ---------------- */
+const ballGrid = document.getElementById("ballGrid");
+const numbersEmpty = document.getElementById("numbersEmpty");
+const roundBadgeRow = document.getElementById("roundBadgeRow");
+const stopTicketBadge = document.getElementById("stopTicketBadge");
+const waitTicketBadge = document.getElementById("waitTicketBadge");
+let currentAdminRoundName = "—";
+let currentAdminRoundCount = 0;
+let currentAdminPriceSomon = 10;
+let currentAdminPriceRuble = 100;
+
+/* ---------------- Матни нишонаи сурх/сабз (Стоп билет / Финал / Бози анҷом ёфт) ----------------
+   Ҳамон мантиқ, ки дар index.html истифода мешавад: тартиби афзалият —
+   1) бози воқеан анҷом ёфт (Firebase "gameEnded") → "Бози анҷом ёфт" (сурх, доими то ресет),
+   2) бози дар ҷараён аст (Firebase "liveGameStatus", аз finali-bozi.html) → "Финал" (сабз),
+   3) вагарна → "Стоп билет" (сурх, аз руи ҳолати сотиши рақамҳо, ниг. applySoldBalls). */
+let finalLiveActive = false;
+let finalGameTrulyEnded = false;
+function refreshStopTicketBadgeText(){
+  if(finalGameTrulyEnded){
+    stopTicketBadge.textContent = "Бози анҷом ёфт";
+    stopTicketBadge.classList.remove("final-live");
+    stopTicketBadge.classList.remove("hidden");
+  } else if(finalLiveActive){
+    stopTicketBadge.textContent = "Финал";
+    stopTicketBadge.classList.add("final-live");
+    stopTicketBadge.classList.remove("hidden");
+  } else {
+    stopTicketBadge.classList.remove("final-live");
+    // Бармегардем ба ҳолати аввала — матн ва намоёнии он аз руи
+    // ҳолати сотиши рақамҳо идора мешавад (ниг. applySoldBalls).
+    if(typeof applySoldBalls === "function") applySoldBalls();
+  }
+}
+onValue(ref(db, "liveGameStatus"), (snap) => {
+  const data = snap.exists() ? snap.val() : null;
+  finalLiveActive = !!(data && data.active);
+  refreshStopTicketBadgeText();
+});
+onValue(ref(db, "gameEnded"), (snap) => {
+  finalGameTrulyEnded = snap.exists() ? !!snap.val() : false;
+  refreshStopTicketBadgeText();
+});
+
+// Бадҷҳо: Давр / Шумораи умуми / Дархостшуда / Фурухта / Нафурухта (ё "Ҳама фурухта шуданд").
+function renderRoundBadges(soldCount, pendingCount){
+  const total = currentAdminRoundCount;
+  let html =
+    `<span class="badge">Давр: ${escapeHtml(currentAdminRoundName)}</span>` +
+    `<span class="badge">${total} рақам</span>`;
+  if(total > 0){
+    const unsold = Math.max(0, total - soldCount);
+    html += `<span class="badge">Нархи як рақам: ${currentAdminPriceSomon} сомон / ${currentAdminPriceRuble} рубл</span>`;
+    html += `<span class="badge badge-sold"><span class="badge-dot" style="background:#3fbf8f"></span>Фурухта: ${soldCount}</span>`;
+    html += (unsold === 0)
+      ? `<span class="badge sold-out-badge badge-unsold"><span class="badge-dot" style="background:#3fbf8f"></span>Ҳама рақамҳо фурухта шуданд</span>`
+      : `<span class="badge badge-unsold"><span class="badge-dot" style="background:var(--gold)"></span>Нафурухта: ${unsold}</span>`;
+  }
+  roundBadgeRow.innerHTML = html;
+}
+
+function applySoldBalls(){
+  if(!ballGrid) return;
+  const soldSet = new Set();
+  const pendingSet = new Set();
+  Object.values(ordersCache || {}).forEach(o => {
+    if(!o || o.roundName !== currentAdminRoundName || !Array.isArray(o.numbers)) return;
+    if(o.status === "approved"){
+      o.numbers.forEach(n => soldSet.add(String(n)));
+    } else if(!o.status || o.status === "pending"){
+      o.numbers.forEach(n => pendingSet.add(String(n)));
+    }
+  });
+  ballGrid.querySelectorAll(".ball").forEach(b => {
+    b.classList.toggle("sold", soldSet.has(b.textContent));
+    b.classList.toggle("pending", pendingSet.has(b.textContent));
+  });
+  const totalCount = ballGrid.querySelectorAll(".ball").length;
+  const soldCount = ballGrid.querySelectorAll(".ball.sold").length;
+  renderRoundBadges(soldCount, pendingSet.size);
+  const soldOut = totalCount > 0 && soldCount >= totalCount;
+  // Ҳолати "ҳамаи рақамҳо аллакай дархост шудаанд" — вақте ки ҳама рақамҳо
+  // қулф шудаанд (фурухта + дархостшуда), вале на ҳамаашон тасдиқ (фурухта)
+  // шудаанд. Дар ин ҳолат матни сабзи "чора бинед" нишон дода мешавад,
+  // на "Стоп билет"-и сурх.
+  const allRequested = totalCount > 0 && !soldOut && (soldCount + pendingSet.size) >= totalCount;
+  ballGrid.classList.toggle("sold-out", soldOut || allRequested);
+  if(!finalGameTrulyEnded && !finalLiveActive){
+    stopTicketBadge.textContent = "Стоп билет";
+    stopTicketBadge.classList.toggle("hidden", !soldOut);
+  }
+  // ЭЗОҲ: агар бози воқеан анҷом ёфта бошад ё дар finali-bozi.html дар
+  // ҷараён бошад, бадҷро ин ҷо намесозем — матнашро (ва рангашро) фақат
+  // refreshStopTicketBadgeText() идора мекунад, то ин ҷо ба "Стоп билет"
+  // барнагардад.
+  waitTicketBadge.classList.toggle("hidden", !allRequested);
+  if(typeof refreshAdminBuyUi === "function") refreshAdminBuyUi(soldOut || allRequested);
+}
+
+let numbersWerePresent = false;
+function renderRound(data){
+  const count = (data && typeof data.count === "number") ? data.count : 0;
+  const roundName = data ? (data.name || "—") : "—";
+  currentAdminRoundName = roundName;
+  currentAdminRoundCount = count;
+  currentAdminPriceSomon = (data && typeof data.priceSomon === "number") ? data.priceSomon : 10;
+  currentAdminPriceRuble = (data && typeof data.priceRuble === "number") ? data.priceRuble : 100;
+  if(!data || !count){
+    ballGrid.classList.add("hidden");
+    ballGrid.classList.remove("sold-out");
+    if(!finalGameTrulyEnded && !finalLiveActive){
+      stopTicketBadge.classList.add("hidden");
+    }
+    waitTicketBadge.classList.add("hidden");
+    numbersEmpty.classList.remove("hidden");
+    numbersWerePresent = false;
+    renderRoundBadges(0, 0);
+    if(typeof refreshAdminBuyUi === "function") refreshAdminBuyUi(true);
+    return;
+  }
+  numbersEmpty.classList.add("hidden");
+  ballGrid.classList.remove("hidden");
+  const frag = document.createDocumentFragment();
+  const STAGGER_CAP = 80;
+  for(let i = 1; i <= data.count; i++){
+    const b = document.createElement("div");
+    b.className = "ball";
+    b.textContent = i;
+    const delay = (i-1) < STAGGER_CAP ? ((i-1) * 0.025) : (STAGGER_CAP * 0.025);
+    b.style.animationDelay = delay + "s";
+    frag.appendChild(b);
+  }
+  ballGrid.innerHTML = "";
+  ballGrid.appendChild(frag);
+  // Садо танҳо ҳангоми пайдо шудани руйхати рақамҳо аз ҳолати холи мебарояд.
+  if(!numbersWerePresent) sound.numbersAppear();
+  numbersWerePresent = true;
+  applySoldBalls();
+}
+
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function updateNumbersSubmitState(){
+  const name = document.getElementById("roundNameInput").value.trim();
+  const somon = document.getElementById("priceSomonInput").value.trim();
+  const ruble = document.getElementById("priceRubleInput").value.trim();
+  const count = document.getElementById("roundCountInput").value.trim();
+  const filled = !!(name && somon && ruble && count);
+  document.getElementById("numbersSubmitBtn").disabled = !filled;
+}
+["roundNameInput","priceSomonInput","priceRubleInput","roundCountInput"].forEach(id => {
+  document.getElementById(id).addEventListener("input", updateNumbersSubmitState);
+});
+
+document.getElementById("openNumbersModalBtn").addEventListener("click", () => {
+  openModal("numbersModal");
+  updateNumbersSubmitState();
+});
+
+document.getElementById("numbersForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("roundNameInput").value.trim();
+  const count = parseInt(document.getElementById("roundCountInput").value, 10);
+  const priceSomon = parseFloat(document.getElementById("priceSomonInput").value);
+  const priceRuble = parseFloat(document.getElementById("priceRubleInput").value);
+  if(!name || !count || count < 1) return;
+  if(isNaN(priceSomon) || priceSomon < 0 || isNaN(priceRuble) || priceRuble < 0) return;
+  try{
+    await set(ref(db, "currentRound"), { name, count, priceSomon, priceRuble, createdAt: Date.now() });
+    closeModal("numbersModal");
+    document.getElementById("roundNameInput").value = "";
+    document.getElementById("priceSomonInput").value = "";
+    document.getElementById("priceRubleInput").value = "";
+    document.getElementById("roundCountInput").value = "";
+    updateNumbersSubmitState();
+    showToast(`Даври "${name}" бо ${count} рақам сохта шуд`, "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои сохтани рақамҳо. Танзимоти Firebase-ро санҷед.", "error");
+  }
+});
+
+let pendingClearTarget = "round";
+
+document.getElementById("clearListBtn").addEventListener("click", () => {
+  pendingClearTarget = "round";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+
+document.getElementById("clearPrizesBtn").addEventListener("click", () => {
+  pendingClearTarget = "prizes";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+
+document.getElementById("resetAllBtn").addEventListener("click", () => {
+  pendingClearTarget = "fullReset";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+
+/* ---------------- Историяи бозиҳо (аз "gameHistory" дар Firebase) ---------------- */
+const HISTORY_MONTHS_TG = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+function fmtGameHistoryDate(ts){
+  if(!ts) return "—";
+  const d = new Date(Number(ts));
+  const pad = n => String(n).padStart(2, "0");
+  return pad(d.getDate()) + " " + HISTORY_MONTHS_TG[d.getMonth()] + ", " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+function escapeHtmlGameHistory(str){
+  return String(str).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+}
+function renderGameHistoryList(data){
+  const body = document.getElementById("gameHistoryBody");
+  const empty = document.getElementById("gameHistoryEmpty");
+  const entries = Object.entries(data || {}).sort((a, b) => Number(b[0]) - Number(a[0]));
+  if(!entries.length){
+    body.classList.add("hidden");
+    empty.classList.remove("hidden");
+    body.innerHTML = "";
+    return;
+  }
+  empty.classList.add("hidden");
+  body.classList.remove("hidden");
+  body.innerHTML = entries.map(([id, entry]) => {
+    const winners = Array.isArray(entry.winners) ? entry.winners : [];
+    const winnersHtml = winners.length
+      ? winners.map(w => `
+          <div class="history-winner-row">
+            <span class="history-winner-num">${escapeHtmlGameHistory(w.number != null ? w.number : "—")}</span>
+            <span class="history-winner-name">${escapeHtmlGameHistory(w.name || "—")}</span>
+            <span class="history-winner-phone">${escapeHtmlGameHistory(w.phone || "—")}</span>
+            <span class="history-winner-prize">${escapeHtmlGameHistory(w.prize || "—")}</span>
+          </div>
+        `).join("")
+      : "";
+    return `
+      <div class="history-entry" data-id="${escapeHtmlGameHistory(id)}">
+        <div class="history-entry-head">
+          <span class="history-entry-round">${escapeHtmlGameHistory(entry.roundName || "—")}</span>
+          <span class="history-entry-date">${fmtGameHistoryDate(entry.endedAt)}</span>
+        </div>
+        <div class="history-entry-stats">${winners.length} ғолиб</div>
+        ${winnersHtml}
+      </div>
+    `;
+  }).join("");
+}
+let gameHistoryDataCache = {};
+onValue(ref(db, "gameHistory"), (snap) => {
+  gameHistoryDataCache = snap.exists() ? snap.val() : {};
+  renderGameHistoryList(gameHistoryDataCache);
+});
+
+document.getElementById("gameHistoryBtn").addEventListener("click", () => {
+  renderGameHistoryList(gameHistoryDataCache);
+  openModal("gameHistoryModal");
+});
+
+document.getElementById("clearGameHistoryBtn").addEventListener("click", () => {
+  pendingClearTarget = "gameHistory";
+  document.getElementById("confirmCodeInput").value = "";
+  openModal("confirmModal");
+});
+
+document.getElementById("confirmForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const code = document.getElementById("confirmCodeInput").value.trim();
+  if(!(await isAdminCode(code))){
+    showToast("Рамзи тасдиқ нодуруст аст", "error");
+    return;
+  }
+  try{
+    if(pendingClearTarget === "prizes"){
+      await remove(ref(db, "prizes"));
+      closeModal("confirmModal");
+      closeModal("prizesModal");
+      showToast("Руйхати призҳо пок карда шуд 🗑️", "success");
+    } else if(pendingClearTarget === "gameHistory"){
+      await remove(ref(db, "gameHistory"));
+      closeModal("confirmModal");
+      closeModal("gameHistoryModal");
+      showToast("Историяи бозиҳо пок карда шуд 🗑️", "success");
+    } else if(pendingClearTarget === "fullReset"){
+      // Ресети умуми бояд ҳам фармоишҳо, ҳам руйхати рақамҳои давраи ҷори,
+      // ҳам руйхати призҳоро пок кунад — вагарна паём "Ҳама чиз ба ҳолати
+      // аввала баргардонида шуд" дуруст намебуд, зеро руйхати рақамҳо
+      // (currentRound) ё призҳо (prizes) боқи мемонданд.
+      await remove(ref(db, "orders"));
+      await remove(ref(db, "currentRound"));
+      await remove(ref(db, "prizes"));
+      await remove(ref(db, "winners"));
+      await remove(ref(db, "resultsCleared"));
+      // МУҲИМ: "gameEnded"-ро низ мустақиман ин ҷо пок мекунем (на танҳо
+      // тавассути гуш кардани "gameReset" дар finali-bozi.html) — вагарна
+      // агар дар лаҳзаи ресет саҳифаи "Финали бози" кушода набошад, ҳеҷ кас
+      // "gameEnded"-ро ба false намеовард ва матни сурхи "Бози анҷом ёфт"
+      // дар index.html то абад (ҳатто баъд аз ресет) боқи мемонд.
+      await remove(ref(db, "gameEnded"));
+      // Ба финали бози (экрани зинда) хабар медиҳем, ки ресети умуми руй
+      // дод — он бо ин тамға руйхати ғолибони маҳаллии худро пок мекунад
+      // ва ба ҳолати пеш аз саршави бармегардад (нигар finali-bozi.html).
+      await set(ref(db, "gameReset"), Date.now());
+      closeModal("confirmModal");
+      closeModal("numbersModal");
+      closeModal("notifModal");
+      closeModal("playersModal");
+      showToast("Ҳама чиз ба ҳолати аввала баргардонида шуд 🔄", "success");
+    } else {
+      await remove(ref(db, "currentRound"));
+      closeModal("confirmModal");
+      closeModal("numbersModal");
+      showToast("Руйхати рақамҳо пок карда шуд 🗑️", "success");
+    }
+  } catch(err){
+    console.error(err);
+    showToast("Хатои пок кардани руйхат.", "error");
+  }
+});
+
+/* ---------------- Prizes ---------------- */
+const prizesGrid = document.getElementById("prizesGrid");
+const prizesBox = document.getElementById("prizesBox");
+const prizesEmpty = document.getElementById("prizesEmpty");
+const prizeCountBadge = document.getElementById("prizeCountBadge");
+
+let prizesWerePresent = false;
+function renderPrizes(data){
+  const entries = data ? Object.entries(data) : [];
+  const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
+  prizeCountBadge.textContent = `${totalQty} приз${totalQty===1?"":"ҳо"}`;
+  if(entries.length === 0){
+    prizesWerePresent = false;
+    prizesGrid.classList.add("hidden");
+    prizesEmpty.classList.remove("hidden");
+    prizesGrid.innerHTML = "";
+    return;
+  }
+  prizesEmpty.classList.add("hidden");
+  prizesGrid.classList.remove("hidden");
+  // Садо танҳо ҳангоми пайдо шудани призҳо аз ҳолати холи мебарояд, на ҳар бор
+  // ки маълумот бо тағйироти хурд (масалан миқдор) нав мешавад.
+  if(!prizesWerePresent) sound.prizesAppear();
+  prizesWerePresent = true;
+  entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+
+  prizesGrid.innerHTML = entries.map(([id, p], idx) => `
+    <div class="prize-card" data-id="${id}" style="animation-delay:${idx * 0.07}s">
+      <button class="prize-del" data-id="${id}" title="Нест кардан">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="trophy-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 5H3v2a4 4 0 004 4M17 5h4v2a4 4 0 01-4 4"/></svg>
+      </div>
+      <h4>${escapeHtml(p.name || "—")}</h4>
+      <div class="qty-block">
+        <span class="qty-label">Миқдор</span>
+        <span class="qty-num">${p.qty ?? 1}</span>
+      </div>
+    </div>
+  `).join("");
+
+  prizesGrid.querySelectorAll(".prize-del").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try{
+        await remove(ref(db, "prizes/" + btn.dataset.id));
+        showToast("Приз нест карда шуд", "success");
+      } catch(err){
+        console.error(err);
+        showToast("Хатои нест кардани приз.", "error");
+      }
+    });
+  });
+
+  let prizeRevertTimer = null;
+  prizesGrid.querySelectorAll(".prize-card").forEach(card => {
+    card.addEventListener("click", () => {
+      clearTimeout(prizeRevertTimer);
+      prizesGrid.querySelectorAll(".prize-card.active").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      prizeRevertTimer = setTimeout(() => {
+        card.classList.remove("active");
+      }, 2000);
+    });
+  });
+}
+
+/* ---------------- Руйхати призҳо (модали "Руйхати призҳо") ---------------- */
+const prizesListItems = document.getElementById("prizesListItems");
+const prizesListEmpty = document.getElementById("prizesListEmpty");
+
+function renderPrizesList(data){
+  const entries = data ? Object.entries(data) : [];
+  if(entries.length === 0){
+    prizesListItems.classList.add("hidden");
+    prizesListEmpty.classList.remove("hidden");
+    prizesListItems.innerHTML = "";
+    return;
+  }
+  prizesListEmpty.classList.add("hidden");
+  prizesListItems.classList.remove("hidden");
+
+  // Якчоя кардани призҳои ҳамномро дар як сатр — агар як приз якчанд бор
+  // алоҳида илова шуда бошад (мас. "500 рубл" се маротиба), инҳо бояд ба
+  // ҳам ҷамъ шуда, миқдори умумиашон дар ЯК сатр нишон дода шаванд, на
+  // ҳар кадом алоҳида-алоҳида.
+  const grouped = new Map();
+  entries.forEach(([id, p]) => {
+    const key = (p.name || "—").trim().toLowerCase();
+    const qty = Number(p.qty) || 0;
+    if(grouped.has(key)){
+      const g = grouped.get(key);
+      g.qty += qty;
+      g.createdAt = Math.min(g.createdAt, p.createdAt || 0);
+    } else {
+      grouped.set(key, { name: p.name || "—", qty, createdAt: p.createdAt || 0 });
+    }
+  });
+  const merged = Array.from(grouped.values()).sort((a,b) => a.createdAt - b.createdAt);
+
+  prizesListItems.innerHTML = merged.map(p => `
+    <div class="prize-list-row">
+      <span class="prize-list-name">${escapeHtml(p.name)}</span>
+      <span class="prize-list-qty">${p.qty}<span>дона</span></span>
+    </div>
+  `).join("");
+}
+
+document.getElementById("prizesListBtn").addEventListener("click", () => openModal("prizesListModal"));
+
+document.getElementById("openPrizesModalBtn").addEventListener("click", () => openModal("prizesModal"));
+
+document.getElementById("prizeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("prizeNameInput").value.trim();
+  const qty = parseInt(document.getElementById("prizeQtyInput").value, 10);
+  if(!name || !qty) return;
+  try{
+    await push(ref(db, "prizes"), { name, qty, createdAt: Date.now() });
+    closeModal("prizesModal");
+    document.getElementById("prizeForm").reset();
+    showToast(`Приз "${name}" илова шуд`, "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои илова кардани приз. Танзимоти Firebase-ро санҷед.", "error");
+  }
+});
+
+/* ---------------- Boot ---------------- */
+(async function boot(){
+  try{
+    const saved = localStorage.getItem(LS_KEY);
+    const snap = await get(ref(db, "admin/code"));
+    if(saved && snap.exists() && snap.val() === saved){
+      showDashboard();
+    } else {
+      if(saved) localStorage.removeItem(LS_KEY);
+      if(!snap.exists()){
+        loginHint.textContent = "Ҳануз рамзи админ таъин нашудааст — рамзе, ки аввал ворид кунед, ҳамчун рамзи админ сабт мешавад.";
+      }
+      showLogin();
+    }
+  } catch(err){
+    console.error(err);
+    showLogin("Хатои пайваст ба Firebase. Танзимоти шабакаро санҷед.");
+  }
+})();
+
+/* ---------------- Internet connectivity check ---------------- */
+const connOverlay = document.getElementById("connOverlay");
+const connTitle = document.getElementById("connTitle");
+const connSub = document.getElementById("connSub");
+const appRoot = document.getElementById("appRoot");
+
+const SLOW_THRESHOLD_MS = 2000;
+const CHECK_INTERVAL_MS = 2500;
+const PING_URL = "https://www.gstatic.com/generate_204?t=";
+
+let connState = "online"; // online | slow | offline
+let checkInFlight = false;
+
+function setConnState(state){
+  if(connState === state) return;
+  connState = state;
+  if(state === "offline"){
+    connTitle.textContent = "Интернет қатъ шуд";
+    connSub.textContent = "Пайвастаги бо интернет қатъ шуд. Лутфан пайвастагии худро санҷед.";
+    connOverlay.classList.add("show");
+    appRoot.classList.add("conn-blur");
+  } else if(state === "slow"){
+    connTitle.textContent = "Интернети шумо суст аст";
+    connSub.textContent = "Лутфан интизор шавед, пайвастаги дар ҳоли барқарор шудан аст...";
+    connOverlay.classList.add("show");
+    appRoot.classList.add("conn-blur");
+  } else {
+    connOverlay.classList.remove("show");
+    appRoot.classList.remove("conn-blur");
+  }
+}
+
+async function checkConnection(){
+  if(checkInFlight) return;
+  checkInFlight = true;
+  if(!navigator.onLine){
+    setConnState("offline");
+    checkInFlight = false;
+    return;
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SLOW_THRESHOLD_MS);
+  const started = performance.now();
+  try{
+    await fetch(PING_URL + Date.now(), { mode:"no-cors", cache:"no-store", signal: controller.signal });
+    const elapsed = performance.now() - started;
+    clearTimeout(timeoutId);
+    setConnState(elapsed > SLOW_THRESHOLD_MS ? "slow" : "online");
+  } catch(err){
+    clearTimeout(timeoutId);
+    setConnState(navigator.onLine ? "slow" : "offline");
+  } finally {
+    checkInFlight = false;
+  }
+}
+
+window.addEventListener("online", checkConnection);
+window.addEventListener("offline", () => setConnState("offline"));
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") checkConnection(); });
+checkConnection();
+setInterval(checkConnection, CHECK_INTERVAL_MS);
+
+/* ============================================================
+   ХАРИДИ РАҚАМҲО АЗ УТОҚИ АДМИН (ҳамон мантиқи index.html)
+   Бозгашт / Харидани рақам (2 клик) / Ба қайд гирифтан + Корзина.
+   Фармоишҳои админ ба ҳамон "orders" дар Firebase сабт мешаванд ва
+   бо статуси "approved" фавран ба руйхати бозингарон ва финали бози мераванд.
+   ============================================================ */
+const ADMIN_ORDER_USER_ID = "qura-admin";
+const resetNumbersBtn = document.getElementById("resetNumbersBtn");
+const buyNumberBtn = document.getElementById("buyNumberBtn");
+const buyNumberBtnLabel = document.getElementById("buyNumberBtnLabel");
+const registerNumbersBtn = document.getElementById("registerNumbersBtn");
+const registerCountBadge = document.getElementById("registerCountBadge");
+const adminCartBtn = document.getElementById("adminCartBtn");
+const adminCartBadge = document.getElementById("adminCartBadge");
+const adminCartList = document.getElementById("adminCartList");
+const registerNameInput = document.getElementById("registerNameInput");
+const registerPhoneInput = document.getElementById("registerPhoneInput");
+const addToCartBtn = document.getElementById("addToCartBtn");
+const numbersPanel = ballGrid.closest(".panel");
+let numbersPurchaseEnabled = false;
+
+function selectedBalls(){ return Array.from(ballGrid.querySelectorAll(".ball.selected")); }
+
+function updateRegisterBadge(){
+  const count = selectedBalls().length;
+  if(count > 0){
+    registerCountBadge.textContent = count;
+    registerCountBadge.classList.add("show");
+  } else {
+    registerCountBadge.classList.remove("show");
+  }
+}
+function clearNumberSelection(){
+  ballGrid.querySelectorAll(".ball.selected").forEach(b => b.classList.remove("selected"));
+  updateRegisterBadge();
+}
+function stopPurchaseMode(){
+  numbersPurchaseEnabled = false;
+  ballGrid.classList.remove("selectable");
+  buyNumberBtn.classList.remove("active");
+  numbersPanel.classList.remove("buying");
+  buyNumberBtnLabel.textContent = "Харидани рақам";
+}
+
+// Аз applySoldBalls() ҳар дафъа, ки фармоишҳо тағйир мекунанд, садо мезанад.
+function refreshAdminBuyUi(blocked){
+  // Рақамҳои фурухта/банд шуда аз интихоб хориҷ мешаванд.
+  ballGrid.querySelectorAll(".ball.selected").forEach(b => {
+    if(b.classList.contains("sold") || b.classList.contains("pending")) b.classList.remove("selected");
+  });
+  updateRegisterBadge();
+  if(!selectedBalls().length){
+    registerNumbersBtn.classList.remove("active-green");
+    registerCountBadge.classList.remove("confirmed");
+  }
+  const noNumbers = ballGrid.classList.contains("hidden") || !ballGrid.querySelector(".ball");
+  [resetNumbersBtn, buyNumberBtn, registerNumbersBtn].forEach(b => b.classList.toggle("disabled", !!blocked || noNumbers));
+  if((blocked || noNumbers) && numbersPurchaseEnabled) stopPurchaseMode();
+  refreshAdminCart();
+}
+
+resetNumbersBtn.addEventListener("click", () => {
+  sound.reset();
+  clearNumberSelection();
+  registerNumbersBtn.classList.remove("active-green");
+  registerCountBadge.classList.remove("confirmed");
+});
+
+buyNumberBtn.addEventListener("click", () => {
+  if(ballGrid.classList.contains("sold-out")) return;
+  if(!ballGrid.querySelector(".ball")) return;
+  if(!numbersPurchaseEnabled){
+    // Клики 1: интихоби рақамҳо кушода мешавад, тугма ва рамка сурх мешаванд
+    numbersPurchaseEnabled = true;
+    ballGrid.classList.add("selectable");
+    buyNumberBtn.classList.add("active");
+    numbersPanel.classList.add("buying");
+    buyNumberBtnLabel.textContent = "Анҷом додани харид";
+    registerNumbersBtn.classList.remove("active-green");
+    registerCountBadge.classList.remove("confirmed");
+    updateRegisterBadge();
+    sound.activate();
+  } else {
+    // Клики 2: харид анҷом меёбад, интихоби минбаъда манъ мешавад
+    const hasSelection = selectedBalls().length > 0;
+    stopPurchaseMode();
+    if(hasSelection){
+      registerNumbersBtn.classList.add("active-green");
+      registerCountBadge.classList.add("confirmed");
+    }
+    sound.confirm();
+  }
+});
+
+ballGrid.addEventListener("click", (e) => {
+  if(!numbersPurchaseEnabled) return;
+  const ball = e.target.closest(".ball");
+  if(!ball) return;
+  if(ball.classList.contains("sold") || ball.classList.contains("pending")) return;
+  ball.classList.toggle("selected");
+  ball.classList.contains("selected") ? sound.select() : sound.deselect();
+  updateRegisterBadge();
+});
+
+function openRegisterModal(){
+  registerNameInput.value = "";
+  registerPhoneInput.value = "";
+  const chips = selectedBalls();
+  document.getElementById("selectedNumbersList").innerHTML =
+    chips.map(b => '<div class="sel-num-circle">' + escapeHtml(b.textContent) + '</div>').join("");
+  document.getElementById("numbersCountValue").textContent = chips.length + " дона";
+  document.getElementById("totalAmountValue").textContent =
+    (chips.length * currentAdminPriceSomon) + " сомон / " + (chips.length * currentAdminPriceRuble) + " рубл";
+  openModal("registerModal");
+}
+registerNumbersBtn.addEventListener("click", () => {
+  sound.register();
+  if(registerNumbersBtn.classList.contains("active-green")) openRegisterModal();
+});
+
+addToCartBtn.addEventListener("click", async () => {
+  const chips = selectedBalls();
+  if(!chips.length) return;
+  const name = registerNameInput.value.trim();
+  const phone = registerPhoneInput.value.trim();
+  if(!name || !phone){
+    sound.error();
+    [registerNameInput, registerPhoneInput].forEach(inp => {
+      if(!inp.value.trim()){
+        inp.style.borderColor = "var(--crimson)";
+        setTimeout(() => { inp.style.borderColor = ""; }, 1500);
+      }
+    });
+    return;
+  }
+  addToCartBtn.disabled = true;
+  try{
+    // Санҷиши охирин бевосита аз Firebase (ҳимоя аз такрори рақам)
+    let fresh = ordersCache;
+    try{
+      const snap = await get(ref(db, "orders"));
+      fresh = snap.exists() ? snap.val() : {};
+    } catch(err){ console.error(err); }
+    const taken = new Set();
+    Object.values(fresh || {}).forEach(o => {
+      if(o && (o.status === "pending" || o.status === "approved" || !o.status) && o.roundName === currentAdminRoundName && Array.isArray(o.numbers)){
+        o.numbers.forEach(n => taken.add(String(n)));
+      }
+    });
+    const conflict = [], ok = [];
+    chips.forEach(b => {
+      if(taken.has(b.textContent)){ conflict.push(b.textContent); b.classList.remove("selected"); }
+      else ok.push(b.textContent);
+    });
+    if(conflict.length){
+      sound.error();
+      showToast("Рақамҳои " + conflict.slice(0,8).join(", ") + " аллакай гирифта шудаанд.", "error", 5000);
+    }
+    if(ok.length){
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("tg-TJ");
+      const timeStr = now.toLocaleTimeString("tg-TJ", { hour:"2-digit", minute:"2-digit" });
+      const orderRef = push(ref(db, "orders"));
+      await set(orderRef, {
+        userId: ADMIN_ORDER_USER_ID,
+        source: "admin",
+        name, phone,
+        numbers: ok,
+        somon: ok.length * currentAdminPriceSomon,
+        ruble: ok.length * currentAdminPriceRuble,
+        priceSomon: currentAdminPriceSomon,
+        priceRuble: currentAdminPriceRuble,
+        roundName: currentAdminRoundName,
+        dateTime: dateStr + " " + timeStr,
+        status: "approved",
+        approvedAt: Date.now(),
+        createdAt: Date.now()
+      });
+      sound.cartAdded();
+      showToast("Рақамҳо сабт шуданд ва ба финал рафтанд ✅", "success");
+    }
+    ballGrid.querySelectorAll(".ball.selected").forEach(b => b.classList.remove("selected"));
+    updateRegisterBadge();
+    registerNumbersBtn.classList.remove("active-green");
+    registerCountBadge.classList.remove("confirmed");
+    closeModal("registerModal");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои сабти рақамҳо.", "error");
+  } finally {
+    addToCartBtn.disabled = false;
+  }
+});
+
+/* ---------- Корзинаи админ ---------- */
+function adminOrderEntries(){
+  return Object.entries(ordersCache || {})
+    .filter(([, o]) => o && o.source === "admin")
+    .sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+}
+function refreshAdminCart(){
+  const entries = adminOrderEntries();
+  const total = entries.reduce((n, [, o]) => n + (o.numbers || []).length, 0);
+  if(total > 0){ adminCartBadge.textContent = total > 99 ? "99+" : total; adminCartBadge.classList.add("show"); }
+  else { adminCartBadge.textContent = ""; adminCartBadge.classList.remove("show"); }
+  if(!document.getElementById("adminCartModal").classList.contains("hidden")) renderAdminCart();
+}
+let adminCartLastOid = null;
+function scrollAdminCartToBottom(){
+  const go = () => { adminCartList.scrollTop = adminCartList.scrollHeight; };
+  go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 350);
+}
+/* Охирин корти корзинаро 3 маротиба бо рамкаи сурх милт мезанонад ва ба поён скролл мекунад */
+function blinkLastAdminCartCard(){
+  const cards = adminCartList.querySelectorAll(".order-cart-card");
+  if(!cards.length) return;
+  const last = cards[cards.length - 1];
+  last.classList.remove("acart-new");
+  void last.offsetWidth; // restart animation
+  last.classList.add("acart-new");
+  scrollAdminCartToBottom();
+}
+function renderAdminCart(){
+  const entries = adminOrderEntries();
+  if(!entries.length){
+    adminCartLastOid = null;
+    adminCartList.innerHTML = '<div class="order-cart-empty" style="text-align:center;color:var(--text-muted);padding:26px 8px;">Корзина холи аст</div>';
+    return;
+  }
+  const lastOid = entries[entries.length - 1][0];
+  const isNewLast = adminCartLastOid !== null && adminCartLastOid !== lastOid;
+  adminCartLastOid = lastOid;
+  const eye = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const trash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
+  adminCartList.innerHTML = entries.map(([oid, o]) => {
+    const n = (o.numbers || []);
+    const one = o.priceSomon != null ? o.priceSomon : Math.round((o.somon||0) / (n.length || 1));
+    const oneR = o.priceRuble != null ? o.priceRuble : Math.round((o.ruble||0) / (n.length || 1));
+    return '<div class="order-cart-card" data-oid="' + oid + '" style="cursor:default;">' +
+      '<div class="order-cart-card-head"><span class="order-cart-card-round">Руйхати рақамҳои харидашуда</span>' +
+      '<div class="acart-actions"><button class="acart-eye" data-oid="' + oid + '" title="Намоиш">' + eye + '</button><button class="acart-del" data-oid="' + oid + '" title="Нест кардани ин фармоиш">' + trash + '</button></div></div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Давр</span><span class="order-cart-value">' + escapeHtml(o.roundName || "—") + ' · ' + escapeHtml(o.dateTime || fmtDate(o.createdAt)) + '</span></div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Ном</span><span class="order-cart-value">' + escapeHtml(o.name || "—") + '</span></div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Рақами телефон</span><span class="order-cart-value">' + escapeHtml(o.phone || "—") + '</span></div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Нархи як рақам</span><span class="order-cart-value">' + one + ' сомон / ' + oneR + ' рубл</span></div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Шумораи рақамҳо</span><span class="order-cart-value">' + n.length + ' дона</span></div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Нархи умуми</span><span class="order-cart-value">' + (o.somon||0) + ' сомон / ' + (o.ruble||0) + ' рубл</span></div>' +
+      '<div class="order-cart-numbers player-numbers-scroll" style="max-width:100%;">' + n.map(x => '<span class="player-num-chip chip-approved">' + escapeHtml(String(x)) + '</span>').join("") + '</div>' +
+      '<div class="order-cart-row"><span class="order-cart-label">Статус</span><span class="order-cart-status-badge st-approved">Успешно</span></div>' +
+    '</div>';
+  }).join("");
+  if(isNewLast) blinkLastAdminCartCard();
+}
+adminCartBtn.addEventListener("click", () => {
+  renderAdminCart();
+  openModal("adminCartModal");
+  blinkLastAdminCartCard();
+});
+adminCartList.addEventListener("click", async (e) => {
+  const eyeBtn = e.target.closest(".acart-eye");
+  if(eyeBtn){
+    const o = (ordersCache || {})[eyeBtn.dataset.oid];
+    if(!o) return;
+    document.getElementById("eyeViewNameTh").textContent = (o.numbers || []).length === 1 ? "Номи билет" : "Номи билетхо";
+    document.getElementById("eyeViewBody").innerHTML =
+      '<tr><td class="ev-nums"><div class="eyeview-nums">' +
+      (o.numbers || []).map(x => '<span class="eyeview-circle">' + escapeHtml(String(x)) + '</span>').join("") +
+      '</div></td><td>' + escapeHtml(o.name || "—") + '</td><td>' + escapeHtml(o.phone || "—") +
+      '</td><td class="ev-round">' + escapeHtml(o.roundName || "—") + '</td></tr>';
+    openModal("eyeViewModal");
+    return;
+  }
+  const del = e.target.closest(".acart-del");
+  if(!del) return;
+  if(!(await confirmDangerous("Ин фармоишро нест кунам? Рақамҳояш барои фурӯш дубора кушода мешаванд."))) return;
+  try{
+    await remove(ref(db, "orders/" + del.dataset.oid));
+    showToast("Фармоиш нест карда шуд", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои нест кардани фармоиш.", "error");
+  }
+});
+
+</script>
+</body>
+</html>
