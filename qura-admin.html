@@ -214,12 +214,12 @@
   .brand-mark.sm{ width:42px; height:42px; flex-shrink:0; }
   .brand-mark.sm svg{ width:20px; height:20px; }
   .brand-text{ min-width:0; overflow:hidden; }
-  .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text h1{ font-size:1.1rem; margin:0; line-height:1.1; color:var(--gold-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .brand-text span{ font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
   .top-actions{
     display:flex; align-items:center; gap:8px; flex-shrink:1; min-width:0;
-    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
-    padding:5px 8px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    background:none; border:none; border-radius:0;
+    padding:8px 4px 4px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
     flex-wrap:nowrap; scrollbar-width:thin;
   }
   .top-actions::-webkit-scrollbar{ height:5px; }
@@ -335,6 +335,8 @@
   .action-icon.gold{ background:rgba(232,184,75,0.14); color:var(--gold); }
   .action-icon.emerald{ background:rgba(63,191,143,0.14); color:var(--emerald); }
   .action-icon svg{ width:26px; height:26px; }
+  /* Тугмаи "Сохтани призҳо": нишона ва матн дар тарафи рости тугма */
+  #openPrizesModalBtn{ justify-content:flex-start; flex-direction:row-reverse; }
   .action-card h3{ font-size:1rem; margin:0 0 4px; color:var(--text); }
   .action-card p{ font-size:0.8rem; color:var(--text-muted); margin:0; }
 
@@ -425,10 +427,10 @@
   .history-winner-prize{ flex-shrink:0; font-size:0.72rem; color:var(--gold-2); white-space:nowrap; }
 
   .ball-grid{
-    --ball-size:38px;
-    display:grid; grid-template-rows:repeat(5, var(--ball-size));
+    --ball-size:clamp(54px, 7vh, 72px);
+    display:grid; grid-template-rows:repeat(4, var(--ball-size));
     grid-auto-flow:column; grid-auto-columns:var(--ball-size);
-    gap:8px;
+    gap:10px;
     overflow-x:auto; overflow-y:hidden;
     padding:6px 4px 12px; width:100%;
   }
@@ -436,7 +438,7 @@
     width:var(--ball-size); height:var(--ball-size); border-radius:50%;
     background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
     color:#1b1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:0.02em;
+    font-family:'Bebas Neue', sans-serif; font-size:calc(var(--ball-size) * .5); font-weight:700; letter-spacing:0.02em;
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
     position:relative; transform:scale(0); opacity:0;
     animation:rollIn 0.45s cubic-bezier(.2,.9,.3,1.3) forwards;
@@ -464,6 +466,15 @@
     background:var(--bg-2); padding:14px 10px;
     position:relative;
   }
+  /* Кутии призҳо: дар тарафи рост як рамкаи собит (айнан мисли финали бози) */
+  #prizesBox{ --pf-w:clamp(110px, 16vw, 330px); }
+  #prizesBox #prizesGrid, #prizesBox #prizesEmpty{ margin-right:calc(var(--pf-w) + 12px); }
+  .prizes-right-frame{
+    position:absolute; top:6px; bottom:6px; right:10px; width:var(--pf-w);
+    background:#fff; border:4px solid #000; border-radius:8px; box-sizing:border-box;
+    pointer-events:none;
+  }
+
   .prizes-grid{
     display:flex; flex-wrap:nowrap; gap:14px;
     overflow-x:auto; overflow-y:hidden;
@@ -661,8 +672,8 @@
     header.topbar{ flex-wrap:nowrap; padding:12px 14px; gap:8px; }
     .brand{ gap:8px; flex-shrink:0; }
     .brand-text span{ font-size:0.62rem; }
-    .top-actions{ gap:5px; padding:4px 6px; }
-    .ball-grid{ --ball-size:32px; }
+    .top-actions{ gap:5px; padding:8px 4px 4px; }
+    .ball-grid{ --ball-size:46px; gap:8px; }
     #dashboard{ padding:14px 12px 50px; }
     .panel{ padding:16px 12px; }
     .prizes-box{ padding:10px 6px; }
@@ -851,6 +862,90 @@
   #playersModal .modal-head h3{ color:#000 !important; font-size:1rem !important; font-weight:800 !important; }
   #playersModal .modal-head-actions{ display:flex; align-items:center; gap:8px; }
   #playersTable tbody tr{ cursor:pointer; }
+  .eyeview-head-actions{ display:flex; align-items:center; gap:10px; }
+  .eyeview-crop-btn{ height:30px; padding:0 12px; border-radius:8px; border:none; background:var(--surface-2); color:var(--text); cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:700; font-size:.8rem; font-family:inherit; }
+  .eyeview-crop-btn svg{ width:15px; height:15px; }
+  .eyeview-crop-btn:hover{ background:#3ddc84; color:#111; }
+  .eyeview-crop-btn:disabled{ opacity:.6; cursor:wait; }
+  /* Тугмаи "Захира кардан ба файл (Word)" дар "Руйхати бозингарон" — мисли финали бозӣ */
+  #playersModal .modal-head-actions{ display:flex; align-items:center; gap:8px; }
+  #playersSaveWordBtn{
+    width:40px !important; height:40px !important; min-width:0 !important; padding:0 !important;
+    border-radius:999px !important; background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    display:flex !important; align-items:center; justify-content:center; cursor:pointer;
+  }
+  #playersSaveWordBtn:hover{ background:#eee !important; }
+  #playersSaveWordBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+
+  /* Тугмаҳои сарлавҳа: калон ва алоҳида-алоҳида, дар дохили рамкаи сарлавҳа */
+  .top-actions{ gap:18px; padding:8px 6px 6px; }
+  .top-actions .icon-group{ gap:18px; height:auto; }
+  .top-actions .icon-group-sep{ display:none; }
+  .top-actions .icon-btn, .top-actions .icon-group .icon-btn{ width:64px; height:64px; border-radius:16px; }
+  .top-actions .icon-btn svg{ width:30px; height:30px; }
+  @media (max-width:640px){
+    .top-actions{ gap:8px; }
+    .top-actions .icon-group{ gap:8px; }
+    .top-actions .icon-btn, .top-actions .icon-group .icon-btn{ width:46px; height:46px; }
+    .top-actions .icon-btn svg{ width:22px; height:22px; }
+  }
+
+  /* Равзанаи "Илова кардани приз" — калонтар */
+  #prizesModal .modal{ max-width:680px; padding:40px; }
+  #prizesModal .modal-head{ margin-bottom:30px; }
+  #prizesModal .modal-head h3{ font-size:1.6rem; }
+  #prizesModal .modal-close{ width:44px; height:44px; border-radius:12px; }
+  #prizesModal .modal-close svg{ width:22px; height:22px; }
+  #prizesModal .field{ margin-bottom:24px; }
+  #prizesModal .field label{ font-size:1.05rem; margin-bottom:10px; }
+  #prizesModal .field input{ padding:20px 22px; font-size:1.25rem; border-radius:14px; }
+  #prizesModal .btn{ padding:20px 24px; font-size:1.25rem; border-radius:14px; }
+  #prizesModal .btn svg{ width:24px; height:24px; }
+  #prizesModal .danger-zone{ margin-top:32px; padding-top:26px; }
+  #prizesModal .danger-zone p{ font-size:0.95rem; margin-bottom:14px; }
+
+  /* Равзанаи "Сохтани рақамҳои нав" — калонтар */
+  #numbersModal .modal{ max-width:680px; padding:40px; }
+  #numbersModal .modal-head{ margin-bottom:30px; }
+  #numbersModal .modal-head h3{ font-size:1.6rem; }
+  #numbersModal .modal-close{ width:44px; height:44px; border-radius:12px; }
+  #numbersModal .modal-close svg{ width:22px; height:22px; }
+  #numbersModal .field{ margin-bottom:24px; }
+  #numbersModal .field label{ font-size:1.05rem; margin-bottom:10px; }
+  #numbersModal .field input{ padding:20px 22px; font-size:1.25rem; border-radius:14px; }
+  #numbersModal .btn{ padding:20px 24px; font-size:1.25rem; border-radius:14px; }
+  #numbersModal .btn svg{ width:24px; height:24px; }
+  #numbersModal .field > div{ gap:16px !important; }
+  #numbersModal .danger-zone{ margin-top:32px; padding-top:26px; }
+  #numbersModal .danger-zone p{ font-size:0.95rem; margin-bottom:14px; }
+
+  /* Руйхати бозингарон: матн ва нишонаи холӣ бо ранги сиёҳ, то дар заминаи кабуд намоён бошад */
+  #playersModal .empty-state{ color:#000 !important; }
+  #playersModal .empty-state svg{ opacity:1 !important; color:#000 !important; width:64px; height:64px; }
+  #playersModal .empty-state p{ color:#000 !important; font-size:1.25rem !important; font-weight:800 !important; }
+
+  /* Равзанаи "Корзина" — калонтар */
+  #adminCartModal .modal{ max-width:760px; padding:40px; }
+  #adminCartModal .modal-head{ margin-bottom:28px; }
+  #adminCartModal .modal-head h3{ font-size:1.7rem; }
+  #adminCartModal .modal-close{ width:44px; height:44px; border-radius:12px; }
+  #adminCartModal .modal-close svg{ width:22px; height:22px; }
+  #adminCartModal .acart-list{ gap:18px; max-height:68vh; }
+  #adminCartModal .order-cart-card{ padding:22px 24px; border-radius:14px; }
+  #adminCartModal .order-cart-card-head{ margin-bottom:12px; }
+  #adminCartModal .order-cart-card-round{ font-size:1.2rem; }
+  #adminCartModal .order-cart-row{ padding:12px 0; }
+  #adminCartModal .order-cart-label{ font-size:1.05rem; }
+  #adminCartModal .order-cart-value{ font-size:1.2rem; }
+  #adminCartModal .order-cart-status-badge{ font-size:0.95rem; padding:6px 14px; }
+  #adminCartModal .acart-actions{ gap:10px; }
+  #adminCartModal .acart-del, #adminCartModal .acart-eye{ width:42px; height:42px; border-radius:11px; }
+  #adminCartModal .acart-del svg{ width:21px; height:21px; }
+  #adminCartModal .acart-eye svg{ width:23px; height:23px; }
+  #adminCartModal .player-numbers-scroll{ max-width:100% !important; gap:10px; flex-wrap:wrap; overflow:visible; margin-top:10px; }
+  #adminCartModal .player-num-chip{ width:46px; height:46px; font-size:1.15rem; }
+  #adminCartModal .order-cart-empty{ font-size:1.2rem; padding:40px 10px; }
 </style>
 </head>
 <body>
@@ -886,8 +981,8 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-text">
-        <h1>ҚУРЪА</h1>
-        <span>Утоқи идоракуни</span>
+        <h1>BEHRUZ TV</h1>
+        <span>БОЗИИ МИНИИ ОНЛАЙН</span>
       </div>
     </div>
     <div class="top-actions">
@@ -929,7 +1024,6 @@
       </div>
       <div>
         <h3>Сохтани рақамҳо</h3>
-        <p>Даври нав ва руйхати рақамҳо созед</p>
       </div>
     </button>
     <button class="action-card" id="openPrizesModalBtn">
@@ -938,7 +1032,6 @@
       </div>
       <div>
         <h3>Сохтани призҳо</h3>
-        <p>Мукофотҳоро номгузори ва илова кунед</p>
       </div>
     </button>
   </div>
@@ -974,6 +1067,7 @@
         <p>Ҳануз призе илова карда нашудааст</p>
       </div>
       <div id="prizesGrid" class="prizes-grid hidden"></div>
+      <div class="prizes-right-frame" id="prizesRightFrame"></div>
     </div>
   </section>
 
@@ -1055,7 +1149,7 @@
       </button>
     </form>
     <div class="danger-zone">
-      <p>Пок кардани руйхати ҳозира ба рамзи махсус ниёз дорад.</p>
+      <p>Пок кардани руйхати ҳозира тасдиқи «Ҳа / Не» талаб мекунад.</p>
       <button class="btn btn-danger" id="clearListBtn" style="width:100%">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
         Пок кардани руйхат
@@ -1086,7 +1180,7 @@
       </button>
     </form>
     <div class="danger-zone">
-      <p>Пок кардани ҳамаи призҳо ба рамзи тасдиқ ниёз дорад.</p>
+      <p>Пок кардани ҳамаи призҳо тасдиқи «Ҳа / Не» талаб мекунад.</p>
       <button class="btn btn-danger" id="clearPrizesBtn" style="width:100%">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
         Пок кардани призҳо
@@ -1137,7 +1231,10 @@
   <div class="modal" style="max-width:1280px; width:96vw">
     <div class="modal-head">
       <h3>Рақамҳои бозингар</h3>
-      <button class="modal-close" data-close="eyeViewModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <div class="eyeview-head-actions">
+        <button class="eyeview-crop-btn" id="eyeViewCropBtn" type="button" title="Вирезат — нусхаи ҷадвал ҳамчун расм дар буфер (барои WhatsApp / Telegram)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg><span>Вирезат</span></button>
+        <button class="modal-close" data-close="eyeViewModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
     </div>
     <div class="eyeview-wrap">
       <table class="eyeview-table">
@@ -1293,6 +1390,9 @@
     <div class="modal-head">
       <h3>Руйхати бозингарон</h3>
       <div class="modal-head-actions">
+        <button class="icon-btn" id="playersSaveWordBtn" title="Захира кардан ба файл (Word)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        </button>
         <button class="modal-close" data-close="playersModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
     </div>
@@ -1831,8 +1931,11 @@ function renderPlayersTable(data){
     playersTableEmpty.classList.remove("hidden");
     playersTableBody.innerHTML = "";
     document.getElementById("playersTableEmptyText").textContent = q ? "Ҳеҷ бозингаре мувофиқи кофтуков ёфт нашуд" : "Ҳануз ҳеҷ бозингаре тасдиқ нашудааст";
+    const _wb = document.getElementById("playersSaveWordBtn");
+    if(_wb) _wb.style.setProperty("display", "none", "important");
     return;
   }
+  { const _wb = document.getElementById("playersSaveWordBtn"); if(_wb) _wb.style.removeProperty("display"); }
   playersTableEmpty.classList.add("hidden");
   playersTable.classList.remove("hidden");
   // Кӯҳна -> нав: бозингари нав ҳамеша дар поёни руйхат меистад (1, 2, 3, 4, 5...).
@@ -2422,16 +2525,32 @@ document.getElementById("numbersForm").addEventListener("submit", async (e) => {
 
 let pendingClearTarget = "round";
 
-document.getElementById("clearListBtn").addEventListener("click", () => {
-  pendingClearTarget = "round";
-  document.getElementById("confirmCodeInput").value = "";
-  openModal("confirmModal");
+document.getElementById("clearListBtn").addEventListener("click", async () => {
+  // Бе рамз: танҳо тасдиқи "Ҳа / Не"
+  const ok = await confirmDangerous("Руйхати рақамҳо пок карда шавад?");
+  if(!ok) return;
+  try{
+    await remove(ref(db, "currentRound"));
+    closeModal("numbersModal");
+    showToast("Руйхати рақамҳо пок карда шуд 🗑️", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои пок кардани руйхат.", "error");
+  }
 });
 
-document.getElementById("clearPrizesBtn").addEventListener("click", () => {
-  pendingClearTarget = "prizes";
-  document.getElementById("confirmCodeInput").value = "";
-  openModal("confirmModal");
+document.getElementById("clearPrizesBtn").addEventListener("click", async () => {
+  // Бе рамз: танҳо тасдиқи "Ҳа / Не"
+  const ok = await confirmDangerous("Ҳамаи призҳо пок карда шаванд?");
+  if(!ok) return;
+  try{
+    await remove(ref(db, "prizes"));
+    closeModal("prizesModal");
+    showToast("Руйхати призҳо пок карда шуд 🗑️", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои пок кардани руйхат.", "error");
+  }
 });
 
 document.getElementById("resetAllBtn").addEventListener("click", () => {
@@ -2498,10 +2617,18 @@ document.getElementById("gameHistoryBtn").addEventListener("click", () => {
   openModal("gameHistoryModal");
 });
 
-document.getElementById("clearGameHistoryBtn").addEventListener("click", () => {
-  pendingClearTarget = "gameHistory";
-  document.getElementById("confirmCodeInput").value = "";
-  openModal("confirmModal");
+document.getElementById("clearGameHistoryBtn").addEventListener("click", async () => {
+  // Бе рамз: танҳо тасдиқи "Ҳа / Не"
+  const ok = await confirmDangerous("Историяи бозиҳо пок карда шавад?");
+  if(!ok) return;
+  try{
+    await remove(ref(db, "gameHistory"));
+    closeModal("gameHistoryModal");
+    showToast("Историяи бозиҳо пок карда шуд 🗑️", "success");
+  } catch(err){
+    console.error(err);
+    showToast("Хатои пок кардани история.", "error");
+  }
 });
 
 document.getElementById("confirmForm").addEventListener("submit", async (e) => {
@@ -2575,6 +2702,7 @@ function renderPrizes(data){
     prizesGrid.classList.add("hidden");
     prizesEmpty.classList.remove("hidden");
     prizesGrid.innerHTML = "";
+    delete prizesGrid.dataset.rendered;
     return;
   }
   prizesEmpty.classList.add("hidden");
@@ -2585,8 +2713,11 @@ function renderPrizes(data){
   prizesWerePresent = true;
   entries.sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
 
+  const prevPrizeScroll = prizesGrid.scrollLeft;
+  const prizeAnimate = !prizesGrid.dataset.rendered;
+  prizesGrid.dataset.rendered = "1";
   prizesGrid.innerHTML = entries.map(([id, p], idx) => `
-    <div class="prize-card" data-id="${id}" style="animation-delay:${idx * 0.07}s">
+    <div class="prize-card" data-id="${id}" style="${prizeAnimate ? `animation-delay:${idx * 0.07}s` : "animation:none; opacity:1; transform:none"}">
       <button class="prize-del" data-id="${id}" title="Нест кардан">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -2600,6 +2731,7 @@ function renderPrizes(data){
       </div>
     </div>
   `).join("");
+  prizesGrid.scrollLeft = prevPrizeScroll;
 
   prizesGrid.querySelectorAll(".prize-del").forEach(btn => {
     btn.addEventListener("click", async (e) => {
@@ -3054,6 +3186,172 @@ adminCartList.addEventListener("click", async (e) => {
   }
 });
 
+
+/* ---------- Тугмаи "Вирезат": ҷадвали "Рақамҳои бозингар"-ро ҳамчун расм бурида, дар буфери мубодила (clipboard) нигоҳ медорад ---------- */
+(function(){
+  const btn = document.getElementById("eyeViewCropBtn");
+  if(!btn) return;
+
+  function drawEyeViewTable(){
+    const table = document.querySelector("#eyeViewModal .eyeview-table");
+    const tr = table.getBoundingClientRect();
+    const scale = Math.max(2, Math.ceil(window.devicePixelRatio || 1));
+    const W = Math.ceil(tr.width), H = Math.ceil(tr.height);
+    const canvas = document.createElement("canvas");
+    canvas.width = W * scale; canvas.height = H * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+
+    const rel = el => { const r = el.getBoundingClientRect(); return { x: r.left - tr.left, y: r.top - tr.top, w: r.width, h: r.height }; };
+    const fontOf = cs => cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+
+    // ҳуҷайраҳо: фон + ҳошия + матн
+    table.querySelectorAll("th, td").forEach(cell => {
+      const r = rel(cell), cs = getComputedStyle(cell);
+      ctx.fillStyle = cs.backgroundColor; ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.strokeStyle = "#111"; ctx.lineWidth = 1;
+      ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+      if(cell.querySelector(".eyeview-nums")) return; // доираҳо дар поён кашида мешаванд
+      let text = cell.textContent.trim();
+      if(cs.textTransform === "uppercase") text = text.toUpperCase();
+      ctx.fillStyle = cs.color; ctx.font = fontOf(cs);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(text, r.x + r.w / 2, r.y + r.h / 2 + 1);
+    });
+
+    // доираҳои рақамҳо
+    table.querySelectorAll(".eyeview-circle").forEach(c => {
+      const r = rel(c), cs = getComputedStyle(c);
+      const rad = Math.min(r.w, r.h) / 2;
+      ctx.beginPath();
+      ctx.ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2 - 0.75, r.h / 2 - 0.75, 0, 0, Math.PI * 2);
+      ctx.fillStyle = cs.backgroundColor; ctx.fill();
+      ctx.strokeStyle = "#111"; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = cs.color; ctx.font = fontOf(cs);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(c.textContent.trim(), r.x + r.w / 2, r.y + r.h / 2 + 1);
+    });
+    return canvas;
+  }
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    try{
+      if(document.fonts && document.fonts.ready) await document.fonts.ready;
+      const canvas = drawEyeViewTable();
+      const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+      if(!blob) throw new Error("toBlob failed");
+      try{
+        await navigator.clipboard.write([ new ClipboardItem({ "image/png": blob }) ]);
+        showToast("Ҷадвал бурида шуд ✂️ — ҳоло дар WhatsApp / Telegram «Вставить» (Ctrl+V) занед", "success", 4500);
+      } catch(clipErr){
+        // агар браузер иҷозаи буферро надиҳад — расмро ҳамчун файл захира мекунем
+        console.warn("Clipboard ғайриимкон:", clipErr);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "raqamhoi-bozingar.png";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast("Буфер дастрас нест — расм ҳамчун файл захира шуд", "info", 4500);
+      }
+    } catch(err){
+      console.error(err);
+      showToast("Хатои буридани ҷадвал.", "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+<script>
+/* Автомасштаб: барнома пурра ба экран (васеъӣ ва баландӣ) калон мешавад, бе склор */
+(function(){
+  var MAXZ = 3, busy = false, timer = null, pointerHeld = false;
+  /* Ҳангоми кашидани склор бо муш масштаб аз нав ҳисоб намешавад — ин "такон"-ро аз байн мебарад */
+  window.addEventListener("pointerdown", function(){ pointerHeld = true; }, true);
+  window.addEventListener("pointerup", function(){ pointerHeld = false; later(); }, true);
+  window.addEventListener("pointercancel", function(){ pointerHeld = false; }, true);
+  window.addEventListener("blur", function(){ pointerHeld = false; });
+  function fit(){
+    var d = document.getElementById("dashboard");
+    if(!d || d.classList.contains("hidden")) return;
+    if(pointerHeld) return;
+    if(busy) return; busy = true;
+    var savedScroll = [];
+    d.querySelectorAll(".prizes-grid, .ball-grid, .player-numbers-scroll").forEach(function(el){
+      if(el.scrollLeft > 0) savedScroll.push([el, el.scrollLeft]);
+    });
+    var vw = window.innerWidth, vh = window.innerHeight;
+    if(vw <= 900){
+      d.style.zoom = ""; d.style.height = ""; d.style.width = ""; d.style.maxWidth = ""; d.style.margin = "";
+      busy = false; return;
+    }
+    d.style.maxWidth = "none"; d.style.margin = "0"; d.style.paddingBottom = "20px";
+    var z = 1;
+    for(var i = 0; i < 8; i++){
+      d.style.zoom = 1;
+      d.style.width = (vw / z) + "px";
+      d.style.height = "auto";
+      var h = d.scrollHeight;
+      var nz = Math.max(1, Math.min(vh / h, MAXZ));
+      if(Math.abs(nz - z) < 0.005){ z = nz; break; }
+      z = nz;
+    }
+    d.style.zoom = z;
+    d.style.width = (vw / z) + "px";
+    d.style.height = (vh / z) + "px";
+    savedScroll.forEach(function(it){ it[0].scrollLeft = it[1]; });
+    busy = false;
+  }
+  function later(){ clearTimeout(timer); timer = setTimeout(fit, 60); }
+  window.addEventListener("resize", later);
+  window.addEventListener("load", later);
+  var d = document.getElementById("dashboard");
+  if(d){
+    new MutationObserver(later).observe(d, {childList:true, subtree:true, characterData:true});
+    new MutationObserver(later).observe(d, {attributes:true, attributeFilter:["class"]});
+  }
+  setInterval(fit, 1500);
+})();
+</script>
+<script>
+/* Захира кардан ба файл (Word) — руйхати бозингарон, айнан мисли финали бозӣ */
+(function(){
+  var btn = document.getElementById("playersSaveWordBtn");
+  if(!btn) return;
+  function esc(v){ return String(v == null ? "" : v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function ball(n){
+    return '<v:oval style="width:26pt;height:26pt;v-text-anchor:middle" fillcolor="#3ddc84" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:12pt;color:#000000;">' + esc(n) + '</span></b></p></v:textbox></v:oval>&nbsp;';
+  }
+  function exportWord(){
+    var body = document.getElementById("playersTableBody");
+    var rows = body ? Array.prototype.slice.call(body.querySelectorAll("tr")) : [];
+    var tr = rows.length ? rows.map(function(row){
+      var nums = Array.prototype.map.call(row.querySelectorAll(".player-num-chip"), function(el){ return el.textContent; });
+      var name = row.querySelector(".u-name");
+      var phone = row.children[3], rnd = row.children[4];
+      return '<tr><td>' + (nums.length ? nums.map(ball).join(" ") : "—") + '</td>' +
+        '<td style="text-align:center;">' + esc(name ? name.textContent : "—") + '</td>' +
+        '<td style="text-align:center;">' + esc(phone ? phone.textContent : "—") + '</td>' +
+        '<td style="text-align:center;">' + esc(rnd ? rnd.textContent : "—") + '</td></tr>';
+    }).join("") : '<tr><td colspan="4" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>';
+    var html = '<!DOCTYPE html>\n<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">\n' +
+      '<head><meta charset="utf-8"><title>Руйхати бозингарон</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->\n' +
+      '<style>v\\:* {behavior:url(#default#VML);} o\\:* {behavior:url(#default#VML);} @page Section1 { size:21.0cm 29.7cm; mso-page-orientation:portrait; margin:1.5cm; } div.Section1 { page:Section1; }</style></head>\n' +
+      '<body style="font-family:Arial, sans-serif;"><div class="Section1"><h2>Руйхати бозингарон</h2>' +
+      '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%; table-layout:fixed;">' +
+      '<thead><tr><th style="width:34%;">Рақамҳои бозингар</th><th style="width:24%;">Номи билетхо</th><th style="width:24%;">Рақами телефон</th><th style="width:18%;">Аз бозии</th></tr></thead>' +
+      '<tbody>' + tr + '</tbody></table></div></body></html>';
+    var blob = new Blob(["\ufeff", html], { type: "application/msword" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "Ruyhati-bozingaron.doc";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+  btn.addEventListener("click", exportWord);
+})();
 </script>
 </body>
 </html>
