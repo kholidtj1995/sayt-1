@@ -2217,7 +2217,7 @@
               <table class="users-table">
                 <thead>
                   <tr>
-                    <th>№</th><th>Призи бурдашуда</th><th>Ном</th><th>Рақами баромада</th><th>Рақами телефон</th>
+                    <th>№</th><th>Ном</th><th>Рақами телефон</th><th>Рақами баромада</th><th>Призи бурдашуда</th>
                   </tr>
                 </thead>
                 <tbody id="gameOverWinnersBody"></tbody>
@@ -5749,10 +5749,10 @@
       gameOverWinnersBody.innerHTML = winnerEntries.length ? winnerEntries.map(([id, w], i) => `
         <tr>
           <td class="u-idx">${i+1}</td>
-          <td>${escapeHtml(w.prize || "—")}</td>
           <td class="u-name">${escapeHtml(w.name || "—")}</td>
-          <td class="win-number">${w.number != null ? `<span class="win-number-ball">${escapeHtml(String(w.number))}</span>` : "—"}</td>
           <td>${escapeHtml(w.phone || "—")}</td>
+          <td class="win-number">${w.number != null ? `<span class="win-number-ball">${escapeHtml(String(w.number))}</span>` : "—"}</td>
+          <td>${escapeHtml(w.prize || "—")}</td>
         </tr>
       `).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">Ғолибе нест</td></tr>`;
     }
@@ -6026,7 +6026,7 @@
   <h2 style="font-size:22pt; margin:14pt 0 6pt 0;">Руйхати ғолибон &nbsp; <span style="border:1.5pt solid #000000; background:#f5c518; font-size:13pt;">&nbsp;${escapeHtml(winnersCount)}&nbsp;</span></h2>
   <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border:1.5pt solid #000000; background:${BG2};" bgcolor="${BG2}">
     <thead><tr style="height:30pt;">
-      <th style="width:6%; ${C}">№</th><th style="width:26%; ${C}">Призи бурдашуда</th><th style="width:16%; ${C}">Ном</th><th style="width:26%; ${C}">Рақами баромада</th><th style="width:26%; ${C}">Рақами телефон</th>
+      <th style="width:6%; ${C}">№</th><th style="width:16%; ${C}">Ном</th><th style="width:26%; ${C}">Рақами телефон</th><th style="width:26%; ${C}">Рақами баромада</th><th style="width:26%; ${C}">Призи бурдашуда</th>
     </tr></thead>
     <tbody>${winnersRows}</tbody>
   </table>
