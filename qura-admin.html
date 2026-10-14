@@ -1033,6 +1033,40 @@
   #dashboard .panel{ margin-bottom:3px; padding:12px 14px; }
   #dashboard .panel-head{ margin-bottom:8px; }
   #dashboard .actions-row{ margin:0; padding:3px 0 0; }
+
+  /* Се тугмаи поён: нишона ва ном дар як сатр, матн калонтар */
+  #dashboard .actions-row .action-btn{ flex-direction:row; gap:12px; padding:16px 10px; }
+  #dashboard .actions-row .action-btn svg{ width:30px; height:30px; }
+  #dashboard .actions-row .action-btn span.lbl{ font-size:1.35rem; font-weight:800; white-space:nowrap; }
+  /* «Анҷом додани харид» — сурхи равшан бо матни сиёҳ */
+  #dashboard .actions-row .action-btn.active{
+    background:#ff4d5e; background-image:none; border-color:#ff1f36; color:#000;
+  }
+  /* «Ба қайд гирифтан» — сабзи равшан бо матни сиёҳ */
+  #dashboard .actions-row .action-btn.active-green{
+    background:#3ddc84; background-image:none; border-color:#1fb865; color:#000;
+  }
+  #dashboard .actions-row .action-btn.active .lbl, #dashboard .actions-row .action-btn.active svg,
+  #dashboard .actions-row .action-btn.active-green .lbl, #dashboard .actions-row .action-btn.active-green svg{ color:#000; stroke:#000; }
+  @media (max-width:640px){
+    #dashboard .actions-row .action-btn{ gap:6px; padding:12px 4px; }
+    #dashboard .actions-row .action-btn svg{ width:22px; height:22px; }
+    #dashboard .actions-row .action-btn span.lbl{ font-size:0.85rem; white-space:normal; }
+  }
+
+  /* Ҳангоми харид: рамкаи «Руйхати рақамҳо» сиёҳ, фони он сурх */
+  #dashboard .panel.buying{
+    background:#e03b4f; background-image:none;
+    border-color:#000; box-shadow:inset 0 0 0 1px #000;
+  }
+  /* Ҳангоми харид: ҳамаи матнҳои дохили рамкаи «Руйхати рақамҳо» сафед */
+  #dashboard .panel.buying .panel-head h2,
+  #dashboard .panel.buying .panel-head h2 svg,
+  #dashboard .panel.buying .badge-sm-row .badge,
+  #dashboard .panel.buying .badge-sm-row .badge *{ color:#ffffff !important; }
+  #dashboard .panel.buying .panel-head h2 svg{ stroke:#ffffff; }
+  /* Нишонаҳои «Давр / рақам / Нархи як рақам» ҳамеша бо матни сафед */
+  #roundBadgeRow .badge:not(.sold-out-badge){ color:#ffffff !important; border-color:#000 !important; }
   #dashboard > section.panel:nth-of-type(1){ flex:0 0 auto; min-height:0; overflow:visible; }
 
   /* Руйхати рақамҳо: рақамҳо калонтар ва дар 2 сатр */
@@ -3395,7 +3429,7 @@ adminCartList.addEventListener("click", async (e) => {
 <script>
 /* Автомасштаб: барнома пурра ба экран (васеъӣ ва баландӣ) калон мешавад, бе склор */
 (function(){
-  var MAXZ = 3, busy = false, timer = null, pointerHeld = false;
+  var MAXZ = 3, busy = false, timer = null, pointerHeld = false, lastZ = 0;
   /* Ҳангоми кашидани склор бо муш масштаб аз нав ҳисоб намешавад — ин "такон"-ро аз байн мебарад */
   window.addEventListener("pointerdown", function(){ pointerHeld = true; }, true);
   window.addEventListener("pointerup", function(){ pointerHeld = false; later(); }, true);
@@ -3412,7 +3446,7 @@ adminCartList.addEventListener("click", async (e) => {
     });
     var vw = window.innerWidth, vh = window.innerHeight;
     if(vw <= 900){
-      d.style.zoom = ""; d.style.height = ""; d.style.width = ""; d.style.maxWidth = ""; d.style.margin = "";
+      d.style.zoom = ""; d.style.height = ""; d.style.width = ""; d.style.maxWidth = ""; d.style.margin = ""; lastZ = 0;
       busy = false; return;
     }
     d.style.maxWidth = "none"; d.style.margin = "0"; d.style.paddingBottom = "20px";
@@ -3426,6 +3460,8 @@ adminCartList.addEventListener("click", async (e) => {
       if(Math.abs(nz - z) < 0.005){ z = nz; break; }
       z = nz;
     }
+    if(lastZ && z >= lastZ && z - lastZ < 0.02) z = lastZ; // танҳо ба хурд шудан ҳатмӣ, калон шудани ночиз нодида гирифта мешавад
+    lastZ = z;
     d.style.zoom = z;
     d.style.width = (vw / z) + "px";
     d.style.height = (vh / z) + "px";
