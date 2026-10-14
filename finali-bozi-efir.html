@@ -2280,6 +2280,9 @@
             <div class="live-badge hidden" id="startGameLiveBadge"><span class="live-dot"></span><span class="live-text">LIVE</span></div>
             <button class="btn-pause hidden" id="startGamePauseBtn" type="button">Стоп</button>
             <div class="start-game-timer hidden" id="startGameTimerBox">00:00:00</div>
+            <button class="icon-btn" id="finalGameBackBtn" type="button" title="Гузариш ба акиб">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg>
+            </button>
             <button class="icon-btn" id="startGameSettingsBtn" title="Танзимот">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
             </button>
@@ -2678,6 +2681,9 @@
   const startGameTimeSecInput = document.getElementById("startGameTimeSecInput");
   const startGameSettingsCodeInput = document.getElementById("startGameSettingsCodeInput");
   const startGameSettingsSaveBtn = document.getElementById("startGameSettingsSaveBtn");
+  document.getElementById("finalGameBackBtn").addEventListener("click", function(){
+    window.location.href = "https://kholidtj1995.github.io/sayt-1/qura-admin.html";
+  });
   const startGameSettingsBtn = document.getElementById("startGameSettingsBtn");
   const speedButtons = [
     document.getElementById("speedSlowBtn"),
@@ -6281,6 +6287,20 @@
   #playersModal.players-compact #playersTable .player-numbers-scroll{
     max-width:calc(24px * 5 + 4px * 4) !important; gap:4px !important; margin:0 auto !important;
   }
+  /* Тугмаи гузариш ба акиб — ҳамонанди тугмаи танзимот */
+  #finalGameBackBtn{
+    --hb-font:1rem;
+    background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    font-size:var(--hb-font) !important;
+    height:calc(var(--hb-font) * 1.21 + 16px) !important; min-height:0 !important;
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; padding:0 !important;
+    border-radius:999px !important; box-sizing:border-box !important;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  #finalGameBackBtn:hover{ background:#eee !important; }
+  #finalGameBackBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+  #finalGameWindow.fullscreen #finalGameBackBtn{ --hb-font:1.15rem; }
 </style></head>
 <body style="font-family:Arial, sans-serif;">
 <div class="Section1">
