@@ -2009,6 +2009,20 @@
   .game-ended-badge.show{ display:inline-block !important; }
   #gameEndedBadge{ background:#ff1f3d !important; color:#fff !important; animation:endedBadgeBlink 1.4s ease-in-out infinite; }
   @keyframes endedBadgeBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+  /* Тугмаи гузариш ба акиб — ҳамонанди тугмаи танзимот */
+  #finalGameBackBtn{
+    --hb-font:1rem;
+    background:#fff !important; background-image:none !important;
+    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
+    font-size:var(--hb-font) !important;
+    height:calc(var(--hb-font) * 1.21 + 16px) !important; min-height:0 !important;
+    width:calc(var(--hb-font) * 1.21 + 16px) !important; padding:0 !important;
+    border-radius:999px !important; box-sizing:border-box !important;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  #finalGameBackBtn:hover{ background:#eee !important; }
+  #finalGameBackBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
+  #finalGameWindow.fullscreen #finalGameBackBtn{ --hb-font:1.15rem; }
 </style>
 </head>
 <body>
@@ -6287,20 +6301,6 @@
   #playersModal.players-compact #playersTable .player-numbers-scroll{
     max-width:calc(24px * 5 + 4px * 4) !important; gap:4px !important; margin:0 auto !important;
   }
-  /* Тугмаи гузариш ба акиб — ҳамонанди тугмаи танзимот */
-  #finalGameBackBtn{
-    --hb-font:1rem;
-    background:#fff !important; background-image:none !important;
-    color:#000 !important; border:2px solid #000 !important; box-shadow:none !important;
-    font-size:var(--hb-font) !important;
-    height:calc(var(--hb-font) * 1.21 + 16px) !important; min-height:0 !important;
-    width:calc(var(--hb-font) * 1.21 + 16px) !important; padding:0 !important;
-    border-radius:999px !important; box-sizing:border-box !important;
-    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
-  }
-  #finalGameBackBtn:hover{ background:#eee !important; }
-  #finalGameBackBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
-  #finalGameWindow.fullscreen #finalGameBackBtn{ --hb-font:1.15rem; }
 </style></head>
 <body style="font-family:Arial, sans-serif;">
 <div class="Section1">
