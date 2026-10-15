@@ -791,9 +791,10 @@
   .eyeview-table{ width:100%; border-collapse:collapse; table-layout:auto; font-family:'Inter',Arial,sans-serif; }
   .eyeview-table th{ background:#76a5f7; color:#111; font-weight:800; font-size:0.78rem; text-transform:uppercase; padding:8px 10px; border:1px solid #111; text-align:center; white-space:nowrap; }
   .eyeview-table td{ background:#fff; color:#111; border:1px solid #111; padding:10px 12px; text-align:center; vertical-align:middle; font-weight:800; font-size:1.5rem; }
-  .eyeview-table td.ev-nums{ text-align:left; min-width:600px; }
+  .eyeview-table td.ev-nums{ text-align:left; min-width:300px; }
   .eyeview-table td.ev-round{ background:#f6c619; white-space:nowrap; }
-  .eyeview-nums{ display:flex; flex-wrap:wrap; gap:8px; min-width:560px; }
+  .eyeview-table td.ev-name, .eyeview-table td.ev-phone{ white-space:nowrap; }
+  .eyeview-nums{ display:flex; flex-wrap:wrap; gap:8px; min-width:260px; }
   .eyeview-circle{ min-width:48px; height:48px; padding:0 6px; border-radius:50%; background:#3ddc84; border:1.5px solid #111; color:#111; font-weight:800; font-size:1.3rem; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
 
   /* ===== "Руйхати бозингарон" — айнан мисли finali-bozi-efir.html ===== */
@@ -3333,7 +3334,7 @@ adminCartList.addEventListener("click", async (e) => {
     document.getElementById("eyeViewBody").innerHTML =
       '<tr><td class="ev-nums"><div class="eyeview-nums">' +
       (o.numbers || []).map(x => '<span class="eyeview-circle">' + escapeHtml(String(x)) + '</span>').join("") +
-      '</div></td><td>' + escapeHtml(o.name || "—") + '</td><td>' + escapeHtml(o.phone || "—") +
+      '</div></td><td class="ev-name">' + escapeHtml(o.name || "—") + '</td><td class="ev-phone">' + escapeHtml(o.phone || "—") +
       '</td><td class="ev-round">' + escapeHtml(o.roundName || "—") + '</td></tr>';
     openModal("eyeViewModal");
     return;
@@ -3380,6 +3381,12 @@ adminCartList.addEventListener("click", async (e) => {
       let text = cell.textContent.trim();
       if(cs.textTransform === "uppercase") text = text.toUpperCase();
       ctx.fillStyle = cs.color; ctx.font = fontOf(cs);
+      // агар матн аз ҳуҷайра васеътар бошад, андозаи ҳарфро кам мекунем, то аз рамка набарояд
+      const maxW = r.w - 16, tw = ctx.measureText(text).width;
+      if(tw > maxW){
+        const px = parseFloat(cs.fontSize) * maxW / tw;
+        ctx.font = cs.fontWeight + " " + px + "px " + cs.fontFamily;
+      }
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(text, r.x + r.w / 2, r.y + r.h / 2 + 1);
     });
