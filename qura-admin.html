@@ -461,6 +461,23 @@
     background:radial-gradient(circle at 32% 26%, var(--crimson), var(--crimson-dark) 65%, #3d0f18 100%) !important;
     color:#fff;
   }
+  /* Рақамҳои нафурухта: ҳар чанд сония мавҷи равшан → хира мегузарад (аз чап ба рост) */
+  .ball:not(.sold):not(.pending):not(.selected){ isolation:isolate; }
+  .ball:not(.sold):not(.pending):not(.selected)::before{
+    content:""; position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:-1;
+    background:radial-gradient(circle at 35% 30%, #ff8a7a 0%, #f0262b 55%, #c4121a 100%);
+    opacity:0;
+    animation:ballGlow 12s ease-in-out infinite;
+    animation-delay:calc(var(--glow-delay, 0s) + 1.5s);
+  }
+  /* Ҳангоми харид (тугмаи «Харидани рақам» пахш шуд) анимация хомӯш мешавад */
+  #numbersPanel.buying .ball::before,
+  .ball-grid.selectable .ball::before{ animation:none !important; opacity:0 !important; display:none; }
+  @keyframes ballGlow{
+    0%, 83%, 100%{ opacity:0; transform:scale(1); }
+    91.5%{ opacity:0.95; transform:scale(1.05); }
+    97%{ opacity:0.1; }
+  }
   /* Вақте ки ҳамаи рақамҳои даври ҷори фурухта шудаанд — туб хира мешавад,
      вале склор кор карда истодааст (танҳо opacity, на pointer-events). */
   .ball-grid.sold-out{ opacity:0.4; }
@@ -469,14 +486,6 @@
     border:1px solid var(--border); border-radius:var(--radius-sm);
     background:var(--bg-2); padding:14px 10px;
     position:relative;
-  }
-  /* Кутии призҳо: дар тарафи рост як рамкаи собит (айнан мисли финали бози) */
-  #prizesBox{ --pf-w:clamp(110px, 16vw, 330px); }
-  #prizesBox #prizesGrid, #prizesBox #prizesEmpty{ margin-right:calc(var(--pf-w) + 12px); }
-  .prizes-right-frame{
-    position:absolute; top:6px; bottom:6px; right:10px; width:var(--pf-w);
-    background:#fff; border:4px solid #000; border-radius:8px; box-sizing:border-box;
-    pointer-events:none;
   }
 
   .prizes-grid{
@@ -700,6 +709,7 @@
 
   @media (prefers-reduced-motion:reduce){
     .ball{ animation:none !important; transform:none; opacity:1; }
+    .ball::before{ animation:none !important; opacity:0 !important; }
     *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
   }
 
@@ -789,13 +799,14 @@
   /* Равзанаи чашм: равзанаи миёна (на тамоми экран), ҷадвал бо дизайни эфир */
   .eyeview-wrap{ overflow-x:auto; border:2px solid #111; border-radius:6px; background:#fff; }
   .eyeview-table{ width:100%; border-collapse:collapse; table-layout:auto; font-family:'Inter',Arial,sans-serif; }
-  .eyeview-table th{ background:#76a5f7; color:#111; font-weight:800; font-size:0.78rem; text-transform:uppercase; padding:8px 10px; border:1px solid #111; text-align:center; white-space:nowrap; }
-  .eyeview-table td{ background:#fff; color:#111; border:1px solid #111; padding:10px 12px; text-align:center; vertical-align:middle; font-weight:800; font-size:1.5rem; }
-  .eyeview-table td.ev-nums{ text-align:left; min-width:300px; }
+  .eyeview-table th{ background:#76a5f7; color:#111; font-weight:800; font-size:1.05rem; text-transform:uppercase; padding:12px 14px; border:1px solid #111; text-align:center; white-space:nowrap; }
+  .eyeview-table td{ background:#fff; color:#111; border:1px solid #111; padding:10px 12px; text-align:center; vertical-align:middle; font-weight:800; font-size:2rem; }
+  .eyeview-table td.ev-nums{ text-align:center; width:1%; min-width:0; padding:10px 22px; }
+  .eyeview-table td.ev-name{ width:42%; }
   .eyeview-table td.ev-round{ background:#f6c619; white-space:nowrap; }
   .eyeview-table td.ev-name, .eyeview-table td.ev-phone{ white-space:nowrap; }
-  .eyeview-nums{ display:flex; flex-wrap:wrap; gap:8px; min-width:260px; }
-  .eyeview-circle{ min-width:48px; height:48px; padding:0 6px; border-radius:50%; background:#3ddc84; border:1.5px solid #111; color:#111; font-weight:800; font-size:1.3rem; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
+  .eyeview-nums{ display:flex; flex-wrap:wrap; gap:8px; min-width:0; justify-content:center; }
+  .eyeview-circle{ min-width:64px; height:64px; padding:0 6px; border-radius:50%; background:#3ddc84; border:1.5px solid #111; color:#111; font-weight:800; font-size:1.8rem; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
 
   /* ===== "Руйхати бозингарон" — айнан мисли finali-bozi-efir.html ===== */
   /* Равзанаи "Руйхати бозингарон" — калон (тамоми экран), бе анимацияи пӯшидан */
@@ -819,7 +830,7 @@
     border:3px solid #000 !important; box-shadow:none !important; text-shadow:none !important;
     font-family:'Bebas Neue', sans-serif !important; font-size:calc(var(--chip) * .5) !important; font-weight:800 !important;
   }
-  #playersTable .player-numbers-scroll{ width:calc(var(--chip) * 5 + 8px * 4) !important; max-width:calc(var(--chip) * 5 + 8px * 4) !important; gap:8px !important; flex-wrap:wrap !important; justify-content:flex-start !important; overflow:visible !important; padding-bottom:0 !important; margin:0 !important; }
+  #playersTable .player-numbers-scroll{ width:100% !important; max-width:100% !important; gap:8px !important; flex-wrap:wrap !important; justify-content:center !important; overflow:visible !important; padding-bottom:0 !important; margin:0 !important; }
   /* Ҷадвали аз нав ҷойгиршуда: сутуни рақамҳо айнан барои 5 рақам дар як сатр, дигар сутунҳо тақсим мешаванд */
   #playersTable{ table-layout:auto !important; width:100% !important; }
   #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ width:auto !important; min-width:calc(var(--chip) * 5 + 8px * 4 + 28px) !important; padding:8px 14px !important; vertical-align:middle !important; }
@@ -1107,6 +1118,49 @@
   #adminCartModal .player-numbers-scroll{ max-width:100% !important; gap:10px; flex-wrap:wrap; overflow:visible; margin-top:10px; }
   #adminCartModal .player-num-chip{ width:46px; height:46px; font-size:1.15rem; }
   #adminCartModal .order-cart-empty{ font-size:1.2rem; padding:40px 10px; }
+
+  /* Кутии призҳо: панҷара тамоми паҳноии қуттиро мегирад, чорчӯбаи холӣ нест карда шуд. */
+  .prizes-empty-slot{ display:none !important; }
+  #prizesBox #prizesGrid{ width:100%; max-width:100%; }
+  /* Склор ҳамеша ҷой мегирад (ҳатто вақте ки лозим нест), то ҳангоми зиёд шудани призҳо тугмаҳо такон нахӯранд */
+  #prizesBox #prizesGrid{ overflow-x:scroll !important; padding-bottom:8px; }
+  #prizesBox #prizesGrid::-webkit-scrollbar{ height:10px; }
+  #prizesBox #prizesGrid::-webkit-scrollbar-track{ background:transparent; }
+  /* Руйхати бозингарон: намуди якхела бо "Рақамҳои бозингар" — сутуни рақам танг, доираҳо дар мобайн, сутуни ном васеъ */
+  #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ width:1% !important; min-width:0 !important; white-space:nowrap !important; padding:10px 30px !important; text-align:center !important; }
+  #playersTable thead th:nth-child(3), #playersTable tbody td:nth-child(3){ width:42% !important; white-space:normal !important; }
+  /* Танҳо рамкаҳои «Руйхати рақамҳо» ва «Призҳо» сафед (матн сиёҳ). Ҳангоми харид рамкаи рақамҳо мисли пештара сурх мешавад. */
+  #dashboard #numbersPanel:not(.buying), #dashboard #prizesPanel{ background:#ffffff !important; background-image:none !important; border-color:#000 !important; }
+  #dashboard #numbersPanel:not(.buying) .panel-head h2, #dashboard #prizesPanel .panel-head h2{ color:#000 !important; }
+  #dashboard #numbersPanel:not(.buying) .empty-state, #dashboard #prizesPanel .empty-state,
+  #dashboard #numbersPanel:not(.buying) .empty-state p, #dashboard #prizesPanel .empty-state p{ color:#000 !important; }
+  #dashboard #numbersPanel:not(.buying) #roundBadgeRow .badge:not(.sold-out-badge),
+  #dashboard #numbersPanel:not(.buying) #roundBadgeRow .badge:not(.sold-out-badge) *{ color:#000 !important; }
+  #dashboard #numbersPanel:not(.buying) #roundBadgeRow .badge:not(.sold-out-badge){ background:#eef2fb !important; border-color:#000 !important; }
+  /* Нишонаҳо дар дохили рамкаи кабуди тира (#10182c) */
+  #dashboard #roundBadgeRow.badge-sm-row{ background:#10182c !important; border:1px solid #000 !important; border-radius:14px !important; padding:10px 12px !important; }
+  /* Ҳангоми харид низ нишонаҳо сафед (матн сиёҳ) мемонанд */
+  #dashboard #numbersPanel #roundBadgeRow .badge:not(.sold-out-badge),
+  #dashboard #numbersPanel #roundBadgeRow .badge:not(.sold-out-badge) *{ color:#000 !important; }
+  #dashboard #numbersPanel #roundBadgeRow .badge:not(.sold-out-badge){ background:#eef2fb !important; border-color:#000 !important; }
+  #dashboard #prizesPanel .badge{ color:#000 !important; background:#eef2fb !important; border-color:#000 !important; }
+  #dashboard #prizesPanel .prizes-box{ background:#ffffff !important; border-color:#000 !important; }
+  /* Кутиҳои призҳо: кабуди тира бо ҳошияи тиллоӣ */
+  #dashboard #prizesPanel .prize-card{
+    background:linear-gradient(160deg, #1b2750 0%, #10182c 60%, #0a0f1c 100%) !important;
+    border:1.5px solid #e8b84b !important;
+    box-shadow:0 6px 16px rgba(16,24,44,0.35), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  }
+  #dashboard #prizesPanel .prize-card:hover{ box-shadow:0 10px 24px rgba(232,184,75,0.35), inset 0 1px 0 rgba(255,255,255,0.1) !important; }
+  #dashboard #prizesPanel .prize-card h4{ color:#f4d374 !important; }
+  #dashboard #prizesPanel .prize-card .qty-label{ color:#aab3cc !important; }
+  #dashboard #prizesPanel .prize-card .qty-num{ color:#ffffff !important; }
+  #dashboard #prizesPanel .prize-card .prize-del{ color:#e8b84b !important; }
+  #dashboard #prizesPanel .prize-card.active{
+    background:linear-gradient(160deg, #3a2f10 0%, #1b1a2c 60%, #10182c 100%) !important;
+    box-shadow:0 0 0 2px rgba(232,184,75,0.5), 0 10px 24px rgba(232,184,75,0.3) !important;
+  }
+  #dashboard #prizesPanel .prize-del{ color:#000 !important; }
 </style>
 </head>
 <body>
@@ -1142,8 +1196,8 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-text">
-        <h1>BEHRUZ TV</h1>
-        <span>БОЗИИ МИНИИ ОНЛАЙН</span>
+        <h1>БОЗИ ТЧ</h1>
+        <span>БОЗИИ ОНЛАЙН</span>
       </div>
     </div>
     <div class="top-actions">
@@ -1168,13 +1222,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
       </div>
-      <div class="icon-group-sep"></div>
-      <button class="icon-btn" id="goFinalBtn" title="Финали бозии эфир">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-      </button>
-      <button class="icon-btn" id="logoutBtn" title="Баромадан">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-      </button>
     </div>
   </header>
 
@@ -1197,7 +1244,7 @@
     </button>
   </div>
 
-  <section class="panel">
+  <section class="panel" id="numbersPanel">
     <div class="panel-head">
       <h2>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
@@ -1214,7 +1261,7 @@
     <div id="ballGrid" class="ball-grid hidden"></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="prizesPanel">
     <div class="panel-head">
       <h2>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
@@ -1228,7 +1275,6 @@
         <p>Ҳануз призе илова карда нашудааст</p>
       </div>
       <div id="prizesGrid" class="prizes-grid hidden"></div>
-      <div class="prizes-right-frame" id="prizesRightFrame"></div>
     </div>
   </section>
 
@@ -1399,7 +1445,7 @@
     </div>
     <div class="eyeview-wrap">
       <table class="eyeview-table">
-        <thead><tr><th>Рақамҳои бозингар</th><th id="eyeViewNameTh">Номи билетхо</th><th>Рақами телефон</th><th>Аз бозии</th></tr></thead>
+        <thead><tr><th id="eyeViewNumsTh">Рақамҳои бозингар</th><th id="eyeViewNameTh">Номи билетхо</th><th>Рақами телефон</th><th>Аз бозии</th></tr></thead>
         <tbody id="eyeViewBody"></tbody>
       </table>
     </div>
@@ -1881,13 +1927,6 @@ loginForm.addEventListener("submit", (e) => {
   attemptLogin(code);
 });
 
-document.getElementById("goFinalBtn").addEventListener("click", () => {
-  window.location.href = "https://kholidtj1995.github.io/sayt-1/finali-bozi-efir.html";
-});
-
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  openModal("logoutModal");
-});
 document.getElementById("logoutConfirmBtn").addEventListener("click", () => {
   closeModal("logoutModal");
   localStorage.removeItem(LS_KEY);
@@ -2102,26 +2141,35 @@ function renderPlayersTable(data){
   { const _wb = document.getElementById("playersSaveWordBtn"); if(_wb) _wb.style.removeProperty("display"); }
   playersTableEmpty.classList.add("hidden");
   playersTable.classList.remove("hidden");
-  // Кӯҳна -> нав: бозингари нав ҳамеша дар поёни руйхат меистад (1, 2, 3, 4, 5...).
-  entries.sort((a,b) =>
-    ((a[1].approvedAt||a[1].createdAt||0) - (b[1].approvedAt||b[1].createdAt||0)) ||
-    String(a[0]).localeCompare(String(b[0]))
-  );
-  playersTableBody.innerHTML = entries.map(([id, o], i) => `
-    <tr data-id="${id}" title="Дидани сабад">
+  // Ҳар як рақам дар сатри алоҳида ва ҳамеша аз хурд ба калон (1, 2, 3, ...).
+  // Тартиб автомат аст: ҳар вақт бозингари нав тасдиқ шавад, рақамаш ба ҷои худ меафтад.
+  // Ҷадвал, захира ба расм ва захира ба Word ҳамин сатрҳоро мехонанд.
+  const numRows = [];
+  entries.forEach(([id, o]) => {
+    const nums = (o.numbers && o.numbers.length) ? o.numbers : [null];
+    nums.forEach(n => numRows.push({ id, o, n }));
+  });
+  const numKey = n => {
+    if(n === null) return [2, 0, ""];
+    const v = Number(n);
+    return Number.isFinite(v) ? [0, v, ""] : [1, 0, String(n)];
+  };
+  numRows.sort((a, b) => {
+    const ka = numKey(a.n), kb = numKey(b.n);
+    return (ka[0] - kb[0]) || (ka[1] - kb[1]) || ka[2].localeCompare(kb[2]) ||
+      ((a.o.approvedAt||a.o.createdAt||0) - (b.o.approvedAt||b.o.createdAt||0)) ||
+      String(a.id).localeCompare(String(b.id));
+  });
+  playersTableBody.innerHTML = numRows.map((r, i) => `
+    <tr data-id="${r.id}" title="Дидани сабад">
       <td class="u-idx">${i+1}</td>
-      <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
-      <td class="u-name">${escapeHtml(o.name || "—")}</td>
-      <td>${escapeHtml(o.phone || "—")}</td>
-      <td>${escapeHtml(o.roundName || "—")}</td>
+      <td><div class="player-numbers-scroll">${r.n === null ? "—" : `<span class="player-num-chip">${escapeHtml(String(r.n))}</span>`}</div></td>
+      <td class="u-name">${escapeHtml(r.o.name || "—")}</td>
+      <td>${escapeHtml(r.o.phone || "—")}</td>
+      <td>${escapeHtml(r.o.roundName || "—")}</td>
     </tr>
   `).join("");
-  // Агар бозингари нав илова шуда бошад — ба поёни руйхат мегузарем, то намоён шавад.
-  if(!q && playersLastCount > 0 && entries.length > playersLastCount){
-    const lastRow = playersTableBody.lastElementChild;
-    if(lastRow && lastRow.scrollIntoView) lastRow.scrollIntoView({ block: "nearest" });
-  }
-  if(!q) playersLastCount = entries.length;
+  if(!q) playersLastCount = numRows.length;
   playersTableBody.querySelectorAll("tr[data-id]").forEach(btn => {
     btn.addEventListener("click", () => {
       const o = ordersCache[btn.dataset.id];
@@ -2631,6 +2679,7 @@ function renderRound(data){
     b.textContent = i;
     const delay = (i-1) < STAGGER_CAP ? ((i-1) * 0.025) : (STAGGER_CAP * 0.025);
     b.style.animationDelay = delay + "s";
+    b.style.setProperty("--glow-delay", ((Math.floor((i-1)/2) % 30) * 0.08) + "s");
     frag.appendChild(b);
   }
   ballGrid.innerHTML = "";
@@ -3330,11 +3379,15 @@ adminCartList.addEventListener("click", async (e) => {
     const o = (ordersCache || {})[eyeBtn.dataset.oid];
     if(!o) return;
     document.getElementById("eyeViewNameTh").textContent = (o.numbers || []).length === 1 ? "Номи билет" : "Номи билетхо";
-    document.getElementById("eyeViewBody").innerHTML =
+    document.getElementById("eyeViewNumsTh").textContent = (o.numbers || []).length === 1 ? "Рақами бозингар" : "Рақамҳои бозингар";
+    // Ҳар як рақам дар сатри алоҳида (поён ба поён): рақам + ном + телефон + давр
+    const evNums = (o.numbers && o.numbers.length) ? o.numbers : [null];
+    document.getElementById("eyeViewBody").innerHTML = evNums.map(x =>
       '<tr><td class="ev-nums"><div class="eyeview-nums">' +
-      (o.numbers || []).map(x => '<span class="eyeview-circle">' + escapeHtml(String(x)) + '</span>').join("") +
+      (x === null ? "—" : '<span class="eyeview-circle">' + escapeHtml(String(x)) + '</span>') +
       '</div></td><td class="ev-name">' + escapeHtml(o.name || "—") + '</td><td class="ev-phone">' + escapeHtml(o.phone || "—") +
-      '</td><td class="ev-round">' + escapeHtml(o.roundName || "—") + '</td></tr>';
+      '</td><td class="ev-round">' + escapeHtml(o.roundName || "—") + '</td></tr>'
+    ).join("");
     openModal("eyeViewModal");
     return;
   }
@@ -3494,7 +3547,7 @@ adminCartList.addEventListener("click", async (e) => {
   if(!btn) return;
   function esc(v){ return String(v == null ? "" : v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function ball(n){
-    return '<v:oval style="width:26pt;height:26pt;v-text-anchor:middle" fillcolor="#3ddc84" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:12pt;color:#000000;">' + esc(n) + '</span></b></p></v:textbox></v:oval>&nbsp;';
+    return '<v:oval style="width:34pt;height:34pt;v-text-anchor:middle" fillcolor="#3ddc84" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:16pt;color:#000000;">' + esc(n) + '</span></b></p></v:textbox></v:oval>&nbsp;';
   }
   function exportWord(){
     var body = document.getElementById("playersTableBody");
@@ -3503,17 +3556,17 @@ adminCartList.addEventListener("click", async (e) => {
       var nums = Array.prototype.map.call(row.querySelectorAll(".player-num-chip"), function(el){ return el.textContent; });
       var name = row.querySelector(".u-name");
       var phone = row.children[3], rnd = row.children[4];
-      return '<tr><td>' + (nums.length ? nums.map(ball).join(" ") : "—") + '</td>' +
-        '<td style="text-align:center;">' + esc(name ? name.textContent : "—") + '</td>' +
-        '<td style="text-align:center;">' + esc(phone ? phone.textContent : "—") + '</td>' +
-        '<td style="text-align:center;">' + esc(rnd ? rnd.textContent : "—") + '</td></tr>';
+      return '<tr style="height:46pt;"><td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;">' + (nums.length ? nums.map(ball).join(" ").replace(/&nbsp;$/, "") : "—") + '</td>' +
+        '<td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;">' + esc(name ? name.textContent : "—") + '</td>' +
+        '<td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;">' + esc(phone ? phone.textContent : "—") + '</td>' +
+        '<td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;background:#f6c619;">' + esc(rnd ? rnd.textContent : "—") + '</td></tr>';
     }).join("") : '<tr><td colspan="4" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>';
     var html = '<!DOCTYPE html>\n<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">\n' +
       '<head><meta charset="utf-8"><title>Руйхати бозингарон</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->\n' +
       '<style>v\\:* {behavior:url(#default#VML);} o\\:* {behavior:url(#default#VML);} @page Section1 { size:21.0cm 29.7cm; mso-page-orientation:portrait; margin:1.5cm; } div.Section1 { page:Section1; }</style></head>\n' +
       '<body style="font-family:Arial, sans-serif;"><div class="Section1"><h2>Руйхати бозингарон</h2>' +
       '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%; table-layout:fixed;">' +
-      '<thead><tr><th style="width:34%;">Рақамҳои бозингар</th><th style="width:24%;">Номи билетхо</th><th style="width:24%;">Рақами телефон</th><th style="width:18%;">Аз бозии</th></tr></thead>' +
+      '<thead><tr style="background:#76a5f7;"><th style="width:19%;background:#76a5f7;font-size:12pt;">РАҚАМҲОИ БОЗИНГАР</th><th style="width:42%;background:#76a5f7;font-size:12pt;">НОМИ БИЛЕТХО</th><th style="width:27%;background:#76a5f7;font-size:12pt;">РАҚАМИ ТЕЛЕФОН</th><th style="width:12%;background:#76a5f7;font-size:12pt;">АЗ БОЗИИ</th></tr></thead>' +
       '<tbody>' + tr + '</tbody></table></div></body></html>';
     var blob = new Blob(["\ufeff", html], { type: "application/msword" });
     var url = URL.createObjectURL(blob);
@@ -3532,8 +3585,8 @@ adminCartList.addEventListener("click", async (e) => {
   if(!btn) return;
   var FONT = "Inter, Arial, sans-serif";
   var W = 1400, PAD = 24, SCALE = 2, MAX_H = 7500;
-  var COLS = [0.44, 0.22, 0.20, 0.14];
-  var BALL = 40, GAP = 8, CELLPAD = 12, MINROW = 64, TITLE_H = 70, HEAD_H = 52;
+  var COLS = [0.19, 0.42, 0.27, 0.12];
+  var BALL = 60, GAP = 8, CELLPAD = 14, MINROW = 90, TITLE_H = 70, HEAD_H = 60;
   function toast(m, t){ if(window.showToast) window.showToast(m, t || "info"); }
   function collect(){
     var body = document.getElementById("playersTableBody");
@@ -3594,10 +3647,10 @@ adminCartList.addEventListener("click", async (e) => {
     var x = PAD, y = TITLE_H;
     ctx.textAlign = "center";
     heads.forEach(function(t, i){
-      ctx.fillStyle = "#e5e7eb"; ctx.fillRect(x, y, lay.colW[i], HEAD_H);
+      ctx.fillStyle = "#76a5f7"; ctx.fillRect(x, y, lay.colW[i], HEAD_H);
       ctx.strokeStyle = "#111"; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, lay.colW[i] - 1, HEAD_H - 1);
       ctx.fillStyle = "#000"; ctx.font = "800 18px " + FONT;
-      ctx.fillText(t, x + lay.colW[i] / 2, y + HEAD_H / 2 + 1);
+      ctx.fillText(t.toUpperCase(), x + lay.colW[i] / 2, y + HEAD_H / 2 + 1);
       x += lay.colW[i];
     });
     y += HEAD_H;
@@ -3605,20 +3658,23 @@ adminCartList.addEventListener("click", async (e) => {
     rows.forEach(function(r){
       var cx = PAD;
       for(var i = 0; i < 4; i++){
-        ctx.fillStyle = "#ffffff"; ctx.fillRect(cx, y, lay.colW[i], r.h);
+        ctx.fillStyle = (i === 3 ? "#f6c619" : "#ffffff"); ctx.fillRect(cx, y, lay.colW[i], r.h);
         ctx.strokeStyle = "#111"; ctx.lineWidth = 1; ctx.strokeRect(cx + 0.5, y + 0.5, lay.colW[i] - 1, r.h - 1);
         cx += lay.colW[i];
       }
       // доираҳои рақамҳо
       r.nums.forEach(function(n, k){
         var line = Math.floor(k / lay.perLine), col = k % lay.perLine;
-        var bx = PAD + CELLPAD + col * (BALL + GAP) + BALL / 2;
+        // рақамҳо дар мобайни сутун (ҳар сатр алоҳида ҳамоҳанг карда мешавад)
+        var cnt = Math.min(lay.perLine, r.nums.length - line * lay.perLine);
+        var lineW = cnt * BALL + (cnt - 1) * GAP;
+        var bx = PAD + (lay.colW[0] - lineW) / 2 + col * (BALL + GAP) + BALL / 2;
         var by = y + CELLPAD + line * (BALL + GAP) + BALL / 2;
         ctx.beginPath(); ctx.arc(bx, by, BALL / 2 - 1, 0, Math.PI * 2);
         ctx.fillStyle = "#3ddc84"; ctx.fill();
-        ctx.strokeStyle = "#000"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.strokeStyle = "#000"; ctx.lineWidth = 2.5; ctx.stroke();
         ctx.fillStyle = "#000"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.font = "800 " + (n.length > 2 ? 15 : 18) + "px " + FONT;
+        ctx.font = "800 " + (n.length > 2 ? 24 : 30) + "px " + FONT;
         ctx.fillText(n, bx, by + 1);
       });
       if(!r.nums.length){
@@ -3630,8 +3686,10 @@ adminCartList.addEventListener("click", async (e) => {
       [r.name, r.phone, r.round].forEach(function(t, i){
         var w = lay.colW[i + 1];
         ctx.fillStyle = "#000"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.font = (i === 0 ? "700 " : "600 ") + "20px " + FONT;
-        ctx.fillText(fit(ctx, t || "—", w - CELLPAD * 2), tx + w / 2, y + r.h / 2 + 1);
+        var txt = t || "—", px = 32;
+        ctx.font = "800 " + px + "px " + FONT;
+        while(px > 16 && ctx.measureText(txt).width > w - CELLPAD * 2){ px -= 1; ctx.font = "800 " + px + "px " + FONT; }
+        ctx.fillText(fit(ctx, txt, w - CELLPAD * 2), tx + w / 2, y + r.h / 2 + 1);
         tx += w;
       });
       y += r.h;
