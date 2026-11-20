@@ -1315,7 +1315,7 @@
     border:3px solid #000 !important; box-shadow:none !important; text-shadow:none !important;
     font-family:'Bebas Neue', sans-serif !important; font-size:calc(var(--chip) * .5) !important; font-weight:800 !important;
   }
-  #playersTable .player-numbers-scroll{ width:calc(var(--chip) * 5 + 8px * 4) !important; max-width:calc(var(--chip) * 5 + 8px * 4) !important; gap:8px !important; flex-wrap:wrap !important; justify-content:flex-start !important; overflow:visible !important; padding-bottom:0 !important; margin:0 !important; }
+  #playersTable .player-numbers-scroll{ width:100% !important; max-width:100% !important; gap:8px !important; flex-wrap:wrap !important; justify-content:center !important; overflow:visible !important; padding-bottom:0 !important; margin:0 !important; }
   /* Ҷадвали аз нав ҷойгиршуда: сутуни рақамҳо айнан барои 5 рақам дар як сатр, дигар сутунҳо тақсим мешаванд */
   #playersTable{ table-layout:auto !important; width:100% !important; }
   #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ width:auto !important; min-width:calc(var(--chip) * 5 + 8px * 4 + 28px) !important; padding:8px 14px !important; vertical-align:middle !important; }
@@ -1833,17 +1833,9 @@
     width:55% !important; height:55% !important;
   }
 
-  /* Кутии призҳо: дар тарафи рост як рамкаи собит. Призҳо ҳангоми склор ва дар рафти бозӣ
+  /* Кутии призҳо (рамкаи рости собит нест карда шуд)
      ба зери ин рамка рафта нопадид мешаванд ва ба он халал намерасонанд. */
-  #finalPrizesBox{ position:relative; --pf-w:clamp(150px, 16vw, 330px); }
-  #finalPrizesBox #finalPrizesGrid{ margin-right:calc(var(--pf-w) + 12px) !important; }
-  .prizes-right-frame{
-    position:absolute; top:6px; bottom:6px; right:10px; width:var(--pf-w);
-    background:inherit; background-image:none;
-    border:4px solid #000; border-radius:8px; box-sizing:border-box;
-    z-index:5; pointer-events:none;
-  }
-  #finalGameWindow.fullscreen .prizes-right-frame{ top:12px; bottom:12px; right:14px; }
+  #finalPrizesBox{ position:relative; }
 
   /* F11 / экрани пурра: равзана то канор, бе фосилаи калон */
   #finalGameWindow.fullscreen{ padding:10px 10px 8px !important; }
@@ -1886,10 +1878,6 @@
   @keyframes nboxRedSoft{
     0%,100%{ --nbox-bg:#ffffff; }
     50%{ --nbox-bg:#ff1f3d; }
-  }
-  /* Рамкаи рости кутии призҳо ҳеҷ гоҳ сурх намешавад — ҳамеша сафед */
-  #finalPrizesBox .prizes-right-frame, #finalPrizesBox.numbers-box-danger .prizes-right-frame, #finalPrizesBox.numbers-box-soft-blink .prizes-right-frame{
-    background:#ffffff !important; background-color:#ffffff !important; background-image:none !important; animation:none !important;
   }
 
   /* Тугмаи "Натиҷаи бози" — айнан мисли тугмаи "Пушидан" (✕) */
@@ -2023,6 +2011,22 @@
   #finalGameBackBtn:hover{ background:#eee !important; }
   #finalGameBackBtn svg{ width:55% !important; height:55% !important; color:#000 !important; stroke:#000 !important; }
   #finalGameWindow.fullscreen #finalGameBackBtn{ --hb-font:1.15rem; }
+
+
+  /* Руйхати призҳо: панҷара тамоми паҳноии қуттиро мегирад, чорчӯбаи холии тарафи рост нест карда шуд. */
+  #finalPrizesBox{ display:flex !important; align-items:stretch; gap:0; }
+  #finalPrizesBox #finalPrizesGrid{ flex:1 1 auto; min-width:0; width:100%; max-width:100%; }
+  #finalPrizesBox .prizes-empty-slot{ display:none !important; }
+
+  /* Руйхати бозингарон: сарлавҳа, матн ва нишонаи холӣ — айнан мисли қура-админ */
+  #playersModal .modal-head{ margin:0 !important; padding:14px 16px !important; background:#9dbcf9 !important; border-bottom:1px solid rgba(0,0,0,0.25) !important; }
+  #playersModal .modal-head h3{ color:#000 !important; font-size:1rem !important; font-weight:800 !important; }
+  #playersModal .empty-state{ color:#000 !important; }
+  #playersModal .empty-state svg{ opacity:1 !important; color:#000 !important; width:64px; height:64px; }
+  #playersModal .empty-state p{ color:#000 !important; font-size:1.25rem !important; font-weight:800 !important; }
+  /* Руйхати бозингарон: намуди якхела бо "Рақамҳои бозингар" — сутуни рақам танг, доираҳо дар мобайн, сутуни ном васеъ */
+  #playersTable thead th:nth-child(2), #playersTable tbody td:nth-child(2){ width:1% !important; min-width:0 !important; white-space:nowrap !important; padding:10px 30px !important; text-align:center !important; }
+  #playersTable thead th:nth-child(3), #playersTable tbody td:nth-child(3){ width:42% !important; white-space:normal !important; }
 </style>
 </head>
 <body>
@@ -2294,9 +2298,6 @@
             <div class="live-badge hidden" id="startGameLiveBadge"><span class="live-dot"></span><span class="live-text">LIVE</span></div>
             <button class="btn-pause hidden" id="startGamePauseBtn" type="button">Стоп</button>
             <div class="start-game-timer hidden" id="startGameTimerBox">00:00:00</div>
-            <button class="icon-btn" id="finalGameBackBtn" type="button" title="Гузариш ба акиб">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg>
-            </button>
             <button class="icon-btn" id="startGameSettingsBtn" title="Танзимот">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
             </button>
@@ -2340,7 +2341,6 @@
         </div>
         <div class="prizes-box" id="finalPrizesBox">
           <div class="prizes-grid" id="finalPrizesGrid"><div class="prize-ghost" aria-hidden="true"><div class="trophy-circle"></div><h4>&nbsp;</h4><div class="qty-block"><span class="qty-label">Миқдор</span><br><span class="qty-num">0</span></div></div></div>
-          <div class="prizes-right-frame" id="finalPrizesRightFrame"></div>
         </div>
       </div>
     </div>
@@ -2695,9 +2695,6 @@
   const startGameTimeSecInput = document.getElementById("startGameTimeSecInput");
   const startGameSettingsCodeInput = document.getElementById("startGameSettingsCodeInput");
   const startGameSettingsSaveBtn = document.getElementById("startGameSettingsSaveBtn");
-  document.getElementById("finalGameBackBtn").addEventListener("click", function(){
-    window.location.href = "https://kholidtj1995.github.io/sayt-1/qura-admin.html";
-  });
   const startGameSettingsBtn = document.getElementById("startGameSettingsBtn");
   const speedButtons = [
     document.getElementById("speedSlowBtn"),
@@ -3138,7 +3135,7 @@
 
     // Агар руйхати рақамҳо дароз бошад — ба таври худкор ба самти
     // рақами интихобшуда склор мекунем, то ҳама онро бубинанд
-    chosen.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    if(window.finaliScrollXTo) window.finaliScrollXTo(chosen);
 
     let finished = false;
     const finishReveal = () => {
@@ -5247,7 +5244,7 @@
     if(card){
       // Агар кутии призҳо дароз бошад — ба таври худкор ба самти призи
       // интихобшуда склор мекунем, то ҳама онро бубинанд
-      card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      if(window.finaliScrollXTo) window.finaliScrollXTo(card);
 
       let finished = false;
       const onAnimEnd = () => {
@@ -6181,26 +6178,34 @@
     if(playersSaveWordBtn) playersSaveWordBtn.style.removeProperty("display");
     playersTableEmpty.classList.add("hidden");
     playersTable.classList.remove("hidden");
-    // Кӯҳна -> нав: бозингари нав ҳамеша дар поёни руйхат меистад (1, 2, 3, 4, 5...).
-    entries.sort((a, b) =>
-      ((a[1].approvedAt || a[1].createdAt || 0) - (b[1].approvedAt || b[1].createdAt || 0)) ||
-      String(a[0]).localeCompare(String(b[0]))
-    );
-    playersTableBody.innerHTML = entries.map(([id, o], i) => `
+    // Ҳар як рақам дар сатри алоҳида ва ҳамеша аз хурд ба калон (1, 2, 3, ...).
+    // Тартиб автомат аст; захира ба Word ҳамин сатрҳоро мехонад.
+    const numRows = [];
+    entries.forEach(([id, o]) => {
+      const nums = (o.numbers && o.numbers.length) ? o.numbers : [null];
+      nums.forEach(n => numRows.push({ id, o, n }));
+    });
+    const numKey = n => {
+      if(n === null) return [2, 0, ""];
+      const v = Number(n);
+      return Number.isFinite(v) ? [0, v, ""] : [1, 0, String(n)];
+    };
+    numRows.sort((a, b) => {
+      const ka = numKey(a.n), kb = numKey(b.n);
+      return (ka[0] - kb[0]) || (ka[1] - kb[1]) || ka[2].localeCompare(kb[2]) ||
+        ((a.o.approvedAt || a.o.createdAt || 0) - (b.o.approvedAt || b.o.createdAt || 0)) ||
+        String(a.id).localeCompare(String(b.id));
+    });
+    playersTableBody.innerHTML = numRows.map((r, i) => `
       <tr>
         <td class="u-idx">${i+1}</td>
-        <td><div class="player-numbers-scroll">${(o.numbers || []).map(n => `<span class="player-num-chip">${escapeHtml(String(n))}</span>`).join("")}</div></td>
-        <td class="u-name">${escapeHtml(o.name || "—")}</td>
-        <td>${escapeHtml(o.phone || "—")}</td>
-        <td>${escapeHtml(o.roundName || "—")}</td>
+        <td><div class="player-numbers-scroll">${r.n === null ? "—" : `<span class="player-num-chip">${escapeHtml(String(r.n))}</span>`}</div></td>
+        <td class="u-name">${escapeHtml(r.o.name || "—")}</td>
+        <td>${escapeHtml(r.o.phone || "—")}</td>
+        <td>${escapeHtml(r.o.roundName || "—")}</td>
       </tr>
     `).join("");
-    // Агар бозингари нав илова шуда бошад — ба поёни руйхат мегузарем, то намоён шавад.
-    if(!q && playersLastCount > 0 && entries.length > playersLastCount){
-      const lastRow = playersTableBody.lastElementChild;
-      if(lastRow && lastRow.scrollIntoView) lastRow.scrollIntoView({ block: "nearest" });
-    }
-    if(!q) playersLastCount = entries.length;
+    if(!q) playersLastCount = numRows.length;
   }
   let playersLastCount = 0;
 
@@ -6234,7 +6239,7 @@
      мешаванд. ---------- */
   function exportPlayersToWord(){
     // Рақами бозингар: доираи сабз бо ҳошияи сиёҳ (VML — Word инро дастгирӣ мекунад)
-    const wordBall = n => `<v:oval style="width:26pt;height:26pt;v-text-anchor:middle" fillcolor="#3ddc84" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:12pt;color:#000000;">${escapeHtml(String(n))}</span></b></p></v:textbox></v:oval>&nbsp;`;
+    const wordBall = n => `<v:oval style="width:34pt;height:34pt;v-text-anchor:middle" fillcolor="#3ddc84" strokecolor="#000000" strokeweight="1.5pt"><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:false"><p class="MsoNormal" align="center" style="margin:0cm;text-align:center;text-indent:0cm;line-height:normal;"><b><span style="font-family:Arial,sans-serif;font-size:16pt;color:#000000;">${escapeHtml(String(n))}</span></b></p></v:textbox></v:oval>&nbsp;`;
     const rows = playersTableBody ? Array.from(playersTableBody.querySelectorAll("tr")) : [];
     const tableRows = rows.length
       ? rows.map(row => {
@@ -6247,9 +6252,9 @@
             ? Array.from(numsWrap.querySelectorAll(".player-num-chip")).map(el => el.textContent)
             : [];
           const nums = numsArr.length
-            ? numsArr.map(wordBall).join(" ")
+            ? numsArr.map(wordBall).join(" ").replace(/&nbsp;$/, "")
             : "—";
-          return `<tr><td>${nums}</td><td style="text-align:center;">${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;">${escapeHtml(roundName ? roundName.textContent : "—")}</td></tr>`;
+          return `<tr style="height:46pt;"><td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;">${nums}</td><td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;">${escapeHtml(name ? name.textContent : "—")}</td><td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;">${escapeHtml(phone ? phone.textContent : "—")}</td><td style="text-align:center;vertical-align:middle;font-size:16pt;font-weight:bold;background:#f6c619;">${escapeHtml(roundName ? roundName.textContent : "—")}</td></tr>`;
         }).join("")
       : `<tr><td colspan="4" style="text-align:center;">Ҳануз ҳеҷ бозингаре тасдиқ нашудааст</td></tr>`;
 
@@ -6298,14 +6303,15 @@
   #playersModal.players-compact #playersTable tbody td.u-date{ white-space:normal !important; font-size:.66rem !important; }
   #playersModal.players-compact #playersTable .player-num-chip{ border-width:2px !important; font-size:.8rem !important; }
   #playersModal.players-compact #playersTable .player-numbers-scroll{
-    max-width:calc(24px * 5 + 4px * 4) !important; gap:4px !important; margin:0 auto !important;
+    max-width:100% !important; gap:4px !important; margin:0 auto !important; justify-content:center !important;
   }
+
 </style></head>
 <body style="font-family:Arial, sans-serif;">
 <div class="Section1">
   <h2>Руйхати бозингарон</h2>
   <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%; table-layout:fixed;">
-    <thead><tr><th style="width:34%;">Рақамҳои бозингар</th><th style="width:24%;">Номи билетхо</th><th style="width:24%;">Рақами телефон</th><th style="width:18%;">Аз бозии</th></tr></thead>
+    <thead><tr style="background:#76a5f7;"><th style="width:19%;background:#76a5f7;font-size:12pt;">РАҚАМҲОИ БОЗИНГАР</th><th style="width:42%;background:#76a5f7;font-size:12pt;">НОМИ БИЛЕТХО</th><th style="width:27%;background:#76a5f7;font-size:12pt;">РАҚАМИ ТЕЛЕФОН</th><th style="width:12%;background:#76a5f7;font-size:12pt;">АЗ БОЗИИ</th></tr></thead>
     <tbody>${tableRows}</tbody>
   </table>
 </div>
@@ -7102,6 +7108,28 @@
 
 
 <script>
+/* Склори ЯГОНА: танҳо худи руйхати рақамҳо/призҳо ба самти элемент склор мешавад.
+   Пештар scrollIntoView тамоми равзанаро (windowBody) ба чап/рост мекашид ва он такон мехурд. */
+window.finaliScrollXTo = function(el){
+  try{
+    if(!el) return;
+    let c = el.parentElement;
+    while(c && c !== document.body && c !== document.documentElement){
+      if(c.id === 'windowBody' || c.id === 'finalGameWindow') return;
+      const cs = getComputedStyle(c);
+      if((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && c.scrollWidth > c.clientWidth + 1) break;
+      c = c.parentElement;
+    }
+    if(!c || c === document.body || c === document.documentElement) return;
+    const cr = c.getBoundingClientRect(), er = el.getBoundingClientRect();
+    const scale = c.clientWidth ? (cr.width / c.clientWidth) : 1;
+    const delta = ((er.left + er.width / 2) - (cr.left + cr.width / 2)) / (scale || 1);
+    c.scrollTo({ left: c.scrollLeft + delta, top: c.scrollTop, behavior: 'smooth' });
+  }catch(e){}
+};
+</script>
+
+<script>
 /* Худкор ба андозаи экран мегунҷонад: агар мундариҷа аз баландии экран зиёд бошад
    (масалан дар телевизор), тамоми равзана якхела хурд мешавад, то ҳама чиз пурра намоён бошад. */
 (function(){
@@ -7109,6 +7137,12 @@
   const body = document.getElementById('windowBody');
   const expandBtn = document.getElementById('finalGameExpandBtn');
   if(!win || !body) return;
+  // Нигаҳбон: дар ҳолати "fit" равзана ҳаргиз ба чап/рост ё боло/поён наравад
+  [win, body].forEach(function(el){
+    el.addEventListener('scroll', function(){
+      if(body.classList.contains('fit') && (el.scrollLeft || el.scrollTop)){ el.scrollLeft = 0; el.scrollTop = 0; }
+    });
+  });
   function reset(){ body.classList.remove('fit'); body.style.cssText = ''; }
   // "имзо"-и мундариҷа (ҷамъи баландии блокҳо) — барои фаҳмидани тағйирёбии андоза
   let lastSig = -1;
@@ -7158,5 +7192,6 @@
   later(300);
 })();
 </script>
+
 </body>
 </html>
