@@ -830,7 +830,7 @@ button{ font-family:inherit; }
         <div class="info-box-head">
           <h3>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
-            Приз
+            Призҳо
           </h3>
         </div>
         <div class="prizes-box">
@@ -1070,7 +1070,7 @@ onValue(ref(db, "prizes"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   const entries = data ? Object.entries(data) : [];
   const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
-  homePrizeCountBadge.textContent = "Ва " + totalQty + " приз" + (totalQty === 1 ? "" : "ҳо");
+ homePrizeCountBadge.textContent = "Ва " + totalQty + " приз";
   if(entries.length === 0){
     prizesWerePresent = false;
     homePrizesRow.classList.add("hidden");
