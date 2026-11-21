@@ -268,19 +268,40 @@ button{ font-family:inherit; }
   }
 .prize-chip .qty-label{ font-size:0.52rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; font-weight:700; }
 .prize-chip .p-qty{ font-family:'Bebas Neue', sans-serif; font-size:0.88rem; color:var(--gold); line-height:1; }
-/* Рамкаи рақамҳо — 4 сатр, мисли топҳои тилоии qura-admin.html */
+/* Рамкаи рақамҳо — 15 сатр, скролл ба боло/поён, мисли топҳои тилоии qura-admin.html */
 .numbers-row{
-    --ball-size:27px;
-    display:grid; grid-template-rows:repeat(4, var(--ball-size));
-    grid-auto-flow:column; grid-auto-columns:var(--ball-size);
-    gap:6px; overflow-x:auto; overflow-y:hidden;
-    padding:4px 4px 6px; width:100%;
+    --ball-size:34px;
+    display:grid; grid-template-columns:repeat(auto-fill, var(--ball-size)); grid-auto-rows:var(--ball-size);
+    grid-auto-flow:row; justify-content:space-between; align-content:start;
+    gap:5px; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    padding:4px 4px 6px; width:100%; box-sizing:border-box;
+    /* 15 сатр: 15 * ball + 14 * gap + padding; бештар шавад — ба боло/поён скролл */
+    scrollbar-width:none; -ms-overflow-style:none;
+    max-height:calc(var(--ball-size) * 15 + 5px * 14 + 10px);
   }
+.numbers-row::-webkit-scrollbar{ display:none; width:0; height:0; }
+/* Ҳангоми авто-скролли ишоравӣ мигати сурх хомӯш мешавад, то ду аниматсия ҳамзамон наоянд */
+.numbers-row.nudging .number-chip::before{ opacity:0 !important; animation-play-state:paused !important; }
+/* Рақамҳои нафурухта: ҳар чанд сония ҳамаашон якҷоя сурх мешаванд (равшан → хира) */
+.numbers-row.glow-on .number-chip:not(.sold):not(.locked):not(.pending-taken){ isolation:isolate; }
+.numbers-row.glow-on .number-chip:not(.sold):not(.locked):not(.pending-taken)::before{
+    content:""; position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:-1;
+    background:radial-gradient(circle at 35% 30%, #ff8a7a 0%, #f0262b 55%, #c4121a 100%);
+    opacity:0;
+    animation:ballGlow 12s ease-in-out infinite;
+    animation-delay:-8s; /* ҳамаи рақамҳои нафурухта якҷоя */
+  }
+@keyframes ballGlow{
+    0%, 83%, 100%{ opacity:0; transform:scale(1); }
+    91.5%{ opacity:0.95; transform:scale(1.05); }
+    97%{ opacity:0.1; }
+  }
+
 .number-chip{
     width:var(--ball-size); height:var(--ball-size); border-radius:50%;
     background:radial-gradient(circle at 32% 26%, var(--gold-2), var(--gold) 55%, var(--gold-dark) 100%);
     color:#1b1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    font-family:'Bebas Neue', sans-serif; font-size:11px; letter-spacing:0.02em;
+    font-family:'Bebas Neue', sans-serif; font-size:16px; letter-spacing:0.02em;
     box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.22), inset 0 2px 3px rgba(255,255,255,0.35);
     position:relative; transform:scale(0); opacity:0;
     animation:chipRollIn 0.45s cubic-bezier(.2,.9,.3,1.3) forwards;
@@ -308,6 +329,19 @@ button{ font-family:inherit; }
      мешавад (танҳо намуди зоҳири), вале склор (ҳаракат бо ангушт/муш) кор
      карда истодааст, зеро мо танҳо opacity-ро тағйир медиҳем, на pointer-events. */
 .info-box.sold-out .numbers-row{ opacity:0.4; }
+/* Фурухта / Нафурухта — берун аз рамкаи рақамҳо, дар зери он: яке аз чап, яке аз рост */
+.info-box.light-box{ background:#ffffff; border:1px solid #0b1020; color:#0b1020; }
+.light-box .info-box-head h3{ color:#0b1020; }
+.light-box .info-box-head h3 svg{ color:#e8a317; }
+.light-box > .info-box-head .info-badge{ background:#ffffff; color:#0b1020; border:1px solid #0b1020; }
+.light-box .prizes-box{ background:#ffffff; border:1px solid #0b1020; }
+.light-box .box-empty,
+.light-box .box-empty p{ color:#3a4156; }
+.round-badges-wrap{ display:flex; justify-content:center; margin:2px 0 8px; }
+.round-badges-wrap .info-badge-row{ max-width:100%; justify-content:center; flex-wrap:nowrap; overflow:hidden; gap:min(5px, 0.9vw); padding:min(7px, 1.6vw) min(9px, 1.8vw); }
+.round-badges-wrap .info-badge{ font-size:min(0.66rem, 1.65vw); padding:min(4px, 0.9vw) min(9px, 1.5vw); white-space:nowrap; flex:0 0 auto; }
+.sold-footer{ display:flex; flex-wrap:nowrap; justify-content:center; align-items:center; gap:8px; margin:6px 2px 10px; }
+.sold-footer .info-badge{ font-size:clamp(0.56rem, 2.9vw, 0.74rem); padding:6px clamp(6px, 2.4vw, 12px); white-space:nowrap; }
 /* Нишонаи "СТОП БИЛЕТ" — дар паҳлуи матни сарлавҳаи руйхати рақамҳо, аз
      тарафи рост, вақте ки ҳамаи рақамҳо фурухта шудаанд. */
 .stop-ticket-badge{
@@ -696,6 +730,30 @@ button{ font-family:inherit; }
     border:3px solid #000 !important; box-shadow:none !important; text-shadow:none !important;
     font-family:'Bebas Neue', sans-serif !important; font-size:calc(var(--chip) * .5) !important; font-weight:800 !important;
   }
+/* ===== Телефон: ҷадвали руйхати бозингарон хурд ===== */
+@media (max-width:900px){
+  /* 20 сатр дар як экран: баландии сатр = (баландии экран - ҳошияҳо) / 21 (20 сатр + сарлавҳа) */
+  #screen-players #playersTable{ --rowh:clamp(20px, calc((var(--app-height, 100vh) - 250px) / 21), 40px); --chip:calc(var(--rowh) - 4px); }
+  #screen-players #playersTable tbody td{ height:var(--rowh) !important; padding-top:1px !important; padding-bottom:1px !important; }
+  #screen-players #playersTable thead th{ height:var(--rowh) !important; }
+  #screen-players #playersTable thead th{ font-size:.62rem !important; letter-spacing:.02em; padding:2px 4px !important; }
+  #screen-players #playersTable tbody td:nth-child(n+2){ font-size:.62rem !important; line-height:1.2 !important; white-space:nowrap !important; }
+  #screen-players #playersTable thead th:nth-child(1),
+  #screen-players #playersTable tbody td:nth-child(1){ padding:1px 8px !important; }
+  #screen-players #playersTable thead th:nth-child(2),
+  #screen-players #playersTable tbody td:nth-child(2){ padding:1px 6px !important; width:auto !important; white-space:nowrap !important; word-break:normal !important; }
+  #screen-players #playersTable thead th:nth-child(n+3),
+  #screen-players #playersTable tbody td:nth-child(n+3){ padding:1px 6px !important; }
+  #screen-players #playersTable th,
+  #screen-players #playersTable td,
+  #screen-players #playersTable td.gw-name,
+  #screen-players #playersTable td.gw-round{ border-left-width:1px !important; border-bottom-width:1px !important; }
+  #screen-players #playersTable thead th{ border-top-width:1px !important; }
+  #screen-players #playersTable th:last-child,
+  #screen-players #playersTable td:last-child{ border-right-width:1px !important; }
+  #screen-players #playersTable .player-numbers-scroll{ gap:3px !important; }
+  #screen-players #playersTable .player-num-chip{ border-width:1.5px !important; }
+}
 </style>
 </head>
 <body>
@@ -768,13 +826,12 @@ button{ font-family:inherit; }
         </div>
       </div>
 
-      <div class="info-box">
+      <div class="info-box light-box">
         <div class="info-box-head">
           <h3>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/></svg>
             Призҳо
           </h3>
-          <span class="info-badge" id="homePrizeCountBadge">0 приз</span>
         </div>
         <div class="prizes-box">
           <div class="box-empty" id="homePrizesEmpty">
@@ -785,7 +842,9 @@ button{ font-family:inherit; }
         </div>
       </div>
 
-      <div class="info-box" id="numbersBoxHome">
+      <div class="round-badges-wrap"><div class="info-badge-row" id="homeRoundBadgeRow"><span class="info-badge" id="homePrizeCountBadge">Ва 0 приз</span></div></div>
+
+      <div class="info-box light-box" id="numbersBoxHome">
         <div class="info-box-head">
           <h3>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
@@ -793,7 +852,6 @@ button{ font-family:inherit; }
             <span class="stop-ticket-badge hidden" id="stopTicketBadge">Стоп билет</span>
             <span class="wait-ticket-badge hidden" id="waitTicketBadge">Рақамҳо банд шудаанд, лутфан интизор шавед</span>
           </h3>
-          <div class="info-badge-row" id="homeRoundBadgeRow"></div>
         </div>
         <div class="box-empty" id="homeNumbersEmpty">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="4"/><circle cx="16" cy="16" r="4"/><path d="M8 12v0M16 8v0"/></svg>
@@ -801,6 +859,7 @@ button{ font-family:inherit; }
         </div>
         <div class="numbers-row hidden" id="homeNumbersRow"></div>
       </div>
+      <div class="sold-footer hidden" id="homeSoldFooter"></div>
 
     </div>
 
@@ -1011,7 +1070,7 @@ onValue(ref(db, "prizes"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
   const entries = data ? Object.entries(data) : [];
   const totalQty = entries.reduce((sum, [, p]) => sum + (Number(p.qty) || 0), 0);
-  homePrizeCountBadge.textContent = totalQty + " приз" + (totalQty === 1 ? "" : "ҳо");
+  homePrizeCountBadge.textContent = "Ва " + totalQty + " приз" + (totalQty === 1 ? "" : "ҳо");
   if(entries.length === 0){
     prizesWerePresent = false;
     homePrizesRow.classList.add("hidden");
@@ -1107,17 +1166,21 @@ let currentPriceRuble = 100;
 function renderRoundBadges(soldCount){
   const total = currentRoundCount;
   let html =
-    '<span class="info-badge">Бозии: ' + escapeHtml(currentRoundName) + '</span>' +
-    '<span class="info-badge">' + total + ' рақам</span>';
+    '<span class="info-badge">Рафти бозии: ' + escapeHtml(currentRoundName) + '</span>' +
+    '<span class="info-badge">Ҳамаги ' + total + ' рақам</span>';
+  let footer = "";
   if(total > 0){
     const unsold = Math.max(0, total - soldCount);
     html += '<span class="info-badge">Нархи як рақам: ' + currentPriceSomon + ' сомон / ' + currentPriceRuble + ' рубл</span>';
-    html += '<span class="info-badge badge-sold"><span class="badge-dot" style="background:#3fbf8f"></span>Фурухта: ' + soldCount + '</span>';
-    html += (unsold === 0)
+    footer += '<span class="info-badge badge-sold"><span class="badge-dot" style="background:#3fbf8f"></span>Рақамҳои фурухта шуда: ' + soldCount + '</span>';
+    footer += (unsold === 0)
       ? '<span class="info-badge sold-out-badge badge-unsold"><span class="badge-dot" style="background:#3fbf8f"></span>Ҳама рақамҳо фурухта шуданд</span>'
-      : '<span class="info-badge badge-unsold"><span class="badge-dot" style="background:var(--gold)"></span>Нафурухта: ' + unsold + '</span>';
+      : '<span class="info-badge badge-unsold"><span class="badge-dot" style="background:var(--gold)"></span>Рақамҳои нафурухта шуда: ' + unsold + '</span>';
   }
   homeRoundBadgeRow.innerHTML = html;
+  homeRoundBadgeRow.insertBefore(homePrizeCountBadge, homeRoundBadgeRow.children[2] || null);
+  const sf = document.getElementById("homeSoldFooter");
+  if(sf){ sf.innerHTML = footer; sf.classList.toggle("hidden", !footer); }
 }
 onValue(ref(db, "currentRound"), (snap) => {
   const data = snap.exists() ? snap.val() : null;
@@ -1147,7 +1210,7 @@ onValue(ref(db, "currentRound"), (snap) => {
   const STAGGER_CAP = 80;
   for(let i = 1; i <= data.count; i++){
     const delay = (i-1) < STAGGER_CAP ? ((i-1) * 0.025) : (STAGGER_CAP * 0.025);
-    html += '<div class="number-chip" style="animation-delay:' + delay + 's">' + i + '</div>';
+    html += '<div class="number-chip" style="animation-delay:' + delay + 's;--glow-delay:' + ((Math.floor((i-1)/2) % 30) * 0.08) + 's">' + i + '</div>';
   }
   homeNumbersRow.innerHTML = html;
   // Садо танҳо ҳангоми пайдо шудани руйхати рақамҳо аз ҳолати холи мебарояд.
@@ -1850,6 +1913,56 @@ navItems.forEach(btn => {
 // Корбар сабт намешавад, "онлайн" қайд намешавад ва ба Firebase чизе навишта намешавад
 // (ба ҷуз тоза кардани фармоишҳои радшуда — ниг. cleanupRejectedOrders).
 showHome();
+</script>
+<script>
+/* Тартиби аниматсияҳои рӯйхати рақамҳо:
+   1) рақамҳо якбора пайдо мешаванд (roll-in);
+   2) пас аз чанд лаҳза — авто-скролл (агар рақамҳо зиёд бошанд): каме ба поён ва боло;
+   3) пас аз чанд лаҳзаи дигар — мигати сурки рақамҳои нафурухта оғоз мешавад. */
+(function(){
+  var row = document.getElementById("homeNumbersRow");
+  if(!row) return;
+  var timers = [], userTouched = false, rafOn = false;
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+  row.addEventListener("touchstart", function(){ userTouched = true; }, {passive:true});
+  row.addEventListener("wheel", function(){ userTouched = true; }, {passive:true});
+
+  function startGlow(){ row.classList.add("glow-on"); }
+
+  function nudge(done){
+    if(userTouched || row.scrollTop > 0 || row.scrollHeight <= row.clientHeight + 4){ done(); return; }
+    var amp = 60, dur = 450, t0 = null;
+    function ease(t){ return t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+    function step(ts){
+      if(t0 === null) t0 = ts;
+      var t = (ts - t0) / dur;
+      if(userTouched){ done(); return; }
+      if(t < 1){ row.scrollTop = amp * ease(t); requestAnimationFrame(step); }
+      else if(t < 2){ row.scrollTop = amp * (1 - ease(t - 1)); requestAnimationFrame(step); }
+      else { row.scrollTop = 0; done(); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function runSequence(){
+    clearTimers();
+    row.classList.remove("glow-on");
+    if(row.classList.contains("hidden") || !row.children.length) return;
+    // 1) чанд лаҳза интизор, то ҳамаи рақамҳо пайдо шаванд (roll-in ~2.5 сония) + каме фосила
+    later(function(){
+      // 2) авто-скролл
+      nudge(function(){
+        // 3) баъд аз чанд лаҳза — мигат
+        later(startGlow, 1200);
+      });
+    }, 3500);
+  }
+
+  new MutationObserver(function(){ userTouched = false; runSequence(); })
+    .observe(row, {childList:true});
+  if(row.children.length) runSequence();
+})();
 </script>
 </body>
 </html>
