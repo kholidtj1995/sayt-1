@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Расм дар рамка</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    .ramka {
+      padding: 15px;
+      background: #fff;
+      border: 8px solid #8b5a2b;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      max-width: 90vw;
+    }
+    .ramka img {
+      display: block;
+      max-width: 100%;
+      max-height: 70vh;
+    }
+    .zerkashi {
+      padding: 12px 30px;
+      background: #8b5a2b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .zerkashi:hover {
+      background: #6d4521;
+    }
+  </style>
+</head>
+<body>
+  <div class="ramka">
+    <img src="https://kholidtj1995.github.io/sayt-1/РАСМ.jpg" alt="Расм">
+  </div>
+
+  <button class="zerkashi" id="btn">⬇ Зеркашӣ</button>
+
+  <script>
+    document.getElementById('btn').addEventListener('click', async function () {
+      const url = 'https://kholidtj1995.github.io/sayt-1/РАСМ.jpg';
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'расм.jpg';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+      } catch (e) {
+        window.open(url, '_blank');
+      }
+    });
+  </script>
+</body>
+</html>
