@@ -3,70 +3,900 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Расм дар рамка</title>
+  <title>Доскаи Саволу Ҷавоб - TikTok Live</title>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
+    html, body { min-height: 100%; margin: 0; }
     body {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 20px;
-      background: #f0f0f0;
+      gap: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+      background: #1a1a1a;
       font-family: Arial, sans-serif;
     }
+
+    /* Контейнери асосӣ: Доска дар чап, Рӯйхати ғолибон дар рост */
+    .sahna {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      max-width: 96vw;
+    }
+
     .ramka {
-      padding: 15px;
+      padding: 12px;
       background: #fff;
       border: 8px solid #8b5a2b;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-      max-width: 90vw;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      max-width: 100%;
+      box-sizing: border-box;
+      border-radius: 4px;
     }
-    .ramka img {
+    .doska {
+      position: relative;
+      display: inline-block;
+      line-height: 0;
+    }
+    .doska img {
       display: block;
       max-width: 100%;
-      max-height: 70vh;
+      max-height: 74vh;
     }
-    .zerkashi {
-      padding: 12px 30px;
-      background: #8b5a2b;
+
+    /* Майдони бур дар болои тахтаи сиёҳ */
+    .bur {
+      position: absolute;
+      left: 25%;
+      right: 25%;
+      top: 20%;
+      bottom: 22%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      line-height: 1.25;
+      color: #f5f5f0;
+      font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive;
+      font-size: clamp(15px, 2.6vw, 34px);
+      word-break: break-word;
+      overflow: hidden;
+      pointer-events: none;
+      text-shadow: 0 0 2px rgba(255,255,255,0.8), 1px 1px 3px rgba(0,0,0,0.6);
+      opacity: 0.94;
+      transform: rotate(-1deg);
+    }
+
+    .bolo-qism {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .nom {
+      font-size: 0.72em;
+      color: #ffd166;
+    }
+    .taymer-qutti {
+      display: inline-block;
+      padding: 2px 14px;
+      border: 2px dashed rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      font-size: 0.82em;
+      font-weight: bold;
+      color: #7ae582;
+      transition: all 0.2s ease;
+    }
+    .taymer-qutti.khatar {
+      color: #ff4d4d;
+      border-color: #ff4d4d;
+      animation: larzish 0.45s infinite;
+    }
+    .taymer-qutti.tamom {
+      color: #ffd166;
+      border-color: #ffd166;
+    }
+
+    @keyframes larzish {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.14); }
+    }
+
+    .savol {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: pre-wrap;
+      padding: 6px 0;
+    }
+
+    .javob {
+      flex: none;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(255,255,255,0.35);
+      white-space: pre-wrap;
+      font-size: 0.9em;
+    }
+    .javob-ochiq {
+      color: #7ae582;
+      text-shadow: 0 0 10px rgba(122, 229, 130, 0.8);
+      animation: paydoShudan 0.5s ease-out;
+    }
+    @keyframes paydoShudan {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.12); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Панели тарафи рост: Номи нафароне ки ҷавобро ёфтанд */
+    .ruykhati-rost {
+      width: 270px;
+      max-width: 100%;
+      min-height: 260px;
+      max-height: 74vh;
+      background: linear-gradient(180deg, #2b2118 0%, #1d1712 100%);
+      border: 4px solid #8b5a2b;
+      border-radius: 10px;
+      padding: 14px;
+      box-sizing: border-box;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+    }
+    .ruykhati-sarlavha {
+      text-align: center;
+      font-size: 17px;
+      font-weight: bold;
+      color: #ffd166;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed rgba(255, 209, 102, 0.35);
+      margin-bottom: 10px;
+    }
+    .ruykhati-sarlavha span {
+      display: block;
+      font-size: 12px;
+      color: #d4c4b0;
+      font-weight: normal;
+      margin-top: 3px;
+    }
+    .form-ilova {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .form-ilova input {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 2px solid #8b5a2b;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 14px;
+    }
+    .form-ilova button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #2f6f4f;
+      color: #fff;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .form-ilova button:hover { background: #245a3f; }
+
+    .ruykhati-nomho {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .nomi-golib {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-left: 4px solid #7ae582;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 15px;
+      animation: golibPaydo 0.4s ease-out;
+    }
+    @keyframes golibPaydo {
+      0% { transform: translateX(25px) scale(0.9); opacity: 0; }
+      100% { transform: translateX(0) scale(1); opacity: 1; }
+    }
+    .nomi-golib .matni-nom {
+      font-weight: bold;
+      color: #fff;
+      word-break: break-word;
+    }
+    .nomi-golib .nishon {
+      color: #ffd166;
+      margin-right: 6px;
+    }
+    .nomi-golib .hazf {
+      background: transparent;
+      border: none;
+      color: #ff7b7b;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 0 4px;
+      opacity: 0.7;
+    }
+    .nomi-golib .hazf:hover { opacity: 1; }
+
+    .ruykhati-khali {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      margin-top: 30px;
+      line-height: 1.5;
+    }
+    .btn-toza-ruykhat {
+      margin-top: 10px;
+      padding: 7px 12px;
+      background: #7c2d12;
+      color: #ffedd5;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-toza-ruykhat:hover { background: #9a3412; }
+
+    /* Аниматсияи пок кардан */
+    .bur.pok-shuda {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 42%, #000 58%, #000 100%);
+      mask-image: linear-gradient(to right, transparent 0%, transparent 42%, #000 58%, #000 100%);
+      -webkit-mask-size: 200% 100%;
+      mask-size: 200% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      animation: pokMask 1.4s ease-in-out forwards;
+    }
+    @keyframes pokMask {
+      from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+      to   { -webkit-mask-position: 0 0;    mask-position: 0 0; }
+    }
+    .gubka {
+      display: none;
+      position: absolute;
+      top: 30%;
+      left: 22%;
+      width: 14%;
+      height: 12%;
+      min-width: 50px;
+      min-height: 28px;
+      background: linear-gradient(#e9d8a6 0 35%, #5b3a1a 35% 100%);
+      border-radius: 6px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .gubka.faol {
+      display: block;
+      animation: gubkaRaft 1.4s ease-in-out forwards;
+    }
+    @keyframes gubkaRaft {
+      0%   { left: 22%; top: 28%; transform: rotate(-8deg); }
+      12%  { top: 38%; }
+      25%  { top: 30%; }
+      37%  { top: 44%; }
+      50%  { top: 32%; }
+      62%  { top: 48%; }
+      75%  { top: 36%; }
+      100% { left: 68%; top: 44%; transform: rotate(6deg); }
+    }
+
+    /* Тугмаҳо */
+    .satr-tugma {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .satr-tugma button {
+      padding: 11px 20px;
       color: #fff;
       border: none;
       border-radius: 6px;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.1s;
     }
-    .zerkashi:hover {
-      background: #6d4521;
+    .satr-tugma button:active:not(:disabled) {
+      transform: scale(0.95);
     }
+    .tahrir { background: #8b5a2b; }
+    .tahrir:hover { background: #6d4521; }
+    .pok { background: #a33a3a; }
+    .pok:hover { background: #832d2d; }
+    .didan { background: #2f6f4f; }
+    .didan:hover { background: #245a3f; }
+    .pauza { background: #d97706; }
+    .pauza:hover { background: #b45309; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Равзанаи таҳрир */
+    .parda {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .parda.faol { display: flex; }
+    .ravzana {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .ravzana h3 { margin: 0 0 12px; }
+    .ravzana label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    .ravzana textarea, .ravzana input, .ravzana select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #8b5a2b;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+    .ravzana textarea { height: 80px; resize: vertical; }
+    .nomsatr {
+      display: flex;
+      align-items: stretch;
+      border: 2px solid #8b5a2b;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .nomsatr .pesh {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      background: #f1e6d8;
+      color: #5a3a17;
+      font-size: 15px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .nomsatr input {
+      border: none;
+      border-radius: 0;
+      outline: none;
+    }
+    .tugmaho {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .tugmaho button {
+      padding: 10px 22px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .sabt { background: #8b5a2b; color: #fff; }
+    .bekor { background: #ddd; }
   </style>
 </head>
 <body>
-  <div class="ramka">
-    <img src="https://kholidtj1995.github.io/sayt-1/РАСМ.jpg" alt="Расм">
+  <div class="sahna">
+    <div class="ramka">
+      <div class="doska">
+        <img src="https://kholidtj1995.github.io/sayt-1/РАСМ.jpg" alt="Расм">
+        <div class="gubka" id="gubka"></div>
+        <div class="bur" id="bur">
+          <div class="bolo-qism">
+            <div class="nom" id="nom"></div>
+            <div class="taymer-qutti" id="taymerQutti" style="display:none;">⏳ 00:00</div>
+          </div>
+          <div class="savol" id="savol"></div>
+          <div class="javob" id="javob">
+            <span>Ҷавоб: </span><span id="javobMatn">❓ Пинҳон аст</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Тарафи рост: Берун аз доска -->
+    <aside class="ruykhati-rost" id="ruykhatiRost">
+      <div class="ruykhati-sarlavha">
+        🏆 Ҷавобдиҳандагони дуруст
+        <span>Касоне, ки саволро ёфтанд</span>
+      </div>
+      <div class="form-ilova">
+        <input type="text" id="inGolib" placeholder="Номро нависед...">
+        <button type="button" id="btnIlovaGolib" title="Илова кардан">➕</button>
+      </div>
+      <ul class="ruykhati-nomho" id="ruykhatiNomho"></ul>
+      <button type="button" class="btn-toza-ruykhat" id="btnTozaRuykhat">🗑 Тоза кардани рӯйхат</button>
+    </aside>
   </div>
 
-  <button class="zerkashi" id="btn">⬇ Зеркашӣ</button>
+  <div class="satr-tugma">
+    <button class="pok" id="btnPok">🧹 Пок кардан</button>
+    <button class="tahrir" id="btnTahrir">✏ Саволи нав</button>
+    <button class="pauza" id="btnPauza" disabled>⏸ Таваққуф</button>
+    <button class="didan" id="btnDidan" disabled>👁 Ҳозир кушодан</button>
+  </div>
+
+  <div class="parda" id="parda">
+    <div class="ravzana">
+      <h3>Савол барои эфир</h3>
+
+      <label for="inNom">1. Номи саволдиҳанда (аз чат)</label>
+      <div class="nomsatr">
+        <span class="pesh">Саволдиҳанда:</span>
+        <input type="text" id="inNom" placeholder="Масалан: БОЗИ ТЧ...">
+      </div>
+
+      <label for="inSavol">2. Матни савол</label>
+      <textarea id="inSavol" placeholder="Саволро нависед..."></textarea>
+
+      <label for="inJavob">3. Ҷавоби дуруст (пинҳон мешавад)</label>
+      <div class="nomsatr">
+        <span class="pesh">Ҷавоб:</span>
+        <input type="text" id="inJavob" placeholder="Ҷавобро нависед...">
+      </div>
+
+      <label for="inVaqt">4. Вақт барои фикр кардан (сония)</label>
+      <select id="inVaqt">
+        <option value="15">15 сония (Тез)</option>
+        <option value="30" selected>30 сония (Стандарт)</option>
+        <option value="45">45 сония</option>
+        <option value="60">60 сония (1 дақиқа)</option>
+        <option value="90">90 сония (1.5 дақиқа)</option>
+        <option value="120">120 сония (2 дақиқа)</option>
+      </select>
+
+      <div class="tugmaho">
+        <button class="bekor" id="btnBekor">Бекор</button>
+        <button class="sabt" id="btnSabt">▶ Оғоз ва Сабт</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('btn').addEventListener('click', async function () {
-      const url = 'https://kholidtj1995.github.io/sayt-1/РАСМ.jpg';
+    const savol = document.getElementById('savol');
+    const nom = document.getElementById('nom');
+    const javob = document.getElementById('javob');
+    const javobMatn = document.getElementById('javobMatn');
+    const taymerQutti = document.getElementById('taymerQutti');
+    const btnDidan = document.getElementById('btnDidan');
+    const btnPauza = document.getElementById('btnPauza');
+    const bur = document.getElementById('bur');
+    const gubka = document.getElementById('gubka');
+    const btnPok = document.getElementById('btnPok');
+    const parda = document.getElementById('parda');
+    const inSavol = document.getElementById('inSavol');
+    const inNom = document.getElementById('inNom');
+    const inJavob = document.getElementById('inJavob');
+    const inVaqt = document.getElementById('inVaqt');
+
+    const inGolib = document.getElementById('inGolib');
+    const btnIlovaGolib = document.getElementById('btnIlovaGolib');
+    const ruykhatiNomho = document.getElementById('ruykhatiNomho');
+    const btnTozaRuykhat = document.getElementById('btnTozaRuykhat');
+
+    let dataSavol = '';
+    let dataNom = '';
+    let dataJavob = '';
+    let javobOchiq = false;
+    let boqiVaqt = 0;
+    let taymerInterval = null;
+    let pauzaShuda = false;
+    let tikQadam = false;
+    let golibho = [];
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new AudioCtx();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function sadoChik(balandtar = false) {
       try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'расм.jpg';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(a.href);
-      } catch (e) {
-        window.open(url, '_blank');
+        initAudio();
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        tikQadam = !tikQadam;
+        osc.type = 'triangle';
+        const freq = tikQadam ? (balandtar ? 1600 : 1300) : (balandtar ? 1200 : 950);
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(150, t + 0.045);
+        gain.gain.setValueAtTime(balandtar ? 0.75 : 0.55, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.055);
+      } catch (e) {}
+    }
+
+    function sadoTugma(nav) {
+      try {
+        initAudio();
+        const t = audioCtx.currentTime;
+
+        if (nav === 'golib') {
+          // Садои хурсандкунанда барои илова шудани номи ғолиб
+          [659.25, 880, 1174.66].forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, t + i * 0.07);
+            gain.gain.setValueAtTime(0.55, t + i * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.22);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.07);
+            osc.stop(t + i * 0.07 + 0.23);
+          });
+        }
+        else if (nav === 'tahrir') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(420, t);
+          osc.frequency.exponentialRampToValueAtTime(780, t + 0.12);
+          gain.gain.setValueAtTime(0.5, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.15);
+        } 
+        else if (nav === 'sabt') {
+          [523.25, 659.25, 1046.5].forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(f, t + i * 0.07);
+            gain.gain.setValueAtTime(0.35, t + i * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.14);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.07);
+            osc.stop(t + i * 0.07 + 0.15);
+          });
+        }
+        else if (nav === 'pauza') {
+          [600, 400].forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(f, t + i * 0.09);
+            gain.gain.setValueAtTime(0.35, t + i * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.09);
+            osc.stop(t + i * 0.09 + 0.11);
+          });
+        }
+        else if (nav === 'bekor') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(350, t);
+          osc.frequency.exponentialRampToValueAtTime(180, t + 0.15);
+          gain.gain.setValueAtTime(0.5, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.17);
+        }
+        else if (nav === 'pok') {
+          const bufferSize = audioCtx.sampleRate * 1.2;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.sin((i / audioCtx.sampleRate) * 28);
+          }
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 900;
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.6, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(t);
+        }
+        else if (nav === 'javob') {
+          const notaho = [523.25, 659.25, 783.99, 1046.50];
+          notaho.forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, t + i * 0.11);
+            gain.gain.setValueAtTime(0.65, t + i * 0.11);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.11 + 0.45);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.11);
+            osc.stop(t + i * 0.11 + 0.46);
+          });
+        }
+      } catch (e) {}
+    }
+
+    // Кор бо рӯйхати тарафи рост
+    function zakhiraGolibho() {
+      try {
+        localStorage.setItem('doska-golibho', JSON.stringify(golibho));
+      } catch (e) {}
+    }
+
+    function namoishiGolibho() {
+      ruykhatiNomho.innerHTML = '';
+      if (!golibho.length) {
+        const khali = document.createElement('div');
+        khali.className = 'ruykhati-khali';
+        khali.textContent = 'Ҳанӯз касе номнавис нашудааст. Номи ёфтандаи саволро инҷо нависед!';
+        ruykhatiNomho.appendChild(khali);
+        return;
       }
+
+      golibho.forEach((n, idx) => {
+        const li = document.createElement('li');
+        li.className = 'nomi-golib';
+
+        const chap = document.createElement('span');
+        chap.className = 'matni-nom';
+
+        const nishon = document.createElement('span');
+        nishon.className = 'nishon';
+        nishon.textContent = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '⭐';
+
+        chap.appendChild(nishon);
+        chap.appendChild(document.createTextNode(n));
+
+        const btnHazf = document.createElement('button');
+        btnHazf.type = 'button';
+        btnHazf.className = 'hazf';
+        btnHazf.title = 'Нест кардан';
+        btnHazf.textContent = '✖';
+        btnHazf.addEventListener('click', function () {
+          sadoTugma('bekor');
+          golibho.splice(idx, 1);
+          zakhiraGolibho();
+          namoishiGolibho();
+        });
+
+        li.appendChild(chap);
+        li.appendChild(btnHazf);
+        ruykhatiNomho.appendChild(li);
+      });
+    }
+
+    function ilovaGolib() {
+      const nomiToza = inGolib.value.trim();
+      if (!nomiToza) return;
+      golibho.unshift(nomiToza); // Навтарин ном дар боло меистад
+      inGolib.value = '';
+      zakhiraGolibho();
+      namoishiGolibho();
+      sadoTugma('golib');
+    }
+
+    btnIlovaGolib.addEventListener('click', ilovaGolib);
+    inGolib.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') ilovaGolib();
+    });
+
+    btnTozaRuykhat.addEventListener('click', function () {
+      if (!golibho.length) return;
+      sadoTugma('bekor');
+      golibho = [];
+      zakhiraGolibho();
+      namoishiGolibho();
+    });
+
+    function formatVaqt(soniya) {
+      const m = String(Math.floor(soniya / 60)).padStart(2, '0');
+      const s = String(soniya % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function navishtiTaymer() {
+      if (boqiVaqt > 0 && !javobOchiq) {
+        taymerQutti.style.display = 'inline-block';
+        taymerQutti.textContent = '⏳ ' + formatVaqt(boqiVaqt);
+        taymerQutti.classList.remove('tamom');
+        if (boqiVaqt <= 10) {
+          taymerQutti.classList.add('khatar');
+        } else {
+          taymerQutti.classList.remove('khatar');
+        }
+      } else if (javobOchiq && dataJavob.trim()) {
+        taymerQutti.style.display = 'inline-block';
+        taymerQutti.textContent = '⏰ Вақт тамом шуд!';
+        taymerQutti.classList.remove('khatar');
+        taymerQutti.classList.add('tamom');
+      } else {
+        taymerQutti.style.display = 'none';
+      }
+    }
+
+    function ogozTaymer(soniya) {
+      clearInterval(taymerInterval);
+      boqiVaqt = soniya;
+      pauzaShuda = false;
+      btnPauza.textContent = '⏸ Таваққуф';
+      btnPauza.disabled = false;
+      navishtiTaymer();
+
+      taymerInterval = setInterval(() => {
+        if (pauzaShuda) return;
+        boqiVaqt--;
+
+        if (boqiVaqt > 10) {
+          sadoChik(false);
+        } else if (boqiVaqt > 0 && boqiVaqt <= 10) {
+          sadoChik(true);
+          setTimeout(() => { if (!pauzaShuda && boqiVaqt > 0) sadoChik(true); }, 500);
+        }
+
+        if (boqiVaqt <= 0) {
+          clearInterval(taymerInterval);
+          boqiVaqt = 0;
+          kushodaniJavob(true);
+        }
+        navishtiTaymer();
+      }, 1000);
+    }
+
+    function kushodaniJavob(boSado = false) {
+      clearInterval(taymerInterval);
+      boqiVaqt = 0;
+      javobOchiq = true;
+      btnDidan.textContent = '🙈 Пинҳон кардан';
+      btnPauza.disabled = true;
+      if (boSado) sadoTugma('javob');
+      namoish();
+      navishtiTaymer();
+    }
+
+    function namoish() {
+      savol.textContent = dataSavol;
+      const javobHast = !!dataJavob.trim();
+      javob.style.display = javobHast ? '' : 'none';
+      btnDidan.disabled = !javobHast;
+
+      if (javobOchiq && javobHast) {
+        javobMatn.textContent = dataJavob.trim();
+        javobMatn.className = 'javob-ochiq';
+      } else {
+        javobMatn.textContent = '❓ Пинҳон аст';
+        javobMatn.className = '';
+      }
+
+      nom.textContent = dataNom.trim() ? `(Саволдиҳанда: ${dataNom.trim()})` : '';
+    }
+
+    try {
+      dataSavol = localStorage.getItem('doska-savol') || '';
+      dataNom = localStorage.getItem('doska-nom') || '';
+      dataJavob = localStorage.getItem('doska-javob') || '';
+      const savedGolibho = JSON.parse(localStorage.getItem('doska-golibho') || '[]');
+      if (Array.isArray(savedGolibho)) golibho = savedGolibho;
+    } catch (e) {}
+    namoish();
+    namoishiGolibho();
+
+    btnDidan.addEventListener('click', function () {
+      if (!javobOchiq) {
+        kushodaniJavob(true);
+      } else {
+        sadoTugma('bekor');
+        javobOchiq = false;
+        btnDidan.textContent = '👁 Ҳозир кушодан';
+        namoish();
+      }
+    });
+
+    btnPauza.addEventListener('click', function () {
+      sadoTugma('pauza');
+      pauzaShuda = !pauzaShuda;
+      btnPauza.textContent = pauzaShuda ? '▶ Давом додан' : '⏸ Таваққуф';
+    });
+
+    btnPok.addEventListener('click', function () {
+      if (!dataSavol.trim() && !dataNom.trim() && !dataJavob.trim()) return;
+      sadoTugma('pok');
+      clearInterval(taymerInterval);
+      btnPok.disabled = true;
+      btnPauza.disabled = true;
+      gubka.classList.add('faol');
+      bur.classList.add('pok-shuda');
+
+      setTimeout(function () {
+        dataSavol = '';
+        dataNom = '';
+        dataJavob = '';
+        javobOchiq = false;
+        boqiVaqt = 0;
+        try {
+          localStorage.removeItem('doska-savol');
+          localStorage.removeItem('doska-nom');
+          localStorage.removeItem('doska-javob');
+        } catch (e) {}
+        bur.classList.remove('pok-shuda');
+        gubka.classList.remove('faol');
+        btnDidan.textContent = '👁 Ҳозир кушодан';
+        namoish();
+        navishtiTaymer();
+        btnPok.disabled = false;
+      }, 1450);
+    });
+
+    document.getElementById('btnTahrir').addEventListener('click', function () {
+      sadoTugma('tahrir');
+      inSavol.value = dataSavol;
+      inNom.value = dataNom;
+      inJavob.value = dataJavob;
+      parda.classList.add('faol');
+      inNom.focus();
+    });
+
+    document.getElementById('btnSabt').addEventListener('click', function () {
+      sadoTugma('sabt');
+      dataSavol = inSavol.value;
+      dataNom = inNom.value;
+      dataJavob = inJavob.value;
+      const vaqt = parseInt(inVaqt.value, 10) || 30;
+      try {
+        localStorage.setItem('doska-savol', dataSavol);
+        localStorage.setItem('doska-nom', dataNom);
+        localStorage.setItem('doska-javob', dataJavob);
+      } catch (e) {}
+      javobOchiq = false;
+      btnDidan.textContent = '👁 Ҳозир кушодан';
+      namoish();
+      parda.classList.remove('faol');
+      if (dataJavob.trim()) {
+        ogozTaymer(vaqt);
+      }
+    });
+
+    document.getElementById('btnBekor').addEventListener('click', function () {
+      sadoTugma('bekor');
+      parda.classList.remove('faol');
     });
   </script>
 </body>
