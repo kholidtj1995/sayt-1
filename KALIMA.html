@@ -184,7 +184,7 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Ҳолати холии доска: матнҳои калонтари бурӣ ва аниматсияи одамон дар байн */
+    /* Ҳолати холии доска */
     .holi {
       position: absolute;
       left: 24%;
@@ -208,7 +208,6 @@
     }
     .holi.faol { opacity: 0.96; }
 
-    /* 1. Дар болои доска (калонтар) */
     .bur-matn-bolo-savol {
       font-size: clamp(18px, 3vw, 40px);
       line-height: 1.2;
@@ -217,7 +216,6 @@
       animation: holiNafas 2.6s ease-in-out infinite;
     }
 
-    /* 2. Аниматсияи одамон дар байн (болотар аз «Марҳамат, дӯстон!») */
     .holi-emoji {
       display: flex;
       align-items: flex-end;
@@ -249,7 +247,6 @@
       50% { transform: translate(-50%, -0.22em) scale(1.18); opacity: 1; }
     }
 
-    /* 3. Дар поён: «Марҳамат, дӯстон!» (калонтар) */
     .holi-matn {
       font-size: clamp(20px, 3.2vw, 42px);
       line-height: 1.2;
@@ -558,7 +555,7 @@
           gain.connect(audioCtx.destination);
           osc.start(t);
           osc.stop(t + 0.15);
-        } 
+        }
         else if (nav === 'sabt') {
           [523.25, 659.25, 1046.5].forEach((f, i) => {
             const osc = audioCtx.createOscillator();
@@ -687,20 +684,23 @@
           clearInterval(taymerInterval);
           boqiVaqt = 0;
           kushodaniJavob(true);
+        } else {
+          navishtiTaymer();
         }
-        navishtiTaymer();
       }, 1000);
     }
 
     function kushodaniJavob(boSado = false) {
       clearInterval(taymerInterval);
       boqiVaqt = 0;
+      pauzaShuda = false;
       javobOchiq = true;
       btnDidan.textContent = '🙈 Пинҳон кардан';
+      btnPauza.textContent = '⏸ Таваққуф';
       btnPauza.disabled = true;
-      if (boSado) sadoTugma('javob');
       namoish();
       navishtiTaymer();
+      if (boSado) sadoTugma('javob');
     }
 
     function namoish() {
@@ -739,6 +739,7 @@
         javobOchiq = false;
         btnDidan.textContent = '👁 Ҳозир кушодан';
         namoish();
+        navishtiTaymer();
       }
     });
 
@@ -763,6 +764,7 @@
         dataJavob = '';
         javobOchiq = false;
         boqiVaqt = 0;
+        pauzaShuda = false;
         try {
           localStorage.removeItem('doska-savol');
           localStorage.removeItem('doska-nom');
@@ -771,6 +773,7 @@
         bur.classList.remove('pok-shuda');
         gubka.classList.remove('faol');
         btnDidan.textContent = '👁 Ҳозир кушодан';
+        btnPauza.textContent = '⏸ Таваққуф';
         namoish();
         navishtiTaymer();
         btnPok.disabled = false;
@@ -803,6 +806,10 @@
       parda.classList.remove('faol');
       if (dataJavob.trim()) {
         ogozTaymer(vaqt);
+      } else {
+        boqiVaqt = 0;
+        btnPauza.disabled = true;
+        navishtiTaymer();
       }
     });
 
@@ -813,3 +820,4 @@
   </script>
 </body>
 </html>
+```[cite: 1]
