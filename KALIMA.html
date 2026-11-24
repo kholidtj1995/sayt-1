@@ -109,35 +109,42 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      gap: 4px;
+      padding: 4px 6px;
+      box-sizing: border-box;
       text-align: center;
-      line-height: 1.25;
+      line-height: 1.15;
       color: #f5f5f0;
       font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive;
-      font-size: clamp(16px, 2.5vw, 34px);
+      font-size: clamp(13px, 1.75vw, 21px);
       word-break: break-word;
+      overflow-wrap: anywhere;
       overflow: hidden;
       pointer-events: none;
       text-shadow: 0 0 2px rgba(255,255,255,0.8), 1px 1px 3px rgba(0,0,0,0.6);
-      opacity: 0.94;
+      opacity: 0.96;
       transform: rotate(-1deg);
     }
 
     .bolo-qism {
+      flex: none;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
     }
     .nom {
       font-size: 0.72em;
+      line-height: 1.1;
       color: #f5f5f0;
     }
     .taymer-qutti {
       display: inline-block;
-      padding: 2px 14px;
+      padding: 1px 10px;
       border: 2px dashed rgba(245, 245, 240, 0.75);
-      border-radius: 12px;
-      font-size: 0.82em;
+      border-radius: 10px;
+      font-size: 0.78em;
+      line-height: 1.15;
       font-weight: bold;
       color: #f5f5f0;
       transition: all 0.2s ease;
@@ -148,8 +155,8 @@
       animation: larzish 0.45s infinite;
     }
     .taymer-qutti.tamom {
-      color: #f5f5f0;
-      border-color: #f5f5f0;
+      color: #90ee90;
+      border-color: #90ee90;
     }
 
     @keyframes larzish {
@@ -159,19 +166,23 @@
 
     .savol {
       flex: 1 1 auto;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       white-space: pre-wrap;
-      padding: 6px 0;
+      padding: 2px 0;
+      font-size: 1em;
+      line-height: 1.15;
     }
 
     .javob {
       flex: none;
-      padding-top: 6px;
+      padding-top: 4px;
       border-top: 1px dashed rgba(245,245,240,0.45);
       white-space: pre-wrap;
-      font-size: 0.9em;
+      font-size: 0.88em;
+      line-height: 1.15;
     }
     .javob-ochiq {
       color: #ffffff;
@@ -209,8 +220,8 @@
     .holi.faol { opacity: 0.96; }
 
     .bur-matn-bolo-savol {
-      font-size: clamp(18px, 3vw, 40px);
-      line-height: 1.2;
+      font-size: clamp(15px, 2.2vw, 28px);
+      line-height: 1.15;
       color: #f5f5f0;
       text-shadow: 0 0 3px rgba(255,255,255,0.85), 1px 2px 4px rgba(0,0,0,0.75);
       animation: holiNafas 2.6s ease-in-out infinite;
@@ -222,9 +233,9 @@
       justify-content: center;
       gap: 10px;
       position: relative;
-      font-size: clamp(36px, 7vh, 72px);
+      font-size: clamp(32px, 6vh, 60px);
       line-height: 1;
-      padding-top: 0.55em;
+      padding-top: 0.5em;
     }
     .holi-emoji .odam1 { animation: odamBala 1.8s ease-in-out infinite; }
     .holi-emoji .odam2 { animation: odamBala 1.8s ease-in-out infinite 0.9s; }
@@ -248,8 +259,8 @@
     }
 
     .holi-matn {
-      font-size: clamp(20px, 3.2vw, 42px);
-      line-height: 1.2;
+      font-size: clamp(16px, 2.4vw, 30px);
+      line-height: 1.15;
       color: #f5f5f0;
       text-shadow: 0 0 3px rgba(255,255,255,0.85), 1px 2px 4px rgba(0,0,0,0.7);
       animation: holiNafas 2.6s ease-in-out infinite;
@@ -506,21 +517,27 @@
     let dataJavob = '';
     let javobOchiq = false;
     let boqiVaqt = 0;
+    let vaqtiAnjom = 0;
     let taymerInterval = null;
     let pauzaShuda = false;
     let tikQadam = false;
+    let oxirinSoniya = -1;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
 
     function initAudio() {
-      if (!audioCtx) audioCtx = new AudioCtx();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      try {
+        if (!AudioCtx) return;
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {}
     }
 
     function sadoChik(balandtar = false) {
       try {
         initAudio();
+        if (!audioCtx) return;
         const t = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -541,6 +558,7 @@
     function sadoTugma(nav) {
       try {
         initAudio();
+        if (!audioCtx) return;
         const t = audioCtx.currentTime;
 
         if (nav === 'tahrir') {
@@ -555,8 +573,7 @@
           gain.connect(audioCtx.destination);
           osc.start(t);
           osc.stop(t + 0.15);
-        }
-        else if (nav === 'sabt') {
+        } else if (nav === 'sabt') {
           [523.25, 659.25, 1046.5].forEach((f, i) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -569,8 +586,7 @@
             osc.start(t + i * 0.07);
             osc.stop(t + i * 0.07 + 0.15);
           });
-        }
-        else if (nav === 'pauza') {
+        } else if (nav === 'pauza') {
           [600, 400].forEach((f, i) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -583,8 +599,7 @@
             osc.start(t + i * 0.09);
             osc.stop(t + i * 0.09 + 0.11);
           });
-        }
-        else if (nav === 'bekor') {
+        } else if (nav === 'bekor') {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'triangle';
@@ -596,8 +611,7 @@
           gain.connect(audioCtx.destination);
           osc.start(t);
           osc.stop(t + 0.17);
-        }
-        else if (nav === 'pok') {
+        } else if (nav === 'pok') {
           const bufferSize = audioCtx.sampleRate * 1.2;
           const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
           const data = buffer.getChannelData(0);
@@ -616,8 +630,7 @@
           filter.connect(gain);
           gain.connect(audioCtx.destination);
           noise.start(t);
-        }
-        else if (nav === 'javob') {
+        } else if (nav === 'javob') {
           const notaho = [523.25, 659.25, 783.99, 1046.50];
           notaho.forEach((f, i) => {
             const osc = audioCtx.createOscillator();
@@ -644,7 +657,7 @@
     function navishtiTaymer() {
       if (boqiVaqt > 0 && !javobOchiq) {
         taymerQutti.style.display = 'inline-block';
-        taymerQutti.textContent = '⏳ ' + formatVaqt(boqiVaqt);
+        taymerQutti.textContent = (pauzaShuda ? '⏸ ' : '⏳ ') + formatVaqt(boqiVaqt);
         taymerQutti.classList.remove('tamom');
         if (boqiVaqt <= 10) {
           taymerQutti.classList.add('khatar');
@@ -661,37 +674,9 @@
       }
     }
 
-    function ogozTaymer(soniya) {
-      clearInterval(taymerInterval);
-      boqiVaqt = soniya;
-      pauzaShuda = false;
-      btnPauza.textContent = '⏸ Таваққуф';
-      btnPauza.disabled = false;
-      navishtiTaymer();
-
-      taymerInterval = setInterval(() => {
-        if (pauzaShuda) return;
-        boqiVaqt--;
-
-        if (boqiVaqt > 10) {
-          sadoChik(false);
-        } else if (boqiVaqt > 0 && boqiVaqt <= 10) {
-          sadoChik(true);
-          setTimeout(() => { if (!pauzaShuda && boqiVaqt > 0) sadoChik(true); }, 500);
-        }
-
-        if (boqiVaqt <= 0) {
-          clearInterval(taymerInterval);
-          boqiVaqt = 0;
-          kushodaniJavob(true);
-        } else {
-          navishtiTaymer();
-        }
-      }, 1000);
-    }
-
     function kushodaniJavob(boSado = false) {
       clearInterval(taymerInterval);
+      taymerInterval = null;
       boqiVaqt = 0;
       pauzaShuda = false;
       javobOchiq = true;
@@ -700,7 +685,45 @@
       btnPauza.disabled = true;
       namoish();
       navishtiTaymer();
-      if (boSado) sadoTugma('javob');
+      if (boSado) {
+        setTimeout(() => sadoTugma('javob'), 10);
+      }
+    }
+
+    function ogozTaymer(soniya) {
+      clearInterval(taymerInterval);
+      boqiVaqt = soniya;
+      vaqtiAnjom = Date.now() + soniya * 1000;
+      oxirinSoniya = soniya;
+      pauzaShuda = false;
+      btnPauza.textContent = '⏸ Таваққуф';
+      btnPauza.disabled = false;
+      navishtiTaymer();
+
+      taymerInterval = setInterval(() => {
+        if (pauzaShuda) return;
+
+        const monda = Math.ceil((vaqtiAnjom - Date.now()) / 1000);
+        boqiVaqt = Math.max(0, monda);
+
+        if (boqiVaqt <= 0) {
+          kushodaniJavob(true);
+          return;
+        }
+
+        if (boqiVaqt !== oxirinSoniya) {
+          oxirinSoniya = boqiVaqt;
+          if (boqiVaqt > 10) {
+            sadoChik(false);
+          } else {
+            sadoChik(true);
+            setTimeout(() => {
+              if (!pauzaShuda && boqiVaqt > 0) sadoChik(true);
+            }, 500);
+          }
+          navishtiTaymer();
+        }
+      }, 200);
     }
 
     function namoish() {
@@ -746,13 +769,21 @@
     btnPauza.addEventListener('click', function () {
       sadoTugma('pauza');
       pauzaShuda = !pauzaShuda;
-      btnPauza.textContent = pauzaShuda ? '▶ Давом додан' : '⏸ Таваққуф';
+      if (pauzaShuda) {
+        boqiVaqt = Math.max(0, Math.ceil((vaqtiAnjom - Date.now()) / 1000));
+        btnPauza.textContent = '▶ Давом додан';
+      } else {
+        vaqtiAnjom = Date.now() + boqiVaqt * 1000;
+        btnPauza.textContent = '⏸ Таваққуф';
+      }
+      navishtiTaymer();
     });
 
     btnPok.addEventListener('click', function () {
       if (!dataSavol.trim() && !dataNom.trim() && !dataJavob.trim()) return;
       sadoTugma('pok');
       clearInterval(taymerInterval);
+      taymerInterval = null;
       btnPok.disabled = true;
       btnPauza.disabled = true;
       gubka.classList.add('faol');
@@ -790,6 +821,11 @@
     });
 
     document.getElementById('btnSabt').addEventListener('click', function () {
+      if (!inJavob.value.trim()) {
+        alert('Лутфан дар майдони 3 ҷавоби дурустро нависед, то пас аз тамом шудани вақт кушода шавад!');
+        inJavob.focus();
+        return;
+      }
       sadoTugma('sabt');
       dataSavol = inSavol.value;
       dataNom = inNom.value;
@@ -804,13 +840,7 @@
       btnDidan.textContent = '👁 Ҳозир кушодан';
       namoish();
       parda.classList.remove('faol');
-      if (dataJavob.trim()) {
-        ogozTaymer(vaqt);
-      } else {
-        boqiVaqt = 0;
-        btnPauza.disabled = true;
-        navishtiTaymer();
-      }
+      ogozTaymer(vaqt);
     });
 
     document.getElementById('btnBekor').addEventListener('click', function () {
@@ -820,4 +850,3 @@
   </script>
 </body>
 </html>
-```[cite: 1]
