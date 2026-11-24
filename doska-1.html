@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Доскаи 1 — Тугмадор (Таҳрир ва Идоракунӣ)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      min-height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: #141414;
+      color: #f5f5f0;
+      font-family: Arial, sans-serif;
+    }
+
+    .sarlavhai-boloi-doska {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ffe9a8;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(217, 164, 65, 0.45);
+      padding: 5px 14px;
+      border-radius: 999px;
+      text-align: center;
+    }
+
+    .ramka {
+      padding: 12px;
+      background: #fff;
+      border: 8px solid #8b5a2b;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      width: fit-content;
+      max-width: 92vw;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sarlavha {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #3b2412 0%, #5a3a1d 50%, #3b2412 100%);
+      border: 2px solid #d9a441;
+      border-radius: 12px;
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3);
+    }
+    .sarlavha-rost {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 20px;
+      background: linear-gradient(180deg, rgba(255,233,168,0.2), rgba(217,164,65,0.1));
+      border: 1px solid rgba(255, 233, 168, 0.5);
+      border-radius: 999px;
+      font-size: 23px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      color: #ffe9a8;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6), 0 0 10px rgba(255, 215, 120, 0.45);
+      white-space: nowrap;
+    }
+    .sarlavha-rost .karnay {
+      display: inline-block;
+      font-size: 28px;
+      animation: karnayLarz 2.4s ease-in-out infinite;
+      transform-origin: 70% 70%;
+    }
+    @keyframes karnayLarz {
+      0%, 70%, 100% { transform: rotate(0); }
+      78% { transform: rotate(-14deg); }
+      86% { transform: rotate(10deg); }
+      94% { transform: rotate(-6deg); }
+    }
+    @media (max-width: 520px) {
+      .sarlavha-rost { font-size: 18px; padding: 6px 12px; }
+      .sarlavha-rost .karnay { font-size: 24px; }
+    }
+
+    .doska {
+      position: relative;
+      display: inline-block;
+      line-height: 0;
+    }
+    .doska img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 78vw;
+      max-height: 62vh;
+      object-fit: contain;
+    }
+
+    .bur {
+      position: absolute;
+      left: 25%;
+      right: 25%;
+      top: 20%;
+      bottom: 22%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 4px 6px;
+      text-align: center;
+      line-height: 1.15;
+      color: #f5f5f0;
+      font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive;
+      font-size: clamp(13px, 1.75vw, 21px);
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      overflow: hidden;
+      pointer-events: none;
+      text-shadow: 0 0 2px rgba(255,255,255,0.8), 1px 1px 3px rgba(0,0,0,0.6);
+      opacity: 0.96;
+      transform: rotate(-1deg);
+    }
+
+    .bolo-qism {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .nom {
+      font-size: 0.72em;
+      line-height: 1.1;
+      color: #f5f5f0;
+    }
+    .taymer-qutti {
+      display: inline-block;
+      padding: 1px 10px;
+      border: 2px dashed rgba(245, 245, 240, 0.75);
+      border-radius: 10px;
+      font-size: 0.78em;
+      line-height: 1.15;
+      font-weight: bold;
+      color: #f5f5f0;
+      transition: all 0.2s ease;
+    }
+    .taymer-qutti.khatar {
+      color: #ff6b6b;
+      border-color: #ff6b6b;
+      animation: larzish 0.45s infinite;
+    }
+    .taymer-qutti.tamom {
+      color: #90ee90;
+      border-color: #90ee90;
+    }
+    @keyframes larzish {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.14); }
+    }
+
+    .savol {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: pre-wrap;
+      padding: 2px 0;
+      font-size: 1em;
+      line-height: 1.15;
+    }
+
+    .javob {
+      flex: none;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(245,245,240,0.45);
+      white-space: pre-wrap;
+      font-size: 0.88em;
+      line-height: 1.15;
+    }
+    .javob-ochiq {
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.85), 1px 1px 3px rgba(0,0,0,0.7);
+      animation: paydoShudan 0.5s ease-out;
+    }
+    @keyframes paydoShudan {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.12); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .holi {
+      position: absolute;
+      left: 24%;
+      right: 24%;
+      top: 19%;
+      bottom: 21%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+      text-align: center;
+      color: #f5f5f0;
+      font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2;
+      transform: rotate(-1deg);
+    }
+    .holi.faol { opacity: 0.96; }
+    .doska.tahrir-faol .holi,
+    .doska.tahrir-faol .bur {
+      opacity: 0 !important;
+    }
+
+    .bur-matn-bolo-savol {
+      font-size: clamp(15px, 2.2vw, 28px);
+      line-height: 1.15;
+      color: #f5f5f0;
+      text-shadow: 0 0 3px rgba(255,255,255,0.85), 1px 2px 4px rgba(0,0,0,0.75);
+      animation: holiNafas 2.6s ease-in-out infinite;
+    }
+
+    .holi-emoji {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      font-size: clamp(32px, 6vh, 60px);
+      line-height: 1;
+      padding-top: 0.5em;
+    }
+    .holi-emoji .odam1 { animation: odamBala 1.8s ease-in-out infinite; }
+    .holi-emoji .odam2 { animation: odamBala 1.8s ease-in-out infinite 0.9s; }
+    .holi-emoji .savolnishon {
+      position: absolute;
+      top: -0.05em;
+      left: 50%;
+      font-size: 0.82em;
+      color: #f5f5f0;
+      text-shadow: 0 0 4px rgba(255,255,255,0.9), 1px 1px 3px rgba(0,0,0,0.75);
+      transform: translateX(-50%);
+      animation: savolParvoz 2.4s ease-in-out infinite;
+    }
+    @keyframes odamBala {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-0.22em) rotate(3deg); }
+    }
+    @keyframes savolParvoz {
+      0%, 100% { transform: translate(-50%, 0) scale(1); opacity: 0.9; }
+      50% { transform: translate(-50%, -0.22em) scale(1.18); opacity: 1; }
+    }
+
+    .holi-matn {
+      font-size: clamp(16px, 2.4vw, 30px);
+      line-height: 1.15;
+      color: #f5f5f0;
+      text-shadow: 0 0 3px rgba(255,255,255,0.85), 1px 2px 4px rgba(0,0,0,0.7);
+      animation: holiNafas 2.6s ease-in-out infinite;
+    }
+    @keyframes holiNafas {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 1; }
+    }
+
+    .bur.pok-shuda {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 42%, #000 58%, #000 100%);
+      mask-image: linear-gradient(to right, transparent 0%, transparent 42%, #000 58%, #000 100%);
+      -webkit-mask-size: 200% 100%;
+      mask-size: 200% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      animation: pokMask 1.4s ease-in-out forwards;
+    }
+    @keyframes pokMask {
+      from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+      to   { -webkit-mask-position: 0 0;    mask-position: 0 0; }
+    }
+    .gubka {
+      display: none;
+      position: absolute;
+      top: 30%;
+      left: 22%;
+      width: 14%;
+      height: 12%;
+      min-width: 50px;
+      min-height: 28px;
+      background: linear-gradient(#e9d8a6 0 35%, #5b3a1a 35% 100%);
+      border-radius: 6px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .gubka.faol {
+      display: block;
+      animation: gubkaRaft 1.4s ease-in-out forwards;
+    }
+    @keyframes gubkaRaft {
+      0%   { left: 22%; top: 28%; transform: rotate(-8deg); }
+      12%  { top: 38%; }
+      25%  { top: 30%; }
+      37%  { top: 44%; }
+      50%  { top: 32%; }
+      62%  { top: 48%; }
+      75%  { top: 36%; }
+      100% { left: 68%; top: 44%; transform: rotate(6deg); }
+    }
+
+    /* Формаи таҳрир — ислоҳшуда, то тугмаҳо ҳеҷ гоҳ пуштба намонанд */
+    .formai-doska {
+      display: none;
+      position: absolute;
+      left: 22%;
+      right: 22%;
+      top: 16%;
+      bottom: 16%;
+      z-index: 10;
+      background: rgba(18, 16, 14, 0.98);
+      border: 2px solid #d9a441;
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      line-height: 1.25;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+      overflow-y: auto;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.9);
+    }
+    .formai-doska.faol { display: flex; }
+    .formai-doska h4 {
+      margin: 0;
+      font-size: 13px;
+      color: #ffe9a8;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .formai-doska label {
+      font-size: 11px;
+      color: #e8dcc4;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .formai-doska input,
+    .formai-doska textarea,
+    .formai-doska select {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 12px;
+      line-height: 1.2;
+      border-radius: 5px;
+      border: 1px solid #b57c3e;
+      background: #28231d;
+      color: #fff;
+      font-family: inherit;
+    }
+    .formai-doska textarea {
+      height: 34px;
+      min-height: 30px;
+      resize: none;
+    }
+    .formai-qator {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .formai-tugmaho {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+      padding-top: 4px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 12;
+    }
+    .formai-tugmaho button {
+      padding: 5px 10px;
+      font-size: 11px;
+      line-height: 1.1;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-sabt-doska { background: #2f855a; color: #fff; }
+    .btn-sabt-doska:hover { background: #276749; }
+    .btn-bekor-doska { background: #6b7280; color: #fff; }
+    .btn-bekor-doska:hover { background: #4b5563; }
+
+    /* Тугмаҳои поёнии доска */
+    .satr-tugma {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      position: relative;
+      z-index: 20;
+    }
+    .satr-tugma button {
+      padding: 10px 18px;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.1s;
+    }
+    .satr-tugma button:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+    .tahrir { background: #8b5a2b; }
+    .tahrir:hover { background: #6d4521; }
+    .pok { background: #a33a3a; }
+    .pok:hover { background: #832d2d; }
+    .didan { background: #2f6f4f; }
+    .didan:hover { background: #245a3f; }
+    .pauza { background: #d97706; }
+    .pauza:hover { background: #b45309; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="sarlavhai-boloi-doska">🎛 Доскаи №1: Тугмадор (таҳрир ва идоракунӣ)</div>
+
+  <div class="ramka">
+    <div class="sarlavha">
+      <div class="sarlavha-rost"><span class="karnay">📢</span><span>Савол ва Ҷавоб</span></div>
+    </div>
+    <div class="doska" id="doskaBox">
+      <img src="https://kholidtj1995.github.io/sayt-1/РАСМ.jpg" alt="Доскаи тугмадор">
+
+      <div class="holi" id="holi">
+        <div class="bur-matn-bolo-savol">Саволи шумо ба доска мебарояд!</div>
+        <div class="holi-emoji">
+          <span class="odam1">🙋‍♂️</span>
+          <span class="savolnishon">❓</span>
+          <span class="odam2">🙋‍♀️</span>
+        </div>
+        <div class="holi-matn">Марҳамат, дустон!</div>
+      </div>
+
+      <div class="gubka" id="gubka"></div>
+
+      <div class="bur" id="bur">
+        <div class="bolo-qism">
+          <div class="nom" id="nom"></div>
+          <div class="taymer-qutti" id="taymerQutti" style="display:none;">⏳ 00:00</div>
+        </div>
+        <div class="savol" id="savol"></div>
+        <div class="javob" id="javob">
+          <span>Ҷавоб: </span><span id="javobMatn">❓ Пинҳон аст</span>
+        </div>
+      </div>
+
+      <div class="formai-doska" id="formaiDoska">
+        <h4>✏ Таҳрири савол</h4>
+        <div>
+          <label for="inNom">Номи саволдиҳанда:</label>
+          <input type="text" id="inNom" placeholder="Масалан: БОЗИ ТЧ...">
+        </div>
+        <div>
+          <label for="inSavol">Матни савол:</label>
+          <textarea id="inSavol" placeholder="Саволро нависед..."></textarea>
+        </div>
+        <div class="formai-qator">
+          <div>
+            <label for="inJavob">Ҷавоби дуруст:</label>
+            <input type="text" id="inJavob" placeholder="Ҷавоб...">
+          </div>
+          <div>
+            <label for="inVaqt">Вақт (сония):</label>
+            <select id="inVaqt">
+              <option value="15">15 сония</option>
+              <option value="30" selected>30 сония</option>
+              <option value="45">45 сония</option>
+              <option value="60">60 сония</option>
+              <option value="90">90 сония</option>
+              <option value="120">120 сония</option>
+            </select>
+          </div>
+        </div>
+        <div class="formai-tugmaho">
+          <button type="button" class="btn-bekor-doska" id="btnBekor">Бекор</button>
+          <button type="button" class="btn-sabt-doska" id="btnSabt">▶ Оғоз ва Сабт</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="satr-tugma">
+    <button class="pok" id="btnPok">🧹 Пок кардан</button>
+    <button class="tahrir" id="btnTahrir">✏ Саволи нав</button>
+    <button class="pauza" id="btnPauza" disabled>⏸ Таваққуф</button>
+    <button class="didan" id="btnDidan" disabled>👁 Ҳозир кушодан</button>
+  </div>
+
+  <script>
+    const doskaBox = document.getElementById('doskaBox');
+    const savol = document.getElementById('savol');
+    const nom = document.getElementById('nom');
+    const javob = document.getElementById('javob');
+    const javobMatn = document.getElementById('javobMatn');
+    const taymerQutti = document.getElementById('taymerQutti');
+    const btnDidan = document.getElementById('btnDidan');
+    const btnPauza = document.getElementById('btnPauza');
+    const bur = document.getElementById('bur');
+    const gubka = document.getElementById('gubka');
+    const holi = document.getElementById('holi');
+    const btnPok = document.getElementById('btnPok');
+    const btnTahrir = document.getElementById('btnTahrir');
+    const btnSabt = document.getElementById('btnSabt');
+    const btnBekor = document.getElementById('btnBekor');
+    const formaiDoska = document.getElementById('formaiDoska');
+    const inSavol = document.getElementById('inSavol');
+    const inNom = document.getElementById('inNom');
+    const inJavob = document.getElementById('inJavob');
+    const inVaqt = document.getElementById('inVaqt');
+
+    let dataSavol = '';
+    let dataNom = '';
+    let dataJavob = '';
+    let javobOchiq = false;
+    let boqiVaqt = 0;
+    let vaqtiAnjom = 0;
+    let taymerInterval = null;
+    let pauzaShuda = false;
+    let tikQadam = false;
+    let oxirinSoniya = -1;
+    let darHolatiTahrir = false;
+
+    const kanal = ('BroadcastChannel' in window) ? new BroadcastChannel('doska-judo-kanal') : null;
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      try {
+        if (!AudioCtx) return;
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {}
+    }
+
+    function sadoChik(balandtar = false) {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        tikQadam = !tikQadam;
+        osc.type = 'triangle';
+        const freq = tikQadam ? (balandtar ? 1600 : 1300) : (balandtar ? 1200 : 950);
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(150, t + 0.045);
+        gain.gain.setValueAtTime(balandtar ? 0.75 : 0.55, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.055);
+      } catch (e) {}
+    }
+
+    function sadoTugma(nav) {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const t = audioCtx.currentTime;
+
+        if (nav === 'tahrir') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(420, t);
+          osc.frequency.exponentialRampToValueAtTime(780, t + 0.12);
+          gain.gain.setValueAtTime(0.5, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.15);
+        } else if (nav === 'sabt') {
+          [523.25, 659.25, 1046.5].forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(f, t + i * 0.07);
+            gain.gain.setValueAtTime(0.35, t + i * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.14);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.07);
+            osc.stop(t + i * 0.07 + 0.15);
+          });
+        } else if (nav === 'pauza') {
+          [600, 400].forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(f, t + i * 0.09);
+            gain.gain.setValueAtTime(0.35, t + i * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.09);
+            osc.stop(t + i * 0.09 + 0.11);
+          });
+        } else if (nav === 'bekor') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(350, t);
+          osc.frequency.exponentialRampToValueAtTime(180, t + 0.15);
+          gain.gain.setValueAtTime(0.5, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.17);
+        } else if (nav === 'pok') {
+          const bufferSize = audioCtx.sampleRate * 1.2;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.sin((i / audioCtx.sampleRate) * 28);
+          }
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 900;
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.6, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(t);
+        } else if (nav === 'javob') {
+          const notaho = [523.25, 659.25, 783.99, 1046.50];
+          notaho.forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, t + i * 0.11);
+            gain.gain.setValueAtTime(0.65, t + i * 0.11);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.11 + 0.45);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t + i * 0.11);
+            osc.stop(t + i * 0.11 + 0.46);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function formatVaqt(soniya) {
+      const m = String(Math.floor(soniya / 60)).padStart(2, '0');
+      const s = String(soniya % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function navishtiTaymer() {
+      if (boqiVaqt > 0 && !javobOchiq) {
+        taymerQutti.style.display = 'inline-block';
+        taymerQutti.textContent = (pauzaShuda ? '⏸ ' : '⏳ ') + formatVaqt(boqiVaqt);
+        taymerQutti.classList.remove('tamom');
+        if (boqiVaqt <= 10) {
+          taymerQutti.classList.add('khatar');
+        } else {
+          taymerQutti.classList.remove('khatar');
+        }
+      } else if (javobOchiq && dataJavob.trim()) {
+        taymerQutti.style.display = 'inline-block';
+        taymerQutti.textContent = '⏰ Вақт тамом шуд!';
+        taymerQutti.classList.remove('khatar');
+        taymerQutti.classList.add('tamom');
+      } else {
+        taymerQutti.style.display = 'none';
+      }
+    }
+
+    function zakhiraVaPakhsh(amal = 'sync', pokShuda = false) {
+      try {
+        localStorage.setItem('doska-savol', dataSavol);
+        localStorage.setItem('doska-nom', dataNom);
+        localStorage.setItem('doska-javob', dataJavob);
+        localStorage.setItem('doska-javob-ochiq', javobOchiq ? '1' : '0');
+        localStorage.setItem('doska-boqi-vaqt', String(boqiVaqt));
+        localStorage.setItem('doska-vaqti-anjom', String(vaqtiAnjom));
+        localStorage.setItem('doska-pauza', pauzaShuda ? '1' : '0');
+        localStorage.setItem('doska-pok-anim', pokShuda ? String(Date.now()) : '');
+      } catch (e) {}
+
+      if (kanal) {
+        kanal.postMessage({
+          amal,
+          pokShuda,
+          dataSavol,
+          dataNom,
+          dataJavob,
+          javobOchiq,
+          boqiVaqt,
+          vaqtiAnjom,
+          pauzaShuda
+        });
+      }
+    }
+
+    function namoish() {
+      const sVal = darHolatiTahrir ? inSavol.value : dataSavol;
+      const nVal = darHolatiTahrir ? inNom.value : dataNom;
+      const jVal = darHolatiTahrir ? inJavob.value : dataJavob;
+      const ochiqAst = darHolatiTahrir ? false : javobOchiq;
+
+      doskaBox.classList.toggle('tahrir-faol', darHolatiTahrir);
+      savol.textContent = sVal;
+      const javobHast = !!jVal.trim();
+      javob.style.display = javobHast ? '' : 'none';
+      btnDidan.disabled = !dataJavob.trim();
+      btnDidan.textContent = javobOchiq ? '🙈 Пинҳон кардан' : '👁 Ҳозир кушодан';
+
+      if (ochiqAst && javobHast) {
+        javobMatn.textContent = jVal.trim();
+        javobMatn.className = 'javob-ochiq';
+      } else {
+        javobMatn.textContent = '❓ Пинҳон аст';
+        javobMatn.className = '';
+      }
+
+      nom.textContent = nVal.trim() ? `(Саволдиҳанда: ${nVal.trim()})` : '';
+      const holiBosh = !sVal.trim() && !nVal.trim() && !jVal.trim();
+      holi.classList.toggle('faol', holiBosh);
+    }
+
+    function kushodaniJavob(boSado = false) {
+      clearInterval(taymerInterval);
+      taymerInterval = null;
+      boqiVaqt = 0;
+      pauzaShuda = false;
+      javobOchiq = true;
+      btnPauza.textContent = '⏸ Таваққуф';
+      btnPauza.disabled = true;
+      namoish();
+      navishtiTaymer();
+      zakhiraVaPakhsh('reveal', false);
+      if (boSado) {
+        setTimeout(() => sadoTugma('javob'), 10);
+      }
+    }
+
+    function ogozTaymer(soniya) {
+      clearInterval(taymerInterval);
+      boqiVaqt = soniya;
+      vaqtiAnjom = Date.now() + soniya * 1000;
+      oxirinSoniya = soniya;
+      pauzaShuda = false;
+      btnPauza.textContent = '⏸ Таваққуф';
+      btnPauza.disabled = false;
+      navishtiTaymer();
+      zakhiraVaPakhsh('start', false);
+
+      taymerInterval = setInterval(() => {
+        if (pauzaShuda) return;
+
+        const monda = Math.ceil((vaqtiAnjom - Date.now()) / 1000);
+        boqiVaqt = Math.max(0, monda);
+
+        if (boqiVaqt <= 0) {
+          kushodaniJavob(true);
+          return;
+        }
+
+        if (boqiVaqt !== oxirinSoniya) {
+          oxirinSoniya = boqiVaqt;
+          if (boqiVaqt > 10) {
+            sadoChik(false);
+          } else {
+            sadoChik(true);
+            setTimeout(() => {
+              if (!pauzaShuda && boqiVaqt > 0) sadoChik(true);
+            }, 500);
+          }
+          navishtiTaymer();
+        }
+      }, 200);
+    }
+
+    try {
+      dataSavol = localStorage.getItem('doska-savol') || '';
+      dataNom = localStorage.getItem('doska-nom') || '';
+      dataJavob = localStorage.getItem('doska-javob') || '';
+      javobOchiq = localStorage.getItem('doska-javob-ochiq') === '1';
+      pauzaShuda = localStorage.getItem('doska-pauza') === '1';
+      const savedAnjom = parseInt(localStorage.getItem('doska-vaqti-anjom') || '0', 10);
+      const savedBoqi = parseInt(localStorage.getItem('doska-boqi-vaqt') || '0', 10);
+
+      if (!javobOchiq && dataJavob.trim()) {
+        if (pauzaShuda && savedBoqi > 0) {
+          boqiVaqt = savedBoqi;
+          btnPauza.textContent = '▶ Давом додан';
+          btnPauza.disabled = false;
+        } else if (savedAnjom > Date.now()) {
+          const monda = Math.ceil((savedAnjom - Date.now()) / 1000);
+          ogozTaymer(monda);
+        }
+      }
+    } catch (e) {}
+
+    namoish();
+    navishtiTaymer();
+
+    btnDidan.addEventListener('click', function () {
+      if (!javobOchiq) {
+        kushodaniJavob(true);
+      } else {
+        sadoTugma('bekor');
+        javobOchiq = false;
+        namoish();
+        navishtiTaymer();
+        zakhiraVaPakhsh('hide', false);
+      }
+    });
+
+    btnPauza.addEventListener('click', function () {
+      sadoTugma('pauza');
+      pauzaShuda = !pauzaShuda;
+      if (pauzaShuda) {
+        boqiVaqt = Math.max(0, Math.ceil((vaqtiAnjom - Date.now()) / 1000));
+        btnPauza.textContent = '▶ Давом додан';
+      } else {
+        vaqtiAnjom = Date.now() + boqiVaqt * 1000;
+        btnPauza.textContent = '⏸ Таваққуф';
+      }
+      navishtiTaymer();
+      zakhiraVaPakhsh('pause', false);
+    });
+
+    btnPok.addEventListener('click', function () {
+      if (!dataSavol.trim() && !dataNom.trim() && !dataJavob.trim() && !darHolatiTahrir) return;
+      sadoTugma('pok');
+      clearInterval(taymerInterval);
+      taymerInterval = null;
+      btnPok.disabled = true;
+      btnPauza.disabled = true;
+      gubka.classList.add('faol');
+      bur.classList.add('pok-shuda');
+      zakhiraVaPakhsh('clearing', true);
+
+      setTimeout(function () {
+        dataSavol = '';
+        dataNom = '';
+        dataJavob = '';
+        javobOchiq = false;
+        boqiVaqt = 0;
+        pauzaShuda = false;
+        darHolatiTahrir = false;
+        formaiDoska.classList.remove('faol');
+
+        try {
+          localStorage.removeItem('doska-savol');
+          localStorage.removeItem('doska-nom');
+          localStorage.removeItem('doska-javob');
+          localStorage.removeItem('doska-javob-ochiq');
+          localStorage.removeItem('doska-boqi-vaqt');
+          localStorage.removeItem('doska-vaqti-anjom');
+          localStorage.removeItem('doska-pauza');
+        } catch (e) {}
+
+        bur.classList.remove('pok-shuda');
+        gubka.classList.remove('faol');
+        btnPauza.textContent = '⏸ Таваққуф';
+        namoish();
+        navishtiTaymer();
+        zakhiraVaPakhsh('clear', false);
+        btnPok.disabled = false;
+      }, 1450);
+    });
+
+    btnTahrir.addEventListener('click', function () {
+      sadoTugma('tahrir');
+      inSavol.value = dataSavol;
+      inNom.value = dataNom;
+      inJavob.value = dataJavob;
+      darHolatiTahrir = true;
+      formaiDoska.classList.add('faol');
+      namoish();
+      inNom.focus();
+    });
+
+    btnSabt.addEventListener('click', function () {
+      if (!inJavob.value.trim()) {
+        alert('Лутфан ҷавоби дурустро нависед, то пас аз тамом шудани вақт кушода шавад!');
+        inJavob.focus();
+        return;
+      }
+      sadoTugma('sabt');
+      dataSavol = inSavol.value;
+      dataNom = inNom.value;
+      dataJavob = inJavob.value;
+      const vaqt = parseInt(inVaqt.value, 10) || 30;
+
+      darHolatiTahrir = false;
+      formaiDoska.classList.remove('faol');
+      javobOchiq = false;
+      namoish();
+      ogozTaymer(vaqt);
+    });
+
+    btnBekor.addEventListener('click', function () {
+      sadoTugma('bekor');
+      darHolatiTahrir = false;
+      formaiDoska.classList.remove('faol');
+      namoish();
+    });
+  </script>
+</body>
+</html>
