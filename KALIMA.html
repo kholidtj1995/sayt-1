@@ -3,28 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Доскаи Саволу Ҷавоб - TikTok Live</title>
+  <title>Доскаи 2 — Бе Тугма (Намоиши Бозӣ)</title>
   <style>
-    html, body { min-height: 100%; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body {
+      min-height: 100%;
+      margin: 0;
+    }
     body {
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 12px;
-      padding: 12px;
-      box-sizing: border-box;
-      background: #1a1a1a;
+      padding: 14px;
+      background: #141414;
       font-family: Arial, sans-serif;
-    }
-
-    .sahna {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 18px;
-      max-width: 97vw;
     }
 
     .ramka {
@@ -33,15 +25,13 @@
       border: 8px solid #8b5a2b;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
       width: fit-content;
-      max-width: 92vw;
-      box-sizing: border-box;
+      max-width: 94vw;
       border-radius: 4px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    /* Сарлавҳаи иконкаҳо дар дохили рамка */
     .sarlavha {
       display: flex;
       align-items: center;
@@ -61,7 +51,7 @@
       background: linear-gradient(180deg, rgba(255,233,168,0.2), rgba(217,164,65,0.1));
       border: 1px solid rgba(255, 233, 168, 0.5);
       border-radius: 999px;
-      font-size: 23px;
+      font-size: 24px;
       font-weight: bold;
       letter-spacing: 0.5px;
       color: #ffe9a8;
@@ -94,12 +84,11 @@
       display: block;
       width: auto;
       height: auto;
-      max-width: 78vw;
-      max-height: 68vh;
+      max-width: 82vw;
+      max-height: 74vh;
       object-fit: contain;
     }
 
-    /* Майдони бур дар болои тахтаи сиёҳ */
     .bur {
       position: absolute;
       left: 25%;
@@ -111,12 +100,11 @@
       justify-content: space-between;
       gap: 4px;
       padding: 4px 6px;
-      box-sizing: border-box;
       text-align: center;
       line-height: 1.15;
       color: #f5f5f0;
       font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive;
-      font-size: clamp(13px, 1.75vw, 21px);
+      font-size: clamp(14px, 1.9vw, 24px);
       word-break: break-word;
       overflow-wrap: anywhere;
       overflow: hidden;
@@ -158,7 +146,6 @@
       color: #90ee90;
       border-color: #90ee90;
     }
-
     @keyframes larzish {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.14); }
@@ -195,7 +182,6 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Ҳолати холии доска */
     .holi {
       position: absolute;
       left: 24%;
@@ -207,7 +193,6 @@
       align-items: center;
       justify-content: space-between;
       padding: 4px 0;
-      box-sizing: border-box;
       text-align: center;
       color: #f5f5f0;
       font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive;
@@ -220,7 +205,7 @@
     .holi.faol { opacity: 0.96; }
 
     .bur-matn-bolo-savol {
-      font-size: clamp(15px, 2.2vw, 28px);
+      font-size: clamp(16px, 2.3vw, 29px);
       line-height: 1.15;
       color: #f5f5f0;
       text-shadow: 0 0 3px rgba(255,255,255,0.85), 1px 2px 4px rgba(0,0,0,0.75);
@@ -233,7 +218,7 @@
       justify-content: center;
       gap: 10px;
       position: relative;
-      font-size: clamp(32px, 6vh, 60px);
+      font-size: clamp(34px, 6.2vh, 62px);
       line-height: 1;
       padding-top: 0.5em;
     }
@@ -259,7 +244,7 @@
     }
 
     .holi-matn {
-      font-size: clamp(16px, 2.4vw, 30px);
+      font-size: clamp(17px, 2.5vw, 31px);
       line-height: 1.15;
       color: #f5f5f0;
       text-shadow: 0 0 3px rgba(255,255,255,0.85), 1px 2px 4px rgba(0,0,0,0.7);
@@ -270,7 +255,6 @@
       50% { opacity: 1; }
     }
 
-    /* Аниматсияи пок кардан */
     .bur.pok-shuda {
       -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 42%, #000 58%, #000 100%);
       mask-image: linear-gradient(to right, transparent 0%, transparent 42%, #000 58%, #000 100%);
@@ -313,183 +297,34 @@
       75%  { top: 36%; }
       100% { left: 68%; top: 44%; transform: rotate(6deg); }
     }
-
-    /* Тугмаҳо */
-    .satr-tugma {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-    .satr-tugma button {
-      padding: 10px 18px;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: transform 0.1s;
-    }
-    .satr-tugma button:active:not(:disabled) {
-      transform: scale(0.95);
-    }
-    .tahrir { background: #8b5a2b; }
-    .tahrir:hover { background: #6d4521; }
-    .pok { background: #a33a3a; }
-    .pok:hover { background: #832d2d; }
-    .didan { background: #2f6f4f; }
-    .didan:hover { background: #245a3f; }
-    .pauza { background: #d97706; }
-    .pauza:hover { background: #b45309; }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    /* Равзанаи таҳрир */
-    .parda {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-    }
-    .parda.faol { display: flex; }
-    .ravzana {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 450px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    .ravzana h3 { margin: 0 0 12px; }
-    .ravzana label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-    .ravzana textarea, .ravzana input, .ravzana select {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      font-size: 16px;
-      border: 2px solid #8b5a2b;
-      border-radius: 6px;
-      font-family: inherit;
-    }
-    .ravzana textarea { height: 80px; resize: vertical; }
-    .nomsatr {
-      display: flex;
-      align-items: stretch;
-      border: 2px solid #8b5a2b;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .nomsatr .pesh {
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      background: #f1e6d8;
-      color: #5a3a17;
-      font-size: 15px;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-    .nomsatr input {
-      border: none;
-      border-radius: 0;
-      outline: none;
-    }
-    .tugmaho {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .tugmaho button {
-      padding: 10px 22px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .sabt { background: #8b5a2b; color: #fff; }
-    .bekor { background: #ddd; }
   </style>
 </head>
 <body>
-  <div class="sahna">
-    <div class="ramka">
-      <div class="sarlavha">
-        <div class="sarlavha-rost"><span class="karnay">📢</span><span>Савол ва Ҷавоб</span></div>
-      </div>
-      <div class="doska">
-        <img src="https://kholidtj1995.github.io/sayt-1/РАСМ.jpg" alt="Расм">
-        <div class="holi" id="holi">
-          <div class="bur-matn-bolo-savol">Саволи шумо ба доска мебарояд!</div>
-          <div class="holi-emoji" id="holiEmoji">
-            <span class="odam1">🙋‍♂️</span>
-            <span class="savolnishon">❓</span>
-            <span class="odam2">🙋‍♀️</span>
-          </div>
-          <div class="holi-matn">Марҳамат, дустон!</div>
-        </div>
-        <div class="gubka" id="gubka"></div>
-        <div class="bur" id="bur">
-          <div class="bolo-qism">
-            <div class="nom" id="nom"></div>
-            <div class="taymer-qutti" id="taymerQutti" style="display:none;">⏳ 00:00</div>
-          </div>
-          <div class="savol" id="savol"></div>
-          <div class="javob" id="javob">
-            <span>Ҷавоб: </span><span id="javobMatn">❓ Пинҳон аст</span>
-          </div>
-        </div>
-      </div>
+  <div class="ramka">
+    <div class="sarlavha">
+      <div class="sarlavha-rost"><span class="karnay">📢</span><span>Савол ва Ҷавоб</span></div>
     </div>
-  </div>
-
-  <div class="satr-tugma">
-    <button class="pok" id="btnPok">🧹 Пок кардан</button>
-    <button class="tahrir" id="btnTahrir">✏ Саволи нав</button>
-    <button class="pauza" id="btnPauza" disabled>⏸ Таваққуф</button>
-    <button class="didan" id="btnDidan" disabled>👁 Ҳозир кушодан</button>
-  </div>
-
-  <div class="parda" id="parda">
-    <div class="ravzana">
-      <h3>Савол барои эфир</h3>
-
-      <label for="inNom">1. Номи саволдиҳанда (аз чат)</label>
-      <div class="nomsatr">
-        <span class="pesh">Саволдиҳанда:</span>
-        <input type="text" id="inNom" placeholder="Масалан: БОЗИ ТЧ...">
+    <div class="doska">
+      <img src="https://kholidtj1995.github.io/sayt-1/РАСМ.jpg" alt="Доскаи бозӣ">
+      <div class="holi" id="holi">
+        <div class="bur-matn-bolo-savol">Саволи шумо ба доска мебарояд!</div>
+        <div class="holi-emoji">
+          <span class="odam1">🙋‍♂️</span>
+          <span class="savolnishon">❓</span>
+          <span class="odam2">🙋‍♀️</span>
+        </div>
+        <div class="holi-matn">Марҳамат, дустон!</div>
       </div>
-
-      <label for="inSavol">2. Матни савол</label>
-      <textarea id="inSavol" placeholder="Саволро нависед..."></textarea>
-
-      <label for="inJavob">3. Ҷавоби дуруст (пинҳон мешавад)</label>
-      <div class="nomsatr">
-        <span class="pesh">Ҷавоб:</span>
-        <input type="text" id="inJavob" placeholder="Ҷавобро нависед...">
-      </div>
-
-      <label for="inVaqt">4. Вақт барои фикр кардан (сония)</label>
-      <select id="inVaqt">
-        <option value="15">15 сония (Тез)</option>
-        <option value="30" selected>30 сония (Стандарт)</option>
-        <option value="45">45 сония</option>
-        <option value="60">60 сония (1 дақиқа)</option>
-        <option value="90">90 сония (1.5 дақиқа)</option>
-        <option value="120">120 сония (2 дақиқа)</option>
-      </select>
-
-      <div class="tugmaho">
-        <button class="bekor" id="btnBekor">Бекор</button>
-        <button class="sabt" id="btnSabt">▶ Оғоз ва Сабт</button>
+      <div class="gubka" id="gubka"></div>
+      <div class="bur" id="bur">
+        <div class="bolo-qism">
+          <div class="nom" id="nom"></div>
+          <div class="taymer-qutti" id="taymerQutti" style="display:none;">⏳ 00:00</div>
+        </div>
+        <div class="savol" id="savol"></div>
+        <div class="javob" id="javob">
+          <span>Ҷавоб: </span><span id="javobMatn">❓ Пинҳон аст</span>
+        </div>
       </div>
     </div>
   </div>
@@ -500,17 +335,9 @@
     const javob = document.getElementById('javob');
     const javobMatn = document.getElementById('javobMatn');
     const taymerQutti = document.getElementById('taymerQutti');
-    const btnDidan = document.getElementById('btnDidan');
-    const btnPauza = document.getElementById('btnPauza');
     const bur = document.getElementById('bur');
     const gubka = document.getElementById('gubka');
     const holi = document.getElementById('holi');
-    const btnPok = document.getElementById('btnPok');
-    const parda = document.getElementById('parda');
-    const inSavol = document.getElementById('inSavol');
-    const inNom = document.getElementById('inNom');
-    const inJavob = document.getElementById('inJavob');
-    const inVaqt = document.getElementById('inVaqt');
 
     let dataSavol = '';
     let dataNom = '';
@@ -518,135 +345,10 @@
     let javobOchiq = false;
     let boqiVaqt = 0;
     let vaqtiAnjom = 0;
-    let taymerInterval = null;
     let pauzaShuda = false;
-    let tikQadam = false;
-    let oxirinSoniya = -1;
+    let tikInterval = null;
 
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = null;
-
-    function initAudio() {
-      try {
-        if (!AudioCtx) return;
-        if (!audioCtx) audioCtx = new AudioCtx();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-      } catch (e) {}
-    }
-
-    function sadoChik(balandtar = false) {
-      try {
-        initAudio();
-        if (!audioCtx) return;
-        const t = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        tikQadam = !tikQadam;
-        osc.type = 'triangle';
-        const freq = tikQadam ? (balandtar ? 1600 : 1300) : (balandtar ? 1200 : 950);
-        osc.frequency.setValueAtTime(freq, t);
-        osc.frequency.exponentialRampToValueAtTime(150, t + 0.045);
-        gain.gain.setValueAtTime(balandtar ? 0.75 : 0.55, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(t);
-        osc.stop(t + 0.055);
-      } catch (e) {}
-    }
-
-    function sadoTugma(nav) {
-      try {
-        initAudio();
-        if (!audioCtx) return;
-        const t = audioCtx.currentTime;
-
-        if (nav === 'tahrir') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(420, t);
-          osc.frequency.exponentialRampToValueAtTime(780, t + 0.12);
-          gain.gain.setValueAtTime(0.5, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(t);
-          osc.stop(t + 0.15);
-        } else if (nav === 'sabt') {
-          [523.25, 659.25, 1046.5].forEach((f, i) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(f, t + i * 0.07);
-            gain.gain.setValueAtTime(0.35, t + i * 0.07);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.14);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(t + i * 0.07);
-            osc.stop(t + i * 0.07 + 0.15);
-          });
-        } else if (nav === 'pauza') {
-          [600, 400].forEach((f, i) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(f, t + i * 0.09);
-            gain.gain.setValueAtTime(0.35, t + i * 0.09);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.1);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(t + i * 0.09);
-            osc.stop(t + i * 0.09 + 0.11);
-          });
-        } else if (nav === 'bekor') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(350, t);
-          osc.frequency.exponentialRampToValueAtTime(180, t + 0.15);
-          gain.gain.setValueAtTime(0.5, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(t);
-          osc.stop(t + 0.17);
-        } else if (nav === 'pok') {
-          const bufferSize = audioCtx.sampleRate * 1.2;
-          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            data[i] = (Math.random() * 2 - 1) * Math.sin((i / audioCtx.sampleRate) * 28);
-          }
-          const noise = audioCtx.createBufferSource();
-          noise.buffer = buffer;
-          const filter = audioCtx.createBiquadFilter();
-          filter.type = 'bandpass';
-          filter.frequency.value = 900;
-          const gain = audioCtx.createGain();
-          gain.gain.setValueAtTime(0.6, t);
-          gain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
-          noise.connect(filter);
-          filter.connect(gain);
-          gain.connect(audioCtx.destination);
-          noise.start(t);
-        } else if (nav === 'javob') {
-          const notaho = [523.25, 659.25, 783.99, 1046.50];
-          notaho.forEach((f, i) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(f, t + i * 0.11);
-            gain.gain.setValueAtTime(0.65, t + i * 0.11);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.11 + 0.45);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(t + i * 0.11);
-            osc.stop(t + i * 0.11 + 0.46);
-          });
-        }
-      } catch (e) {}
-    }
+    const kanal = ('BroadcastChannel' in window) ? new BroadcastChannel('doska-judo-kanal') : null;
 
     function formatVaqt(soniya) {
       const m = String(Math.floor(soniya / 60)).padStart(2, '0');
@@ -674,63 +376,10 @@
       }
     }
 
-    function kushodaniJavob(boSado = false) {
-      clearInterval(taymerInterval);
-      taymerInterval = null;
-      boqiVaqt = 0;
-      pauzaShuda = false;
-      javobOchiq = true;
-      btnDidan.textContent = '🙈 Пинҳон кардан';
-      btnPauza.textContent = '⏸ Таваққуф';
-      btnPauza.disabled = true;
-      namoish();
-      navishtiTaymer();
-      if (boSado) {
-        setTimeout(() => sadoTugma('javob'), 10);
-      }
-    }
-
-    function ogozTaymer(soniya) {
-      clearInterval(taymerInterval);
-      boqiVaqt = soniya;
-      vaqtiAnjom = Date.now() + soniya * 1000;
-      oxirinSoniya = soniya;
-      pauzaShuda = false;
-      btnPauza.textContent = '⏸ Таваққуф';
-      btnPauza.disabled = false;
-      navishtiTaymer();
-
-      taymerInterval = setInterval(() => {
-        if (pauzaShuda) return;
-
-        const monda = Math.ceil((vaqtiAnjom - Date.now()) / 1000);
-        boqiVaqt = Math.max(0, monda);
-
-        if (boqiVaqt <= 0) {
-          kushodaniJavob(true);
-          return;
-        }
-
-        if (boqiVaqt !== oxirinSoniya) {
-          oxirinSoniya = boqiVaqt;
-          if (boqiVaqt > 10) {
-            sadoChik(false);
-          } else {
-            sadoChik(true);
-            setTimeout(() => {
-              if (!pauzaShuda && boqiVaqt > 0) sadoChik(true);
-            }, 500);
-          }
-          navishtiTaymer();
-        }
-      }, 200);
-    }
-
     function namoish() {
       savol.textContent = dataSavol;
       const javobHast = !!dataJavob.trim();
       javob.style.display = javobHast ? '' : 'none';
-      btnDidan.disabled = !javobHast;
 
       if (javobOchiq && javobHast) {
         javobMatn.textContent = dataJavob.trim();
@@ -741,111 +390,97 @@
       }
 
       nom.textContent = dataNom.trim() ? `(Саволдиҳанда: ${dataNom.trim()})` : '';
-
       const holiBosh = !dataSavol.trim() && !dataNom.trim() && !dataJavob.trim();
       holi.classList.toggle('faol', holiBosh);
     }
 
-    try {
-      dataSavol = localStorage.getItem('doska-savol') || '';
-      dataNom = localStorage.getItem('doska-nom') || '';
-      dataJavob = localStorage.getItem('doska-javob') || '';
-      localStorage.removeItem('doska-golibho');
-    } catch (e) {}
-    namoish();
-
-    btnDidan.addEventListener('click', function () {
-      if (!javobOchiq) {
-        kushodaniJavob(true);
-      } else {
-        sadoTugma('bekor');
-        javobOchiq = false;
-        btnDidan.textContent = '👁 Ҳозир кушодан';
-        namoish();
-        navishtiTaymer();
-      }
-    });
-
-    btnPauza.addEventListener('click', function () {
-      sadoTugma('pauza');
-      pauzaShuda = !pauzaShuda;
-      if (pauzaShuda) {
-        boqiVaqt = Math.max(0, Math.ceil((vaqtiAnjom - Date.now()) / 1000));
-        btnPauza.textContent = '▶ Давом додан';
-      } else {
-        vaqtiAnjom = Date.now() + boqiVaqt * 1000;
-        btnPauza.textContent = '⏸ Таваққуф';
-      }
-      navishtiTaymer();
-    });
-
-    btnPok.addEventListener('click', function () {
-      if (!dataSavol.trim() && !dataNom.trim() && !dataJavob.trim()) return;
-      sadoTugma('pok');
-      clearInterval(taymerInterval);
-      taymerInterval = null;
-      btnPok.disabled = true;
-      btnPauza.disabled = true;
+    function pakhshPokKardan() {
       gubka.classList.add('faol');
       bur.classList.add('pok-shuda');
-
-      setTimeout(function () {
-        dataSavol = '';
-        dataNom = '';
-        dataJavob = '';
-        javobOchiq = false;
-        boqiVaqt = 0;
-        pauzaShuda = false;
-        try {
-          localStorage.removeItem('doska-savol');
-          localStorage.removeItem('doska-nom');
-          localStorage.removeItem('doska-javob');
-        } catch (e) {}
+      setTimeout(() => {
         bur.classList.remove('pok-shuda');
         gubka.classList.remove('faol');
-        btnDidan.textContent = '👁 Ҳозир кушодан';
-        btnPauza.textContent = '⏸ Таваққуф';
+      }, 1450);
+    }
+
+    function idoraTikTaymer() {
+      clearInterval(tikInterval);
+      tikInterval = setInterval(() => {
+        if (javobOchiq || !dataJavob.trim()) {
+          clearInterval(tikInterval);
+          return;
+        }
+        if (!pauzaShuda && vaqtiAnjom > 0) {
+          boqiVaqt = Math.max(0, Math.ceil((vaqtiAnjom - Date.now()) / 1000));
+          if (boqiVaqt <= 0) {
+            javobOchiq = true;
+            namoish();
+            navishtiTaymer();
+            clearInterval(tikInterval);
+            return;
+          }
+        }
+        navishtiTaymer();
+      }, 200);
+    }
+
+    function khondanAzStorage() {
+      try {
+        dataSavol = localStorage.getItem('doska-savol') || '';
+        dataNom = localStorage.getItem('doska-nom') || '';
+        dataJavob = localStorage.getItem('doska-javob') || '';
+        javobOchiq = localStorage.getItem('doska-javob-ochiq') === '1';
+        pauzaShuda = localStorage.getItem('doska-pauza') === '1';
+        vaqtiAnjom = parseInt(localStorage.getItem('doska-vaqti-anjom') || '0', 10);
+        const savedBoqi = parseInt(localStorage.getItem('doska-boqi-vaqt') || '0', 10);
+
+        if (!javobOchiq && dataJavob.trim()) {
+          if (pauzaShuda) {
+            boqiVaqt = savedBoqi;
+          } else if (vaqtiAnjom > Date.now()) {
+            boqiVaqt = Math.max(0, Math.ceil((vaqtiAnjom - Date.now()) / 1000));
+          } else {
+            boqiVaqt = 0;
+            javobOchiq = true;
+          }
+        } else {
+          boqiVaqt = 0;
+        }
+      } catch (e) {}
+
+      namoish();
+      navishtiTaymer();
+      idoraTikTaymer();
+    }
+
+    khondanAzStorage();
+
+    if (kanal) {
+      kanal.onmessage = function (event) {
+        const p = event.data || {};
+        if (p.pokShuda) {
+          pakhshPokKardan();
+        }
+        dataSavol = p.dataSavol || '';
+        dataNom = p.dataNom || '';
+        dataJavob = p.dataJavob || '';
+        javobOchiq = !!p.javobOchiq;
+        boqiVaqt = p.boqiVaqt || 0;
+        vaqtiAnjom = p.vaqtiAnjom || 0;
+        pauzaShuda = !!p.pauzaShuda;
         namoish();
         navishtiTaymer();
-        btnPok.disabled = false;
-      }, 1450);
-    });
+        idoraTikTaymer();
+      };
+    }
 
-    document.getElementById('btnTahrir').addEventListener('click', function () {
-      sadoTugma('tahrir');
-      inSavol.value = dataSavol;
-      inNom.value = dataNom;
-      inJavob.value = dataJavob;
-      parda.classList.add('faol');
-      inNom.focus();
-    });
-
-    document.getElementById('btnSabt').addEventListener('click', function () {
-      if (!inJavob.value.trim()) {
-        alert('Лутфан дар майдони 3 ҷавоби дурустро нависед, то пас аз тамом шудани вақт кушода шавад!');
-        inJavob.focus();
-        return;
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'doska-pok-anim' && e.newValue) {
+        pakhshPokKardan();
       }
-      sadoTugma('sabt');
-      dataSavol = inSavol.value;
-      dataNom = inNom.value;
-      dataJavob = inJavob.value;
-      const vaqt = parseInt(inVaqt.value, 10) || 30;
-      try {
-        localStorage.setItem('doska-savol', dataSavol);
-        localStorage.setItem('doska-nom', dataNom);
-        localStorage.setItem('doska-javob', dataJavob);
-      } catch (e) {}
-      javobOchiq = false;
-      btnDidan.textContent = '👁 Ҳозир кушодан';
-      namoish();
-      parda.classList.remove('faol');
-      ogozTaymer(vaqt);
-    });
-
-    document.getElementById('btnBekor').addEventListener('click', function () {
-      sadoTugma('bekor');
-      parda.classList.remove('faol');
+      if (e.key && e.key.startsWith('doska-')) {
+        khondanAzStorage();
+      }
     });
   </script>
 </body>
